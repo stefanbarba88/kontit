@@ -8,7 +8,7 @@
 {% block page_actions %}
     <form method="post" action="{{ path('admin_generation_run') }}" {{ confirm_attrs('Generisati zadatke sada?', 'Biće napravljeno ' ~ dueNow ~ ' zadataka čiji je rok za generisanje stigao. Komanda se inače pokreće automatski svako jutro u 06:00.', 'info', 'Da, generiši') }}>
         <input type="hidden" name="_token" value="{{ csrf_token('generation_run') }}">
-        <button class="btn btn-primary" {{ dueNow == 0 ? 'disabled' : '' }}><i class="ph-arrows-clockwise me-2"></i>Generiši sada ({{ dueNow }})</button>
+        <button class="btn btn-primary" {{ dueNow == 0 ? 'disabled' : '' }}>{{ ux_icon('lucide:refresh-cw', {class: 'kt-icon me-2'}) }}Generiši sada ({{ dueNow }})</button>
     </form>
 {% endblock %}
 
@@ -33,7 +33,7 @@
                             </td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="6">{{ ui.empty_state('Nema zadataka za generisanje u narednih 30 dana.', 'ph-arrows-clockwise') }}</td></tr>
+                        <tr><td colspan="6">{{ ui.empty_state('Nema zadataka za generisanje u narednih 30 dana.', 'refresh-cw') }}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

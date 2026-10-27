@@ -28,7 +28,7 @@
                             {{ form_label(form.pib) }}
                             <div class="input-group mb-3">
                                 {{ form_widget(form.pib) }}
-                                {% if nbs_configured %}<button type="button" class="btn btn-outline-primary" id="nbs-fetch" data-url="{{ path('ajax_client_lookup') }}" data-exclude="{{ client.id ?? 0 }}"><i class="ph-cloud-arrow-down me-1"></i>Učitaj iz NBS</button>{% endif %}
+                                {% if nbs_configured %}<button type="button" class="btn btn-outline-primary" id="nbs-fetch" data-url="{{ path('ajax_client_lookup') }}" data-exclude="{{ client.id ?? 0 }}">{{ ux_icon('lucide:cloud-download', {class: 'kt-icon me-1'}) }}Učitaj iz NBS</button>{% endif %}
                             </div>
                             {{ form_errors(form.pib) }}
                         </div>
@@ -72,7 +72,7 @@
 
     <div class="d-flex justify-content-end gap-2">
         <a href="{{ is_new ? path('client_index') : path('client_show', {id: client.id}) }}" class="btn btn-light">Otkaži</a>
-        <button class="btn btn-primary">Sačuvaj<i class="ph-floppy-disk ms-2"></i></button>
+        <button class="btn btn-primary">Sačuvaj{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
     </div>
     {{ form_end(form) }}
 {% endblock %}

@@ -9,7 +9,7 @@
     {% if unreadCount > 0 %}
         <form method="post" action="{{ path('notification_read_all') }}">
             <input type="hidden" name="_token" value="{{ csrf_token('notifications_read_all') }}">
-            <button class="btn btn-light"><i class="ph-checks me-2"></i>Označi sve kao pročitano</button>
+            <button class="btn btn-light">{{ ux_icon('lucide:check-check', {class: 'kt-icon me-2'}) }}Označi sve kao pročitano</button>
         </form>
     {% endif %}
 {% endblock %}
@@ -30,7 +30,7 @@
                 <a href="{{ path('notification_open', {id: n.id}) }}" class="list-group-item list-group-item-action d-flex align-items-start {{ n.read ? '' : 'bg-primary bg-opacity-10' }}">
                     <div class="me-3">
                         <span class="d-inline-flex align-items-center justify-content-center bg-{{ n.type.color }} bg-opacity-10 text-{{ n.type.color }} rounded-pill w-40px h-40px">
-                            <i class="{{ n.type.icon }}"></i>
+                            {{ ux_icon('lucide:' ~ n.type.icon, {class: 'kt-icon'}) }}
                         </span>
                     </div>
                     <div class="flex-fill">
@@ -39,11 +39,11 @@
                     </div>
                     <div class="text-muted fs-sm ms-3 text-nowrap">
                         {{ n.createdAt|date('d.m.Y. H:i') }}
-                        {% if n.emailSent %}<i class="ph-envelope-simple ms-1" title="Poslato i na mail"></i>{% endif %}
+                        {% if n.emailSent %}<span title="Poslato i na mail">{{ ux_icon('lucide:mail', {class: 'kt-icon ms-1'}) }}</span>{% endif %}
                     </div>
                 </a>
             {% else %}
-                <div class="p-3">{{ ui.empty_state(onlyUnread ? 'Nema nepročitanih notifikacija.' : 'Još nemate notifikacija.', 'ph-bell') }}</div>
+                <div class="p-3">{{ ui.empty_state(onlyUnread ? 'Nema nepročitanih notifikacija.' : 'Još nemate notifikacija.', 'bell') }}</div>
             {% endfor %}
         </div>
     </div>

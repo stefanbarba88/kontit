@@ -4,7 +4,7 @@
 
 {% block auth_icon %}
     <div class="d-inline-flex bg-primary bg-opacity-10 text-primary lh-1 rounded-pill p-3 mb-3 mt-1">
-        <i class="ph-arrows-counter-clockwise ph-2x"></i>
+        {{ ux_icon('lucide:rotate-ccw', {class: 'kt-icon kt-icon-lg'}) }}
     </div>
 {% endblock %}
 {% block auth_title %}Resetovanje lozinke{% endblock %}
@@ -13,7 +13,7 @@
 {% block auth_content %}
     {% for flash_error in app.flashes('reset_password_error') %}
         <div class="alert alert-danger alert-icon-start" role="alert">
-            <span class="alert-icon bg-danger text-white"><i class="ph-x-circle"></i></span>
+            <span class="alert-icon bg-danger text-white">{{ ux_icon('lucide:circle-x', {class: 'kt-icon'}) }}</span>
             {{ flash_error }}
         </div>
     {% endfor %}
@@ -21,7 +21,7 @@
     {{ form_start(requestForm) }}
         {{ form_row(requestForm.email, {label: 'Email', attr: {placeholder: 'ime@firma.rs'}}) }}
         <div class="mb-3">
-            <button type="submit" class="btn btn-primary w-100"><i class="ph-envelope me-2"></i>Pošalji link</button>
+            <button type="submit" class="btn btn-primary w-100">{{ ux_icon('lucide:mail', {class: 'kt-icon me-2'}) }}Pošalji link</button>
         </div>
         <div class="text-center">
             <a href="{{ path('app_login') }}">Nazad na prijavu</a>

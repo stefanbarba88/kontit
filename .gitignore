@@ -17,7 +17,6 @@
 ###> symfony/asset-mapper ###
 /public/assets/
 /assets/vendor/*
-!/assets/vendor/template/
 ###< symfony/asset-mapper ###
 
 /.idea/

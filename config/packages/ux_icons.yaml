@@ -1,0 +1,11 @@
+# Lucide ikonice preko ux_icon() (DESIGN.md 9). Ikonice se čuvaju lokalno u assets/icons/ (ux:icons:lock / ux:icons:import).
+ux_icons:
+    default_icon_attributes:
+        height: '1em'
+        width: '1em'
+        aria-hidden: 'true'
+    ignore_not_found: false
+
+when@prod:
+    ux_icons:
+        ignore_not_found: true

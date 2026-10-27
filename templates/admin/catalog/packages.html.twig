@@ -6,8 +6,8 @@
 {% block breadcrumbs %}<span class="breadcrumb-item active">Paketi usluga</span>{% endblock %}
 
 {% block page_actions %}
-    <a href="{{ path('admin_job_index') }}" class="btn btn-light me-2"><i class="ph-list-checks me-2"></i>Katalog poslova</a>
-    <a href="{{ path('admin_package_new') }}" class="btn btn-primary"><i class="ph-plus me-2"></i>Novi paket</a>
+    <a href="{{ path('admin_job_index') }}" class="btn btn-light me-2">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Katalog poslova</a>
+    <a href="{{ path('admin_package_new') }}" class="btn btn-primary">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Novi paket</a>
 {% endblock %}
 
 {% block content %}
@@ -24,10 +24,10 @@
                             <td>{% for job in package.jobTemplates %}<span class="badge bg-light text-body border me-1">{{ job.name }}</span>{% endfor %}</td>
                             <td>{{ clientCounts[package.id] }}</td>
                             <td>{{ ui.status_badge(package.active) }}</td>
-                            <td><a href="{{ path('admin_package_edit', {id: package.id}) }}" class="btn btn-light btn-icon btn-sm rounded-pill border-transparent" title="Izmeni"><i class="ph-pencil"></i></a></td>
+                            <td><a href="{{ path('admin_package_edit', {id: package.id}) }}" class="btn btn-light btn-icon btn-sm rounded-pill border-transparent" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a></td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="5">{{ ui.empty_state('Još nema paketa.', 'ph-package') }}</td></tr>
+                        <tr><td colspan="5">{{ ui.empty_state('Još nema paketa.', 'package') }}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

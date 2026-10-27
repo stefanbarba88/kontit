@@ -20,9 +20,9 @@ enum ThemePreference: string
     public function icon(): string
     {
         return match ($this) {
-            self::LIGHT => 'ph-sun',
-            self::DARK => 'ph-moon',
-            self::SYSTEM => 'ph-desktop',
+            self::LIGHT => 'sun',
+            self::DARK => 'moon',
+            self::SYSTEM => 'monitor',
         };
     }
 }

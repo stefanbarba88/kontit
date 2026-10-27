@@ -44,9 +44,17 @@ a { transition: color var(--kt-dur-1) var(--kt-ease); }
 /* kratak fade pri promeni teme (klasa se stavlja samo tokom ručne promene) */
 html.kt-theme-transition body,
 html.kt-theme-transition .card,
-html.kt-theme-transition .sidebar,
+html.kt-theme-transition .kt-sidebar,
 html.kt-theme-transition .kt-topbar,
 html.kt-theme-transition .table,
 html.kt-theme-transition .form-control {
     transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
 }
+
+/* Lucide ikonice (ux_icon): veličina prati tekst, linija 1,75 (DESIGN.md 9) */
+.kt-icon { width: 1em; height: 1em; flex: none; vertical-align: -0.125em; }
+.kt-icon g, .kt-icon path, .kt-icon circle, .kt-icon rect, .kt-icon line, .kt-icon polyline { stroke-width: 1.75; }
+.kt-icon-lg { font-size: 28px; }
+.btn .kt-icon { font-size: 18px; vertical-align: -0.2em; }
+.dropdown-item { display: flex; align-items: center; gap: 10px; }
+.dropdown-item .kt-icon { font-size: 18px; color: var(--kt-text-2); }

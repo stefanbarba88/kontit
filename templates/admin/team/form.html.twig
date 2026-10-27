@@ -23,7 +23,7 @@
                         {{ form_row(form.leader) }}
                         <div class="text-end">
                             <a href="{{ is_new ? path('admin_team_index') : path('team_show', {id: team.id}) }}" class="btn btn-light me-2">Otkaži</a>
-                            <button class="btn btn-primary">Sačuvaj<i class="ph-floppy-disk ms-2"></i></button>
+                            <button class="btn btn-primary">Sačuvaj{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
                         </div>
                     {{ form_end(form) }}
                 </div>

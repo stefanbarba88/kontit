@@ -9,7 +9,7 @@
             {% if returned %}<span class="badge bg-warning bg-opacity-20 text-warning ms-2">Vraćeno na doradu</span>{% endif %}
             <span class="text-muted fs-sm ms-2">{{ comment.createdAt|date('d.m.Y. H:i') }}{% if comment.editedAt %} · izmenjeno{% endif %}</span>
             {% if comment.isEditableBy(app.user) %}
-                <button type="button" class="btn btn-sm btn-link ms-auto comment-edit-start" title="Izmeni (prvih 15 minuta)"><i class="ph-pencil"></i></button>
+                <button type="button" class="btn btn-sm btn-link ms-auto comment-edit-start" title="Izmeni (prvih 15 minuta)">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button>
             {% endif %}
         </div>
         <div class="comment-body" data-raw="{{ comment.body }}">{{ comment.body|nl2br }}</div>

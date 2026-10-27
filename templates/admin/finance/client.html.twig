@@ -10,15 +10,15 @@
 
 {% block content %}
     <div class="row mb-3">
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-currency-circle-dollar', a.mrr|number_format(0, ',', '.') ~ ' RSD', 'Mesečni prihod (MRR)', 'success') }}</div>
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-receipt', a.oneTime|number_format(0, ',', '.') ~ ' RSD', 'Jednokratno ove godine', 'info') }}</div>
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-clock', a.hours|number_format(1, ',') ~ ' h', 'Procenjeno sati mesečno', 'primary') }}</div>
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-gauge', a.rate is null ? '—' : a.rate|number_format(0, ',', '.') ~ ' RSD', 'Efektivna cena sata', a.underpriced ? 'danger' : 'success', a.underpriced ? 'ispod praga od ' ~ a.minRate|number_format(0, ',', '.') ~ ' RSD' : null) }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('circle-dollar-sign', a.mrr|number_format(0, ',', '.') ~ ' RSD', 'Mesečni prihod (MRR)', 'success') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('receipt', a.oneTime|number_format(0, ',', '.') ~ ' RSD', 'Jednokratno ove godine', 'info') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('clock', a.hours|number_format(1, ',') ~ ' h', 'Procenjeno sati mesečno', 'primary') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('gauge', a.rate is null ? '—' : a.rate|number_format(0, ',', '.') ~ ' RSD', 'Efektivna cena sata', a.underpriced ? 'danger' : 'success', a.underpriced ? 'ispod praga od ' ~ a.minRate|number_format(0, ',', '.') ~ ' RSD' : null) }}</div>
     </div>
     <div class="row mb-3">
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-list-checks', a.tasksPerMonth|number_format(1, ',') , 'Zadataka mesečno (3 meseca)', 'primary') }}</div>
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-check-circle', a.onTimePercent is null ? '—' : a.onTimePercent ~ '%', 'Završeno na vreme', 'success') }}</div>
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-hourglass', a.waiting, 'Čeka klijenta (trenutno)', a.waiting ? 'warning' : 'secondary') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('list-checks', a.tasksPerMonth|number_format(1, ',') , 'Zadataka mesečno (3 meseca)', 'primary') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('circle-check', a.onTimePercent is null ? '—' : a.onTimePercent ~ '%', 'Završeno na vreme', 'success') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('hourglass', a.waiting, 'Čeka klijenta (trenutno)', a.waiting ? 'warning' : 'secondary') }}</div>
     </div>
 
     <div class="card">
@@ -36,7 +36,7 @@
                             <td>{{ log.changedBy ? log.changedBy.fullName : '—' }}</td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="5">{{ ui.empty_state('Nema istorije cena.', 'ph-clock-counter-clockwise') }}</td></tr>
+                        <tr><td colspan="5">{{ ui.empty_state('Nema istorije cena.', 'history') }}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

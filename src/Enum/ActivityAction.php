@@ -41,18 +41,18 @@ enum ActivityAction: string
     public function icon(): string
     {
         return match ($this) {
-            self::CREATED => 'ph-plus',
-            self::UPDATED => 'ph-pencil',
-            self::STATUS_CHANGED => 'ph-arrows-clockwise',
-            self::ASSIGNED => 'ph-user-switch',
-            self::CHECKED => 'ph-check',
-            self::UNCHECKED => 'ph-x',
-            self::COMMENTED => 'ph-chat-text',
-            self::SUBMITTED => 'ph-paper-plane-tilt',
-            self::APPROVED => 'ph-check-circle',
-            self::RETURNED => 'ph-arrow-u-up-left',
-            self::TEAM_CHANGED => 'ph-users-three',
-            self::DELETED => 'ph-trash',
+            self::CREATED => 'plus',
+            self::UPDATED => 'pencil',
+            self::STATUS_CHANGED => 'refresh-cw',
+            self::ASSIGNED => 'repeat',
+            self::CHECKED => 'check',
+            self::UNCHECKED => 'x',
+            self::COMMENTED => 'message-square-text',
+            self::SUBMITTED => 'send',
+            self::APPROVED => 'circle-check',
+            self::RETURNED => 'undo-2',
+            self::TEAM_CHANGED => 'users',
+            self::DELETED => 'trash-2',
         };
     }
 

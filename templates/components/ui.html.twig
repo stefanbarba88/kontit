@@ -57,14 +57,14 @@
                 {{ client.legalForm.label }}{% if client.pib %} · PIB {{ client.pib }}{% endif %}{% if client.pdvObveznik %} · PDV{% endif %}
             </div>
             {% if mode == 'backup' %}
-                <div class="fs-sm"><i class="ph-user-circle me-1"></i>Glavni zaduženi: <span class="fw-semibold">{{ client.primaryAccountant.fullName }}</span></div>
+                <div class="fs-sm">{{ ux_icon('lucide:circle-user', {class: 'kt-icon me-1'}) }}Glavni zaduženi: <span class="fw-semibold">{{ client.primaryAccountant.fullName }}</span></div>
                 {% if absence %}
-                    <div class="fs-sm text-info mt-1"><i class="ph-airplane-tilt me-1"></i>Odsutan do {{ absence.endDate|date('d.m.Y.') }} ({{ absence.reason.label }}) · preuzimate</div>
+                    <div class="fs-sm text-info mt-1">{{ ux_icon('lucide:plane', {class: 'kt-icon me-1'}) }}Odsutan do {{ absence.endDate|date('d.m.Y.') }} ({{ absence.reason.label }}) · preuzimate</div>
                 {% endif %}
             {% elseif client.backupAccountant %}
-                <div class="fs-sm text-muted"><i class="ph-arrows-clockwise me-1"></i>Backup: {{ client.backupAccountant.fullName }}</div>
+                <div class="fs-sm text-muted">{{ ux_icon('lucide:refresh-cw', {class: 'kt-icon me-1'}) }}Backup: {{ client.backupAccountant.fullName }}</div>
             {% else %}
-                <div class="fs-sm text-warning"><i class="ph-warning me-1"></i>Bez backup-a</div>
+                <div class="fs-sm text-warning">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon me-1'}) }}Bez backup-a</div>
             {% endif %}
         </div>
     </div>
@@ -87,7 +87,7 @@
 {% macro due_date(task) %}
     {% if task.dueDate %}
         <span class="{{ task.overdue ? 'text-danger fw-semibold' : '' }}">
-            {% if task.overdue %}<i class="ph-warning me-1"></i>{% endif %}{{ task.dueDate|date('d.m.Y.') }}
+            {% if task.overdue %}{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon me-1'}) }}{% endif %}{{ task.dueDate|date('d.m.Y.') }}
         </span>
     {% else %}
         <span class="text-muted">—</span>
@@ -95,7 +95,7 @@
 {% endmacro %}
 
 {# Prazno stanje (7.12): linijski znak, naslov/tekst i opciono jedno dugme #}
-{% macro empty_state(text, icon = 'ph-tray', action_label = null, action_url = null) %}
+{% macro empty_state(text, icon = 'inbox', action_label = null, action_url = null) %}
     <div class="kt-empty">
         <svg class="kt-empty-mark" viewBox="0 0 68 68" aria-hidden="true"><circle cx="34" cy="19" r="7"/><circle cx="18.5" cy="34" r="7"/><circle cx="48.7" cy="34" r="7"/><circle cx="34" cy="49" r="7"/></svg>
         <p>{{ text }}</p>
@@ -111,7 +111,7 @@
         <div class="card-body">
             <div class="d-flex align-items-start justify-content-between mb-2">
                 <span class="kt-kpi-label">{{ label }}</span>
-                <span class="kt-kpi-icon" style="background: var(--kt-{{ color == 'primary' or color == 'info' ? 'primary' : color }}-soft, var(--kt-primary-soft)); color: var(--kt-{{ color == 'info' ? 'primary' : color }}, var(--kt-primary));"><i class="{{ icon }}"></i></span>
+                <span class="kt-kpi-icon" style="background: var(--kt-{{ color == 'primary' or color == 'info' ? 'primary' : color }}-soft, var(--kt-primary-soft)); color: var(--kt-{{ color == 'info' ? 'primary' : color }}, var(--kt-primary));">{{ ux_icon('lucide:' ~ icon, {class: 'kt-icon'}) }}</span>
             </div>
             <div class="d-flex align-items-baseline gap-2">
                 <span class="kt-kpi-value">{% if (value ~ '') matches '/^\d+$/' %}<span data-countup="{{ value }}">{{ value|number_format(0, ',', '.') }}</span>{% else %}{{ value }}{% endif %}</span>

@@ -7,7 +7,7 @@
 
 {% block content %}
     <div class="d-flex align-items-center mb-3">
-        <h5 class="mb-0"><i class="ph-user-circle me-2"></i>Glavni zadužen</h5>
+        <h5 class="mb-0">{{ ux_icon('lucide:circle-user', {class: 'kt-icon me-2'}) }}Glavni zadužen</h5>
         <span class="badge bg-primary rounded-pill ms-2">{{ primary|length }}</span>
     </div>
     <div class="row mb-4">
@@ -19,7 +19,7 @@
     </div>
 
     <div class="d-flex align-items-center mb-3">
-        <h5 class="mb-0"><i class="ph-arrows-clockwise me-2"></i>Backup / zamena</h5>
+        <h5 class="mb-0">{{ ux_icon('lucide:refresh-cw', {class: 'kt-icon me-2'}) }}Backup / zamena</h5>
         <span class="badge bg-secondary rounded-pill ms-2">{{ backup|length }}</span>
     </div>
     <div class="row">

@@ -6,16 +6,16 @@
 {% block breadcrumbs %}<span class="breadcrumb-item active">Finansije</span>{% endblock %}
 
 {% block page_actions %}
-    <a href="{{ path('admin_finance_billing') }}" class="btn btn-outline-primary"><i class="ph-receipt me-2"></i>Za naplatu</a>
-    <a href="{{ path('admin_finance_settings') }}" class="btn btn-light"><i class="ph-gear me-2"></i>Podešavanja</a>
+    <a href="{{ path('admin_finance_billing') }}" class="btn btn-outline-primary">{{ ux_icon('lucide:receipt', {class: 'kt-icon me-2'}) }}Za naplatu</a>
+    <a href="{{ path('admin_finance_settings') }}" class="btn btn-light">{{ ux_icon('lucide:settings', {class: 'kt-icon me-2'}) }}Podešavanja</a>
 {% endblock %}
 
 {% block content %}
     <div class="row mb-3">
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-currency-circle-dollar', data.mrr|number_format(0, ',', '.') ~ ' RSD', 'Mesečni prihod (MRR)', 'success') }}</div>
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-buildings', data.clientCount, 'Aktivnih klijenata', 'primary') }}</div>
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-warning', data.underpriced|length, 'Potcenjenih klijenata', data.underpriced|length ? 'danger' : 'success', 'cena sata ispod ' ~ data.minRate|number_format(0, ',', '.') ~ ' RSD') }}</div>
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-clock', (data.rows|reduce((c, r) => c + r.hours, 0))|number_format(0, ',', '.') ~ ' h', 'Procenjeno sati mesečno', 'info') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('circle-dollar-sign', data.mrr|number_format(0, ',', '.') ~ ' RSD', 'Mesečni prihod (MRR)', 'success') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('building-2', data.clientCount, 'Aktivnih klijenata', 'primary') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('triangle-alert', data.underpriced|length, 'Potcenjenih klijenata', data.underpriced|length ? 'danger' : 'success', 'cena sata ispod ' ~ data.minRate|number_format(0, ',', '.') ~ ' RSD') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('clock', (data.rows|reduce((c, r) => c + r.hours, 0))|number_format(0, ',', '.') ~ ' h', 'Procenjeno sati mesečno', 'info') }}</div>
     </div>
 
     <div class="row mb-3">
@@ -97,7 +97,7 @@
                                     </td>
                                 </tr>
                             {% else %}
-                                <tr><td colspan="5">{{ ui.empty_state('Nema podataka.', 'ph-users') }}</td></tr>
+                                <tr><td colspan="5">{{ ui.empty_state('Nema podataka.', 'contact') }}</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -114,7 +114,7 @@
                             {% for entry in data.perTeam %}
                                 <tr><td>{{ ui.team_badge(entry.team) }}</td><td>{{ entry.clients }}</td><td>{{ entry.mrr|number_format(0, ',', '.') }}</td><td>{{ entry.hours|number_format(0) }}</td></tr>
                             {% else %}
-                                <tr><td colspan="4">{{ ui.empty_state('Nema podataka.', 'ph-users-three') }}</td></tr>
+                                <tr><td colspan="4">{{ ui.empty_state('Nema podataka.', 'users') }}</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -136,10 +136,10 @@
                                     <td><a href="{{ path('admin_finance_client', {id: row.client.id}) }}" class="text-body">{{ row.client.name }}</a></td>
                                     <td>{{ row.mrr|number_format(0, ',', '.') }}</td>
                                     <td>{{ row.hours|number_format(1, ',') }}</td>
-                                    <td>{% if row.rate is null %}—{% else %}<span class="{{ row.underpriced ? 'text-danger fw-semibold' : '' }}">{{ row.rate|number_format(0, ',', '.') }} RSD</span>{% if row.underpriced %} <i class="ph-warning text-danger"></i>{% endif %}{% endif %}</td>
+                                    <td>{% if row.rate is null %}—{% else %}<span class="{{ row.underpriced ? 'text-danger fw-semibold' : '' }}">{{ row.rate|number_format(0, ',', '.') }} RSD</span>{% if row.underpriced %} {{ ux_icon('lucide:triangle-alert', {class: 'kt-icon text-danger'}) }}{% endif %}{% endif %}</td>
                                 </tr>
                             {% else %}
-                                <tr><td colspan="4">{{ ui.empty_state('Nema klijenata.', 'ph-buildings') }}</td></tr>
+                                <tr><td colspan="4">{{ ui.empty_state('Nema klijenata.', 'building-2') }}</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>

@@ -1,20 +1,38 @@
-// Grafikoni. Svaki <canvas data-chart='{...}'> nosi konfiguraciju; charts.js je prilagođava našem izgledu (DESIGN.md 10).
-// Chart.js se učitava tek ako na stranici ima grafikona; pri promeni teme se iscrtava ponovo.
-const canvases = document.querySelectorAll('canvas[data-chart]');
+// Grafikoni na stranama: svaki element sa data-chart='{...}' (vidi charts.js). ApexCharts se učitava
+// tek ako na stranici ima grafikona, a pri promeni teme se grafikoni iscrtavaju ponovo.
+const hosts = document.querySelectorAll('[data-chart]');
 
-if (canvases.length) {
-    Promise.all([import('chart.js'), import('./charts.js')]).then(([{ Chart, registerables }, { applyDefaults, decorate }]) => {
-        Chart.register(...registerables);
+if (hosts.length) {
+    Promise.all([import('apexcharts'), import('./charts.js')]).then(([{ default: ApexCharts }, { toApex }]) => {
+        const charts = new Map();
 
         const draw = () => {
-            applyDefaults(Chart);
-            canvases.forEach((canvas) => {
-                Chart.getChart(canvas)?.destroy();
-                new Chart(canvas, decorate(JSON.parse(canvas.dataset.chart)));
+            hosts.forEach((host) => {
+                // stari šabloni koriste <canvas>; ApexCharts crta u div, pa se canvas zameni
+                let target = host;
+                if (host.tagName === 'CANVAS') {
+                    target = document.createElement('div');
+                    target.dataset.chart = host.dataset.chart;
+                    target.className = 'kt-chart';
+                    host.replaceWith(target);
+                }
+                charts.get(target)?.destroy();
+                const chart = new ApexCharts(target, toApex(JSON.parse(target.dataset.chart)));
+                chart.render();
+                charts.set(target, chart);
             });
         };
 
         draw();
-        document.addEventListener('kt:themechange', draw);
+        document.addEventListener('kt:themechange', () => {
+            // posle zamene canvas -> div treba ponovo naći elemente
+            const current = document.querySelectorAll('[data-chart]');
+            current.forEach((el) => {
+                charts.get(el)?.destroy();
+                const chart = new ApexCharts(el, toApex(JSON.parse(el.dataset.chart)));
+                chart.render();
+                charts.set(el, chart);
+            });
+        });
     });
 }

@@ -53,7 +53,7 @@
             <button class="btn btn-primary is-loading">Učitavanje</button>
             <button class="btn btn-primary" disabled>Onemogućeno</button>
             <button class="btn btn-light btn-sm">Kompaktno</button>
-            <button class="btn btn-light btn-icon rounded-pill" title="Ikonica"><i class="ph-pencil"></i></button>
+            <button class="btn btn-light btn-icon rounded-pill" title="Ikonica">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button>
         </div>
     </div>
 
@@ -82,10 +82,10 @@
     </div>
 
     <div class="row">
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-buildings', 128, 'Aktivnih klijenata', 'primary', null, 12.5) }}</div>
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-check-circle', 54, 'Završeno ovog meseca', 'success', null, -4) }}</div>
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-hourglass', 7, 'Čeka klijenta', 'warning', 'prosečno 4 dana') }}</div>
-        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-warning', 7, 'Kasni', 'danger', 'rok istekao') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('building-2', 128, 'Aktivnih klijenata', 'primary', null, 12.5) }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('circle-check', 54, 'Završeno ovog meseca', 'success', null, -4) }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('hourglass', 7, 'Čeka klijenta', 'warning', 'prosečno 4 dana') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('triangle-alert', 7, 'Kasni', 'danger', 'rok istekao') }}</div>
     </div>
 
     <div class="card">
@@ -114,11 +114,11 @@
                     <tr><td><div class="d-flex align-items-center gap-2"><span class="kt-avatar" data-tone="1" style="width: 32px; height: 32px; font-size: 12px;">PZ</span><div><div class="fw-medium">Pekara Zlatni klas</div><div class="fs-sm text-muted kt-mono">101000001</div></div></div></td>
                         <td><span class="kt-avatar-stack"><span class="kt-avatar" data-tone="0" style="width: 28px; height: 28px; font-size: 11px;">MP</span><span class="kt-avatar" data-tone="3" style="width: 28px; height: 28px; font-size: 11px;">JK</span></span></td>
                         <td><span class="badge bg-primary bg-opacity-20 text-primary">U radu</span></td><td class="text-end">16.000,00 RSD</td>
-                        <td><button class="btn btn-light btn-icon btn-sm rounded-pill border-transparent"><i class="ph-pencil"></i></button></td></tr>
+                        <td><button class="btn btn-light btn-icon btn-sm rounded-pill border-transparent">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button></td></tr>
                     <tr><td><div class="d-flex align-items-center gap-2"><span class="kt-avatar" data-tone="5" style="width: 32px; height: 32px; font-size: 12px;">AB</span><div><div class="fw-medium">Auto-servis Brzi</div><div class="fs-sm text-muted kt-mono">101000002</div></div></div></td>
                         <td><span class="kt-empty-value">—</span></td>
-                        <td><span class="badge bg-danger bg-opacity-20 text-danger"><i class="ph-warning"></i> Kasni</span></td><td class="text-end">9.500,00 RSD</td>
-                        <td><button class="btn btn-light btn-icon btn-sm rounded-pill border-transparent"><i class="ph-pencil"></i></button></td></tr>
+                        <td><span class="badge bg-danger bg-opacity-20 text-danger">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon'}) }} Kasni</span></td><td class="text-end">9.500,00 RSD</td>
+                        <td><button class="btn btn-light btn-icon btn-sm rounded-pill border-transparent">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button></td></tr>
                 </tbody>
             </table>
         </div>
@@ -126,7 +126,7 @@
 
     <div class="row">
         <div class="col-md-6 mb-3">
-            <div class="card h-100 mb-0"><div class="card-header"><h5>Prazno stanje</h5></div>{{ ui.empty_state('Još nema klijenata. Dodaj prvog da bi počeo.', 'ph-buildings', 'Dodaj klijenta', '#') }}</div>
+            <div class="card h-100 mb-0"><div class="card-header"><h5>Prazno stanje</h5></div>{{ ui.empty_state('Još nema klijenata. Dodaj prvog da bi počeo.', 'building-2', 'Dodaj klijenta', '#') }}</div>
         </div>
         <div class="col-md-6 mb-3">
             <div class="card h-100 mb-0"><div class="card-header"><h5>Loader i skeleti</h5></div>

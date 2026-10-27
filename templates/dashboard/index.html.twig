@@ -8,20 +8,20 @@
 {% macro pct(value) %}{{ value is null ? '—' : value ~ '%' }}{% endmacro %}
 
 {% block content %}
-    <h5 class="mb-3"><i class="ph-user-circle me-2"></i>Moj pregled</h5>
+    <h5 class="mb-3">{{ ux_icon('lucide:circle-user', {class: 'kt-icon me-2'}) }}Moj pregled</h5>
     <div class="row mb-4">
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-list-checks', me.open, 'Otvoreni zadaci', 'primary') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-warning-circle', me.overdue, 'Kasne', me.overdue > 0 ? 'danger' : 'success') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-clock', me.dueSoon, 'Ističu u 3 dana', me.dueSoon > 0 ? 'warning' : 'secondary') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-check-circle', me.doneThisMonth, 'Završeno ovog meseca', 'success', 'Prošli mesec: ' ~ me.doneLastMonth) }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-timer', _self.pct(me.onTimePercent), 'Završeno na vreme', 'info', 'poslednjih 90 dana') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-arrow-u-up-left', me.returned30, 'Vraćeno na doradu', me.returned30 > 0 ? 'warning' : 'secondary', 'poslednjih 30 dana') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-buildings', me.clientsPrimary, 'Klijenti (glavni)', 'primary') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-arrows-clockwise', me.clientsBackup, 'Klijenti (backup)', 'secondary') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('list-checks', me.open, 'Otvoreni zadaci', 'primary') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('circle-alert', me.overdue, 'Kasne', me.overdue > 0 ? 'danger' : 'success') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('clock', me.dueSoon, 'Ističu u 3 dana', me.dueSoon > 0 ? 'warning' : 'secondary') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('circle-check', me.doneThisMonth, 'Završeno ovog meseca', 'success', 'Prošli mesec: ' ~ me.doneLastMonth) }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('timer', _self.pct(me.onTimePercent), 'Završeno na vreme', 'info', 'poslednjih 90 dana') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('undo-2', me.returned30, 'Vraćeno na doradu', me.returned30 > 0 ? 'warning' : 'secondary', 'poslednjih 30 dana') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('building-2', me.clientsPrimary, 'Klijenti (glavni)', 'primary') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('refresh-cw', me.clientsBackup, 'Klijenti (backup)', 'secondary') }}</div>
     </div>
 
     {% if showTeam %}
-        <h5 class="mb-3"><i class="ph-users-three me-2"></i>{{ admin ? 'Svi timovi' : 'Moj tim' }}</h5>
+        <h5 class="mb-3">{{ ux_icon('lucide:users', {class: 'kt-icon me-2'}) }}{{ admin ? 'Svi timovi' : 'Moj tim' }}</h5>
         {% if team.workers %}
             <div class="row mb-3">
                 <div class="col-lg-7 mb-3">
@@ -45,8 +45,8 @@
                 </div>
                 <div class="col-lg-5 mb-3">
                     <div class="row h-100">
-                        <div class="col-6 mb-3">{{ ui.stat_card('ph-hourglass', team.awaiting|length, 'Čeka potvrdu', team.awaiting ? 'warning' : 'secondary', team.awaiting ? 'najstariji od ' ~ team.awaiting[0].submitted_at|date('d.m.') : null) }}</div>
-                        <div class="col-6 mb-3">{{ ui.stat_card('ph-calendar-check', team.avgDaysToApproval is null ? '—' : team.avgDaysToApproval ~ ' d', 'Od kreiranja do potvrde', 'info', 'prosek, 90 dana') }}</div>
+                        <div class="col-6 mb-3">{{ ui.stat_card('hourglass', team.awaiting|length, 'Čeka potvrdu', team.awaiting ? 'warning' : 'secondary', team.awaiting ? 'najstariji od ' ~ team.awaiting[0].submitted_at|date('d.m.') : null) }}</div>
+                        <div class="col-6 mb-3">{{ ui.stat_card('calendar-check', team.avgDaysToApproval is null ? '—' : team.avgDaysToApproval ~ ' d', 'Od kreiranja do potvrde', 'info', 'prosek, 90 dana') }}</div>
                         <div class="col-12">
                             <div class="card h-100 mb-0">
                                 <div class="card-header"><h6 class="mb-0">Čeka klijenta duže od {{ waitingDays }} dana</h6></div>
@@ -91,12 +91,12 @@
                 <div class="card-footer text-muted fs-sm">Na vreme: završeno do roka (zadaci sa rokom). Vraćeno: vraćanja na doradu u odnosu na broj završenih. Radnici sa najviše kašnjenja su na vrhu.</div>
             </div>
         {% else %}
-            <div class="card"><div class="card-body">{{ ui.empty_state('Nemate radnike u timu.', 'ph-users-three') }}</div></div>
+            <div class="card"><div class="card-body">{{ ui.empty_state('Nemate radnike u timu.', 'users') }}</div></div>
         {% endif %}
     {% endif %}
 
     {% if admin %}
-        <h5 class="mb-3 mt-4"><i class="ph-chart-bar me-2"></i>Cela firma</h5>
+        <h5 class="mb-3 mt-4">{{ ux_icon('lucide:chart-column', {class: 'kt-icon me-2'}) }}Cela firma</h5>
 
         <div class="card">
             <div class="card-header"><h6 class="mb-0">Po timovima</h6></div>
@@ -117,7 +117,7 @@
                                 <td class="text-center">{{ _self.pct(t.onTime30) }}</td>
                             </tr>
                         {% else %}
-                            <tr><td colspan="9">{{ ui.empty_state('Nema timova.', 'ph-users-three') }}</td></tr>
+                            <tr><td colspan="9">{{ ui.empty_state('Nema timova.', 'users') }}</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -166,7 +166,7 @@
             </div>
             <div class="col-lg-6 mb-3">
                 <div class="card mb-3">
-                    <div class="card-header"><h6 class="mb-0"><i class="ph-warning text-warning me-2"></i>Klijenti bez backup radnika <span class="badge bg-warning rounded-pill ms-1">{{ company.noBackup|length }}</span></h6></div>
+                    <div class="card-header"><h6 class="mb-0">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon text-warning me-2'}) }}Klijenti bez backup radnika <span class="badge bg-warning rounded-pill ms-1">{{ company.noBackup|length }}</span></h6></div>
                     <ul class="list-group list-group-flush border-top overflow-auto" style="max-height: 180px;">
                         {% for c in company.noBackup %}
                             <li class="list-group-item"><a href="{{ path('client_show', {id: c.id}) }}">{{ c.name }}</a> <span class="text-muted fs-sm">· {{ c.worker }}</span></li>
@@ -176,7 +176,7 @@
                     </ul>
                 </div>
                 <div class="card mb-0">
-                    <div class="card-header"><h6 class="mb-0"><i class="ph-moon me-2"></i>Klijenti bez zadatka u 30 dana <span class="badge bg-secondary rounded-pill ms-1">{{ company.idleClients|length }}</span></h6></div>
+                    <div class="card-header"><h6 class="mb-0">{{ ux_icon('lucide:moon', {class: 'kt-icon me-2'}) }}Klijenti bez zadatka u 30 dana <span class="badge bg-secondary rounded-pill ms-1">{{ company.idleClients|length }}</span></h6></div>
                     <ul class="list-group list-group-flush border-top overflow-auto" style="max-height: 180px;">
                         {% for c in company.idleClients %}
                             <li class="list-group-item"><a href="{{ path('client_show', {id: c.id}) }}">{{ c.name }}</a> <span class="text-muted fs-sm">· {{ c.worker }}</span></li>

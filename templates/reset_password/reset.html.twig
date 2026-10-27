@@ -4,7 +4,7 @@
 
 {% block auth_icon %}
     <div class="d-inline-flex bg-primary bg-opacity-10 text-primary lh-1 rounded-pill p-3 mb-3 mt-1">
-        <i class="ph-lock-key ph-2x"></i>
+        {{ ux_icon('lucide:lock-keyhole', {class: 'kt-icon kt-icon-lg'}) }}
     </div>
 {% endblock %}
 {% block auth_title %}Nova lozinka{% endblock %}

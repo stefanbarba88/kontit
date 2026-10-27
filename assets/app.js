@@ -1,12 +1,12 @@
 import './stimulus_bootstrap.js';
+
+// Bootstrap 5.3 (CSS + JS), pa naš izgled preko tokena (DESIGN.md). Vendor CSS se ne menja.
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/app.css';
-
-// Bootstrap bundle i JS jezgro iz template-a (assets/vendor/template). Bundle postavlja window.bootstrap,
-// a template app.js ga koristi u DOMContentLoaded handlerima.
-import './vendor/template/js/bootstrap.bundle.min.js';
+import * as bootstrap from 'bootstrap';
 import $ from 'jquery';
-import './vendor/template/js/app.js';
 
+window.bootstrap = bootstrap;
 window.$ = window.jQuery = $;
 
 // CSRF token za AJAX pozive (header X-CSRF-Token), token dolazi iz <meta name="csrf-token">
@@ -26,5 +26,6 @@ import './js/notifications.js';
 import './js/dashboard.js';
 import './js/confirm.js';
 import './js/nbs.js';
+import './js/layout.js';
 import './js/theme.js';
 import './js/countup.js';

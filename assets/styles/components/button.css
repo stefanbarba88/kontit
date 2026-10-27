@@ -1,6 +1,6 @@
 /* Dugmad (7.7). */
 .btn {
-    --btn-border-radius: var(--kt-radius-md);
+    --bs-btn-border-radius: var(--kt-radius-md);
     border-radius: var(--kt-radius-md);
     font-weight: 500;
     min-height: 36px;
@@ -14,9 +14,9 @@
 
 /* primarno: blagi gradijent odozgo, svetli odsjaj, shadow-xs */
 .btn-primary {
-    --btn-bg: var(--kt-primary); --btn-hover-bg: var(--kt-primary-hover); --btn-active-bg: var(--kt-primary-hover);
-    --btn-color: var(--kt-on-primary); --btn-hover-color: var(--kt-on-primary); --btn-active-color: var(--kt-on-primary);
-    --btn-border-color: transparent; --btn-hover-border-color: transparent; --btn-active-border-color: transparent;
+    --bs-btn-bg: var(--kt-primary); --bs-btn-hover-bg: var(--kt-primary-hover); --bs-btn-active-bg: var(--kt-primary-hover);
+    --bs-btn-color: var(--kt-on-primary); --bs-btn-hover-color: var(--kt-on-primary); --bs-btn-active-color: var(--kt-on-primary);
+    --bs-btn-border-color: transparent; --bs-btn-hover-border-color: transparent; --bs-btn-active-border-color: transparent;
     background-color: var(--kt-primary);
     background-image: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, 0));
     color: var(--kt-on-primary);

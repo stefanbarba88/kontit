@@ -11,13 +11,13 @@
 
 {% block page_actions %}
     {% if is_granted('USER_EDIT', user) %}
-        <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn btn-primary"><i class="ph-pencil me-2"></i>Izmeni</a>
+        <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn btn-primary">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-2'}) }}Izmeni</a>
         {% if user.id != app.user.id %}
             <form method="post" action="{{ path('admin_user_toggle', {id: user.id}) }}"
                   {% if user.active %}{{ confirm_attrs('Deaktivirati korisnika?', 'Korisnik se više neće moći prijaviti ni dobijati zadatke. Istorija ostaje.', 'danger', 'Da, deaktiviraj', false, user.fullName) }}{% else %}{{ confirm_attrs('Aktivirati korisnika?', null, 'info', 'Da, aktiviraj') }}{% endif %}>
                 <input type="hidden" name="_token" value="{{ csrf_token('user_toggle_' ~ user.id) }}">
                 <button class="btn {{ user.active ? 'btn-outline-danger' : 'btn-outline-success' }}">
-                    <i class="{{ user.active ? 'ph-user-minus' : 'ph-user-plus' }} me-2"></i>{{ user.active ? 'Deaktiviraj' : 'Aktiviraj' }}
+                    {{ ux_icon('lucide:' ~ (user.active ? 'user-minus' : 'user-plus'), {class: 'kt-icon me-2'}) }}{{ user.active ? 'Deaktiviraj' : 'Aktiviraj' }}
                 </button>
             </form>
         {% endif %}
@@ -79,7 +79,7 @@
                             </div>
                         </div>
                         {% if user.active %}
-                            <div class="text-muted fs-sm mt-3"><i class="ph-info me-1"></i>Korisnik ne može da se deaktivira dok je zadužen na klijentima.</div>
+                            <div class="text-muted fs-sm mt-3">{{ ux_icon('lucide:info', {class: 'kt-icon me-1'}) }}Korisnik ne može da se deaktivira dok je zadužen na klijentima.</div>
                         {% endif %}
                     {% else %}
                         <span class="text-muted">Nema zaduženih klijenata.</span>
@@ -128,7 +128,7 @@
         </div>
     </div>
     <div class="card">
-        <div class="card-header"><h5 class="mb-0"><i class="ph-clock-counter-clockwise me-2"></i>Aktivnost</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:history', {class: 'kt-icon me-2'}) }}Aktivnost</h5></div>
         <div class="card-body border-top">{{ tl.timeline(activity, true) }}</div>
     </div>
 {% endblock %}

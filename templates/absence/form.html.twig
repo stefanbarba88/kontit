@@ -33,7 +33,7 @@
             </div>
             <div class="d-flex justify-content-end gap-2">
                 <a href="{{ path('absence_index') }}" class="btn btn-light">Otkaži</a>
-                <button class="btn btn-primary">{{ needsApproval ? 'Pošalji na odobrenje' : 'Sačuvaj' }}<i class="ph-floppy-disk ms-2"></i></button>
+                <button class="btn btn-primary">{{ needsApproval ? 'Pošalji na odobrenje' : 'Sačuvaj' }}{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
             </div>
             {{ form_end(form) }}
         </div>

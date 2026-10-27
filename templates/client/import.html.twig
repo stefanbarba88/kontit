@@ -10,7 +10,7 @@
 
 {% block content %}
     {% if not configured %}
-        <div class="alert alert-warning"><i class="ph-warning me-2"></i>NBS pristupni podaci nisu podešeni (<code>NBS_USERNAME</code>, <code>NBS_PASSWORD</code>, <code>NBS_LICENCE</code> u <code>.env.local</code>).</div>
+        <div class="alert alert-warning">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon me-2'}) }}NBS pristupni podaci nisu podešeni (<code>NBS_USERNAME</code>, <code>NBS_PASSWORD</code>, <code>NBS_LICENCE</code> u <code>.env.local</code>).</div>
     {% endif %}
 
     <div class="row">
@@ -27,7 +27,7 @@
             </div>
             <div class="d-flex justify-content-end gap-2">
                 <a href="{{ path('client_index') }}" class="btn btn-light">Nazad</a>
-                <button class="btn btn-primary" {{ configured ? '' : 'disabled' }}>Uvezi<i class="ph-cloud-arrow-down ms-2"></i></button>
+                <button class="btn btn-primary" {{ configured ? '' : 'disabled' }}>Uvezi{{ ux_icon('lucide:cloud-download', {class: 'kt-icon ms-2'}) }}</button>
             </div>
             {{ form_end(form) }}
         </div>
@@ -52,7 +52,7 @@
                                         </td>
                                     </tr>
                                 {% else %}
-                                    <tr><td>{{ ui.empty_state('Nije pronađen nijedan PIB.', 'ph-magnifying-glass') }}</td></tr>
+                                    <tr><td>{{ ui.empty_state('Nije pronađen nijedan PIB.', 'search') }}</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>

@@ -1,0 +1,16 @@
+{#
+    Navigacija (sidebar). Upotreba: {% import 'components/nav.html.twig' as nav %}
+    nav.link(path('task_index'), 'list-checks', 'Zadaci', route starts with 'task_', brojač)
+#}
+
+{% macro group(label) %}
+    <div class="kt-nav-group"><span>{{ label }}</span></div>
+{% endmacro %}
+
+{% macro link(href, icon, label, active = false, count = 0) %}
+    <a href="{{ href }}" class="kt-nav-link {{ active ? 'is-active' : '' }}" {% if active %}aria-current="page"{% endif %} data-bs-title="{{ label }}">
+        {{ ux_icon('lucide:' ~ icon, {class: 'kt-icon'}) }}
+        <span class="kt-nav-label">{{ label }}</span>
+        {% if count > 0 %}<span class="kt-nav-count">{{ count }}</span>{% endif %}
+    </a>
+{% endmacro %}

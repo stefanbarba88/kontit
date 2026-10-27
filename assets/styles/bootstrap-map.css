@@ -1,58 +1,76 @@
 /*
- * Mapiranje naših tokena na promenljive template-a (Limitless koristi --primary, --body-bg, --white...).
- * Vendor CSS se ne menja, sve ide preko promenljivih. Selektor html:root je jači od :root iz template-a.
+ * Mapiranje naših tokena na Bootstrap 5.3 promenljive (DESIGN.md 14.2). Bootstrap CSS se ne menja.
+ * Selektor :root[data-bs-theme] je jači od Bootstrap-ovog [data-bs-theme=dark], pa važi u obe teme.
  */
-html:root,
-html:root[data-bs-theme] {
-    --primary: var(--kt-primary);
-    --primary-rgb: 0, 111, 214;
-    --component-active-bg: var(--kt-primary);
-    --component-active-color: var(--kt-on-primary);
-    --focus-ring-box-shadow: 0 0 0 3px var(--kt-focus);
-    --link-color: var(--kt-primary);
-    --link-hover-color: var(--kt-primary-hover);
-    --body-bg: var(--kt-bg);
-    --body-color: var(--kt-text);
-    --body-font-family: var(--kt-font-ui);
-    --font-sans-serif: var(--kt-font-ui);
-    --font-monospace: var(--kt-font-mono);
-    --border-color: var(--kt-border-strong);
-    --border-color-translucent: var(--kt-border);
-    --border-radius: var(--kt-radius-md);
-    --border-radius-sm: var(--kt-radius-sm);
-    --border-radius-lg: var(--kt-radius-lg);
-    --border-radius-xl: var(--kt-radius-xl);
-    --box-shadow: var(--kt-shadow-xs);
-    --box-shadow-sm: var(--kt-shadow-xs);
-    --box-shadow-lg: var(--kt-shadow-lg);
-    --success: var(--kt-success);
-    --warning: var(--kt-warning);
-    --danger: var(--kt-danger);
-    --info: var(--kt-primary);
-    --transition-base-timer: .12s;
+:root,
+:root[data-bs-theme] {
+    --bs-primary: var(--kt-primary);
+    --bs-primary-rgb: 0, 111, 214;
+    --bs-primary-text-emphasis: var(--kt-primary);
+    --bs-primary-bg-subtle: var(--kt-primary-soft);
+    --bs-primary-border-subtle: var(--kt-brand-200);
+    --bs-success: var(--kt-success);
+    --bs-success-rgb: 21, 128, 61;
+    --bs-success-text-emphasis: var(--kt-success);
+    --bs-success-bg-subtle: var(--kt-success-soft);
+    --bs-warning: var(--kt-warning);
+    --bs-warning-rgb: 180, 83, 9;
+    --bs-warning-text-emphasis: var(--kt-warning);
+    --bs-warning-bg-subtle: var(--kt-warning-soft);
+    --bs-danger: var(--kt-danger);
+    --bs-danger-rgb: 200, 30, 30;
+    --bs-danger-text-emphasis: var(--kt-danger);
+    --bs-danger-bg-subtle: var(--kt-danger-soft);
+    --bs-info: var(--kt-primary);
+    --bs-info-rgb: 0, 111, 214;
+    --bs-info-text-emphasis: var(--kt-primary);
+    --bs-info-bg-subtle: var(--kt-primary-soft);
+    --bs-secondary-rgb: 94, 102, 114;
+
+    --bs-body-bg: var(--kt-bg);
+    --bs-body-color: var(--kt-text);
+    --bs-body-font-family: var(--kt-font-ui);
+    --bs-body-font-size: 14px;
+    --bs-body-line-height: 1.43;
+    --bs-font-sans-serif: var(--kt-font-ui);
+    --bs-font-monospace: var(--kt-font-mono);
+    --bs-emphasis-color: var(--kt-text);
+    --bs-secondary-color: var(--kt-text-2);
+    --bs-tertiary-color: var(--kt-text-3);
+    --bs-secondary-bg: var(--kt-surface-2);
+    --bs-tertiary-bg: var(--kt-surface-3);
+    --bs-heading-color: var(--kt-text);
+    --bs-link-color: var(--kt-primary);
+    --bs-link-color-rgb: 0, 111, 214;
+    --bs-link-hover-color: var(--kt-primary-hover);
+    --bs-link-hover-color-rgb: 0, 88, 171;
+    --bs-link-decoration: none;
+    --bs-border-color: var(--kt-border);
+    --bs-border-color-translucent: var(--kt-border);
+    --bs-border-radius: var(--kt-radius-md);
+    --bs-border-radius-sm: var(--kt-radius-sm);
+    --bs-border-radius-lg: var(--kt-radius-lg);
+    --bs-border-radius-xl: var(--kt-radius-xl);
+    --bs-box-shadow: var(--kt-shadow-md);
+    --bs-box-shadow-sm: var(--kt-shadow-xs);
+    --bs-box-shadow-lg: var(--kt-shadow-lg);
+    --bs-focus-ring-color: var(--kt-focus);
+    --bs-focus-ring-width: 3px;
+    --bs-form-valid-color: var(--kt-success);
+    --bs-form-valid-border-color: var(--kt-success);
+    --bs-form-invalid-color: var(--kt-danger);
+    --bs-form-invalid-border-color: var(--kt-danger);
 }
 
-html:root[data-bs-theme="dark"] {
-    --primary-rgb: 59, 163, 255;
-    --white: var(--kt-surface);
-    --light: var(--kt-surface-3);
-    --gray-100: var(--kt-surface-2);
-    --gray-200: var(--kt-surface-3);
-    --gray-300: var(--kt-border-strong);
-    --body-color-rgb: 236, 238, 241;
-    --body-bg-rgb: 11, 15, 20;
-    --success-rgb: 74, 222, 128;
-    --warning-rgb: 251, 191, 36;
-    --danger-rgb: 248, 113, 113;
+:root[data-bs-theme="dark"] {
+    --bs-primary-rgb: 59, 163, 255;
+    --bs-info-rgb: 59, 163, 255;
+    --bs-success-rgb: 74, 222, 128;
+    --bs-warning-rgb: 251, 191, 36;
+    --bs-danger-rgb: 248, 113, 113;
+    --bs-secondary-rgb: 161, 169, 180;
+    --bs-link-color-rgb: 59, 163, 255;
+    --bs-link-hover-color-rgb: 92, 179, 255;
 }
 
-/* površine template-a prate tokene u obe teme */
-.card, .dropdown-menu, .modal-content, .offcanvas, .popover, .list-group-item, .table {
-    --card-bg: var(--kt-surface);
-}
-.form-control, .form-select {
-    background-color: var(--kt-surface);
-    color: var(--kt-text);
-}
-.text-muted { color: var(--kt-text-2) !important; }
-.text-body { color: var(--kt-text) !important; }
+a { text-decoration: none; }

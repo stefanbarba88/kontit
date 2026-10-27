@@ -7,8 +7,8 @@
 
 {% block page_actions %}
     {% if is_granted('CLIENT_CREATE') %}
-        <a href="{{ path('client_import') }}" class="btn btn-outline-primary"><i class="ph-cloud-arrow-down me-2"></i>Uvoz iz NBS</a>
-        <a href="{{ path('client_new') }}" class="btn btn-primary"><i class="ph-plus me-2"></i>Novi klijent</a>
+        <a href="{{ path('client_import') }}" class="btn btn-outline-primary">{{ ux_icon('lucide:cloud-download', {class: 'kt-icon me-2'}) }}Uvoz iz NBS</a>
+        <a href="{{ path('client_new') }}" class="btn btn-primary">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Novi klijent</a>
     {% endif %}
 {% endblock %}
 
@@ -19,7 +19,7 @@
                 <div class="col-12 col-md-6">
                     <div class="form-control-feedback form-control-feedback-start">
                         <input type="search" name="q" value="{{ filters.q }}" class="form-control" placeholder="Naziv, PIB, matični broj ili grad">
-                        <div class="form-control-feedback-icon"><i class="ph-magnifying-glass text-muted"></i></div>
+                        <div class="form-control-feedback-icon">{{ ux_icon('lucide:search', {class: 'kt-icon text-muted'}) }}</div>
                     </div>
                 </div>
                 <div class="col-8 col-md-4">
@@ -30,7 +30,7 @@
                     </select>
                 </div>
                 <div class="col-4 col-md-2">
-                    <button class="btn btn-light w-100"><i class="ph-funnel me-2"></i>Traži</button>
+                    <button class="btn btn-light w-100">{{ ux_icon('lucide:filter', {class: 'kt-icon me-2'}) }}Traži</button>
                 </div>
             </form>
         </div>
@@ -53,12 +53,12 @@
                             <td>{{ ui.user_chip(client.primaryAccountant, 24) }}</td>
                             <td>
                                 {% if client.backupAccountant %}{{ ui.user_chip(client.backupAccountant, 24) }}
-                                {% else %}<span class="text-warning"><i class="ph-warning me-1"></i>nema</span>{% endif %}
+                                {% else %}<span class="text-warning">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon me-1'}) }}nema</span>{% endif %}
                             </td>
                             <td>{{ ui.status_badge(client.active) }}</td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="5">{{ ui.empty_state('Nema klijenata za zadate filtere.', 'ph-buildings') }}</td></tr>
+                        <tr><td colspan="5">{{ ui.empty_state('Nema klijenata za zadate filtere.', 'building-2') }}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

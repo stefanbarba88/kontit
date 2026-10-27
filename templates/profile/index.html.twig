@@ -28,7 +28,7 @@
                         {% if app.user.avatarName %}<div class="mb-3">{{ ui.avatar(app.user, 80) }}</div>{% endif %}
                         {{ form_row(profileForm.avatarFile) }}
                         <div class="text-end">
-                            <button class="btn btn-primary">Sačuvaj<i class="ph-floppy-disk ms-2"></i></button>
+                            <button class="btn btn-primary">Sačuvaj{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
                         </div>
                     {{ form_end(profileForm) }}
                 </div>
@@ -60,7 +60,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="ph-bell me-2"></i>Obaveštenja na mail</h5>
+                    <h5 class="mb-0">{{ ux_icon('lucide:bell', {class: 'kt-icon me-2'}) }}Obaveštenja na mail</h5>
                 </div>
 
                 <div class="card-body border-top">
@@ -68,7 +68,7 @@
                         {{ form_row(prefsForm.emailNotifications) }}
                         <div class="text-muted fs-sm mb-3">U aplikaciji (zvonce) uvek dobijate sva obaveštenja. Mail se šalje samo za izabrano, a pošiljalac može da ga uključi i za pojedinačan zadatak.</div>
                         <div class="text-end">
-                            <button class="btn btn-primary">Sačuvaj<i class="ph-floppy-disk ms-2"></i></button>
+                            <button class="btn btn-primary">Sačuvaj{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
                         </div>
                     {{ form_end(prefsForm) }}
                 </div>
@@ -85,7 +85,7 @@
                         {{ form_row(passwordForm.plainPassword.first) }}
                         {{ form_row(passwordForm.plainPassword.second) }}
                         <div class="text-end">
-                            <button class="btn btn-light">Promeni lozinku<i class="ph-lock-key ms-2"></i></button>
+                            <button class="btn btn-light">Promeni lozinku{{ ux_icon('lucide:lock-keyhole', {class: 'kt-icon ms-2'}) }}</button>
                         </div>
                     {{ form_end(passwordForm) }}
                 </div>
@@ -93,7 +93,7 @@
         </div>
     </div>
     <div class="card">
-        <div class="card-header"><h5 class="mb-0"><i class="ph-clock-counter-clockwise me-2"></i>Aktivnost</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:history', {class: 'kt-icon me-2'}) }}Aktivnost</h5></div>
         <div class="card-body border-top">{{ tl.timeline(activity, true) }}</div>
     </div>
 {% endblock %}

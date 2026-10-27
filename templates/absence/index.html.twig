@@ -11,7 +11,7 @@
           {% elseif action == 'reject' %}{{ confirm_attrs('Odbiti odsustvo?', absence.user.fullName ~ ': ' ~ absence.summary, 'warning', 'Da, odbij') }}
           {% else %}{{ confirm_attrs('Otkazati odsustvo?', 'Backup više neće preuzimati klijente za ovaj period.', 'danger', 'Da, otkaži') }}{% endif %}>
         <input type="hidden" name="_token" value="{{ csrf_token('absence_' ~ absence.id) }}">
-        <button class="btn btn-sm {{ btn }}"><i class="{{ icon }} me-1"></i>{{ label }}</button>
+        <button class="btn btn-sm {{ btn }}">{{ ux_icon('lucide:' ~ icon, {class: 'kt-icon me-1'}) }}{{ label }}</button>
     </form>
 {% endmacro %}
 
@@ -21,12 +21,12 @@
             <a href="{{ path('absence_index') }}" class="btn btn-light {{ current ? 'active' : '' }}">Aktuelna</a>
             <a href="{{ path('absence_index', {history: 1}) }}" class="btn btn-light {{ not current ? 'active' : '' }}">Istorija</a>
         </div>
-        <a href="{{ path('absence_new') }}" class="btn btn-primary ms-auto"><i class="ph-plus me-2"></i>Novo odsustvo</a>
+        <a href="{{ path('absence_new') }}" class="btn btn-primary ms-auto">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Novo odsustvo</a>
     </div>
 
     {% if pendingAbsences %}
         <div class="card border-warning">
-            <div class="card-header"><h5 class="mb-0"><i class="ph-calendar-check me-2"></i>Čeka vaše odobrenje <span class="badge bg-warning rounded-pill ms-1">{{ pendingAbsences|length }}</span></h5></div>
+            <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:calendar-check', {class: 'kt-icon me-2'}) }}Čeka vaše odobrenje <span class="badge bg-warning rounded-pill ms-1">{{ pendingAbsences|length }}</span></h5></div>
             <div class="table-responsive">
                 <table class="table align-middle mb-0">
                     <tbody>
@@ -36,8 +36,8 @@
                                 <td>{{ a.startDate|date('d.m.Y.') }} – {{ a.endDate|date('d.m.Y.') }}<div class="fs-sm text-muted">{{ a.reason.label }}{% if a.note %} · {{ a.note }}{% endif %}</div></td>
                                 <td class="text-end">
                                     {% if is_granted('ABSENCE_DECIDE', a) %}
-                                        {{ _self.action_form(a, 'approve', 'Odobri', 'btn-success', 'ph-check') }}
-                                        {{ _self.action_form(a, 'reject', 'Odbij', 'btn-outline-danger', 'ph-x') }}
+                                        {{ _self.action_form(a, 'approve', 'Odobri', 'btn-success', 'check') }}
+                                        {{ _self.action_form(a, 'reject', 'Odbij', 'btn-outline-danger', 'x') }}
                                     {% endif %}
                                 </td>
                             </tr>
@@ -65,16 +65,16 @@
                             <td class="fs-sm text-muted">{{ a.createdBy.fullName }}</td>
                             <td class="text-end">
                                 {% if is_granted('ABSENCE_DECIDE', a) %}
-                                    {{ _self.action_form(a, 'approve', 'Odobri', 'btn-success', 'ph-check') }}
-                                    {{ _self.action_form(a, 'reject', 'Odbij', 'btn-outline-danger', 'ph-x') }}
+                                    {{ _self.action_form(a, 'approve', 'Odobri', 'btn-success', 'check') }}
+                                    {{ _self.action_form(a, 'reject', 'Odbij', 'btn-outline-danger', 'x') }}
                                 {% endif %}
                                 {% if is_granted('ABSENCE_CANCEL', a) %}
-                                    {{ _self.action_form(a, 'cancel', 'Otkaži', 'btn-light', 'ph-prohibit') }}
+                                    {{ _self.action_form(a, 'cancel', 'Otkaži', 'btn-light', 'ban') }}
                                 {% endif %}
                             </td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="6">{{ ui.empty_state(current ? 'Nema aktuelnih odsustava.' : 'Nema odsustava.', 'ph-airplane-tilt') }}</td></tr>
+                        <tr><td colspan="6">{{ ui.empty_state(current ? 'Nema aktuelnih odsustava.' : 'Nema odsustava.', 'plane') }}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

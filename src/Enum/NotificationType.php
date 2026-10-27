@@ -44,16 +44,16 @@ enum NotificationType: string
     public function icon(): string
     {
         return match ($this) {
-            self::TASK_ASSIGNED => 'ph-list-checks',
-            self::TASK_SUBMITTED => 'ph-paper-plane-tilt',
-            self::TASK_APPROVED => 'ph-check-circle',
-            self::TASK_RETURNED => 'ph-arrow-u-up-left',
-            self::TASK_COMMENTED => 'ph-chat-text',
-            self::TASK_DUE_SOON => 'ph-clock',
-            self::TASK_OVERDUE => 'ph-warning-circle',
-            self::CLIENT_ASSIGNED, self::BACKUP_ACTIVATED => 'ph-buildings',
-            self::TEAM_CHANGED => 'ph-users-three',
-            self::ABSENCE_REQUESTED, self::ABSENCE_DECIDED => 'ph-calendar-check',
+            self::TASK_ASSIGNED => 'list-checks',
+            self::TASK_SUBMITTED => 'send',
+            self::TASK_APPROVED => 'circle-check',
+            self::TASK_RETURNED => 'undo-2',
+            self::TASK_COMMENTED => 'message-square-text',
+            self::TASK_DUE_SOON => 'clock',
+            self::TASK_OVERDUE => 'circle-alert',
+            self::CLIENT_ASSIGNED, self::BACKUP_ACTIVATED => 'building-2',
+            self::TEAM_CHANGED => 'users',
+            self::ABSENCE_REQUESTED, self::ABSENCE_DECIDED => 'calendar-check',
         };
     }
 

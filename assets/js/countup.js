@@ -1,25 +1,20 @@
-// KPI brojevi se pri prvom učitavanju "izbroje" od 0 do vrednosti (600 ms, ease-out).
-// Upotreba: <span data-countup="1234">1.234</span>; tekst oko broja ostaje kakav jeste.
-const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// KPI brojevi se pri učitavanju "izbroje" od 0 do vrednosti (CountUp.js, 600 ms, ease-out).
+// Upotreba: <span data-countup="1234">1.234</span>
+import { CountUp } from 'countup.js';
 
-document.querySelectorAll('[data-countup]').forEach((el) => {
-    const target = Number(el.dataset.countup);
-    if (reduce || Number.isNaN(target) || !Number.isFinite(target) || target === 0) {
-        return;
-    }
-    const decimals = Number(el.dataset.decimals || 0);
-    const fmt = (v) => v.toLocaleString('sr-RS', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-    const started = performance.now();
-    const duration = 600;
-    const tick = (now) => {
-        const t = Math.min(1, (now - started) / duration);
-        const eased = 1 - Math.pow(1 - t, 3);
-        el.textContent = fmt(target * eased);
-        if (t < 1) {
-            requestAnimationFrame(tick);
-        } else {
-            el.textContent = fmt(target);
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('[data-countup]').forEach((el) => {
+        const target = Number(el.dataset.countup);
+        if (!Number.isFinite(target) || target === 0) {
+            return;
         }
-    };
-    requestAnimationFrame(tick);
-});
+        const decimals = Number(el.dataset.decimals || 0);
+        new CountUp(el, target, {
+            duration: 0.6,
+            decimalPlaces: decimals,
+            separator: '.',
+            decimal: ',',
+            useEasing: true,
+        }).start();
+    });
+}

@@ -1,78 +1,86 @@
-/* Sidebar (DESIGN.md 7.1): 264px, skupljen 76px, overline labele, plava traka na aktivnoj stavci. */
-.sidebar,
-.sidebar.sidebar-dark {
-    --sidebar-width: 264px;
-    --sidebar-bg: var(--kt-surface-2);
-    --sidebar-color: var(--kt-text);
-    --sidebar-border-color: var(--kt-border);
-    --sidebar-box-shadow: none;
-    color-scheme: normal;
+/* Raspored aplikacije i sidebar (DESIGN.md 7.1): 264px, skupljen 76px, overline grupe, plava traka na aktivnoj stavci. */
+.kt-shell { display: flex; min-height: 100vh; min-height: 100dvh; }
+
+.kt-sidebar {
+    --kt-sidebar-w: 264px;
+    position: sticky; top: 0; z-index: 1040;
+    flex: none; width: var(--kt-sidebar-w); height: 100vh; height: 100dvh;
+    display: flex; flex-direction: column;
+    background: var(--kt-surface-2);
     border-right: 1px solid var(--kt-border);
+    transition: width var(--kt-dur-3) var(--kt-ease), transform var(--kt-dur-3) var(--kt-ease);
 }
-:root[data-bs-theme="dark"] .sidebar { color-scheme: dark; }
+.kt-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
-.sidebar .nav-sidebar {
-    --nav-link-color: var(--kt-text-2);
-    --nav-link-hover-color: var(--kt-text);
-    --nav-link-hover-bg: var(--kt-surface-3);
-    --nav-link-hover-active-bg: var(--kt-primary-soft);
-    --nav-link-active-bg: var(--kt-primary-soft);
-    --nav-link-active-color: var(--kt-primary);
-    --nav-link-font-weight: 500;
-    --nav-sidebar-divider-color: var(--kt-border);
-}
+.kt-sidebar-brand { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 64px; padding: 0 12px 0 20px; flex: none; }
+.kt-brand-link { display: inline-flex; color: var(--kt-logo-ink); }
+.kt-brand-link .kt-logo { height: 30px; width: auto; display: block; }
+.kt-brand-link .kt-mark { height: 28px; width: auto; display: none; }
 
-.sidebar .nav-sidebar .nav-link {
+.kt-nav { flex: 1; overflow-y: auto; padding: 4px 12px 16px; }
+.kt-nav-group { padding: 20px 12px 6px; font-size: 11px; line-height: 16px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--kt-text-3); white-space: nowrap; }
+.kt-nav-group:first-child { padding-top: 8px; }
+
+.kt-nav-link {
+    position: relative; display: flex; align-items: center; gap: 12px;
+    min-height: 40px; padding: 8px 12px; margin: 1px 0;
     border-radius: var(--kt-radius-sm);
-    margin: 1px 12px;
+    color: var(--kt-text-2); font-weight: 500; white-space: nowrap;
     transition: background-color var(--kt-dur-1) var(--kt-ease), color var(--kt-dur-1) var(--kt-ease);
 }
-.sidebar .nav-sidebar .nav-link i { font-size: 18px; color: var(--kt-text-2); transition: color var(--kt-dur-1) var(--kt-ease); }
-.sidebar .nav-sidebar .nav-link.active i,
-.sidebar .nav-sidebar .nav-link:hover i { color: var(--kt-primary); }
-.sidebar .nav-sidebar .nav-link.active::before {
-    content: "";
-    position: absolute;
-    left: -12px; top: 8px; bottom: 8px;
-    width: 3px;
-    border-radius: 0 3px 3px 0;
-    background: var(--kt-brand-500);
+.kt-nav-link .kt-icon { font-size: 18px; flex: none; transition: color var(--kt-dur-1) var(--kt-ease); }
+.kt-nav-link:hover { background: var(--kt-surface-3); color: var(--kt-text); }
+.kt-nav-link:hover .kt-icon { color: var(--kt-primary); }
+.kt-nav-link:focus-visible { outline: 0; box-shadow: 0 0 0 3px var(--kt-focus); }
+.kt-nav-link.is-active { background: var(--kt-primary-soft); color: var(--kt-primary); }
+.kt-nav-link.is-active .kt-icon { color: var(--kt-primary); }
+.kt-nav-link.is-active::before {
+    content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 3px;
+    border-radius: 0 3px 3px 0; background: var(--kt-brand-500);
 }
-.sidebar .nav-sidebar .nav-link .badge { min-width: 20px; justify-content: center; }
-
-/* overline labele grupa */
-.sidebar .nav-sidebar .nav-item-header { padding: 20px 24px 6px; }
-.sidebar .nav-sidebar .nav-item-header > div {
-    font-size: 11px; line-height: 16px; font-weight: 600; letter-spacing: .06em;
-    text-transform: uppercase; color: var(--kt-text-3); opacity: 1 !important;
+.kt-nav-label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.kt-nav-count {
+    min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums;
+    background: var(--kt-danger); color: #fff;
 }
 
-.sidebar-brand { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px 6px; min-height: 64px; }
-.sidebar-brand .kt-logo { height: 30px; width: auto; display: block; }
-.sidebar-brand .kt-mark { height: 28px; width: auto; display: none; }
-.sidebar-brand a { color: var(--kt-logo-ink); display: inline-flex; }
+.kt-sidebar-user { flex: none; border-top: 1px solid var(--kt-border); padding: 12px; }
+.kt-user-toggle {
+    width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px;
+    border: 0; background: transparent; border-radius: var(--kt-radius-md); color: var(--kt-text); text-align: left;
+    transition: background-color var(--kt-dur-1) var(--kt-ease);
+}
+.kt-user-toggle:hover, .kt-user-toggle[aria-expanded="true"] { background: var(--kt-surface-3); }
+.kt-user-who { flex: 1; min-width: 0; line-height: 16px; }
+.kt-user-who strong { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kt-user-who span { font-size: 12px; color: var(--kt-text-3); }
+.kt-user-chevron { color: var(--kt-text-3); }
+.kt-sidebar-user .dropdown-menu { width: calc(100% - 24px); }
 
-/* skupljen sidebar: 76px, samo znak i ikonice */
-.sidebar-expand-lg.sidebar-main-resized:not(.sidebar-collapsed):not(.sidebar-main-unfold) { --sidebar-width: 76px; }
-.sidebar-expand-lg.sidebar-main-resized:not(.sidebar-collapsed):not(.sidebar-main-unfold) + * { margin-left: 76px; }
-.sidebar-main-resized:not(.sidebar-main-unfold) .sidebar-brand { justify-content: center; padding-inline: 0; }
-.sidebar-main-resized:not(.sidebar-main-unfold) .sidebar-brand .kt-logo { display: none; }
-.sidebar-main-resized:not(.sidebar-main-unfold) .sidebar-brand .kt-mark { display: block; }
-.sidebar-main-resized:not(.sidebar-main-unfold) .sidebar-brand .sidebar-resize-hide { display: none !important; }
-.sidebar-main-resized:not(.sidebar-main-unfold) .nav-sidebar .nav-link { margin-inline: 14px; }
-.sidebar-main-resized:not(.sidebar-main-unfold) .nav-sidebar .nav-link.active::before { left: -14px; }
+/* skupljen sidebar (desktop): 76px, samo znak i ikonice, naziv u tooltipu */
+@media (min-width: 992px) {
+    .kt-sidebar-collapsed .kt-sidebar { --kt-sidebar-w: 76px; }
+    .kt-sidebar-collapsed .kt-sidebar-brand { flex-direction: column; justify-content: center; height: auto; padding: 16px 0 8px; gap: 8px; }
+    .kt-sidebar-collapsed .kt-brand-link .kt-logo { display: none; }
+    .kt-sidebar-collapsed .kt-brand-link .kt-mark { display: block; }
+    .kt-sidebar-collapsed .kt-nav { padding-inline: 14px; }
+    .kt-sidebar-collapsed .kt-nav-group { padding: 12px 0 4px; text-align: center; }
+    .kt-sidebar-collapsed .kt-nav-group span { display: block; height: 1px; overflow: hidden; color: transparent; background: var(--kt-border); margin: 6px 8px; }
+    .kt-sidebar-collapsed .kt-nav-link { justify-content: center; padding-inline: 0; }
+    .kt-sidebar-collapsed .kt-nav-link.is-active::before { left: -14px; }
+    .kt-sidebar-collapsed .kt-nav-label { display: none; }
+    .kt-sidebar-collapsed .kt-nav-count { position: absolute; top: 2px; right: 2px; min-width: 16px; height: 16px; font-size: 10px; padding: 0 4px; }
+    .kt-sidebar-collapsed .kt-user-who, .kt-sidebar-collapsed .kt-user-chevron { display: none; }
+    .kt-sidebar-collapsed .kt-user-toggle { justify-content: center; }
+    .kt-sidebar-collapsed .kt-sidebar-user .dropdown-menu { width: 220px; }
+}
 
-/* kartica korisnika na dnu */
-.sidebar-user { margin-top: auto; border-top: 1px solid var(--kt-border); padding: 12px; }
-.sidebar-user .dropdown-toggle { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: var(--kt-radius-md); color: var(--kt-text); text-decoration: none; transition: background-color var(--kt-dur-1) var(--kt-ease); }
-.sidebar-user .dropdown-toggle:hover { background: var(--kt-surface-3); }
-.sidebar-user .dropdown-toggle::after { margin-left: auto; }
-.sidebar-user .who { min-width: 0; line-height: 16px; }
-.sidebar-user .who strong { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sidebar-user .who span { font-size: 12px; color: var(--kt-text-3); }
-.sidebar-main-resized:not(.sidebar-main-unfold) .sidebar-user .who,
-.sidebar-main-resized:not(.sidebar-main-unfold) .sidebar-user .dropdown-toggle::after { display: none; }
-.sidebar-main-resized:not(.sidebar-main-unfold) .sidebar-user .dropdown-toggle { justify-content: center; padding: 8px 0; }
-
-.sidebar .sidebar-content { display: flex; flex-direction: column; min-height: 100%; }
-.kt-bell-dot { font-size: 0; }
+/* tablet i telefon: sidebar izlazi sa strane (donja navigacija dolazi u koraku 4) */
+.kt-sidebar-backdrop { display: none; }
+@media (max-width: 991.98px) {
+    .kt-sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); box-shadow: var(--kt-shadow-lg); }
+    .kt-sidebar-open .kt-sidebar { transform: none; }
+    .kt-sidebar-open .kt-sidebar-backdrop { display: block; position: fixed; inset: 0; z-index: 1035; background: rgba(11, 15, 20, .45); backdrop-filter: blur(2px); }
+}

@@ -8,6 +8,14 @@
 - Otvorenih nedoumica: 0 (1-5 rešene podrazumevanim predlozima, vidi SPEC.md sekciju 11).
 
 ## Urađeno
+- 2026-10-27: **UPDATE-DIZAJN korak 2: uklanjanje template-a, biblioteke, nov layout**
+  - Template uklonjen: `assets/vendor/template/` obrisan, `_template/` premešten van projekta u `C:
+mpp\htdocs\kontit_template_backup` (nije bio u git-u; obrisati ručno kad više ne treba), `TEMPLATE_INVENTORY.md` u `docs/archive/`.
+  - Biblioteke (importmap): bootstrap 5.3.8 (CSS + JS), apexcharts 8.5.0, tom-select 2.6.2, flatpickr 4.6.13 (+ sr), imask 7.6.1, countup.js 2.10.1, autosize 6.0.1. Uklonjen chart.js. `symfony/ux-icons` 2.36 + 72 Lucide ikonice lokalno u `assets/icons/lucide/`. FilePond i PDF.js se dodaju tek uz priloge dokumenata (još ne postoje).
+  - Ikonice: sve Phosphor (`ph-*`) zamenjene sa `ux_icon('lucide:…')` (mapa u commit-u), i u enumima (`ActivityAction`, `NotificationType`, `ThemePreference`). Debljina linije 1,75 preko CSS-a.
+  - Nov `base.html.twig` našim markup-om (`kt-shell`, `kt-sidebar`, `kt-nav-link`, `kt-topbar`, `kt-page-header`, `kt-content`), makroi `components/nav.html.twig`, `assets/js/layout.js` (skupljanje sidebara sa pamćenjem, tooltip sa nazivom kad je skupljen, otvaranje na manjim ekranima). `bootstrap-map.css` mapira samo na `--bs-*`. Grafikoni: `charts.js` prevodi postojeće `data-chart` opise u ApexCharts. KPI brojanje preko CountUp.js. `missing_import_mode: strict`.
+  - **Privremeno**: `assets/styles/components/legacy.css` drži sitne utility klase koje su strane nasledile iz template-a (`fs-sm`, `btn-icon`, `bg-opacity-20`, `form-control-feedback`...), dok se strane ne prepišu u koraku 5; tada se briše.
+  - Provereno: Twig lint, container, sve strane 200, svi CSS/JS moduli sa početne strane se učitavaju. Vizuelna provera u pregledaču nije urađena (headless Chrome ugašen zbog manjka memorije).
 - 2026-10-27: **UPDATE-DIZAJN korak 1: NBS dijagnoza i popravka**
   - Dijagnoza: izvor je zvanični NBS veb servis (CoreXmlService.GetCompany) preko našeg servera; server je radio (HTTP 200, ~1,8 s). Uzrok je bio u pregledaču: `TypeError: $.trim is not a function`, jer importmap učitava jQuery 4.0, koji je izbacio `$.trim`. Ista greška je obarala i dodavanje checklist stavke, komentare i SweetAlert potvrde sa razlogom/ukucavanjem naziva. Ispravljeno svuda (`String(x ?? '').trim()`).
   - Novo: `src/Nbs/` (`NbsCompanyLookupService`, `CompanyLookupProviderInterface`, `NbsWebServiceProvider`, `NbsXmlParser`, `IdentifierChecksum`, `Transliterator`), validatori `App\Validator\Pib` i `MaticniBroj` na `Client`, ruta `/ajax/client/lookup` (zamenila `/ajax/nbs`), tekući računi iz `CompanyAccountXmlService.GetCompanyAccount`, keš 24h po PIB-u, timeout 8 s, rate limit 20/min po korisniku (`symfony/rate-limiter`), poruke "NBS trenutno ne odgovara, unesi podatke ručno".

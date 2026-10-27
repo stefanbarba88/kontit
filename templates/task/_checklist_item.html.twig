@@ -2,7 +2,7 @@
 {% import 'components/ui.html.twig' as ui %}
 <li class="list-group-item d-flex align-items-center checklist-item" data-id="{{ item.id }}">
     {% if is_granted('TASK_EDIT', task) %}
-        <span class="checklist-handle text-muted me-2" title="Prevucite za promenu redosleda" style="cursor: grab;"><i class="ph-dots-six-vertical"></i></span>
+        <span class="checklist-handle text-muted me-2" title="Prevucite za promenu redosleda" style="cursor: grab;">{{ ux_icon('lucide:grip-vertical', {class: 'kt-icon'}) }}</span>
     {% endif %}
 
     <div class="form-check mb-0 flex-grow-1">
@@ -20,7 +20,7 @@
                 <option value="{{ a.user.id }}" {{ item.assignedTo == a.user ? 'selected' : '' }}>{{ a.user.fullName }}</option>
             {% endfor %}
         </select>
-        <button type="button" class="btn btn-sm btn-icon btn-light text-danger ms-2 checklist-delete" title="Obriši stavku"><i class="ph-trash"></i></button>
+        <button type="button" class="btn btn-sm btn-icon btn-light text-danger ms-2 checklist-delete" title="Obriši stavku">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}</button>
     {% elseif item.assignedTo %}
         <span class="ms-2" title="{{ item.assignedTo.fullName }}">{{ ui.avatar(item.assignedTo, 24) }}</span>
     {% endif %}

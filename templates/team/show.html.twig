@@ -10,10 +10,10 @@
 
 {% block page_actions %}
     {% if is_granted('TEAM_MANAGE') %}
-        <a href="{{ path('admin_team_edit', {id: team.id}) }}" class="btn btn-primary"><i class="ph-pencil me-2"></i>Izmeni</a>
+        <a href="{{ path('admin_team_edit', {id: team.id}) }}" class="btn btn-primary">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-2'}) }}Izmeni</a>
         <form method="post" action="{{ path('admin_team_delete', {id: team.id}) }}" {{ confirm_attrs('Obrisati tim?', 'Tim mora biti prazan. Istorija šefova ostaje.', 'danger', 'Da, obriši', false, team.name) }}>
             <input type="hidden" name="_token" value="{{ csrf_token('team_delete_' ~ team.id) }}">
-            <button class="btn btn-outline-danger"><i class="ph-trash me-2"></i>Obriši</button>
+            <button class="btn btn-outline-danger">{{ ux_icon('lucide:trash-2', {class: 'kt-icon me-2'}) }}Obriši</button>
         </form>
     {% endif %}
 {% endblock %}
@@ -45,13 +45,13 @@
                                         {% if is_granted('TEAM_MANAGE') %}
                                             <form method="post" action="{{ path('admin_team_member_remove', {id: m.id}) }}" {{ confirm_attrs('Ukloniti radnika iz tima?', 'Radnik ' ~ m.user.fullName ~ ' ostaje u sistemu, ali bez tima.', 'warning', 'Da, ukloni') }}>
                                                 <input type="hidden" name="_token" value="{{ csrf_token('member_remove_' ~ m.id) }}">
-                                                <button class="btn btn-light btn-icon btn-sm rounded-pill border-transparent text-danger" title="Ukloni iz tima"><i class="ph-user-minus"></i></button>
+                                                <button class="btn btn-light btn-icon btn-sm rounded-pill border-transparent text-danger" title="Ukloni iz tima">{{ ux_icon('lucide:user-minus', {class: 'kt-icon'}) }}</button>
                                             </form>
                                         {% endif %}
                                     </td>
                                 </tr>
                             {% else %}
-                                <tr><td colspan="4">{{ ui.empty_state('Tim još nema članova.', 'ph-users') }}</td></tr>
+                                <tr><td colspan="4">{{ ui.empty_state('Tim još nema članova.', 'contact') }}</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -60,7 +60,7 @@
                     <div class="card-footer">
                         {{ form_start(addMemberForm, {attr: {class: 'row g-2 align-items-end', 'data-confirm-changed': '[name$="[user]"]', 'data-confirm-option-warning': '1', 'data-confirm': 'Premestiti radnika u ovaj tim?', 'data-confirm-type': 'warning', 'data-confirm-button': 'Da, premesti'}}) }}
                             <div class="col">{{ form_row(addMemberForm.user, {row_attr: {class: 'mb-0'}}) }}</div>
-                            <div class="col-auto"><button class="btn btn-primary"><i class="ph-user-plus me-2"></i>Dodaj / premesti</button></div>
+                            <div class="col-auto"><button class="btn btn-primary">{{ ux_icon('lucide:user-plus', {class: 'kt-icon me-2'}) }}Dodaj / premesti</button></div>
                         {{ form_end(addMemberForm) }}
                     </div>
                 {% endif %}

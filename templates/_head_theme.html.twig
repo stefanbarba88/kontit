@@ -1,13 +1,15 @@
-{# Postavlja temu pre CSS-a da nema treptanja (DESIGN.md sekcija 6). Preferencija: localStorage, pa korisnik iz baze, pa sistem. #}
+{# Postavlja temu i skupljen sidebar pre CSS-a da nema treptanja (DESIGN.md sekcija 6). Preferencija: localStorage, pa korisnik iz baze, pa sistem. #}
 <script>
 (function () {
+    var root = document.documentElement;
     var p = '{{ app.user ? app.user.themePreference.value|lower : 'system' }}';
     try { p = localStorage.getItem('kt-theme') || p; } catch (e) {}
     var dark = p === 'dark' || (p === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    var mode = dark ? 'dark' : 'light';
-    var root = document.documentElement;
-    root.setAttribute('data-bs-theme', mode);
-    root.setAttribute('data-color-theme', mode);
-    try { if (!localStorage.getItem('kt-theme')) { localStorage.setItem('kt-theme', p); } } catch (e) {}
+    root.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+    root.setAttribute('data-kt-pref', p);
+    try {
+        if (!localStorage.getItem('kt-theme')) { localStorage.setItem('kt-theme', p); }
+        if (localStorage.getItem('kt-sidebar') === 'collapsed') { root.classList.add('kt-sidebar-collapsed'); }
+    } catch (e) {}
 }());
 </script>

@@ -1,7 +1,9 @@
 /* Tabele (7.5): lepljivo zaglavlje, redovi 52px, samo horizontalne linije, hover. */
 .table {
-    --table-cell-padding-x: 16px;
-    --table-hover-bg: var(--kt-surface-3);
+    --bs-table-color: var(--kt-text);
+    --bs-table-hover-bg: var(--kt-surface-3);
+    --bs-table-hover-color: var(--kt-text);
+    --bs-table-border-color: var(--kt-border);
     --bs-table-bg: transparent;
     color: var(--kt-text);
     margin-bottom: 0;

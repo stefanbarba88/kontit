@@ -6,8 +6,8 @@
 {% block breadcrumbs %}<span class="breadcrumb-item active">Katalog poslova</span>{% endblock %}
 
 {% block page_actions %}
-    <a href="{{ path('admin_package_index') }}" class="btn btn-light me-2"><i class="ph-package me-2"></i>Paketi</a>
-    <a href="{{ path('admin_job_new') }}" class="btn btn-primary"><i class="ph-plus me-2"></i>Novi posao</a>
+    <a href="{{ path('admin_package_index') }}" class="btn btn-light me-2">{{ ux_icon('lucide:package', {class: 'kt-icon me-2'}) }}Paketi</a>
+    <a href="{{ path('admin_job_new') }}" class="btn btn-primary">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Novi posao</a>
 {% endblock %}
 
 {% block content %}
@@ -27,10 +27,10 @@
                             <td>{{ job.estimatedMinutes }} min</td>
                             <td>{{ job.priceUnit.label }}</td>
                             <td>{{ ui.status_badge(job.active) }}</td>
-                            <td><a href="{{ path('admin_job_edit', {id: job.id}) }}" class="btn btn-light btn-icon btn-sm rounded-pill border-transparent" title="Izmeni"><i class="ph-pencil"></i></a></td>
+                            <td><a href="{{ path('admin_job_edit', {id: job.id}) }}" class="btn btn-light btn-icon btn-sm rounded-pill border-transparent" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a></td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="8">{{ ui.empty_state('Katalog je prazan.', 'ph-list-checks') }}</td></tr>
+                        <tr><td colspan="8">{{ ui.empty_state('Katalog je prazan.', 'list-checks') }}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

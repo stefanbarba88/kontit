@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block page_actions %}
-    <a href="{{ path('admin_finance_billing_csv', {month: month|date('Y-m')}) }}" class="btn btn-outline-primary"><i class="ph-download-simple me-2"></i>CSV</a>
+    <a href="{{ path('admin_finance_billing_csv', {month: month|date('Y-m')}) }}" class="btn btn-outline-primary">{{ ux_icon('lucide:download', {class: 'kt-icon me-2'}) }}CSV</a>
 {% endblock %}
 
 {% block content %}
@@ -36,7 +36,7 @@
                             <td class="text-end fw-semibold">{{ row.total|number_format(2, ',', '.') }}</td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="5">{{ ui.empty_state('Nema stavki za naplatu u ovom mesecu.', 'ph-receipt') }}</td></tr>
+                        <tr><td colspan="5">{{ ui.empty_state('Nema stavki za naplatu u ovom mesecu.', 'receipt') }}</td></tr>
                     {% endfor %}
                 </tbody>
                 {% if rows|length %}

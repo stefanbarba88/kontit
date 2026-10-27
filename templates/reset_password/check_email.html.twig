@@ -4,7 +4,7 @@
 
 {% block auth_icon %}
     <div class="d-inline-flex bg-success bg-opacity-10 text-success lh-1 rounded-pill p-3 mb-3 mt-1">
-        <i class="ph-envelope-simple-open ph-2x"></i>
+        {{ ux_icon('lucide:mail-open', {class: 'kt-icon kt-icon-lg'}) }}
     </div>
 {% endblock %}
 {% block auth_title %}Proverite email{% endblock %}
