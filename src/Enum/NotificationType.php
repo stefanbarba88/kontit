@@ -16,6 +16,7 @@ enum NotificationType: string
     case TEAM_CHANGED = 'TEAM_CHANGED';
     case ABSENCE_REQUESTED = 'ABSENCE_REQUESTED';
     case ABSENCE_DECIDED = 'ABSENCE_DECIDED';
+    case EXPORT_READY = 'EXPORT_READY';
 
     /**
      * Naziv za podešavanja u profilu ("uvek šalji i na mail").
@@ -35,11 +36,12 @@ enum NotificationType: string
             self::TEAM_CHANGED => 'Promena tima ili šefa',
             self::ABSENCE_REQUESTED => 'Odsustvo čeka moje odobrenje',
             self::ABSENCE_DECIDED => 'Odluka o mom odsustvu',
+            self::EXPORT_READY => 'Izvoz je spreman za preuzimanje',
         };
     }
 
     /**
-     * Phosphor ikonica (klasa bez "ph" baze).
+     * Lucide ikonica (ime za ux_icon('lucide:…')).
      */
     public function icon(): string
     {
@@ -54,6 +56,7 @@ enum NotificationType: string
             self::CLIENT_ASSIGNED, self::BACKUP_ACTIVATED => 'building-2',
             self::TEAM_CHANGED => 'users',
             self::ABSENCE_REQUESTED, self::ABSENCE_DECIDED => 'calendar-check',
+            self::EXPORT_READY => 'download',
         };
     }
 
@@ -64,7 +67,7 @@ enum NotificationType: string
             self::TASK_SUBMITTED, self::TASK_COMMENTED, self::BACKUP_ACTIVATED => 'info',
             self::ABSENCE_REQUESTED => 'warning',
             self::ABSENCE_DECIDED => 'primary',
-            self::TASK_APPROVED => 'success',
+            self::TASK_APPROVED, self::EXPORT_READY => 'success',
             self::TASK_RETURNED, self::TASK_DUE_SOON => 'warning',
             self::TASK_OVERDUE => 'danger',
         };

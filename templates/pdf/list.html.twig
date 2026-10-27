@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="utf-8">
+    <title>{{ title }} · KontIT app</title>
+    <style>
+        @page { margin: 18mm 14mm 16mm; }
+        * { font-family: "DejaVu Sans", sans-serif; }
+        body { font-size: 9px; color: #1F2329; }
+        .head { width: 100%; border-bottom: 1px solid #E4E7EB; padding-bottom: 8px; margin-bottom: 12px; }
+        .head td { vertical-align: bottom; }
+        .logo { height: 26px; }
+        h1 { font-size: 16px; margin: 0; color: #1F2329; }
+        .meta { color: #5E6672; font-size: 8.5px; text-align: right; }
+        .filters { color: #5E6672; margin: 0 0 10px; }
+        table.data { width: 100%; border-collapse: collapse; }
+        table.data th { background: #F5F6F8; color: #5E6672; font-size: 7.5px; text-transform: uppercase; letter-spacing: .04em; text-align: left; padding: 6px 5px; border-bottom: 1px solid #D3D8DE; }
+        table.data td { padding: 5px; border-bottom: 1px solid #ECEEF1; vertical-align: top; }
+        table.data td.num, table.data th.num { text-align: right; }
+        .empty { color: #8A929D; }
+        .foot { position: fixed; bottom: -10mm; left: 0; right: 0; color: #8A929D; font-size: 7.5px; }
+    </style>
+</head>
+<body>
+    <table class="head">
+        <tr>
+            <td>{% if logo %}<img src="{{ logo }}" class="logo" alt="KontIT"><br>{% endif %}<h1>{{ title }}</h1></td>
+            <td class="meta">Izvezeno {{ 'now'|date('d.m.Y. H:i') }}<br>{{ user.fullName }} · {{ rows|length }} redova</td>
+        </tr>
+    </table>
+    <p class="filters">{{ filters }}</p>
+    <table class="data">
+        <thead>
+            <tr>{% for c in columns %}<th class="{{ c.type in ['number', 'money'] ? 'num' : '' }}">{{ c.label }}</th>{% endfor %}</tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                <tr>{% for i, c in columns %}<td class="{{ c.type in ['number', 'money'] ? 'num' : '' }}">{% if row[i] == '' %}<span class="empty">—</span>{% else %}{{ row[i] }}{% endif %}</td>{% endfor %}</tr>
+            {% else %}
+                <tr><td colspan="{{ columns|length }}" class="empty">Nema redova za izabrane filtere.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="foot">KontIT app · {{ title }}</div>
+</body>
+</html>

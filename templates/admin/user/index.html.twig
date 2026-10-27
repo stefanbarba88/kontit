@@ -6,6 +6,8 @@
 {% block breadcrumbs %}<span class="breadcrumb-item active">Korisnici</span>{% endblock %}
 
 {% block page_actions %}
+    {% import 'components/export.html.twig' as export %}
+    {{ export.menu('korisnici') }}
     <a href="{{ path('admin_user_new') }}" class="btn btn-primary">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Novi korisnik</a>
 {% endblock %}
 

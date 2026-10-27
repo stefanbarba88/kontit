@@ -6,6 +6,8 @@
 {% block breadcrumbs %}<span class="breadcrumb-item active">Klijenti</span>{% endblock %}
 
 {% block page_actions %}
+    {% import 'components/export.html.twig' as export %}
+    {{ export.menu('klijenti') }}
     {% if is_granted('CLIENT_CREATE') %}
         <a href="{{ path('client_import') }}" class="btn btn-outline-primary">{{ ux_icon('lucide:cloud-download', {class: 'kt-icon me-2'}) }}Uvoz iz NBS</a>
         <a href="{{ path('client_new') }}" class="btn btn-primary">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Novi klijent</a>

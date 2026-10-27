@@ -8,9 +8,12 @@
 - Otvorenih nedoumica: 0 (1-5 rešene podrazumevanim predlozima, vidi SPEC.md sekciju 11).
 
 ## Urađeno
-- 2026-10-27: **UPDATE-DIZAJN korak 7 (započet)**: instalirani `phpoffice/phpspreadsheet` 5.10, `league/csv` 9.28, `dompdf/dompdf` 3.1. Kod izvoza još nije napisan.
-  - Plan: `ExportService` (xlsx sa formatiranim zaglavljem, širinama, brojevima kao brojevima, zamrznutim prvim redom i autofilterom; CSV UTF-8 sa BOM i `;`; PDF preko `templates/pdf/`), provajderi za klijente / zadatke / korisnike koji koriste iste repository upite i Votere kao liste, ruta `/export/{list}/{format}` sa trenutnim filterima, preko 2.000 redova Messenger poruka + notifikacija `EXPORT_READY` (dodati case u `NotificationType`: label, icon `download`, color `success`), dugme "Izvoz" u zaglavlju lista.
-  - Korak 8 (pregled svih strana u obe teme na 390px i 1440px, CDP skripta u scratchpad-u) nije započet.
+- 2026-10-27: **UPDATE-DIZAJN korak 7: izvoz Excel / CSV / PDF (SPEC 8e)**
+  - `src/Export/`: `ExportListInterface` (tag `app.export_list`), `ClientExport`, `TaskExport`, `UserExport` (isti repository upiti i filteri kao liste, Voteri po redu preko `Security::isGrantedForUser()`, pa radi i u pozadini), `ExportService` (xlsx: formatirano zaglavlje, širine, brojevi i datumi kao pravi tipovi, PIB/MB kao tekst, zamrznut prvi red, autofilter; CSV: UTF-8 sa BOM, `;`; PDF: `templates/pdf/list.html.twig`, logo, DejaVu Sans).
+  - Ruta `/export/{lista}/{xlsx|csv|pdf}` sa trenutnim filterima (bez `page`); naziv fajla `kontit-klijenti-2026-10-27.xlsx`. Preko 2.000 redova: `App\Message\GenerateExport` (async) -> `GenerateExportHandler` piše u `var/exports/{korisnik}/{token}/`, notifikacija `EXPORT_READY` sa linkom `/exports/{token}` (preuzima samo vlasnik, 7 dana; stariji fajlovi se brišu pri sledećem izvozu). Za pozadinski izvoz mora da radi `php bin/console messenger:consume async`.
+  - Dugme "Izvoz" (`components/export.html.twig`) na listama klijenata, zadataka i korisnika. Cene se ne izvoze ni u jednoj od ovih lista.
+  - Provereno: sva 3 formata za sve 3 liste (200, ispravna zaglavlja), radnik dobija 403 za klijente i korisnike i samo svoje zadatke, pozadinski izvoz kroz `messenger:consume` napravi fajl i notifikaciju, tuđi token daje 404.
+  - Odstupanje: PDF koristi DejaVu Sans umesto Inter (dompdf traži TTF fajlove fonta; Inter se može dodati kasnije).
 - 2026-10-27: **UPDATE-DIZAJN korak 6: avatar samo inicijali**
   - Uklonjen upload avatara: polje iz `User` (migracija Version20261027183841 briše `avatar_name`), iz `ProfileType` i `UserType`, iz šablona; uklonjeni paketi `liip/imagine-bundle` i `vich/uploader-bundle` (sa konfiguracijom i rutama).
   - Avatar: inicijali na gradijentu, boja iz imena (`User::getAvatarTone()` = crc32 punog imena % 8); `getInitials()` radi sa Č, Ć, Š, Ž, Đ ("Đorđe Šarić" = "ĐŠ", "Džemal" = "D").

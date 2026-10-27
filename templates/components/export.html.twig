@@ -1,0 +1,17 @@
+{#
+    Dugme "Izvoz" (SPEC 8e): Excel / CSV / PDF, sa trenutnim filterima liste.
+    Upotreba: {% import 'components/export.html.twig' as export %}{{ export.menu('klijenti') }}
+#}
+{% macro menu(list) %}
+    {% set query = app.request.query.all|filter((v, k) => k != 'page') %}
+    <div class="dropdown">
+        <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ ux_icon('lucide:download', {class: 'kt-icon me-2'}) }}Izvoz
+        </button>
+        <div class="dropdown-menu dropdown-menu-end">
+            <a class="dropdown-item" href="{{ path('export_list', query|merge({list: list, format: 'xlsx'})) }}">{{ ux_icon('lucide:file-spreadsheet', {class: 'kt-icon'}) }}Excel (.xlsx)</a>
+            <a class="dropdown-item" href="{{ path('export_list', query|merge({list: list, format: 'csv'})) }}">{{ ux_icon('lucide:file-text', {class: 'kt-icon'}) }}CSV</a>
+            <a class="dropdown-item" href="{{ path('export_list', query|merge({list: list, format: 'pdf'})) }}">{{ ux_icon('lucide:file-type', {class: 'kt-icon'}) }}PDF</a>
+        </div>
+    </div>
+{% endmacro %}
