@@ -16,7 +16,6 @@ use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Vich\UploaderBundle\Form\Type\VichImageType;
 
 /**
  * Admin forma za korisnika. Opcije: role_choices (list<Role>), require_password.
@@ -67,16 +66,6 @@ class UserType extends AbstractType
                 'required' => false,
                 'help' => 'Vidi samo admin.',
                 'attr' => ['rows' => 3],
-            ])
-            ->add('avatarFile', VichImageType::class, [
-                'label' => 'Avatar',
-                'required' => false,
-                'allow_delete' => true,
-                'delete_label' => 'Ukloni avatar',
-                'download_uri' => false,
-                'image_uri' => false,
-                'asset_helper' => true,
-                'help' => 'JPG, PNG ili WebP, do 2 MB.',
             ]);
     }
 

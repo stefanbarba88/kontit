@@ -4,15 +4,9 @@
     Veličine avatara: 24, 32, 40, 64, 96px.
 #}
 
-{# Avatar (DESIGN.md 7.9): slika ili inicijali na gradijentu; boja se bira iz imena (hash), pa je ista osoba uvek iste boje #}
+{# Avatar (DESIGN.md 7.9): samo inicijali na gradijentu; boja se bira iz imena, pa je ista osoba uvek iste boje #}
 {% macro avatar(user, size = 32, extra_class = '') %}
-    {% if user.avatarName %}
-        <img src="{{ vich_uploader_asset(user, 'avatarFile')|imagine_filter('avatar_thumb') }}" alt="{{ user.fullName }}"
-             class="kt-avatar {{ extra_class }}" style="width: {{ size }}px; height: {{ size }}px;">
-    {% else %}
-        {% set tone = ((user.id ?? 0) + (user.firstName|default('')|length)) % 8 %}
-        <span class="kt-avatar {{ extra_class }}" data-tone="{{ tone }}" style="width: {{ size }}px; height: {{ size }}px; font-size: {{ (size * 0.38)|round }}px;">{{ user.initials }}</span>
-    {% endif %}
+    <span class="kt-avatar {{ extra_class }}" data-tone="{{ user.avatarTone }}" style="width: {{ size }}px; height: {{ size }}px; font-size: {{ (size * 0.38)|round }}px;">{{ user.initials }}</span>
 {% endmacro %}
 
 {% macro user_chip(user, size = 32) %}

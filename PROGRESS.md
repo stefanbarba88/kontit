@@ -8,6 +8,10 @@
 - Otvorenih nedoumica: 0 (1-5 rešene podrazumevanim predlozima, vidi SPEC.md sekciju 11).
 
 ## Urađeno
+- 2026-10-27: **UPDATE-DIZAJN korak 6: avatar samo inicijali**
+  - Uklonjen upload avatara: polje iz `User` (migracija Version20261027183841 briše `avatar_name`), iz `ProfileType` i `UserType`, iz šablona; uklonjeni paketi `liip/imagine-bundle` i `vich/uploader-bundle` (sa konfiguracijom i rutama).
+  - Avatar: inicijali na gradijentu, boja iz imena (`User::getAvatarTone()` = crc32 punog imena % 8); `getInitials()` radi sa Č, Ć, Š, Ž, Đ ("Đorđe Šarić" = "ĐŠ", "Džemal" = "D").
+  - **Za ručno brisanje** (nije brisano automatski): `public/uploads/avatars/` sadrži 1 sliku (`2026-08-19-12-44-11-1-instagram-6ae0b7b4e40e7558582640.png`, 784 KB) i `public/media/cache/` (Liip thumbnail keš).
 - 2026-10-27: **UPDATE-DIZAJN korak 5: postojeće strane na novom sistemu**
   - Sve klase iz uklonjenog template-a zamenjene našim: meki badge-ovi `kt-badge-{boja}` (NORMALAN prioritet samo ivica), `kt-btn-icon`, `btn-ghost`, `kt-text-sm/xs`, `kt-tabs`, `kt-alert`, `kt-input-icon`, `kt-icon-circle kt-tone-*`, `kt-form-actions`. `legacy.css` obrisan. Skripta proverava da u `templates/` nema klase koja ne postoji u Bootstrap-u ili našem CSS-u (ostali su samo JS hook-ovi).
   - Timeline prepisan (`kt-timeline`, DESIGN.md 7.11: krugovi u boji akcije, avatar, vreme sa tooltipom, `staro → novo` sa precrtanim starim).

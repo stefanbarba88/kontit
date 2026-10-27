@@ -9,19 +9,16 @@ use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: 'app_user')]
 #[ORM\UniqueConstraint(name: 'UNIQ_USER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'Korisnik sa ovom email adresom već postoji.')]
-#[Vich\Uploadable]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
 {
     use TimestampableTrait;
@@ -98,18 +95,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[ORM\Column(type: Types::JSON)]
     private array $emailNotifications = [];
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $avatarName = null;
-
-    #[Vich\UploadableField(mapping: 'user_avatar', fileNameProperty: 'avatarName')]
-    #[Assert\Image(
-        maxSize: '2M',
-        mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
-        maxSizeMessage: 'Slika je prevelika (maksimum {{ limit }}).',
-        mimeTypesMessage: 'Dozvoljeni formati su JPG, PNG i WebP.',
-    )]
-    private ?File $avatarFile = null;
-
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
 
@@ -152,7 +137,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 
     public function getInitials(): string
     {
-        return mb_strtoupper(mb_substr((string) $this->firstName, 0, 1).mb_substr((string) $this->lastName, 0, 1));
+        // prvo slovo imena i prezimena ("Đorđe Šarić" = "ĐŠ"); za "Dž", "Lj", "Nj" samo prvo slovo
+        return mb_strtoupper(mb_substr(trim((string) $this->firstName), 0, 1).mb_substr(trim((string) $this->lastName), 0, 1));
+    }
+
+    /**
+     * Boja avatara (0-7), izvedena iz imena: ista osoba uvek ima istu boju (DESIGN.md 7.9).
+     */
+    public function getAvatarTone(): int
+    {
+        return crc32(mb_strtolower($this->getFullName())) % 8;
     }
 
     public function getEmail(): ?string
@@ -328,35 +322,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return $this;
     }
 
-    public function getAvatarName(): ?string
-    {
-        return $this->avatarName;
-    }
-
-    public function setAvatarName(?string $avatarName): static
-    {
-        $this->avatarName = $avatarName;
-
-        return $this;
-    }
-
-    public function getAvatarFile(): ?File
-    {
-        return $this->avatarFile;
-    }
-
-    public function setAvatarFile(?File $avatarFile): static
-    {
-        $this->avatarFile = $avatarFile;
-
-        if (null !== $avatarFile) {
-            // Vich reaguje samo kad se promeni mapirano polje, pa ručno pomeramo updatedAt
-            $this->updatedAt = new \DateTimeImmutable();
-        }
-
-        return $this;
-    }
-
     public function isActive(): bool
     {
         return $this->isActive;
@@ -399,8 +364,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     {
         $data = (array) $this;
         $data["\0".self::class."\0password"] = hash('crc32c', (string) $this->password);
-        // Upload fajl se ne sme serijalizovati u sesiju
-        unset($data["\0".self::class."\0avatarFile"]);
 
         return $data;
     }
