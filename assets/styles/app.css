@@ -23,6 +23,7 @@
 @import "components/swal.css";
 @import "components/toast.css";
 @import "components/login.css";
+@import "components/mobile.css";
 @import "components/legacy.css";
 
 /* Avatar slika u krugu (template nema object-fit utility) */

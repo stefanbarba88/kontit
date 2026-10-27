@@ -10,6 +10,10 @@
 	<title>{% block title %}Početna{% endblock %} · KontIT app</title>
 	{{ include('_head_theme.html.twig') }}
 	{{ include('_favicons.html.twig') }}
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-title" content="KontIT">
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
 
 	{% block stylesheets %}
 		<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,7 +25,7 @@
 		{% block importmap %}{{ importmap('app') }}{% endblock %}
 	{% endblock %}
 </head>
-<body class="kt-app">
+<body class="kt-app" data-route="{{ app.request.attributes.get('_route')|default('') }}">
 {% import 'components/ui.html.twig' as ui %}
 {% import 'components/nav.html.twig' as nav %}
 {% set route = app.request.attributes.get('_route')|default('') %}
@@ -91,7 +95,9 @@
 
 	<div class="kt-main">
 		<header class="kt-topbar">
-			<button type="button" class="kt-icon-btn d-lg-none" data-kt-sidebar-open aria-label="Otvori meni">{{ ux_icon('lucide:menu', {class: 'kt-icon'}) }}</button>
+			<button type="button" class="kt-icon-btn d-none d-sm-inline-flex d-lg-none" data-kt-sidebar-open aria-label="Otvori meni">{{ ux_icon('lucide:menu', {class: 'kt-icon'}) }}</button>
+			<button type="button" class="kt-icon-btn kt-back d-sm-none" data-kt-back aria-label="Nazad">{{ ux_icon('lucide:chevron-left', {class: 'kt-icon'}) }}</button>
+			<div class="kt-mobile-title d-sm-none">{{ block('page_title')|striptags|trim }}</div>
 
 			<nav class="kt-breadcrumb" aria-label="Putanja">
 				<a href="{{ path('app_dashboard') }}" class="breadcrumb-item" aria-label="Početna">{{ ux_icon('lucide:house', {class: 'kt-icon'}) }}</a>
@@ -101,6 +107,7 @@
 			</nav>
 
 			<div class="kt-topbar-actions">
+				<button type="button" class="kt-icon-btn d-sm-none" data-kt-search-open aria-label="Pretraga">{{ ux_icon('lucide:search', {class: 'kt-icon'}) }}</button>
 				<div class="dropdown">
 					<button type="button" class="kt-icon-btn kt-theme-toggle" data-bs-toggle="dropdown" aria-label="Tema" title="Tema">
 						<span data-theme-icon="light">{{ ux_icon('lucide:sun', {class: 'kt-icon'}) }}</span>
@@ -160,6 +167,8 @@
 			{% block content %}{% endblock %}
 		</main>
 	</div>
+
+	{{ include('components/_mobile_nav.html.twig') }}
 
 </div>
 </body>

@@ -47,7 +47,7 @@
 {# Kartica klijenta. mode: 'primary' (puna) ili 'backup' (isprekidana ivica, badge ZAMENA) #}
 {# absence: odobreno odsustvo glavnog zaduženog koje danas traje (aktivna zamena) #}
 {% macro client_card(client, mode = 'primary', absence = null) %}
-    <div class="card h-100 mb-0 {{ mode == 'backup' ? (absence ? 'border-info' : 'border-dashed border-secondary bg-light') : '' }}">
+    <div data-kt-client-card class="card h-100 mb-0 {{ mode == 'backup' ? (absence ? 'border-info' : 'border-dashed border-secondary bg-light') : '' }}">
         <div class="card-body">
             <div class="d-flex align-items-start mb-2">
                 <h6 class="mb-0"><a href="{{ path('client_show', {id: client.id}) }}" class="text-body fw-semibold stretched-link">{{ client.name }}</a></h6>

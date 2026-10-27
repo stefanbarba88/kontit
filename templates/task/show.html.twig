@@ -213,4 +213,14 @@
         </div>
     </div>
     </div>
+
+    {# telefon: "Moj deo je gotov" lepljivo na dnu, iznad donje navigacije (DESIGN.md 16.4) #}
+    {% if me_assignee and can_complete and task.status.workable and me_assignee.status.value != 'ZAVRSIO' %}
+        <div class="kt-mobile-actionbar">
+            <form method="post" action="{{ path('task_my_part', {id: task.id, action: 'done'}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('task_my_part_' ~ task.id) }}">
+                <button class="btn btn-success">{{ ux_icon('lucide:check', {class: 'kt-icon me-2'}) }}Moj deo je gotov</button>
+            </form>
+        </div>
+    {% endif %}
 {% endblock %}

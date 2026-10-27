@@ -127,6 +127,23 @@ class TaskRepository extends ServiceEntityRepository
     }
 
     /**
+     * Koliko otvorenih zadataka korisniku kasni (rok prošao, njegov deo nije gotov). Za brojač u donjoj navigaciji.
+     */
+    public function countOverdueFor(User $user): int
+    {
+        return (int) $this->createQueryBuilder('t')
+            ->select('COUNT(DISTINCT t.id)')
+            ->join('t.assignees', 'a')
+            ->andWhere('a.user = :user AND a.status <> :done AND t.status IN (:workable) AND t.dueDate < :today')
+            ->setParameter('user', $user)
+            ->setParameter('done', \App\Enum\AssigneeStatus::ZAVRSIO)
+            ->setParameter('workable', [TaskStatus::NOVO, TaskStatus::U_RADU, TaskStatus::CEKA_KLIJENTA])
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
      * Koliko zadataka u kojima se još radi korisnik ima kao učesnik koji nije završio svoj deo.
      */
     public function countPendingFor(User $user): int

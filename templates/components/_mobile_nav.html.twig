@@ -1,0 +1,81 @@
+{#
+    Telefon (< 576px, DESIGN.md 16.2): donja traka sa tabovima, "+" meni brzih akcija, "Više" i pretraga preko celog ekrana.
+    Sidebar na telefonu ne postoji.
+#}
+{% set route = app.request.attributes.get('_route')|default('') %}
+{% set taskCount = my_overdue_count() + awaiting_approval_count() %}
+
+<nav class="kt-tabbar" aria-label="Glavna navigacija">
+    <a href="{{ path('app_dashboard') }}" class="kt-tab {{ route == 'app_dashboard' ? 'is-active' : '' }}">
+        {{ ux_icon('lucide:house', {class: 'kt-icon'}) }}<span>Početna</span>
+    </a>
+    <a href="{{ path('task_index') }}" class="kt-tab {{ route starts with 'task_' ? 'is-active' : '' }}">
+        <span class="kt-tab-icon">{{ ux_icon('lucide:list-checks', {class: 'kt-icon'}) }}{% if taskCount > 0 %}<span class="kt-tab-count">{{ taskCount }}</span>{% endif %}</span><span>Zadaci</span>
+    </a>
+    <button type="button" class="kt-tab kt-tab-plus" data-bs-toggle="offcanvas" data-bs-target="#kt-sheet-quick" aria-label="Brze akcije">
+        <span class="kt-plus">{{ ux_icon('lucide:plus', {class: 'kt-icon'}) }}</span>
+    </button>
+    {% set clientsUrl = is_granted('ROLE_SEF') ? path('client_index') : path('client_mine') %}
+    <a href="{{ clientsUrl }}" class="kt-tab {{ route starts with 'client_' ? 'is-active' : '' }}">
+        {{ ux_icon('lucide:building-2', {class: 'kt-icon'}) }}<span>Klijenti</span>
+    </a>
+    <button type="button" class="kt-tab" data-bs-toggle="offcanvas" data-bs-target="#kt-sheet-more">
+        {{ ux_icon('lucide:ellipsis', {class: 'kt-icon'}) }}<span>Više</span>
+    </button>
+</nav>
+
+<div class="offcanvas offcanvas-bottom kt-sheet" tabindex="-1" id="kt-sheet-quick" aria-label="Brze akcije">
+    <div class="kt-sheet-handle"></div>
+    <div class="kt-sheet-title">Brze akcije</div>
+    <div class="kt-sheet-body">
+        <a href="{{ path('task_new') }}" class="kt-sheet-item">{{ ux_icon('lucide:list-checks', {class: 'kt-icon'}) }}Novi zadatak</a>
+        {% if is_granted('CLIENT_CREATE') %}
+            <a href="{{ path('client_new') }}" class="kt-sheet-item">{{ ux_icon('lucide:building-2', {class: 'kt-icon'}) }}Novi klijent</a>
+        {% endif %}
+        <a href="{{ path('absence_new') }}" class="kt-sheet-item">{{ ux_icon('lucide:plane', {class: 'kt-icon'}) }}Prijavi odsustvo</a>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-bottom kt-sheet" tabindex="-1" id="kt-sheet-more" aria-label="Više">
+    <div class="kt-sheet-handle"></div>
+    <div class="kt-sheet-title">{{ app.user.fullName }}<span>{{ app.user.highestRole.label }}</span></div>
+    <div class="kt-sheet-body">
+        <a href="{{ path('client_mine') }}" class="kt-sheet-item">{{ ux_icon('lucide:briefcase', {class: 'kt-icon'}) }}Moji klijenti</a>
+        <a href="{{ path('absence_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:plane', {class: 'kt-icon'}) }}Odsustva</a>
+        {% if is_granted('ROLE_SEF') %}
+            {% if is_granted('TEAM_MANAGE') %}
+                <a href="{{ path('admin_team_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:users', {class: 'kt-icon'}) }}Timovi</a>
+            {% else %}
+                <a href="{{ path('my_team') }}" class="kt-sheet-item">{{ ux_icon('lucide:users', {class: 'kt-icon'}) }}Moj tim</a>
+            {% endif %}
+        {% endif %}
+        {% if is_granted('USER_MANAGE') %}
+            <a href="{{ path('admin_user_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:contact', {class: 'kt-icon'}) }}Korisnici</a>
+        {% endif %}
+        {% if is_granted('CATALOG_MANAGE') %}
+            <a href="{{ path('admin_job_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:list-checks', {class: 'kt-icon'}) }}Katalog poslova</a>
+            <a href="{{ path('admin_package_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:package', {class: 'kt-icon'}) }}Paketi usluga</a>
+            <a href="{{ path('admin_finance') }}" class="kt-sheet-item">{{ ux_icon('lucide:trending-up', {class: 'kt-icon'}) }}Finansije i statistika</a>
+        {% endif %}
+        <div class="kt-sheet-sep"></div>
+        <a href="{{ path('notification_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:bell', {class: 'kt-icon'}) }}Notifikacije</a>
+        <a href="{{ path('app_profile') }}" class="kt-sheet-item">{{ ux_icon('lucide:circle-user', {class: 'kt-icon'}) }}Moj profil</a>
+        <div class="kt-sheet-item kt-sheet-theme">
+            {{ ux_icon('lucide:sun', {class: 'kt-icon'}) }}Tema
+            <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="Tema">
+                <button type="button" class="btn btn-light" data-theme-choice="light">Svetla</button>
+                <button type="button" class="btn btn-light" data-theme-choice="dark">Tamna</button>
+                <button type="button" class="btn btn-light" data-theme-choice="system">Sistem</button>
+            </div>
+        </div>
+        <a href="{{ path('app_logout') }}" class="kt-sheet-item text-danger">{{ ux_icon('lucide:log-out', {class: 'kt-icon'}) }}Odjava</a>
+    </div>
+</div>
+
+<div class="kt-search-overlay" id="kt-search" hidden>
+    <form class="kt-search-bar" action="{{ is_granted('ROLE_SEF') ? path('client_index') : path('client_mine') }}" method="get" role="search">
+        <button type="button" class="kt-icon-btn" data-kt-search-close aria-label="Zatvori">{{ ux_icon('lucide:arrow-right', {class: 'kt-icon kt-flip'}) }}</button>
+        <input type="search" name="q" class="form-control" placeholder="Klijent: naziv ili PIB" autocomplete="off" enterkeyhint="search">
+    </form>
+    <div class="kt-search-hint">Pretražuje klijente po nazivu i PIB-u.</div>
+</div>

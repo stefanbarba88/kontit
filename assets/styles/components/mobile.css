@@ -1,0 +1,159 @@
+/* Mobilni prikaz (DESIGN.md 16). Telefon < 576px. */
+
+/* dodir: bez plavog bljeska, sopstveno pritisnuto stanje */
+* { -webkit-tap-highlight-color: transparent; }
+.btn:active, .kt-tab:active, .kt-sheet-item:active, .kt-nav-link:active, .kt-icon-btn:active { filter: brightness(.95); }
+
+.kt-tabbar, .kt-mobile-title, .kt-search-overlay { display: none; }
+.kt-flip { transform: rotate(180deg); }
+
+/* --- bottom sheet (offcanvas-bottom) --- */
+.kt-sheet.offcanvas-bottom {
+    height: auto; max-height: 85dvh; border: 0; border-radius: var(--kt-radius-xl) var(--kt-radius-xl) 0 0;
+    background: var(--kt-surface); color: var(--kt-text); box-shadow: var(--kt-shadow-lg);
+    padding-bottom: env(safe-area-inset-bottom); overflow-y: auto;
+}
+.kt-sheet-handle { width: 40px; height: 4px; border-radius: 999px; background: var(--kt-border-strong); margin: 10px auto 4px; flex: none; }
+.kt-sheet-title { padding: 8px 20px 12px; font-family: var(--kt-font-display); font-weight: 650; font-size: 17px; }
+.kt-sheet-title span { display: block; font-family: var(--kt-font-ui); font-weight: 400; font-size: 13px; color: var(--kt-text-3); }
+.kt-sheet-body { padding: 0 8px 12px; }
+.kt-sheet-item { display: flex; align-items: center; gap: 14px; min-height: 48px; padding: 10px 12px; border-radius: var(--kt-radius-md); color: var(--kt-text); font-weight: 500; }
+.kt-sheet-item .kt-icon { font-size: 20px; color: var(--kt-text-2); }
+.kt-sheet-item:hover { background: var(--kt-surface-3); color: var(--kt-text); }
+.kt-sheet-item.text-danger .kt-icon { color: var(--kt-danger); }
+.kt-sheet-sep { height: 1px; background: var(--kt-border); margin: 6px 12px; }
+.kt-sheet-theme .btn { min-height: 32px; font-size: 12px; }
+[data-kt-pref="light"] .kt-sheet-theme [data-theme-choice="light"],
+[data-kt-pref="dark"] .kt-sheet-theme [data-theme-choice="dark"],
+[data-kt-pref="system"] .kt-sheet-theme [data-theme-choice="system"] { background: var(--kt-primary-soft); color: var(--kt-primary); border-color: var(--kt-primary); }
+.kt-sheet .kt-sheet-body form { padding: 0 12px; }
+
+@media (max-width: 575.98px) {
+    /* raspored: nema sidebara, donja traka + safe area */
+    .kt-sidebar, .kt-sidebar-backdrop { display: none !important; }
+    .kt-main { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+
+    /* topbar 56px: nazad levo, naslov na sredini, pretraga i zvonce desno */
+    .kt-topbar { height: calc(56px + env(safe-area-inset-top)); gap: 4px; padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); }
+    .kt-breadcrumb { display: none; }
+    .kt-mobile-title { display: block; position: absolute; left: 56px; right: 96px; text-align: center; font-weight: 600; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+    .kt-topbar .dropdown:has(.kt-theme-toggle), .kt-topbar .dropdown:has(.kt-avatar-btn) { display: none; }
+    .kt-back[hidden] { display: none; }
+    .kt-page-header .kt-page-title { display: none; }
+    .kt-page-header { padding: 12px 12px 8px; }
+    .kt-page-header:not(:has(.kt-page-actions)) { display: none; }
+    .kt-page-actions { margin-left: 0; width: 100%; }
+    .kt-page-actions > .btn, .kt-page-actions > form { flex: 1 1 auto; }
+    .kt-page-actions > form .btn { width: 100%; }
+
+    /* donja traka sa tabovima */
+    .kt-tabbar {
+        display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 1035;
+        height: calc(64px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom);
+        background: color-mix(in srgb, var(--kt-surface) 92%, transparent);
+        -webkit-backdrop-filter: blur(12px) saturate(140%); backdrop-filter: blur(12px) saturate(140%);
+        border-top: 1px solid var(--kt-border);
+    }
+    .kt-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 44px; border: 0; background: transparent; color: var(--kt-text-3); font-size: 11px; font-weight: 500; }
+    .kt-tab .kt-icon { font-size: 22px; }
+    .kt-tab.is-active { color: var(--kt-primary); }
+    .kt-tab-icon { position: relative; display: inline-flex; }
+    .kt-tab-count { position: absolute; top: -4px; right: -10px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--kt-danger); color: #fff; font-size: 10px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px var(--kt-surface); }
+    .kt-plus { width: 48px; height: 48px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--kt-primary); color: var(--kt-on-primary); box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--kt-primary) 60%, transparent); margin-top: -18px; }
+    .kt-plus .kt-icon { font-size: 24px; }
+
+    /* pretraga preko celog ekrana */
+    .kt-search-overlay:not([hidden]) { display: block; position: fixed; inset: 0; z-index: 1060; background: var(--kt-bg); padding-top: env(safe-area-inset-top); }
+    .kt-search-bar { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--kt-border); }
+    .kt-search-bar .form-control { min-height: 44px; }
+    .kt-search-hint { padding: 12px 16px; color: var(--kt-text-3); font-size: 13px; }
+
+    /* prostor: kartice 12px razmak, 16px unutra */
+    .kt-content { padding: 0 12px calc(16px + env(safe-area-inset-bottom)); }
+    .card { margin-bottom: 12px; }
+    .card-body { padding: 16px; }
+    .card-header { padding: 14px 16px; }
+    .row { --bs-gutter-x: 12px; }
+
+    /* liste od ivice do ivice */
+    .card:has(> .table-responsive), .card:has(> .list-group-flush), .kt-edge {
+        margin-left: -12px; margin-right: -12px; border-radius: 0; border-left: 0; border-right: 0; box-shadow: none;
+    }
+    .card:has(> .table-responsive) .table-responsive { border-radius: 0; }
+
+    /* tabele postaju liste: prva ćelija je glavni red, ostale sekundarni red sa labelom */
+    .table.kt-stack thead { display: none; }
+    .table.kt-stack, .table.kt-stack tbody { display: block; }
+    .table.kt-stack tbody tr { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; height: auto; padding: 12px 16px; border-bottom: 1px solid var(--kt-border); position: relative; }
+    .table.kt-stack tbody tr:last-child { border-bottom: 0; }
+    .table.kt-stack tbody td { display: block; padding: 0; border: 0; grid-column: 1; text-align: left !important; font-size: 13px; color: var(--kt-text-2); }
+    .table.kt-stack tbody td:first-child { font-size: 15px; color: var(--kt-text); font-weight: 500; }
+    .table.kt-stack tbody td:not(:first-child):not(.kt-stack-actions):not(.kt-stack-full)::before { content: attr(data-label) ": "; color: var(--kt-text-3); }
+    .table.kt-stack tbody td:empty { display: none; }
+    .table.kt-stack tbody td.kt-stack-actions { grid-column: 2; grid-row: 1 / span 3; align-self: center; }
+    .table.kt-stack tbody td.kt-stack-full { grid-column: 1 / -1; }
+    .table.kt-stack tbody td.kt-stack-actions .btn-icon, .table.kt-stack tbody td.kt-stack-actions .kt-btn-icon { opacity: 1; width: 44px; height: 44px; }
+    .table.kt-stack tbody td.kt-stack-actions form { display: inline; }
+    .table.kt-stack tfoot { display: block; }
+    .table.kt-stack tfoot tr { display: flex; justify-content: space-between; padding: 12px 16px; }
+    .table.kt-stack tfoot th { border: 0; padding: 0; }
+    .kt-filter-btn { width: 100%; }
+    .kt-filter-count { display: inline-flex; min-width: 20px; height: 20px; border-radius: 999px; background: var(--kt-primary); color: var(--kt-on-primary); font-size: 11px; align-items: center; justify-content: center; margin-left: 6px; }
+    .kt-load-more { margin: 4px 0 12px; min-height: 44px; }
+
+    /* forme: polja 44px, font 16px (iPhone ne zumira), lepljiva dugmad */
+    .form-control, .form-select, .ts-wrapper .ts-control, .ts-wrapper.single .ts-control { min-height: 44px; font-size: 16px; }
+    .btn { min-height: 44px; }
+    .btn-sm { min-height: 36px; }
+    .kt-form-actions, form > .text-end:last-child {
+        position: sticky; bottom: calc(64px + env(safe-area-inset-bottom)); z-index: 5;
+        display: flex; gap: 8px; margin: 16px -16px -16px; padding: 12px 16px;
+        background: color-mix(in srgb, var(--kt-surface) 94%, transparent); backdrop-filter: blur(8px);
+        border-top: 1px solid var(--kt-border);
+    }
+    .kt-form-actions > *, form > .text-end:last-child > * { flex: 1; margin: 0 !important; }
+
+    /* modali kao bottom sheet */
+    .modal-dialog { margin: 0; position: fixed; left: 0; right: 0; bottom: 0; max-width: none; }
+    .modal.fade .modal-dialog { transform: translateY(100%); }
+    .modal.show .modal-dialog { transform: none; }
+    .modal-content { border-radius: var(--kt-radius-xl) var(--kt-radius-xl) 0 0; padding-bottom: env(safe-area-inset-bottom); }
+    .modal-content::before { content: ""; display: block; width: 40px; height: 4px; border-radius: 999px; background: var(--kt-border-strong); margin: 10px auto 0; }
+
+    /* SweetAlert: puna širina sa 12px margine, dugmad jedno ispod drugog (primarno gore) */
+    .swal2-container { padding: 12px !important; }
+    .swal2-popup.kt-swal { width: 100% !important; }
+    .kt-swal .swal2-actions { flex-direction: column-reverse; width: 100%; }
+    .kt-swal .swal2-actions .swal2-styled { width: 100%; min-height: 44px; margin: 0; }
+    .swal2-popup.kt-toast { margin-bottom: calc(64px + env(safe-area-inset-bottom)) !important; }
+
+    /* dodir: najmanje 44x44 */
+    .kt-icon-btn { width: 44px; height: 44px; }
+    .dropdown-item { min-height: 44px; }
+}
+
+/* --- zadaci na telefonu: grupe po roku, swipe akcije --- */
+.kt-task-groups { display: none; }
+@media (max-width: 575.98px) {
+    .kt-task-groups { display: block; margin: 0 -12px; }
+    .kt-task-groups + .kt-task-table, .kt-task-table { display: none; }
+    .kt-group-head { position: sticky; top: calc(56px + env(safe-area-inset-top)); z-index: 3; padding: 8px 16px; background: var(--kt-bg); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--kt-text-3); border-bottom: 1px solid var(--kt-border); }
+    .kt-group-head.is-danger { color: var(--kt-danger); }
+    .kt-swipe { position: relative; overflow: hidden; background: var(--kt-surface); border-bottom: 1px solid var(--kt-border); }
+    .kt-swipe-actions { position: absolute; top: 0; right: 0; bottom: 0; display: flex; }
+    .kt-swipe-actions form { display: flex; margin: 0; }
+    .kt-swipe-actions .btn, .kt-swipe-actions a { border-radius: 0; min-width: 88px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; border: 0; }
+    .kt-swipe-content { position: relative; z-index: 1; display: flex; gap: 12px; padding: 12px 16px; background: var(--kt-surface); color: var(--kt-text); transition: transform var(--kt-dur-2) var(--kt-ease); }
+    .kt-swipe-content .kt-task-title { font-weight: 500; font-size: 15px; }
+    .kt-swipe-content .kt-task-meta { font-size: 13px; color: var(--kt-text-2); }
+    .kt-swipe-more { margin-left: auto; align-self: center; color: var(--kt-text-3); }
+
+    /* detalj zadatka: lepljivo dugme "Moj deo je gotov" iznad donje trake, komentar lepljiv na dnu kartice */
+    .kt-mobile-actionbar { position: fixed; left: 0; right: 0; bottom: calc(64px + env(safe-area-inset-bottom)); z-index: 1030; padding: 10px 12px; background: color-mix(in srgb, var(--kt-surface) 94%, transparent); backdrop-filter: blur(8px); border-top: 1px solid var(--kt-border); }
+    .kt-mobile-actionbar form { margin: 0; }
+    .kt-mobile-actionbar .btn { width: 100%; }
+    body:has(.kt-mobile-actionbar) .kt-main { padding-bottom: calc(128px + env(safe-area-inset-bottom)); }
+    #comment-add { position: sticky; bottom: calc(64px + env(safe-area-inset-bottom)); background: var(--kt-surface); padding: 10px 0 0; margin-top: 8px; border-top: 1px solid var(--kt-border); z-index: 2; }
+    body:has(.kt-mobile-actionbar) #comment-add { bottom: calc(128px + env(safe-area-inset-bottom)); }
+}
+@media (min-width: 576px) { .kt-mobile-actionbar { display: none; } }

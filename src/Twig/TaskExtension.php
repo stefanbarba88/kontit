@@ -26,6 +26,7 @@ class TaskExtension extends AbstractExtension
     {
         return [
             new TwigFunction('awaiting_approval_count', $this->awaitingApprovalCount(...)),
+            new TwigFunction('my_overdue_count', $this->myOverdueCount(...)),
             new TwigFunction('can_toggle_item', $this->canToggleItem(...)),
             new TwigFunction('substituting_for', $this->substitutingFor(...)),
         ];
@@ -42,6 +43,16 @@ class TaskExtension extends AbstractExtension
         }
 
         return $this->tasks->countAwaitingApproval($user, $this->service->isAdmin($user));
+    }
+
+    /**
+     * Broj mojih zadataka koji kasne (donja navigacija na telefonu).
+     */
+    public function myOverdueCount(): int
+    {
+        $user = $this->security->getUser();
+
+        return $user instanceof User ? $this->tasks->countOverdueFor($user) : 0;
     }
 
     /**

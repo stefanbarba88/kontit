@@ -8,6 +8,11 @@
 - Otvorenih nedoumica: 0 (1-5 rešene podrazumevanim predlozima, vidi SPEC.md sekciju 11).
 
 ## Urađeno
+- 2026-10-27: **UPDATE-DIZAJN korak 4: mobilni prikaz (DESIGN.md 16)**
+  - Telefon < 576px: nema sidebara; donja traka (Početna, Zadaci sa brojačem kašnjenja + čekanja potvrde, "+" brze akcije, Klijenti, Više) u `components/_mobile_nav.html.twig`; bottom sheet-ovi (Bootstrap offcanvas-bottom sa ručkom, zatvaranje prevlačenjem); topbar 56px sa dugmetom nazad (istorija ili poslednja karika putanje), naslovom na sredini, pretragom preko celog ekrana i zvoncem; safe-area za notch.
+  - `assets/js/mobile.js`: tabele dobijaju `data-label` iz zaglavlja i na telefonu postaju kartice-redovi (glavni red + sekundarni red + akcije), filteri (`form[data-kt-filters]`) idu u bottom sheet sa brojem aktivnih, "Učitaj još" umesto brojeva strana, swipe akcije, filtriranje "Moji klijenti" po `?q=`.
+  - Zadaci: grupisani po roku (Kasni / Danas / Sutra / Ove nedelje / Kasnije) sa lepljivim zaglavljima, swipe ulevo: "Moj deo je gotov" i "Otvori"; detalj: lepljivo dugme "Moj deo je gotov" i lepljivo polje za komentar. Nov `TaskRepository::countOverdueFor()` i Twig `my_overdue_count()`.
+  - Forme: polja 44px i font 16px, lepljiva dugmad (`.kt-form-actions` i završni `.text-end` u formi), modali kao bottom sheet, SweetAlert pune širine sa dugmadima jedno ispod drugog, dodir najmanje 44px, bez tap bljeska. PWA meta tagovi.
 - 2026-10-27: **UPDATE-DIZAJN korak 3: sitnice i /_design**
   - `assets/js/forms.js` (`initForms(root)`): Tom Select na svim `select.form-select` (bez `data-native`), flatpickr na `input[type=date]` (latinični srpski, `d.m.Y.`, nedelja od ponedeljka, vikend prigušen, praznici sa tačkicom iz `holiday_dates()`), period sa prečicama `data-kt-period`, IMask (PIB, MB, tekući račun, telefon, iznosi u MoneyType poljima šalju se kao 1.234,56 i server ih parsira po `sr_Latn`), autosize i brojač za `textarea[maxlength]`, lozinka sa okom i upozorenjem za Caps Lock, polje pretrage sa ikonicom i brisanjem, tooltip-ovi (300 ms).
   - `components/controls.css`: checkbox sa animiranom kvačicom i stanjem "delimično", radio, switch, stanja polja (hover, uspeh, greška, disabled, readonly), autofill, number bez strelica, Tom Select i flatpickr u našim tokenima, taman tooltip, View Transitions.
