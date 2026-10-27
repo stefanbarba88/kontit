@@ -3,11 +3,15 @@
 > Claude ažurira ovaj fajl na kraju svakog zadatka. Najnovije ide na vrh.
 
 ## Trenutno stanje
-- Faza: **Korak A, 2b, 3b, 7b i NBS import završeni** (uz faze 0-7). Repo još nema nijedan commit.
-- Sledeći korak: **Faza 8** (praćenje vremena) i **Faza 9** (portal, eksport). Korisnik je rekao da se ne rade u ovom krugu.
-- Otvorenih nedoumica: 0 (1-5 rešene podrazumevanim predlozima, vidi SPEC.md sekciju 11).
+- Faza: **UPDATE-DIZAJN završen** (koraci 1-8): NBS popravka, sopstveni UI sistem bez template-a, sitnice, mobilni prikaz, avatar inicijali, izvoz. Uz faze 0-7, 2b, 3b, 7b.
+- Sledeći korak: **Faza 8** (praćenje vremena), pa Faza 9. Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
+- Otvorenih nedoumica: 0.
 
 ## Urađeno
+- 2026-10-27: **UPDATE-DIZAJN korak 8: pregled u pregledaču**
+  - Headless Chrome (CDP skripta `review.php` u scratchpad-u): 18 strana × 1440/390 px × svetla/tamna = 72 prikaza. Nijedna JS greška u konzoli, nigde horizontalno skrolovanje.
+  - Ispravljeno posle pregleda: dupla strelica i okvir Tom Select-a (omotač nasleđuje `form-select`), brojač aktivnih filtera na telefonu je brojao podrazumevane vrednosti, preostali oblici na "vi" (Napišite, Ponovite, Ostavite, Postavite, Prevucite, Obratite se).
+  - Napomena: ApexCharts grafikoni se crtaju za oko 3-5 s na dev serveru (lenjo učitavanje modula), na produkciji brže. `UPDATE-DIZAJN.md` premešten u `docs/archive/`.
 - 2026-10-27: **UPDATE-DIZAJN korak 7: izvoz Excel / CSV / PDF (SPEC 8e)**
   - `src/Export/`: `ExportListInterface` (tag `app.export_list`), `ClientExport`, `TaskExport`, `UserExport` (isti repository upiti i filteri kao liste, Voteri po redu preko `Security::isGrantedForUser()`, pa radi i u pozadini), `ExportService` (xlsx: formatirano zaglavlje, širine, brojevi i datumi kao pravi tipovi, PIB/MB kao tekst, zamrznut prvi red, autofilter; CSV: UTF-8 sa BOM, `;`; PDF: `templates/pdf/list.html.twig`, logo, DejaVu Sans).
   - Ruta `/export/{lista}/{xlsx|csv|pdf}` sa trenutnim filterima (bez `page`); naziv fajla `kontit-klijenti-2026-10-27.xlsx`. Preko 2.000 redova: `App\Message\GenerateExport` (async) -> `GenerateExportHandler` piše u `var/exports/{korisnik}/{token}/`, notifikacija `EXPORT_READY` sa linkom `/exports/{token}` (preuzima samo vlasnik, 7 dana; stariji fajlovi se brišu pri sledećem izvozu). Za pozadinski izvoz mora da radi `php bin/console messenger:consume async`.

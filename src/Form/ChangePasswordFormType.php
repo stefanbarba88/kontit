@@ -37,7 +37,7 @@ class ChangePasswordFormType extends AbstractType
                     'label' => 'Nova lozinka',
                 ],
                 'second_options' => [
-                    'label' => 'Ponovite lozinku',
+                    'label' => 'Ponovi lozinku',
                 ],
                 'invalid_message' => 'Lozinke se ne poklapaju.',
                 // Instead of being set onto the object directly,

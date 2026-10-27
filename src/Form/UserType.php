@@ -42,9 +42,9 @@ class UserType extends AbstractType
                 'mapped' => false,
                 'required' => $options['require_password'],
                 'first_options' => ['label' => $options['require_password'] ? 'Lozinka' : 'Nova lozinka', 'attr' => ['autocomplete' => 'new-password']],
-                'second_options' => ['label' => 'Ponovite lozinku', 'attr' => ['autocomplete' => 'new-password']],
+                'second_options' => ['label' => 'Ponovi lozinku', 'attr' => ['autocomplete' => 'new-password']],
                 'invalid_message' => 'Lozinke se ne poklapaju.',
-                'help' => $options['require_password'] ? null : 'Ostavite prazno da lozinka ostane ista.',
+                'help' => $options['require_password'] ? null : 'Ostavi prazno da lozinka ostane ista.',
                 'constraints' => array_filter([
                     $options['require_password'] ? new NotBlank(message: 'Unesi lozinku.') : null,
                     new Length(min: 8, minMessage: 'Lozinka mora imati najmanje {{ limit }} karaktera.', max: 4096),

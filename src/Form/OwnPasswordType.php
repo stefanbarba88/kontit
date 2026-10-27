@@ -23,7 +23,7 @@ class OwnPasswordType extends AbstractType
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'first_options' => ['label' => 'Nova lozinka', 'attr' => ['autocomplete' => 'new-password']],
-                'second_options' => ['label' => 'Ponovite novu lozinku', 'attr' => ['autocomplete' => 'new-password']],
+                'second_options' => ['label' => 'Ponovi novu lozinku', 'attr' => ['autocomplete' => 'new-password']],
                 'invalid_message' => 'Lozinke se ne poklapaju.',
                 'constraints' => [
                     new NotBlank(message: 'Unesi novu lozinku.'),

@@ -135,3 +135,9 @@ input.kt-date { background-image: none; }
 @view-transition { navigation: auto; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 160ms; }
 @media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }
+
+/* Tom Select nasleđuje klasu form-select na omotaču: bez Bootstrap strelice i okvira na omotaču (strelica je naša) */
+.ts-wrapper.form-select, .ts-wrapper.form-control { background-image: none !important; padding: 0; border: 0; box-shadow: none; min-height: 0; }
+.ts-wrapper.form-select .ts-control, .ts-wrapper.form-select.single.input-active .ts-control { border: 1px solid var(--kt-border-strong) !important; }
+.ts-wrapper.form-select.focus .ts-control { border-color: var(--kt-brand-500) !important; }
+.is-invalid + .ts-wrapper.form-select .ts-control, .ts-wrapper.form-select.is-invalid .ts-control { border-color: var(--kt-danger) !important; }

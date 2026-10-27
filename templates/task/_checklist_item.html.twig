@@ -2,7 +2,7 @@
 {% import 'components/ui.html.twig' as ui %}
 <li class="list-group-item d-flex align-items-center checklist-item" data-id="{{ item.id }}">
     {% if is_granted('TASK_EDIT', task) %}
-        <span class="checklist-handle text-muted me-2" title="Prevucite za promenu redosleda" style="cursor: grab;">{{ ux_icon('lucide:grip-vertical', {class: 'kt-icon'}) }}</span>
+        <span class="checklist-handle text-muted me-2" title="Prevuci za promenu redosleda" style="cursor: grab;">{{ ux_icon('lucide:grip-vertical', {class: 'kt-icon'}) }}</span>
     {% endif %}
 
     <div class="form-check mb-0 flex-grow-1">

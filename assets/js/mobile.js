@@ -31,7 +31,10 @@ document.querySelectorAll('form[data-kt-filters]').forEach((form, index) => {
     if (!phone()) {
         return;
     }
-    const active = [...form.querySelectorAll('select, input:not([type=hidden])')].filter((el) => el.value !== '' && !el.dataset.ktDefault).length;
+    // aktivan filter = vrednost različita od podrazumevane (prva opcija liste, prazno polje)
+    const active = [...form.querySelectorAll('select, input:not([type=hidden])')].filter((el) => (
+        el.tagName === 'SELECT' ? el.selectedIndex > 0 : el.value !== ''
+    )).length;
     const sheet = document.createElement('div');
     sheet.className = 'offcanvas offcanvas-bottom kt-sheet';
     sheet.id = `kt-filters-${index}`;
