@@ -1,0 +1,70 @@
+<div class="card">
+    <div class="card-header"><h5>Sitnice: kontrole forme</h5></div>
+    <div class="card-body">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="kt-overline mb-2">Checkbox</div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" id="d-c1" checked><label class="form-check-label" for="d-c1">Štiklirano</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" id="d-c2"><label class="form-check-label" for="d-c2">Nije štiklirano</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" id="d-c3" data-kt-indeterminate><label class="form-check-label" for="d-c3">Delimično (označi sve)</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" id="d-c4" disabled><label class="form-check-label" for="d-c4">Onemogućeno</label></div>
+            </div>
+            <div class="col-md-4">
+                <div class="kt-overline mb-2">Radio</div>
+                <div class="form-check"><input class="form-check-input" type="radio" name="d-r" id="d-r1" checked><label class="form-check-label" for="d-r1">Mesečno</label></div>
+                <div class="form-check"><input class="form-check-input" type="radio" name="d-r" id="d-r2"><label class="form-check-label" for="d-r2">Kvartalno</label></div>
+                <div class="kt-overline mb-2 mt-3">Switch</div>
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="d-s1" checked><label class="form-check-label" for="d-s1">Pošalji i na mail</label></div>
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="d-s2"><label class="form-check-label" for="d-s2">Nedeljni izveštaj</label></div>
+            </div>
+            <div class="col-md-4">
+                <div class="kt-overline mb-2">Tooltip</div>
+                <button type="button" class="btn btn-light" data-bs-toggle="tooltip" title="Pojavljuje se posle 300 ms">Pređi mišem</button>
+                <div class="kt-overline mb-2 mt-3">Prazna vrednost</div>
+                <div>Telefon: <span class="kt-empty-value">—</span></div>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Select (Tom Select)</label>
+                <select class="form-select"><option value="">— izaberi klijenta —</option><option>Pekara Zlatni klas</option><option>Auto-servis Brzi</option><option>Knjigovodstvo Plus</option></select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Višestruki izbor</label>
+                <select class="form-select" multiple><option selected>Marko Petrović</option><option selected>Jelena Kovač</option><option>Petar Ilić</option></select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Pretraga</label>
+                <input type="search" class="form-control" placeholder="Naziv ili PIB">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Datum</label>
+                <input type="date" class="form-control" value="{{ 'now'|date('Y-m-d') }}">
+                <div class="form-text">Vikend prigušen, praznik ima tačkicu.</div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Period (sa prečicama)</label>
+                <input type="text" class="form-control" data-kt-period placeholder="od – do">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Lozinka</label>
+                <input type="password" class="form-control" value="tajna123">
+            </div>
+
+            <div class="col-md-3"><label class="form-label">PIB (maska)</label><input class="form-control kt-mono" name="d[pib]" placeholder="9 cifara"></div>
+            <div class="col-md-3"><label class="form-label">Matični broj</label><input class="form-control kt-mono" name="d[maticniBroj]" placeholder="8 cifara"></div>
+            <div class="col-md-3"><label class="form-label">Iznos</label><input class="form-control kt-num" data-kt-money placeholder="1.234,56"></div>
+            <div class="col-md-3"><label class="form-label">Tekući račun</label><input class="form-control kt-mono" data-kt-mask="account" placeholder="XXX-XXXXXXXXXXXXX-XX"></div>
+
+            <div class="col-md-3"><label class="form-label">Uspeh</label><input class="form-control is-valid" value="Ispravno"></div>
+            <div class="col-md-3"><label class="form-label">Greška</label><input class="form-control is-invalid" value="pogrešno"><div class="invalid-feedback">Unesi ispravnu vrednost.</div></div>
+            <div class="col-md-3"><label class="form-label">Onemogućeno</label><input class="form-control" value="Ne može" disabled></div>
+            <div class="col-md-3"><label class="form-label">Samo za čitanje</label><input class="form-control" value="Iz NBS-a" readonly></div>
+
+            <div class="col-md-6"><label class="form-label">Komentar (auto-visina, brojač)</label><textarea class="form-control" rows="2" maxlength="300" placeholder="Kucaj…"></textarea></div>
+        </div>
+    </div>
+</div>
+<script>
+    document.querySelectorAll('[data-kt-indeterminate]').forEach((el) => { el.indeterminate = true; });
+</script>

@@ -49,8 +49,18 @@ const fill = (data) => {
             return;
         }
         if ($field.val() !== data[key]) {
-            $field.val(data[key]).trigger('change');
-            glow($field);
+            const el = $field[0];
+            if (el.tomselect) {
+                // pravna forma je Tom Select: vrednost mora kroz njegov API
+                el.tomselect.setValue(data[key], true);
+                glow($(el.tomselect.control));
+            } else {
+                // native događaji, da IMask maska vidi novu vrednost
+                el.value = data[key];
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                glow($field);
+            }
         }
     });
     renderAccounts(data.accounts);

@@ -8,6 +8,11 @@
 - Otvorenih nedoumica: 0 (1-5 rešene podrazumevanim predlozima, vidi SPEC.md sekciju 11).
 
 ## Urađeno
+- 2026-10-27: **UPDATE-DIZAJN korak 3: sitnice i /_design**
+  - `assets/js/forms.js` (`initForms(root)`): Tom Select na svim `select.form-select` (bez `data-native`), flatpickr na `input[type=date]` (latinični srpski, `d.m.Y.`, nedelja od ponedeljka, vikend prigušen, praznici sa tačkicom iz `holiday_dates()`), period sa prečicama `data-kt-period`, IMask (PIB, MB, tekući račun, telefon, iznosi u MoneyType poljima šalju se kao 1.234,56 i server ih parsira po `sr_Latn`), autosize i brojač za `textarea[maxlength]`, lozinka sa okom i upozorenjem za Caps Lock, polje pretrage sa ikonicom i brisanjem, tooltip-ovi (300 ms).
+  - `components/controls.css`: checkbox sa animiranom kvačicom i stanjem "delimično", radio, switch, stanja polja (hover, uspeh, greška, disabled, readonly), autofill, number bez strelica, Tom Select i flatpickr u našim tokenima, taman tooltip, View Transitions.
+  - `nbs.js` upisuje vrednosti preko Tom Select API-ja i native događaja (zbog maski). Twig `holiday_dates()` (`HolidayExtension`).
+  - `/_design`: nova sekcija "Sitnice" (`design/_controls.html.twig`).
 - 2026-10-27: **UPDATE-DIZAJN korak 2: uklanjanje template-a, biblioteke, nov layout**
   - Template uklonjen: `assets/vendor/template/` obrisan, `_template/` premešten van projekta u `C:
 mpp\htdocs\kontit_template_backup` (nije bio u git-u; obrisati ručno kad više ne treba), `TEMPLATE_INVENTORY.md` u `docs/archive/`.

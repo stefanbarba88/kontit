@@ -5,7 +5,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<meta name="theme-color" content="#F5F6F8" media="(prefers-color-scheme: light)">
 	<meta name="theme-color" content="#0B0F14" media="(prefers-color-scheme: dark)">
-	{% if app.user %}<meta name="csrf-token" content="{{ csrf_token('ajax') }}">{% endif %}
+	{% if app.user %}<meta name="csrf-token" content="{{ csrf_token('ajax') }}">
+	<meta name="kt-holidays" content="{{ holiday_dates()|join(',') }}">{% endif %}
 	<title>{% block title %}Početna{% endblock %} · KontIT app</title>
 	{{ include('_head_theme.html.twig') }}
 	{{ include('_favicons.html.twig') }}
