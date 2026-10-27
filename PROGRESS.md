@@ -8,6 +8,9 @@
 - Otvorenih nedoumica: 0 (1-5 rešene podrazumevanim predlozima, vidi SPEC.md sekciju 11).
 
 ## Urađeno
+- 2026-10-27: **UPDATE-DIZAJN korak 7 (započet)**: instalirani `phpoffice/phpspreadsheet` 5.10, `league/csv` 9.28, `dompdf/dompdf` 3.1. Kod izvoza još nije napisan.
+  - Plan: `ExportService` (xlsx sa formatiranim zaglavljem, širinama, brojevima kao brojevima, zamrznutim prvim redom i autofilterom; CSV UTF-8 sa BOM i `;`; PDF preko `templates/pdf/`), provajderi za klijente / zadatke / korisnike koji koriste iste repository upite i Votere kao liste, ruta `/export/{list}/{format}` sa trenutnim filterima, preko 2.000 redova Messenger poruka + notifikacija `EXPORT_READY` (dodati case u `NotificationType`: label, icon `download`, color `success`), dugme "Izvoz" u zaglavlju lista.
+  - Korak 8 (pregled svih strana u obe teme na 390px i 1440px, CDP skripta u scratchpad-u) nije započet.
 - 2026-10-27: **UPDATE-DIZAJN korak 6: avatar samo inicijali**
   - Uklonjen upload avatara: polje iz `User` (migracija Version20261027183841 briše `avatar_name`), iz `ProfileType` i `UserType`, iz šablona; uklonjeni paketi `liip/imagine-bundle` i `vich/uploader-bundle` (sa konfiguracijom i rutama).
   - Avatar: inicijali na gradijentu, boja iz imena (`User::getAvatarTone()` = crc32 punog imena % 8); `getInitials()` radi sa Č, Ć, Š, Ž, Đ ("Đorđe Šarić" = "ĐŠ", "Džemal" = "D").
