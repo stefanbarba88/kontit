@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Security\Voter;
+
+use App\Entity\User;
+use App\Enum\Role;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
+
+/**
+ * USER_MANAGE (bez subjekta): lista, kreiranje korisnika.
+ * USER_VIEW / USER_EDIT (subjekt User): admin+, uz pravilo da admine i superadmine menja samo superadmin.
+ */
+class UserVoter extends Voter
+{
+    public const MANAGE = 'USER_MANAGE';
+    public const VIEW = 'USER_VIEW';
+    public const EDIT = 'USER_EDIT';
+
+    public function __construct(private readonly RoleHierarchyInterface $roleHierarchy)
+    {
+    }
+
+    protected function supports(string $attribute, mixed $subject): bool
+    {
+        return match ($attribute) {
+            self::MANAGE => null === $subject,
+            self::VIEW, self::EDIT => $subject instanceof User,
+            default => false,
+        };
+    }
+
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
+    {
+        $actor = $token->getUser();
+        if (!$actor instanceof User) {
+            return false;
+        }
+
+        $reachable = $this->roleHierarchy->getReachableRoleNames($token->getRoleNames());
+        $isAdmin = in_array(Role::ADMIN->value, $reachable, true);
+        $isSuperadmin = in_array(Role::SUPERADMIN->value, $reachable, true);
+
+        if (!$isAdmin) {
+            return false;
+        }
+
+        return match ($attribute) {
+            self::MANAGE, self::VIEW => true,
+            self::EDIT => $isSuperadmin || !in_array($subject->getHighestRole(), [Role::ADMIN, Role::SUPERADMIN], true),
+            default => false,
+        };
+    }
+}

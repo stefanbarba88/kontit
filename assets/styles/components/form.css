@@ -1,0 +1,50 @@
+/* Forme (7.6): labela iznad, input 36px, fokus prsten 3px, greška crveno. */
+.form-label { font-size: 13px; font-weight: 500; color: var(--kt-text); margin-bottom: 6px; }
+.form-text, .form-help, .help-text { font-size: 13px; color: var(--kt-text-3); }
+
+.form-control, .form-select {
+    min-height: 36px;
+    border: 1px solid var(--kt-border-strong);
+    border-radius: var(--kt-radius-md);
+    background-color: var(--kt-surface);
+    color: var(--kt-text);
+    transition: border-color var(--kt-dur-1) var(--kt-ease), box-shadow var(--kt-dur-1) var(--kt-ease);
+}
+.form-control::placeholder { color: var(--kt-text-3); }
+.form-control:focus, .form-select:focus {
+    border-color: var(--kt-brand-500);
+    box-shadow: 0 0 0 3px var(--kt-focus);
+    background-color: var(--kt-surface);
+    color: var(--kt-text);
+}
+.form-control-sm, .form-select-sm { min-height: 32px; }
+textarea.form-control { min-height: 72px; }
+.form-control:disabled, .form-control[readonly] { background: var(--kt-surface-2); color: var(--kt-text-2); }
+
+.form-control.is-invalid, .form-select.is-invalid, .was-validated .form-control:invalid { border-color: var(--kt-danger); }
+.form-control.is-invalid:focus, .form-select.is-invalid:focus { box-shadow: 0 0 0 3px var(--kt-danger-soft); }
+.invalid-feedback, .form-error-message { color: var(--kt-danger); font-size: 13px; }
+
+/* obavezna polja: tačka umesto zvezdice */
+label.required::after { content: ""; display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--kt-brand-500); margin-left: 6px; vertical-align: middle; }
+
+.form-check-input { border-color: var(--kt-border-strong); background-color: var(--kt-surface); }
+.form-check-input:checked { background-color: var(--kt-primary); border-color: var(--kt-primary); }
+.form-check-input:focus { box-shadow: 0 0 0 3px var(--kt-focus); border-color: var(--kt-brand-500); }
+
+/* identifikatori u monospace fontu */
+input[name$="[pib]"], input[name$="[maticniBroj]"], input[name$="[bankAccount]"], .kt-mono-input { font-family: var(--kt-font-mono); font-size: 13px; }
+
+/* lepljiva traka za čuvanje na dugim formama (opciono: <div class="kt-savebar">) */
+.kt-savebar {
+    position: sticky; bottom: 0; z-index: 5; display: flex; justify-content: flex-end; gap: 8px;
+    padding: 12px 24px; margin: 24px -24px -24px;
+    background: color-mix(in srgb, var(--kt-surface) 88%, transparent);
+    backdrop-filter: blur(8px); border-top: 1px solid var(--kt-border);
+}
+
+/* izbor boje tima: 8 unapred podešenih nijansi (DESIGN.md 3.6) */
+.kt-swatches .form-check { display: inline-block; padding: 0; margin: 0 8px 8px 0; }
+.kt-swatches .form-check-input { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--kt-surface); box-shadow: 0 0 0 1px var(--kt-border-strong); background-image: none; margin: 0; cursor: pointer; }
+.kt-swatches .form-check-input:checked { box-shadow: 0 0 0 2px var(--kt-surface), 0 0 0 4px var(--kt-primary); background-image: none; }
+.kt-swatches .form-check-label { display: none; }

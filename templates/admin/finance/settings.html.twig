@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Podešavanja finansija{% endblock %}
+{% block page_title %}Podešavanja finansija{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('admin_finance') }}" class="breadcrumb-item">Finansije</a>
+    <span class="breadcrumb-item active">Podešavanja</span>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Prag i kapacitet</h5></div>
+                <div class="card-body border-top">
+                    <form method="post">
+                        <input type="hidden" name="_token" value="{{ csrf_token('finance_settings') }}">
+                        <div class="mb-3">
+                            <label class="form-label" for="min_hourly_rate">Minimalna prihvatljiva cena sata (RSD)</label>
+                            <input type="text" class="form-control" id="min_hourly_rate" name="min_hourly_rate" value="{{ minRate }}">
+                            <div class="form-text">Klijenti čija je efektivna cena sata ispod ovog praga označavaju se crveno.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="default_capacity_hours">Podrazumevani mesečni kapacitet radnika (sati)</label>
+                            <input type="number" min="1" class="form-control" id="default_capacity_hours" name="default_capacity_hours" value="{{ capacity }}">
+                        </div>
+                        <h6 class="mt-4">Kapacitet po radniku (prazno = podrazumevani)</h6>
+                        {% for user in users %}
+                            <div class="row mb-2 align-items-center">
+                                <div class="col-7">{{ user.fullName }}</div>
+                                <div class="col-5"><input type="number" min="1" class="form-control form-control-sm" name="capacity[{{ user.id }}]" value="{{ user.capacityHours }}" placeholder="{{ capacity }}"></div>
+                            </div>
+                        {% endfor %}
+                        <div class="text-end mt-3">
+                            <button class="btn btn-primary">Sačuvaj<i class="ph-floppy-disk ms-2"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

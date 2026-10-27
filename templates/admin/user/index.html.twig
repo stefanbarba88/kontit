@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}Korisnici{% endblock %}
+{% block page_title %}Korisnici{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item active">Korisnici</span>{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('admin_user_new') }}" class="btn btn-primary"><i class="ph-plus me-2"></i>Novi korisnik</a>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-body">
+            <form method="get" class="row g-2">
+                <div class="col-12 col-md-5">
+                    <div class="form-control-feedback form-control-feedback-start">
+                        <input type="search" name="q" value="{{ filters.q }}" class="form-control" placeholder="Ime, prezime ili email">
+                        <div class="form-control-feedback-icon"><i class="ph-magnifying-glass text-muted"></i></div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <select name="role" class="form-select">
+                        <option value="">Sve role</option>
+                        {% for role in roles %}
+                            <option value="{{ role.value }}" {{ filters.role == role.value ? 'selected' : '' }}>{{ role.label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">Svi statusi</option>
+                        <option value="active" {{ filters.status == 'active' ? 'selected' : '' }}>Aktivni</option>
+                        <option value="inactive" {{ filters.status == 'inactive' ? 'selected' : '' }}>Neaktivni</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-1">
+                    <button class="btn btn-light w-100"><i class="ph-funnel"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Korisnik</th>
+                        <th>Pozicija</th>
+                        <th>Rola</th>
+                        <th>Status</th>
+                        <th>Poslednja prijava</th>
+                        <th class="text-center" style="width: 1%;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in pagination %}
+                        <tr>
+                            <td>
+                                <a href="{{ path('admin_user_show', {id: user.id}) }}" class="d-flex align-items-center text-body">
+                                    {{ ui.avatar(user, 40, 'me-3') }}
+                                    <div>
+                                        <div class="fw-semibold">{{ user.fullName }}</div>
+                                        <div class="text-muted fs-sm">{{ user.email }}</div>
+                                    </div>
+                                </a>
+                            </td>
+                            <td>{{ user.position ?? '—' }}</td>
+                            <td>{{ ui.role_badge(user.highestRole) }}</td>
+                            <td>{{ ui.status_badge(user.active) }}</td>
+                            <td>{{ user.lastLoginAt ? user.lastLoginAt|date('d.m.Y. H:i') : '—' }}</td>
+                            <td class="text-center">
+                                {% if is_granted('USER_EDIT', user) %}
+                                    <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn btn-light btn-icon btn-sm rounded-pill border-transparent" title="Izmeni"><i class="ph-pencil"></i></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="6">{{ ui.empty_state('Nema korisnika za zadate filtere.', 'ph-users') }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center">{{ knp_pagination_render(pagination) }}</div>
+{% endblock %}

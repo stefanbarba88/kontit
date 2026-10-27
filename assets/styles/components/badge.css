@@ -1,0 +1,35 @@
+/* Badge-ovi (3.5, 7.8): meka pozadina + tačkica + tekst u boji. Važi za sve "badge bg-X bg-opacity-20 text-X" iz šablona. */
+.badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 22px; padding: 0 8px;
+    font-size: 12px; font-weight: 500; line-height: 1;
+    border-radius: var(--kt-radius-xs);
+    letter-spacing: 0;
+}
+
+/* meke varijante */
+.badge.bg-opacity-20::before, .badge.kt-dot::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none;
+}
+.badge.bg-primary.bg-opacity-20 { background: var(--kt-primary-soft) !important; color: var(--kt-primary) !important; }
+.badge.bg-info.bg-opacity-20 { background: var(--kt-info-soft) !important; color: var(--kt-primary) !important; }
+.badge.bg-success.bg-opacity-20 { background: var(--kt-success-soft) !important; color: var(--kt-success) !important; }
+.badge.bg-warning.bg-opacity-20 { background: var(--kt-warning-soft) !important; color: var(--kt-warning) !important; }
+.badge.bg-danger.bg-opacity-20 { background: var(--kt-danger-soft) !important; color: var(--kt-danger) !important; }
+.badge.bg-purple.bg-opacity-20 { background: var(--kt-purple-soft) !important; color: var(--kt-purple) !important; }
+.badge.bg-secondary.bg-opacity-20 { background: var(--kt-neutral-soft) !important; color: var(--kt-text-2) !important; }
+
+/* pune varijante (brojači, oznake) ostaju kompaktne i mirne */
+.badge.bg-danger:not(.bg-opacity-20), .badge.bg-warning:not(.bg-opacity-20),
+.badge.bg-success:not(.bg-opacity-20), .badge.bg-info:not(.bg-opacity-20), .badge.bg-secondary:not(.bg-opacity-20) {
+    font-weight: 600;
+}
+.badge.bg-light { background: var(--kt-surface-3) !important; color: var(--kt-text-2) !important; border: 1px solid var(--kt-border) !important; }
+
+/* OTKAZANO: precrtan tekst; HITAN: tačkica pulsira */
+.badge.kt-strike { text-decoration: line-through; }
+.badge.kt-pulse::before { animation: kt-pulse-dot 1.6s var(--kt-ease) infinite; }
+@keyframes kt-pulse-dot { 0%, 100% { box-shadow: 0 0 0 0 currentColor; opacity: 1; } 60% { box-shadow: 0 0 0 4px transparent; opacity: .6; } }
+
+/* badge tima: boja iz baze, tekst uvek bele boje */
+.badge-team { color: #fff !important; border-radius: 999px; padding: 0 10px; }

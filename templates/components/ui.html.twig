@@ -1,0 +1,138 @@
+{#
+    Mali UI makroi zasnovani na komponentama template-a (vidi TEMPLATE_INVENTORY.md).
+    Upotreba: {% import 'components/ui.html.twig' as ui %}
+
+    Dozvoljene veličine avatara su one koje template ima kao klase (w-Npx h-Npx): 24, 32, 40, 48, 56, 64, 72, 80.
+#}
+
+{# Avatar (DESIGN.md 7.9): slika ili inicijali na gradijentu; boja se bira iz imena (hash), pa je ista osoba uvek iste boje #}
+{% macro avatar(user, size = 32, extra_class = '') %}
+    {% if user.avatarName %}
+        <img src="{{ vich_uploader_asset(user, 'avatarFile')|imagine_filter('avatar_thumb') }}" alt="{{ user.fullName }}"
+             class="kt-avatar {{ extra_class }}" style="width: {{ size }}px; height: {{ size }}px;">
+    {% else %}
+        {% set tone = ((user.id ?? 0) + (user.firstName|default('')|length)) % 8 %}
+        <span class="kt-avatar {{ extra_class }}" data-tone="{{ tone }}" style="width: {{ size }}px; height: {{ size }}px; font-size: {{ (size * 0.38)|round }}px;">{{ user.initials }}</span>
+    {% endif %}
+{% endmacro %}
+
+{% macro user_chip(user, size = 32) %}
+    {% import _self as ui %}
+    <span class="d-inline-flex align-items-center">{{ ui.avatar(user, size, 'me-2') }}<span>{{ user.fullName }}</span></span>
+{% endmacro %}
+
+{# Badge tima: boja iz baze se zadaje inline #}
+{% macro team_badge(team) %}
+    <span class="badge badge-team" style="background-color: {{ team.color }};">{{ team.name }}</span>
+{% endmacro %}
+
+{% macro role_badge(role) %}
+    {% set cls = {
+        'ROLE_SUPERADMIN': 'danger',
+        'ROLE_ADMIN': 'warning',
+        'ROLE_SEF': 'info',
+        'ROLE_RADNIK': 'secondary',
+    } %}
+    <span class="badge bg-{{ cls[role.value] }} bg-opacity-20 text-{{ cls[role.value] }}">{{ role.label }}</span>
+{% endmacro %}
+
+{% macro status_badge(active) %}
+    {% if active %}
+        <span class="badge bg-success bg-opacity-20 text-success">Aktivan</span>
+    {% else %}
+        <span class="badge bg-secondary bg-opacity-20 text-secondary">Neaktivan</span>
+    {% endif %}
+{% endmacro %}
+
+{# Kartica klijenta. mode: 'primary' (puna) ili 'backup' (isprekidana ivica, badge ZAMENA) #}
+{# absence: odobreno odsustvo glavnog zaduženog koje danas traje (aktivna zamena) #}
+{% macro client_card(client, mode = 'primary', absence = null) %}
+    <div class="card h-100 mb-0 {{ mode == 'backup' ? (absence ? 'border-info' : 'border-dashed border-secondary bg-light') : '' }}">
+        <div class="card-body">
+            <div class="d-flex align-items-start mb-2">
+                <h6 class="mb-0"><a href="{{ path('client_show', {id: client.id}) }}" class="text-body fw-semibold stretched-link">{{ client.name }}</a></h6>
+                {% if mode == 'backup' %}<span class="badge {{ absence ? 'bg-info' : 'bg-secondary' }} ms-auto">{{ absence ? 'AKTIVNA ZAMENA' : 'ZAMENA' }}</span>{% endif %}
+            </div>
+            <div class="text-muted mb-2">
+                {{ client.legalForm.label }}{% if client.pib %} · PIB {{ client.pib }}{% endif %}{% if client.pdvObveznik %} · PDV{% endif %}
+            </div>
+            {% if mode == 'backup' %}
+                <div class="fs-sm"><i class="ph-user-circle me-1"></i>Glavni zaduženi: <span class="fw-semibold">{{ client.primaryAccountant.fullName }}</span></div>
+                {% if absence %}
+                    <div class="fs-sm text-info mt-1"><i class="ph-airplane-tilt me-1"></i>Odsutan do {{ absence.endDate|date('d.m.Y.') }} ({{ absence.reason.label }}) · preuzimate</div>
+                {% endif %}
+            {% elseif client.backupAccountant %}
+                <div class="fs-sm text-muted"><i class="ph-arrows-clockwise me-1"></i>Backup: {{ client.backupAccountant.fullName }}</div>
+            {% else %}
+                <div class="fs-sm text-warning"><i class="ph-warning me-1"></i>Bez backup-a</div>
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
+{# Badge-ovi zadatka (3.5): meka pozadina + tačkica; OTKAZANO precrtan #}
+{% macro task_status(status) %}
+    <span class="badge bg-{{ status.color }} bg-opacity-20 text-{{ status.color }} {{ status.value == 'OTKAZANO' ? 'kt-strike' : '' }}">{{ status.label }}</span>
+{% endmacro %}
+
+{% macro priority_badge(priority) %}
+    <span class="badge bg-{{ priority.color }} bg-opacity-20 text-{{ priority.color }} {{ priority.value == 'HITAN' ? 'kt-pulse' : '' }}">{{ priority.label }}</span>
+{% endmacro %}
+
+{% macro assignee_status(status) %}
+    <span class="badge bg-{{ status.color }} bg-opacity-20 text-{{ status.color }}">{{ status.label }}</span>
+{% endmacro %}
+
+{# Rok zadatka: crveno ako kasni #}
+{% macro due_date(task) %}
+    {% if task.dueDate %}
+        <span class="{{ task.overdue ? 'text-danger fw-semibold' : '' }}">
+            {% if task.overdue %}<i class="ph-warning me-1"></i>{% endif %}{{ task.dueDate|date('d.m.Y.') }}
+        </span>
+    {% else %}
+        <span class="text-muted">—</span>
+    {% endif %}
+{% endmacro %}
+
+{# Prazno stanje (7.12): linijski znak, naslov/tekst i opciono jedno dugme #}
+{% macro empty_state(text, icon = 'ph-tray', action_label = null, action_url = null) %}
+    <div class="kt-empty">
+        <svg class="kt-empty-mark" viewBox="0 0 68 68" aria-hidden="true"><circle cx="34" cy="19" r="7"/><circle cx="18.5" cy="34" r="7"/><circle cx="48.7" cy="34" r="7"/><circle cx="34" cy="49" r="7"/></svg>
+        <p>{{ text }}</p>
+        {% if action_label and action_url %}<a href="{{ action_url }}" class="btn btn-primary">{{ action_label }}</a>{% endif %}
+    </div>
+{% endmacro %}
+
+{# KPI kartica (7.4): labela, krupan broj (broji se pri učitavanju), opciona promena i napomena.
+   tone: primary | success | warning | danger | info; za warning/danger kartica dobija traku na vrhu.
+   value može biti broj (animira se) ili tekst; delta je procenat promene ili null. #}
+{% macro stat_card(icon, value, label, color = 'primary', hint = null, delta = null) %}
+    <div class="card kt-kpi {{ color in ['danger', 'warning'] ? 'kt-kpi--' ~ color : '' }}">
+        <div class="card-body">
+            <div class="d-flex align-items-start justify-content-between mb-2">
+                <span class="kt-kpi-label">{{ label }}</span>
+                <span class="kt-kpi-icon" style="background: var(--kt-{{ color == 'primary' or color == 'info' ? 'primary' : color }}-soft, var(--kt-primary-soft)); color: var(--kt-{{ color == 'info' ? 'primary' : color }}, var(--kt-primary));"><i class="{{ icon }}"></i></span>
+            </div>
+            <div class="d-flex align-items-baseline gap-2">
+                <span class="kt-kpi-value">{% if (value ~ '') matches '/^\d+$/' %}<span data-countup="{{ value }}">{{ value|number_format(0, ',', '.') }}</span>{% else %}{{ value }}{% endif %}</span>
+                {% if delta is not null %}<span class="kt-delta {{ delta >= 0 ? 'kt-delta--up' : 'kt-delta--down' }}">{{ delta >= 0 ? '▲' : '▼' }} {{ delta|abs|number_format(1, ',') }}%</span>{% endif %}
+            </div>
+            {% if hint %}<div class="kt-kpi-hint mt-1">{{ hint }}</div>{% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
+
+{# Složeni (preklopljeni) avatari, "+N" za ostale (7.5) #}
+{% macro avatar_stack(users, size = 28, max = 4) %}
+    {% import _self as ui %}
+    <span class="kt-avatar-stack">
+        {% for u in users|slice(0, max) %}{{ ui.avatar(u, size) }}{% endfor %}
+        {% if users|length > max %}<span class="kt-avatar kt-more" style="width: {{ size }}px; height: {{ size }}px;">+{{ users|length - max }}</span>{% endif %}
+    </span>
+{% endmacro %}
+
+{# Loader brenda (7.13) #}
+{% macro loader(small = false) %}
+    <span class="kt-loader {{ small ? 'kt-loader--sm' : '' }}" role="status" aria-label="Učitavanje"><i></i><i></i><i></i><i></i></span>
+{% endmacro %}

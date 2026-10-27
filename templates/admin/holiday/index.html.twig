@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}Praznici{% endblock %}
+{% block page_title %}Praznici i neradni dani{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item active">Praznici</span>{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-4 order-lg-2">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Novi praznik</h5></div>
+                <div class="card-body border-top">
+                    <p class="text-muted fs-sm">Rok zadatka koji padne na vikend ili praznik pomera se na prvi sledeći radni dan.</p>
+                    {{ form_start(form) }}
+                        {{ form_row(form.date) }}
+                        {{ form_row(form.name) }}
+                        <button class="btn btn-primary">Dodaj<i class="ph-plus ms-2"></i></button>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8 order-lg-1">
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr><th>Datum</th><th>Naziv</th><th style="width: 1%;"></th></tr></thead>
+                        <tbody>
+                            {% for holiday in holidays %}
+                                <tr>
+                                    <td>{{ holiday.date|date('d.m.Y.') }}</td>
+                                    <td>{{ holiday.name }}</td>
+                                    <td>
+                                        <form method="post" action="{{ path('admin_holiday_delete', {id: holiday.id}) }}" {{ confirm_attrs('Obrisati praznik?', 'Rokovi se više neće pomerati zbog ovog datuma.', 'danger', 'Da, obriši') }}>
+                                            <input type="hidden" name="_token" value="{{ csrf_token('holiday_delete_' ~ holiday.id) }}">
+                                            <button class="btn btn-light btn-icon btn-sm rounded-pill border-transparent text-danger" title="Obriši"><i class="ph-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="3">{{ ui.empty_state('Još nema unetih praznika.', 'ph-calendar-x') }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

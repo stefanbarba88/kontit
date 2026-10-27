@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% set is_new = task.id is null %}
+
+{% block title %}{{ is_new ? 'Novi zadatak' : 'Izmena zadatka' }}{% endblock %}
+{% block page_title %}{{ is_new ? 'Novi zadatak' : 'Izmena: ' ~ task.title }}{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('task_index') }}" class="breadcrumb-item">Zadaci</a>
+    {% if not is_new %}<a href="{{ path('task_show', {id: task.id}) }}" class="breadcrumb-item">{{ task.title }}</a>{% endif %}
+    <span class="breadcrumb-item active">{{ is_new ? 'Novi' : 'Izmena' }}</span>
+{% endblock %}
+
+{% block content %}
+    {{ form_start(form) }}
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Zadatak</h5></div>
+                <div class="card-body border-top">
+                    {{ form_row(form.title) }}
+                    {{ form_row(form.description) }}
+                    {{ form_row(form.client) }}
+                    <div class="row">
+                        <div class="col-md-4">{{ form_row(form.dueDate) }}</div>
+                        <div class="col-md-4">{{ form_row(form.priority) }}</div>
+                        <div class="col-md-4">{{ form_row(form.completionMode) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Učesnici</h5></div>
+                <div class="card-body border-top">
+                    {% if form.assignees is defined %}
+                        <div class="overflow-auto" style="max-height: 320px;">{{ form_row(form.assignees) }}</div>
+                        <div class="text-muted fs-sm mt-2 mb-3">Izabrani učesnici dobijaju zadatak. Svaki ima svoj status.</div>
+                        {{ form_row(form.notifyByEmail) }}
+                    {% else %}
+                        <div class="text-muted">Zadatak se dodeljuje vama.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2">
+        <a href="{{ is_new ? path('task_index') : path('task_show', {id: task.id}) }}" class="btn btn-light">Otkaži</a>
+        <button class="btn btn-primary">Sačuvaj<i class="ph-floppy-disk ms-2"></i></button>
+    </div>
+    {{ form_end(form) }}
+
+    {% if form.notifyByEmail is defined %}
+        <script>
+            // hitan zadatak: mail je podrazumevano uključen
+            document.addEventListener('DOMContentLoaded', () => {
+                const priority = document.getElementById('task_priority');
+                const email = document.getElementById('task_notifyByEmail');
+                if (priority && email) {
+                    priority.addEventListener('change', () => { if (priority.value === 'HITAN') { email.checked = true; } });
+                }
+            });
+        </script>
+    {% endif %}
+{% endblock %}

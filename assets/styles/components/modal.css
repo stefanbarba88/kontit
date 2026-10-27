@@ -1,0 +1,13 @@
+/* Modali i dropdown (7.14): blur iza, radius-xl, shadow-lg, ulaz scale 0,98 → 1. */
+.modal-backdrop { --bs-backdrop-bg: #0B0F14; --bs-backdrop-opacity: .55; backdrop-filter: blur(4px); }
+.modal-content { border: 1px solid var(--kt-border); border-radius: var(--kt-radius-xl); box-shadow: var(--kt-shadow-lg); background: var(--kt-surface); }
+.modal.fade .modal-dialog { transform: scale(.98); transition: transform 180ms var(--kt-ease), opacity 180ms var(--kt-ease); }
+.modal.show .modal-dialog { transform: none; }
+.modal-header, .modal-footer { border-color: var(--kt-border); }
+
+.dropdown-menu { border: 1px solid var(--kt-border); border-radius: var(--kt-radius-md); box-shadow: var(--kt-shadow-md); background: var(--kt-surface); padding: 6px; }
+.dropdown-item { border-radius: var(--kt-radius-sm); font-size: 14px; color: var(--kt-text); }
+.dropdown-item:hover, .dropdown-item:focus { background: var(--kt-surface-3); color: var(--kt-text); }
+.dropdown-divider { border-color: var(--kt-border); }
+
+.alert { border-radius: var(--kt-radius-md); }

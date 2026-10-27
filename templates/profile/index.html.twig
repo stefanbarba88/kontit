@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+{% import 'components/timeline.html.twig' as tl %}
+
+{% block title %}Moj profil{% endblock %}
+{% block page_title %}Moj profil{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Lični podaci</h5>
+                </div>
+
+                <div class="card-body border-top">
+                    {{ form_start(profileForm) }}
+                        <div class="row">
+                            <div class="col-md-6">{{ form_row(profileForm.firstName) }}</div>
+                            <div class="col-md-6">{{ form_row(profileForm.lastName) }}</div>
+                        </div>
+                        {{ form_row(profileForm.phone) }}
+                        {{ form_row(profileForm.address) }}
+                        <div class="row">
+                            <div class="col-md-8">{{ form_row(profileForm.city) }}</div>
+                            <div class="col-md-4">{{ form_row(profileForm.postalCode) }}</div>
+                        </div>
+                        {% if app.user.avatarName %}<div class="mb-3">{{ ui.avatar(app.user, 80) }}</div>{% endif %}
+                        {{ form_row(profileForm.avatarFile) }}
+                        <div class="text-end">
+                            <button class="btn btn-primary">Sačuvaj<i class="ph-floppy-disk ms-2"></i></button>
+                        </div>
+                    {{ form_end(profileForm) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Nalog</h5>
+                </div>
+
+                <div class="card-body border-top">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Email</dt><dd class="col-sm-8">{{ app.user.email }}</dd>
+                        <dt class="col-sm-4">Rola</dt><dd class="col-sm-8">{{ ui.role_badge(app.user.highestRole) }}</dd>
+                        <dt class="col-sm-4">Pozicija</dt><dd class="col-sm-8">{{ app.user.position ?? '—' }}</dd>
+                        <dt class="col-sm-4">Tim</dt>
+                        <dd class="col-sm-8">
+                            {% if membership %}{{ ui.team_badge(membership.team) }}{% else %}<span class="text-muted">—</span>{% endif %}
+                        </dd>
+                        {% if ledTeam %}
+                            <dt class="col-sm-4">Šef tima</dt><dd class="col-sm-8">{{ ui.team_badge(ledTeam) }}</dd>
+                        {% endif %}
+                    </dl>
+                    <div class="text-muted fs-sm mt-3">Email, rolu i poziciju menja administrator.</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="ph-bell me-2"></i>Obaveštenja na mail</h5>
+                </div>
+
+                <div class="card-body border-top">
+                    {{ form_start(prefsForm) }}
+                        {{ form_row(prefsForm.emailNotifications) }}
+                        <div class="text-muted fs-sm mb-3">U aplikaciji (zvonce) uvek dobijate sva obaveštenja. Mail se šalje samo za izabrano, a pošiljalac može da ga uključi i za pojedinačan zadatak.</div>
+                        <div class="text-end">
+                            <button class="btn btn-primary">Sačuvaj<i class="ph-floppy-disk ms-2"></i></button>
+                        </div>
+                    {{ form_end(prefsForm) }}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Promena lozinke</h5>
+                </div>
+
+                <div class="card-body border-top">
+                    {{ form_start(passwordForm) }}
+                        {{ form_row(passwordForm.currentPassword) }}
+                        {{ form_row(passwordForm.plainPassword.first) }}
+                        {{ form_row(passwordForm.plainPassword.second) }}
+                        <div class="text-end">
+                            <button class="btn btn-light">Promeni lozinku<i class="ph-lock-key ms-2"></i></button>
+                        </div>
+                    {{ form_end(passwordForm) }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><h5 class="mb-0"><i class="ph-clock-counter-clockwise me-2"></i>Aktivnost</h5></div>
+        <div class="card-body border-top">{{ tl.timeline(activity, true) }}</div>
+    </div>
+{% endblock %}

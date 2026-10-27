@@ -1,0 +1,210 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}Početna{% endblock %}
+{% block page_title %}Početna{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item active">Početna</span>{% endblock %}
+
+{% macro pct(value) %}{{ value is null ? '—' : value ~ '%' }}{% endmacro %}
+
+{% block content %}
+    <h5 class="mb-3"><i class="ph-user-circle me-2"></i>Moj pregled</h5>
+    <div class="row mb-4">
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-list-checks', me.open, 'Otvoreni zadaci', 'primary') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-warning-circle', me.overdue, 'Kasne', me.overdue > 0 ? 'danger' : 'success') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-clock', me.dueSoon, 'Ističu u 3 dana', me.dueSoon > 0 ? 'warning' : 'secondary') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-check-circle', me.doneThisMonth, 'Završeno ovog meseca', 'success', 'Prošli mesec: ' ~ me.doneLastMonth) }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-timer', _self.pct(me.onTimePercent), 'Završeno na vreme', 'info', 'poslednjih 90 dana') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-arrow-u-up-left', me.returned30, 'Vraćeno na doradu', me.returned30 > 0 ? 'warning' : 'secondary', 'poslednjih 30 dana') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-buildings', me.clientsPrimary, 'Klijenti (glavni)', 'primary') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('ph-arrows-clockwise', me.clientsBackup, 'Klijenti (backup)', 'secondary') }}</div>
+    </div>
+
+    {% if showTeam %}
+        <h5 class="mb-3"><i class="ph-users-three me-2"></i>{{ admin ? 'Svi timovi' : 'Moj tim' }}</h5>
+        {% if team.workers %}
+            <div class="row mb-3">
+                <div class="col-lg-7 mb-3">
+                    <div class="card h-100 mb-0">
+                        <div class="card-header"><h6 class="mb-0">Opterećenje po radniku</h6></div>
+                        <div class="card-body" style="height: 300px;">
+                            <canvas data-chart="{{ {
+                                type: 'bar',
+                                data: {
+                                    labels: team.workers|map(w => w.name),
+                                    datasets: [
+                                        {label: 'Klijenti', data: team.workers|map(w => w.clients), backgroundColor: '#5c6bc0'},
+                                        {label: 'Otvoreni zadaci', data: team.workers|map(w => w.open), backgroundColor: '#26a69a'},
+                                        {label: 'Kasne', data: team.workers|map(w => w.overdue), backgroundColor: '#ef5350'},
+                                    ],
+                                },
+                                options: {scales: {y: {beginAtZero: true, ticks: {precision: 0}}}},
+                            }|json_encode|e('html_attr') }}"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5 mb-3">
+                    <div class="row h-100">
+                        <div class="col-6 mb-3">{{ ui.stat_card('ph-hourglass', team.awaiting|length, 'Čeka potvrdu', team.awaiting ? 'warning' : 'secondary', team.awaiting ? 'najstariji od ' ~ team.awaiting[0].submitted_at|date('d.m.') : null) }}</div>
+                        <div class="col-6 mb-3">{{ ui.stat_card('ph-calendar-check', team.avgDaysToApproval is null ? '—' : team.avgDaysToApproval ~ ' d', 'Od kreiranja do potvrde', 'info', 'prosek, 90 dana') }}</div>
+                        <div class="col-12">
+                            <div class="card h-100 mb-0">
+                                <div class="card-header"><h6 class="mb-0">Čeka klijenta duže od {{ waitingDays }} dana</h6></div>
+                                <ul class="list-group list-group-flush border-top">
+                                    {% for t in team.waiting %}
+                                        <li class="list-group-item"><a href="{{ path('task_show', {id: t.id}) }}">{{ t.title }}</a>
+                                            <span class="text-muted fs-sm">{{ t.client ?: 'Interni' }} · od {{ t.updated_at|date('d.m.') }}</span></li>
+                                    {% else %}
+                                        <li class="list-group-item text-muted">Nema takvih zadataka.</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h6 class="mb-0">Učinak po radniku</h6></div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr><th>Radnik</th><th class="text-center">Klijenti</th><th class="text-center">Otvoreni</th><th class="text-center">Kasne</th>
+                                <th class="text-center">Na vreme 30 d</th><th class="text-center">Na vreme 90 d</th><th class="text-center">Vraćeno 30 d</th><th class="text-center">Vraćeno 90 d</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for w in team.workers|sort((a, b) => b.overdue <=> a.overdue) %}
+                                <tr>
+                                    <td>{{ w.name }}</td>
+                                    <td class="text-center">{{ w.clients }}</td>
+                                    <td class="text-center">{{ w.open }}</td>
+                                    <td class="text-center {{ w.overdue ? 'text-danger fw-semibold' : '' }}">{{ w.overdue }}</td>
+                                    <td class="text-center">{{ _self.pct(w.onTime30) }}</td>
+                                    <td class="text-center">{{ _self.pct(w.onTime90) }}</td>
+                                    <td class="text-center">{{ _self.pct(w.returned30) }}</td>
+                                    <td class="text-center">{{ _self.pct(w.returned90) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer text-muted fs-sm">Na vreme: završeno do roka (zadaci sa rokom). Vraćeno: vraćanja na doradu u odnosu na broj završenih. Radnici sa najviše kašnjenja su na vrhu.</div>
+            </div>
+        {% else %}
+            <div class="card"><div class="card-body">{{ ui.empty_state('Nemate radnike u timu.', 'ph-users-three') }}</div></div>
+        {% endif %}
+    {% endif %}
+
+    {% if admin %}
+        <h5 class="mb-3 mt-4"><i class="ph-chart-bar me-2"></i>Cela firma</h5>
+
+        <div class="card">
+            <div class="card-header"><h6 class="mb-0">Po timovima</h6></div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead><tr><th>Tim</th><th>Šef</th><th class="text-center">Radnika</th><th class="text-center">Klijenti</th><th class="text-center">Otvoreni</th><th class="text-center">Kasne</th><th class="text-center">Čeka potvrdu</th><th class="text-center">Prosek do potvrde</th><th class="text-center">Na vreme 30 d</th></tr></thead>
+                    <tbody>
+                        {% for t in teams %}
+                            <tr>
+                                <td><span class="badge badge-team" style="background-color: {{ t.color }};">{{ t.name }}</span></td>
+                                <td>{{ t.leader ?: '—' }}</td>
+                                <td class="text-center">{{ t.members }}</td>
+                                <td class="text-center">{{ t.clients }}</td>
+                                <td class="text-center">{{ t.open }}</td>
+                                <td class="text-center {{ t.overdue ? 'text-danger fw-semibold' : '' }}">{{ t.overdue }}</td>
+                                <td class="text-center">{{ t.awaiting }}</td>
+                                <td class="text-center">{{ t.avgDays is null ? '—' : t.avgDays ~ ' d' }}</td>
+                                <td class="text-center">{{ _self.pct(t.onTime30) }}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="9">{{ ui.empty_state('Nema timova.', 'ph-users-three') }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-7 mb-3">
+                <div class="card h-100 mb-0">
+                    <div class="card-header"><h6 class="mb-0">Završeni zadaci po mesecima</h6></div>
+                    <div class="card-body" style="height: 280px;">
+                        <canvas data-chart="{{ {
+                            type: 'line',
+                            data: {labels: company.trend|map(r => r.label), datasets: [{label: 'Završeno', data: company.trend|map(r => r.n), borderColor: '#26a69a', backgroundColor: 'rgba(38,166,154,.15)', fill: true, tension: 0.3}]},
+                            options: {plugins: {legend: {display: false}}, scales: {y: {beginAtZero: true, ticks: {precision: 0}}}},
+                        }|json_encode|e('html_attr') }}"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 mb-3">
+                <div class="card h-100 mb-0">
+                    <div class="card-header"><h6 class="mb-0">Klijenti po timu</h6></div>
+                    <div class="card-body" style="height: 280px;">
+                        <canvas data-chart="{{ {
+                            type: 'doughnut',
+                            data: {labels: company.clientsPerTeam|map(r => r.label), datasets: [{data: company.clientsPerTeam|map(r => r.n), backgroundColor: ['#5c6bc0', '#26a69a', '#ffa726', '#ef5350', '#42a5f5', '#8d6e63', '#9ccc65', '#ab47bc']}]},
+                            options: {plugins: {legend: {position: 'right'}}},
+                        }|json_encode|e('html_attr') }}"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 mb-3">
+                <div class="card h-100 mb-0">
+                    <div class="card-header"><h6 class="mb-0">Klijenti po radniku</h6></div>
+                    <div class="card-body" style="height: {{ 60 + company.clientsPerWorker|length * 28 }}px; min-height: 200px;">
+                        <canvas data-chart="{{ {
+                            type: 'bar',
+                            data: {labels: company.clientsPerWorker|map(r => r.label), datasets: [{label: 'Klijenti (glavni)', data: company.clientsPerWorker|map(r => r.n), backgroundColor: '#5c6bc0'}]},
+                            options: {indexAxis: 'y', plugins: {legend: {display: false}}, scales: {x: {beginAtZero: true, ticks: {precision: 0}}}},
+                        }|json_encode|e('html_attr') }}"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-3">
+                <div class="card mb-3">
+                    <div class="card-header"><h6 class="mb-0"><i class="ph-warning text-warning me-2"></i>Klijenti bez backup radnika <span class="badge bg-warning rounded-pill ms-1">{{ company.noBackup|length }}</span></h6></div>
+                    <ul class="list-group list-group-flush border-top overflow-auto" style="max-height: 180px;">
+                        {% for c in company.noBackup %}
+                            <li class="list-group-item"><a href="{{ path('client_show', {id: c.id}) }}">{{ c.name }}</a> <span class="text-muted fs-sm">· {{ c.worker }}</span></li>
+                        {% else %}
+                            <li class="list-group-item text-muted">Svi klijenti imaju backup.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card mb-0">
+                    <div class="card-header"><h6 class="mb-0"><i class="ph-moon me-2"></i>Klijenti bez zadatka u 30 dana <span class="badge bg-secondary rounded-pill ms-1">{{ company.idleClients|length }}</span></h6></div>
+                    <ul class="list-group list-group-flush border-top overflow-auto" style="max-height: 180px;">
+                        {% for c in company.idleClients %}
+                            <li class="list-group-item"><a href="{{ path('client_show', {id: c.id}) }}">{{ c.name }}</a> <span class="text-muted fs-sm">· {{ c.worker }}</span></li>
+                        {% else %}
+                            <li class="list-group-item text-muted">Svaki klijent ima bar jedan zadatak.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 mb-0">
+                    <div class="card-header"><h6 class="mb-0">Najaktivniji (30 dana, po istoriji izmena)</h6></div>
+                    <ul class="list-group list-group-flush border-top">
+                        {% for u in company.mostActive %}<li class="list-group-item d-flex">{{ u.name }}<span class="ms-auto text-muted">{{ u.n }}</span></li>{% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 mb-0">
+                    <div class="card-header"><h6 class="mb-0">Najmanje aktivni (30 dana)</h6></div>
+                    <ul class="list-group list-group-flush border-top">
+                        {% for u in company.leastActive %}<li class="list-group-item d-flex">{{ u.name }}<span class="ms-auto text-muted">{{ u.n }}</span></li>{% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

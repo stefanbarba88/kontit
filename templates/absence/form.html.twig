@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Novo odsustvo{% endblock %}
+{% block page_title %}Novo odsustvo{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('absence_index') }}" class="breadcrumb-item">Odsustva</a>
+    <span class="breadcrumb-item active">Novo</span>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-6">
+            {{ form_start(form) }}
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Odsustvo</h5></div>
+                <div class="card-body border-top">
+                    {{ form_errors(form) }}
+                    {% if form.user is defined %}{{ form_row(form.user) }}{% endif %}
+                    <div class="row">
+                        <div class="col-md-6">{{ form_row(form.startDate) }}</div>
+                        <div class="col-md-6">{{ form_row(form.endDate) }}</div>
+                    </div>
+                    {{ form_row(form.reason) }}
+                    {{ form_row(form.note) }}
+                    <div class="text-muted fs-sm">
+                        {% if needsApproval %}
+                            Odsustvo čeka odobrenje šefa tima. Backup preuzima vaše klijente tek kad bude odobreno.
+                        {% else %}
+                            Odsustvo je odmah na snazi. Backup radnici se obaveštavaju da preuzimaju klijente.
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{{ path('absence_index') }}" class="btn btn-light">Otkaži</a>
+                <button class="btn btn-primary">{{ needsApproval ? 'Pošalji na odobrenje' : 'Sačuvaj' }}<i class="ph-floppy-disk ms-2"></i></button>
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

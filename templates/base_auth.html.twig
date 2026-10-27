@@ -1,0 +1,50 @@
+{#
+    Layout za stranice bez prijave (login, reset lozinke), DESIGN.md 7.16: podeljen ekran,
+    levo panel brenda (55%), desno forma. Na telefonu panel postaje traka sa znakom.
+    Blokovi: auth_title, auth_subtitle, auth_content (auth_icon se ne koristi, ostaje radi kompatibilnosti).
+#}
+<!DOCTYPE html>
+<html lang="sr" dir="ltr" data-bs-theme="light" data-color-theme="light">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="theme-color" content="#F5F6F8" media="(prefers-color-scheme: light)">
+	<meta name="theme-color" content="#0B0F14" media="(prefers-color-scheme: dark)">
+	<title>{% block title %}Prijava{% endblock %} · KontIT app</title>
+	{{ include('_head_theme.html.twig') }}
+	{{ include('_favicons.html.twig') }}
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@600;700;800&display=swap&subset=latin-ext" rel="stylesheet">
+	<link href="{{ asset('vendor/template/icons/phosphor/styles.min.css') }}" rel="stylesheet" type="text/css">
+	<link href="{{ asset('vendor/template/css/all.min.css') }}" rel="stylesheet" type="text/css">
+
+	{{ importmap('app') }}
+</head>
+
+<body>
+	<div class="kt-auth">
+		<aside class="kt-auth-brand">
+			<div>
+				<img src="/brand/kontit-logo-dark.svg" alt="KontIT računovodstvo" class="kt-logo-img">
+				{{ include('components/_logo_mark.html.twig') }}
+			</div>
+			<h2>Vaši klijenti, rokovi i tim, na jednom mestu.</h2>
+			<div class="kt-version">KontIT app</div>
+		</aside>
+
+		<main class="kt-auth-main">
+			<div class="kt-auth-card">
+				<div class="mb-4">
+					<h1>{% block auth_title %}{% endblock %}</h1>
+					<span class="text-muted">{% block auth_subtitle %}{% endblock %}</span>
+				</div>
+
+				{% block auth_content %}{% endblock %}
+			</div>
+		</main>
+	</div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{% extends 'base_auth.html.twig' %}
+
+{% block title %}Email poslat{% endblock %}
+
+{% block auth_icon %}
+    <div class="d-inline-flex bg-success bg-opacity-10 text-success lh-1 rounded-pill p-3 mb-3 mt-1">
+        <i class="ph-envelope-simple-open ph-2x"></i>
+    </div>
+{% endblock %}
+{% block auth_title %}Proverite email{% endblock %}
+{% block auth_subtitle %}Uputstvo je poslato{% endblock %}
+
+{% block auth_content %}
+    <p>
+        Ako nalog sa tom email adresom postoji, poslali smo poruku sa linkom za resetovanje lozinke.
+        Link važi {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
+    </p>
+    <p class="text-muted">Ako poruka ne stigne, proverite spam folder ili <a href="{{ path('app_forgot_password_request') }}">pokušajte ponovo</a>.</p>
+    <div class="text-center">
+        <a href="{{ path('app_login') }}">Nazad na prijavu</a>
+    </div>
+{% endblock %}

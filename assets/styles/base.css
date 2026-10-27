@@ -1,0 +1,52 @@
+/* Osnova: tipografija (DESIGN.md sekcija 4), tabularni brojevi, selekcija, scrollbar. */
+
+
+body {
+    font-family: var(--kt-font-ui);
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--kt-text);
+    background-color: var(--kt-bg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+h1, .h1, h2, .h2, .page-title { font-family: var(--kt-font-display); color: var(--kt-text); }
+h1, .h1 { font-size: 24px; line-height: 32px; font-weight: 700; letter-spacing: -.015em; }
+h2, .h2, .card-header h5, .card-header .h5 { font-size: 18px; line-height: 26px; font-weight: 650; letter-spacing: -.01em; }
+h3, .h3, h4, .h4, h5, .h5, h6, .h6 { font-family: var(--kt-font-ui); color: var(--kt-text); }
+h3, .h3 { font-size: 15px; line-height: 22px; font-weight: 600; }
+.card-header h6 { font-size: 15px; font-weight: 600; }
+.page-title { font-size: 24px; line-height: 32px; font-weight: 700; letter-spacing: -.015em; }
+.fs-sm { font-size: 13px !important; line-height: 18px; }
+.fs-xs { font-size: 12px !important; }
+
+.kt-overline {
+    font-size: 11px; line-height: 16px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--kt-text-3);
+}
+.kt-display { font-family: var(--kt-font-display); font-size: 32px; line-height: 40px; font-weight: 700; letter-spacing: -.02em; }
+
+.kt-num, .table td.text-end, .table th.text-end, .kt-kpi-value, .badge {
+    font-variant-numeric: tabular-nums;
+}
+.kt-mono, .font-monospace { font-family: var(--kt-font-mono); font-size: 13px; }
+.kt-empty-value { color: var(--kt-text-3); }
+
+::selection { background: var(--kt-primary-soft); color: var(--kt-text); }
+
+* { scrollbar-width: thin; scrollbar-color: var(--kt-border-strong) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: var(--kt-border-strong); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+
+a { transition: color var(--kt-dur-1) var(--kt-ease); }
+
+/* kratak fade pri promeni teme (klasa se stavlja samo tokom ručne promene) */
+html.kt-theme-transition body,
+html.kt-theme-transition .card,
+html.kt-theme-transition .sidebar,
+html.kt-theme-transition .kt-topbar,
+html.kt-theme-transition .table,
+html.kt-theme-transition .form-control {
+    transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+}

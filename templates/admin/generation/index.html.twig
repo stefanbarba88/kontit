@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}Generisanje zadataka{% endblock %}
+{% block page_title %}Generisanje zadataka{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item active">Generisanje zadataka</span>{% endblock %}
+
+{% block page_actions %}
+    <form method="post" action="{{ path('admin_generation_run') }}" {{ confirm_attrs('Generisati zadatke sada?', 'Biće napravljeno ' ~ dueNow ~ ' zadataka čiji je rok za generisanje stigao. Komanda se inače pokreće automatski svako jutro u 06:00.', 'info', 'Da, generiši') }}>
+        <input type="hidden" name="_token" value="{{ csrf_token('generation_run') }}">
+        <button class="btn btn-primary" {{ dueNow == 0 ? 'disabled' : '' }}><i class="ph-arrows-clockwise me-2"></i>Generiši sada ({{ dueNow }})</button>
+    </form>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-header"><h5 class="mb-0">Pregled narednih 30 dana</h5></div>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Posao</th><th>Klijent</th><th>Period</th><th>Rok</th><th>Nastaje</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for row in preview %}
+                        <tr>
+                            <td>{{ row.job.jobTemplate.name }}</td>
+                            <td><a href="{{ path('client_show', {id: row.job.client.id}) }}" class="text-body">{{ row.job.client.name }}</a></td>
+                            <td>{{ row.label }}</td>
+                            <td>{{ row.due|date('d.m.Y.') }}</td>
+                            <td>{{ row.generateOn|date('d.m.Y.') }}</td>
+                            <td>
+                                {% if row.exists %}<span class="badge bg-success">Napravljen</span>
+                                {% elseif row.generateOn <= date('today') %}<span class="badge bg-warning">Za generisanje</span>
+                                {% else %}<span class="badge bg-light text-body border">Zakazan</span>{% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="6">{{ ui.empty_state('Nema zadataka za generisanje u narednih 30 dana.', 'ph-arrows-clockwise') }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

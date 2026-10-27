@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="sr" dir="ltr" data-bs-theme="light" data-color-theme="light" data-kt-pref="{{ app.user ? app.user.themePreference.value|lower : 'system' }}">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="theme-color" content="#F5F6F8" media="(prefers-color-scheme: light)">
+	<meta name="theme-color" content="#0B0F14" media="(prefers-color-scheme: dark)">
+	{% if app.user %}<meta name="csrf-token" content="{{ csrf_token('ajax') }}">{% endif %}
+	<title>{% block title %}Početna{% endblock %} · KontIT app</title>
+	{{ include('_head_theme.html.twig') }}
+	{{ include('_favicons.html.twig') }}
+
+	{% block stylesheets %}
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@600;700;800&display=swap&subset=latin-ext" rel="stylesheet">
+		<link href="{{ asset('vendor/template/icons/phosphor/styles.min.css') }}" rel="stylesheet" type="text/css">
+		<link href="{{ asset('vendor/template/css/all.min.css') }}" rel="stylesheet" type="text/css">
+	{% endblock %}
+
+	{% block javascripts %}
+		{% block importmap %}{{ importmap('app') }}{% endblock %}
+	{% endblock %}
+</head>
+<body>
+{% import 'components/ui.html.twig' as ui %}
+{% set route = app.request.attributes.get('_route')|default('') %}
+
+
+
+	<!-- Page content -->
+	<div class="page-content">
+
+		<!-- Main sidebar -->
+		<div class="sidebar sidebar-main sidebar-expand-lg">
+			<div class="sidebar-content">
+
+				<!-- Sidebar header -->
+				<div class="sidebar-brand">
+					<a href="{{ path('app_dashboard') }}" aria-label="KontIT app">
+						{{ include('components/_logo.html.twig') }}
+						{{ include('components/_logo_mark.html.twig') }}
+					</a>
+					<div class="sidebar-resize-hide">
+						<button type="button" class="btn btn-flat-white btn-icon btn-sm rounded-pill border-transparent sidebar-control sidebar-main-resize d-none d-lg-inline-flex" title="Skupi meni">
+							<i class="ph-arrows-left-right"></i>
+						</button>
+						<button type="button" class="btn btn-flat-white btn-icon btn-sm rounded-pill border-transparent sidebar-mobile-main-toggle d-lg-none">
+							<i class="ph-x"></i>
+						</button>
+					</div>
+				</div>
+				<!-- /sidebar header -->
+
+
+				<!-- Main navigation -->
+				<div class="sidebar-section">
+					<ul class="nav nav-sidebar" data-nav-type="accordion">
+
+						<li class="nav-item-header pt-0">
+							<div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">Rad</div>
+							<i class="ph-dots-three sidebar-resize-show"></i>
+						</li>
+						<li class="nav-item">
+							<a href="{{ path('app_dashboard') }}" class="nav-link {{ route == 'app_dashboard' ? 'active' : '' }}">
+								<i class="ph-house"></i>
+								<span>Početna</span>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="{{ path('client_mine') }}" class="nav-link {{ route == 'client_mine' ? 'active' : '' }}">
+								<i class="ph-briefcase"></i>
+								<span>Moji klijenti</span>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="{{ path('absence_index') }}" class="nav-link {{ route starts with 'absence_' ? 'active' : '' }}">
+								<i class="ph-airplane-tilt"></i>
+								<span>Odsustva</span>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="{{ path('task_index') }}" class="nav-link {{ route starts with 'task_' ? 'active' : '' }}">
+								<i class="ph-list-checks"></i>
+								<span>Zadaci</span>
+								{% set pending = awaiting_approval_count() %}
+								{% if pending > 0 %}<span class="badge bg-danger rounded-pill align-self-center ms-auto">{{ pending }}</span>{% endif %}
+							</a>
+						</li>
+
+						{% if is_granted('ROLE_SEF') %}
+							<li class="nav-item-header">
+								<div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">Klijenti</div>
+								<i class="ph-dots-three sidebar-resize-show"></i>
+							</li>
+							<li class="nav-item">
+								<a href="{{ path('client_index') }}" class="nav-link {{ route starts with 'client_' and route != 'client_mine' ? 'active' : '' }}">
+									<i class="ph-buildings"></i>
+									<span>Klijenti</span>
+								</a>
+							</li>
+							{% if is_granted('TEAM_MANAGE') %}
+								<li class="nav-item">
+									<a href="{{ path('admin_team_index') }}" class="nav-link {{ route starts with 'admin_team' or route == 'team_show' ? 'active' : '' }}">
+										<i class="ph-users-three"></i>
+										<span>Timovi</span>
+									</a>
+								</li>
+							{% else %}
+								<li class="nav-item">
+									<a href="{{ path('my_team') }}" class="nav-link {{ route == 'team_show' or route == 'my_team' ? 'active' : '' }}">
+										<i class="ph-users-three"></i>
+										<span>Moj tim</span>
+									</a>
+								</li>
+							{% endif %}
+						{% endif %}
+
+						{% if is_granted('CATALOG_MANAGE') %}
+							<li class="nav-item-header">
+								<div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">Administracija</div>
+								<i class="ph-dots-three sidebar-resize-show"></i>
+							</li>
+							<li class="nav-item">
+								<a href="{{ path('admin_job_index') }}" class="nav-link {{ route starts with 'admin_job' ? 'active' : '' }}">
+									<i class="ph-list-checks"></i>
+									<span>Katalog poslova</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a href="{{ path('admin_package_index') }}" class="nav-link {{ route starts with 'admin_package' ? 'active' : '' }}">
+									<i class="ph-package"></i>
+									<span>Paketi usluga</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a href="{{ path('admin_generation') }}" class="nav-link {{ route starts with 'admin_generation' ? 'active' : '' }}">
+									<i class="ph-arrows-clockwise"></i>
+									<span>Generisanje zadataka</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a href="{{ path('admin_holiday_index') }}" class="nav-link {{ route starts with 'admin_holiday' ? 'active' : '' }}">
+									<i class="ph-calendar-x"></i>
+									<span>Praznici</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a href="{{ path('admin_finance') }}" class="nav-link {{ route starts with 'admin_finance' ? 'active' : '' }}">
+									<i class="ph-chart-line-up"></i>
+									<span>Finansije</span>
+								</a>
+							</li>
+						{% endif %}
+
+						{% if is_granted('USER_MANAGE') %}
+							<li class="nav-item">
+								<a href="{{ path('admin_user_index') }}" class="nav-link {{ route starts with 'admin_user' ? 'active' : '' }}">
+									<i class="ph-users"></i>
+									<span>Korisnici</span>
+								</a>
+							</li>
+						{% endif %}
+
+					</ul>
+				</div>
+				<!-- /main navigation -->
+
+				<div class="sidebar-user dropup">
+					<a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+						{{ ui.avatar(app.user, 32) }}
+						<span class="who"><strong>{{ app.user.fullName }}</strong><span>{{ app.user.highestRole.label }}</span></span>
+					</a>
+					<div class="dropdown-menu w-100">
+						<a href="{{ path('app_profile') }}" class="dropdown-item"><i class="ph-user-circle me-2"></i>Moj profil</a>
+						<div class="dropdown-divider"></div>
+						<a href="{{ path('app_logout') }}" class="dropdown-item"><i class="ph-sign-out me-2"></i>Odjava</a>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- /main sidebar -->
+
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Inner content -->
+			<div class="content-inner">
+
+				<!-- Topbar -->
+				<div class="kt-topbar">
+					<button type="button" class="kt-icon-btn d-lg-none sidebar-mobile-main-toggle" aria-label="Meni"><i class="ph-list"></i></button>
+
+					<div class="breadcrumb">
+						<a href="{{ path('app_dashboard') }}" class="breadcrumb-item"><i class="ph-house"></i></a>
+						{% block breadcrumbs %}
+							<span class="breadcrumb-item active">{{ block('page_title') }}</span>
+						{% endblock %}
+					</div>
+
+					<div class="kt-topbar-actions">
+						<div class="dropdown kt-theme-menu">
+							<button type="button" class="kt-icon-btn" id="theme-toggle" data-bs-toggle="dropdown" aria-label="Tema" title="Tema"><i class="ph-desktop"></i></button>
+							<div class="dropdown-menu dropdown-menu-end">
+								<a href="#" class="dropdown-item" data-theme-choice="light"><i class="ph-sun me-2"></i>Svetla</a>
+								<a href="#" class="dropdown-item" data-theme-choice="dark"><i class="ph-moon me-2"></i>Tamna</a>
+								<a href="#" class="dropdown-item" data-theme-choice="system"><i class="ph-desktop me-2"></i>Kao sistem</a>
+							</div>
+						</div>
+
+						<div class="dropdown" id="notification-bell" data-url="{{ path('ajax_notifications') }}" data-read-all-url="{{ path('ajax_notifications_read_all') }}">
+							<a href="#" class="kt-icon-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" title="Notifikacije" aria-label="Notifikacije">
+								{% set unread = unread_notification_count() %}
+								<i class="ph-bell"></i>
+								<span class="kt-bell-dot notification-count {{ unread > 0 ? '' : 'd-none' }}">{{ unread }}</span>
+							</a>
+							<div class="dropdown-menu dropdown-menu-end wmin-lg-400 p-0" id="notification-menu">
+								{{ include('notification/_menu.html.twig', {items: latest_notifications(), count: unread}) }}
+							</div>
+						</div>
+
+						<div class="dropdown ms-1">
+							<a href="#" class="d-inline-flex" data-bs-toggle="dropdown" aria-label="Korisnik">{{ ui.avatar(app.user, 32) }}</a>
+							<div class="dropdown-menu dropdown-menu-end">
+								<a href="{{ path('app_profile') }}" class="dropdown-item"><i class="ph-user-circle me-2"></i>Moj profil</a>
+								<div class="dropdown-divider"></div>
+								<a href="{{ path('app_logout') }}" class="dropdown-item"><i class="ph-sign-out me-2"></i>Odjava</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- /topbar -->
+
+				<!-- Page header -->
+				<div class="page-header page-header-light shadow">
+					<div class="page-header-content d-lg-flex">
+						<div class="d-flex">
+							<h4 class="page-title mb-0">
+								{% block page_title %}{% endblock %}
+							</h4>
+						</div>
+
+						{% set page_actions %}{% block page_actions %}{% endblock %}{% endset %}
+						{% if page_actions|trim is not empty %}
+							<div class="d-flex flex-wrap align-items-center gap-2 mb-3 mb-lg-0 ms-lg-auto">
+								{{ page_actions }}
+							</div>
+						{% endif %}
+					</div>
+
+				</div>
+				<!-- /page header -->
+
+
+				<!-- Content area -->
+				<div class="content">
+
+					{% set flash_icons = {success: 'ph-check-circle', danger: 'ph-x-circle', warning: 'ph-warning', info: 'ph-info'} %}
+					{% for type, messages in app.flashes %}
+						{% set level = type == 'error' ? 'danger' : type %}
+						{% for message in messages %}
+							<div class="alert alert-{{ level }} alert-icon-start alert-dismissible fade show" role="alert">
+								<span class="alert-icon bg-{{ level }} text-white">
+									<i class="{{ flash_icons[level]|default('ph-info') }}"></i>
+								</span>
+								{{ message }}
+								<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zatvori"></button>
+							</div>
+						{% endfor %}
+					{% endfor %}
+
+					{% block content %}{% endblock %}
+
+				</div>
+				<!-- /content area -->
+
+
+				<!-- Footer -->
+				<div class="navbar navbar-sm navbar-footer border-top">
+					<div class="container-fluid">
+						<span>{{ 'now'|date('Y') }} KontIT app</span>
+					</div>
+				</div>
+				<!-- /footer -->
+
+			</div>
+			<!-- /inner content -->
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+</body>
+</html>

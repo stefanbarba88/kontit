@@ -1,0 +1,74 @@
+/* Dugmad (7.7). */
+.btn {
+    --btn-border-radius: var(--kt-radius-md);
+    border-radius: var(--kt-radius-md);
+    font-weight: 500;
+    min-height: 36px;
+    transition: background-color var(--kt-dur-1) var(--kt-ease), border-color var(--kt-dur-1) var(--kt-ease),
+        color var(--kt-dur-1) var(--kt-ease), box-shadow var(--kt-dur-1) var(--kt-ease), transform var(--kt-dur-1) var(--kt-ease);
+}
+.btn-sm { min-height: 32px; border-radius: var(--kt-radius-sm); }
+.btn-icon { min-height: 0; }
+.btn:focus-visible { box-shadow: 0 0 0 3px var(--kt-focus); outline: 0; }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+
+/* primarno: blagi gradijent odozgo, svetli odsjaj, shadow-xs */
+.btn-primary {
+    --btn-bg: var(--kt-primary); --btn-hover-bg: var(--kt-primary-hover); --btn-active-bg: var(--kt-primary-hover);
+    --btn-color: var(--kt-on-primary); --btn-hover-color: var(--kt-on-primary); --btn-active-color: var(--kt-on-primary);
+    --btn-border-color: transparent; --btn-hover-border-color: transparent; --btn-active-border-color: transparent;
+    background-color: var(--kt-primary);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, 0));
+    color: var(--kt-on-primary);
+    border-color: transparent;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), var(--kt-shadow-xs);
+}
+.btn-primary:hover { background-color: var(--kt-primary-hover); color: var(--kt-on-primary); }
+.btn-primary:disabled, .btn-primary.disabled { opacity: .55; }
+
+/* sekundarno */
+.btn-light, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info {
+    background: var(--kt-surface); color: var(--kt-text); border: 1px solid var(--kt-border-strong);
+    box-shadow: var(--kt-shadow-xs);
+}
+.btn-light:hover, .btn-outline-primary:hover, .btn-outline-secondary:hover, .btn-outline-success:hover, .btn-outline-info:hover {
+    background: var(--kt-surface-3); color: var(--kt-text); border-color: var(--kt-border-strong);
+}
+.btn-outline-primary { color: var(--kt-primary); }
+.btn-outline-primary:hover { color: var(--kt-primary); }
+
+/* opasno: ghost sa crvenim tekstom (puno crveno samo u potvrdi) */
+.btn-outline-danger, .btn-outline-warning {
+    background: transparent; border: 1px solid var(--kt-border-strong); box-shadow: none;
+}
+.btn-outline-danger { color: var(--kt-danger); }
+.btn-outline-warning { color: var(--kt-warning); }
+.btn-outline-danger:hover { background: var(--kt-danger-soft); color: var(--kt-danger); border-color: var(--kt-danger); }
+.btn-outline-warning:hover { background: var(--kt-warning-soft); color: var(--kt-warning); border-color: var(--kt-warning); }
+.btn-danger { background: var(--kt-danger); border-color: var(--kt-danger); color: #fff; }
+.btn-success { background: var(--kt-success); border-color: var(--kt-success); color: #fff; }
+:root[data-bs-theme="dark"] .btn-danger, :root[data-bs-theme="dark"] .btn-success { color: #06121F; }
+
+/* ghost */
+.btn-flat-white, .btn-link { background: transparent; border-color: transparent; box-shadow: none; color: var(--kt-text-2); }
+.btn-flat-white:hover, .btn-link:hover { background: var(--kt-surface-3); color: var(--kt-text); }
+
+/* stanje učitavanja: širina ostaje, levo se pojavi loader od 4 tačke */
+.btn.is-loading { position: relative; pointer-events: none; padding-left: 38px; }
+.btn.is-loading::before {
+    content: ""; position: absolute; left: 14px; top: 50%; width: 14px; height: 14px; margin-top: -7px;
+    background:
+        radial-gradient(circle 2.6px at 50% 15%, var(--kt-logo-ink) 98%, transparent) ,
+        radial-gradient(circle 2.6px at 15% 50%, var(--kt-logo-accent) 98%, transparent),
+        radial-gradient(circle 2.6px at 85% 50%, var(--kt-logo-accent) 98%, transparent),
+        radial-gradient(circle 2.6px at 50% 85%, var(--kt-logo-ink) 98%, transparent);
+    animation: kt-spin 1.2s linear infinite;
+}
+.btn-primary.is-loading::before {
+    background:
+        radial-gradient(circle 2.6px at 50% 15%, #fff 98%, transparent),
+        radial-gradient(circle 2.6px at 15% 50%, #fff 98%, transparent),
+        radial-gradient(circle 2.6px at 85% 50%, #fff 98%, transparent),
+        radial-gradient(circle 2.6px at 50% 85%, #fff 98%, transparent);
+}
+@keyframes kt-spin { to { transform: rotate(360deg); } }

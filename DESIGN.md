@@ -1,0 +1,435 @@
+# DESIGN.md — Vizuelni identitet: KontIT app
+
+> **Uputstvo za Claude Code:**
+> 1. Pročitaj ceo fajl. U **CLAUDE.md**, u sekciju "UI template", dodaj pravilo:
+>    *"Pre svakog UI posla pročitaj DESIGN.md. Template određuje **strukturu** (layout, raspored, komponente),
+>    a DESIGN.md određuje **izgled** (boje, tipografija, razmaci, senke, teme, detalji). Kad se razlikuju, važi DESIGN.md."*
+> 2. Logotipe iz foldera `logo/` rasporedi po sekciji 2.1.
+> 3. Uradi međukorak **"UI osvežavanje"** po sekciji 14, pre nastavka trenutne faze.
+>    Pokaži mi plan i sačekaj potvrdu. Ne menjaj entitete ni poslovnu logiku, osim polja `User.themePreference`.
+> 4. Na kraju ažuriraj PROGRESS.md.
+
+---
+
+## 1. Karakter
+
+**KontIT app** je alat u kome knjigovođe provode ceo radni dan. Treba da deluje kao skup, pouzdan
+finansijski softver: **mirno, precizno, uredno**. Ništa ne viče, sve je na svom mestu, a brojevi su glavni.
+
+Pravac: savremeni "fintech" dashboard (u duhu Linear, Stripe i Mercury interfejsa), a ne klasičan admin panel.
+
+**Pet principa**
+1. **Tišina pa naglasak.** Interfejs je neutralan (grafitne nijanse), a plava boja iz logoa se koristi **samo**
+   za ono što je bitno: primarna akcija, aktivna stavka, fokus, ključni broj.
+2. **Linije umesto kutija.** Tanke ivice (1px, niskog kontrasta) i blage senke. Nema debelih okvira ni teških senki.
+3. **Brojevi su heroji.** Tabularni brojevi, desno poravnati u tabelama, krupni na dashboardu.
+4. **Gustina sa vazduhom.** Puno podataka na ekranu, ali sa doslednim razmakom (sistem od 4px).
+5. **Detalj u pokretu.** Mikro-animacije od 120–240 ms na hover, otvaranje i štikliranje. Nikad spore i nikad nametljive.
+
+**Motiv brenda**: četiri kruga iz znaka (dva grafitna, dva plava, koji se prepliću). Koristi se kao loader,
+kao pozadinski šablon na login strani i u praznim stanjima.
+
+---
+
+## 2. Logo
+
+### 2.1 Fajlovi (folder `logo/`)
+
+| Fajl | Gde ide | Upotreba |
+|---|---|---|
+| `kontit-app-lockup-inline.svg` | sadržaj u `templates/components/_logo.html.twig` | **Sidebar (otvoren)**. Inline SVG, boje prate temu preko CSS-a. |
+| `kontit-mark-inline.svg` | sadržaj u `templates/components/_logo_mark.html.twig` | **Sidebar (skupljen)**, loader, prazna stanja |
+| `kontit-logo.svg` / `kontit-logo-dark.svg` | `public/brand/` | **Login strana** (pun logo sa "RAČUNOVODSTVO"), štampa, PDF izveštaji |
+| `kontit-app-lockup.svg` / `-dark.svg` | `public/brand/` | kada inline nije moguć (`<img>`) |
+| `kontit-mark.svg` / `-dark.svg` | `public/brand/` | samo znak, kao `<img>` |
+| `kontit-app-icon.svg` | `public/favicon.svg` | favicon (moderni browseri) |
+| `favicon.ico`, `favicon-16.png`, `favicon-32.png` | `public/` | favicon (stariji browseri) |
+| `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` | `public/` | iOS ikona i `manifest.webmanifest` |
+| `kontit-app-lockup-email@2x.png`, `kontit-logo@2x.png` | `public/brand/` | **mailovi** (mail klijenti ne podržavaju SVG pouzdano) |
+
+### 2.2 Verzije logoa
+- **Pun logo** (znak + "KontIT" + "RAČUNOVODSTVO"): login strana, PDF dokumenti. To je logo firme.
+- **App lockup** (znak + "KontIT" + "app"): unutar aplikacije. Reč **"app"** je u plavoj boji i tanjem rezu (Inter Regular),
+  kao tihi sufiks uz jak znak. Tako se razlikuje proizvod (aplikacija) od firme (računovodstvo).
+- **Znak** (četiri kruga): skupljen sidebar, favicon, loader.
+- **App ikona**: znak u belom na plavom gradijentu, zaobljen kvadrat (favicon, telefon).
+
+### 2.3 Boje logoa po temi
+Inline SVG koristi `currentColor` za grafitni deo i `var(--kt-logo-accent)` za plavi deo:
+```css
+.kt-logo, .kt-mark { color: var(--kt-logo-ink); }
+:root                 { --kt-logo-ink: #58595B; --kt-logo-accent: #0089FF; }
+[data-bs-theme=dark]  { --kt-logo-ink: #E6E8EC; --kt-logo-accent: #3BA3FF; }
+```
+
+### 2.4 Pravila
+- **Zaštitna zona** oko logoa je najmanje prečnik jednog malog kruga iz znaka.
+- **Minimalna veličina**: lockup visine 28px, znak 20px.
+- Visina u sidebaru: lockup **30px**, znak **28px**. Na login strani: pun logo **56px**.
+- **Ne** menjati boje, proporcije ni font, ne dodavati senke ni efekte, i ne stavljati logo na šarenu ili zauzetu pozadinu.
+- Naziv u tekstu i naslovima: **KontIT app**. U `<title>`: `{{ naslov stranice }} · KontIT app`.
+
+---
+
+## 3. Boje
+
+### 3.1 Brend (iz logoa)
+| Token | Hex | Napomena |
+|---|---|---|
+| **Kont plava** `--kt-brand-500` | `#0089FF` | boja iz logoa: ikonice, fokus, grafikoni, akcenti |
+| **Grafit** `--kt-graphite` | `#58595B` | boja iz logoa: osnova neutralne skale |
+
+**Važno za pristupačnost:** `#0089FF` na beloj pozadini ima kontrast **3,49:1**, što **nije dovoljno** za tekst i dugmad sa belim tekstom.
+Zato se u svetloj temi za dugmad i linkove koristi **`#006FD6`** (4,95:1), a `#0089FF` ostaje za logo, ikonice, fokus i grafikone.
+U tamnoj temi je primarna `#3BA3FF`, sa **tamnim** tekstom na dugmetu (7,2:1).
+
+### 3.2 Plava skala
+| 50 | 100 | 200 | 300 | 400 | **500** | 600 | 700 | 800 | 900 | 950 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `#EEF7FF` | `#D9EDFF` | `#B5DCFF` | `#84C6FF` | `#3BA3FF` | **`#0089FF`** | `#006FD6` | `#0058AB` | `#004588` | `#06386B` | `#072441` |
+
+### 3.3 Neutralna skala (hladni grafit)
+| 0 | 25 | 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 850 | 900 | 925 | 950 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `#FFFFFF` | `#FAFBFC` | `#F5F6F8` | `#ECEEF1` | `#DDE1E6` | `#C3C9D1` | `#A1A9B4` | `#7E8794` | `#5E6672` | `#474E58` | `#2E333A` | `#1F2329` | `#161A1F` | `#11151A` | `#0B0F14` |
+
+Nikad čista crna `#000` ni čista siva bez nijanse.
+
+### 3.4 Semantički tokeni
+
+| Token | Svetla tema | Tamna tema | Upotreba |
+|---|---|---|---|
+| `--kt-bg` | `#F5F6F8` | `#0B0F14` | pozadina strane |
+| `--kt-surface` | `#FFFFFF` | `#11161D` | kartice, tabele, modali |
+| `--kt-surface-2` | `#FAFBFC` | `#161C24` | sidebar, zaglavlje tabele, ugnježdeni blokovi |
+| `--kt-surface-3` | `#F0F2F5` | `#1C232D` | hover, izabran red |
+| `--kt-border` | `#E4E7EB` | `rgba(255,255,255,.07)` | sve ivice |
+| `--kt-border-strong` | `#D3D8DE` | `rgba(255,255,255,.12)` | inputi, razdelnici |
+| `--kt-text` | `#1F2329` | `#ECEEF1` | osnovni tekst (15,8:1 / 16:1) |
+| `--kt-text-2` | `#5E6672` | `#A1A9B4` | sekundarni tekst, labele (5,8:1 / 7,9:1) |
+| `--kt-text-3` | `#8A929D` | `#6F7782` | placeholder, pomoćni, dekorativni tekst |
+| `--kt-primary` | `#006FD6` | `#3BA3FF` | dugmad, linkovi, aktivna stavka |
+| `--kt-primary-hover` | `#0058AB` | `#5CB3FF` | |
+| `--kt-on-primary` | `#FFFFFF` | `#06121F` | tekst na primarnom dugmetu |
+| `--kt-primary-soft` | `#EEF7FF` | `rgba(59,163,255,.12)` | pozadina aktivne stavke i badge-a |
+| `--kt-focus` | `rgba(0,137,255,.28)` | `rgba(59,163,255,.35)` | fokus prsten |
+| `--kt-success` | `#15803D` | `#4ADE80` | |
+| `--kt-warning` | `#B45309` | `#FBBF24` | |
+| `--kt-danger` | `#C81E1E` | `#F87171` | |
+| `--kt-info` | = primary | = primary | |
+
+Za svaku semantičku boju postoji i `-soft` varijanta (svetla: ~8% boje na beloj, tamna: `rgba(boja, .12)`) za pozadinu badge-ova i alertova.
+
+### 3.5 Statusi i prioriteti zadataka
+Badge = **meka pozadina + tačkica u boji + tekst u boji**, nikad puna jaka boja.
+
+| Status | Boja | | Prioritet | Boja |
+|---|---|---|---|---|
+| NOVO | neutralna (500) | | NIZAK | neutralna |
+| U_RADU | plava | | NORMALAN | plava, samo ivica |
+| CEKA_KLIJENTA | warning (amber) | | VISOK | warning |
+| NA_PROVERI | ljubičasta `#7C5CFF` / `#A78BFA` | | HITAN | danger, tačkica pulsira |
+| ZAVRSENO | success | | | |
+| OTKAZANO | neutralna, precrtan tekst | | | |
+
+Boje i nazivi statusa idu u PHP enum (`getColor()`, `getLabel()`), a Twig makro `status_badge(status)` ih crta. Nikad ručno u šablonu.
+
+### 3.6 Boje timova (umesto slobodnog color pickera)
+`Team.color` se bira iz **8 unapred podešenih** nijansi koje rade u obe teme:
+`blue #0089FF` · `indigo #5B6CFF` · `violet #8B5CF6` · `teal #14B8A6` · `green #22C55E` · `amber #F59E0B` · `rose #F43F5E` · `slate #64748B`
+
+### 3.7 Grafikoni
+Redosled serija: `#0089FF`, `#14B8A6`, `#8B5CF6`, `#F59E0B`, `#F43F5E`, `#64748B`.
+Jedna serija je uvek plava. "Plan naspram ostvarenog": plan je neutralna isprekidana linija, ostvareno plava.
+
+---
+
+## 4. Tipografija
+
+| Uloga | Font | Napomena |
+|---|---|---|
+| Naslovi, KPI brojevi na dashboardu | **Manrope** (600–800) | geometrijski i zaobljen, slaže se sa logoom |
+| Interfejs i tekst | **Inter** (400–600) | čitljiv u malim veličinama |
+| Šifre, PIB, matični broj, brojevi računa | **JetBrains Mono** (400–500) | |
+
+- Fontovi sa **Google Fonts**, sa podskupom **latin-ext** (č, ć, š, ž, đ). Učitati samo potrebne rezove, uz `display=swap` i `preconnect`.
+- **Svi brojevi u tabelama, KPI karticama i iznosima** koriste `font-variant-numeric: tabular-nums;`, da se cifre poravnaju.
+- Osnovna veličina je **14px** (aplikacija sa puno podataka).
+
+| Stil | Veličina / visina reda | Font i debljina | Ostalo |
+|---|---|---|---|
+| Display (login, prazna stanja) | 32 / 40 | Manrope 700 | letter-spacing −0,02em |
+| H1 (naslov strane) | 24 / 32 | Manrope 700 | −0,015em |
+| H2 (naslov kartice/sekcije) | 18 / 26 | Manrope 650 | −0,01em |
+| H3 | 15 / 22 | Inter 600 | |
+| Tekst | 14 / 20 | Inter 400 | |
+| Mali tekst | 13 / 18 | Inter 400 | |
+| Labela iznad grupe (overline) | 11 / 16 | Inter 600 | VELIKA SLOVA, +0,06em, `--kt-text-3` |
+| KPI broj | 30 / 36 | Manrope 700 | tabular, −0,02em |
+
+---
+
+## 5. Prostor, oblici, senke
+
+- **Razmak**: sistem od 4px: `4, 8, 12, 16, 20, 24, 32, 40, 48, 64`. Unutrašnji razmak kartice 20px (24px na desktopu), između kartica 16–24px.
+- **Zaobljenja** (krugovi iz logoa → mekan oblik):
+  `--kt-radius-xs: 6px` (badge, checkbox), `--kt-radius-sm: 8px` (mali dugmići), `--kt-radius-md: 10px` (dugmad, inputi),
+  `--kt-radius-lg: 14px` (kartice, tabele), `--kt-radius-xl: 20px` (modali, login panel), `999px` (pill, avatar).
+- **Visina kontrola**: 36px (normalno), 32px (kompaktno, u tabelama), 44px (login).
+- **Senke (svetla tema)**, uvek slojevite i blage:
+  ```css
+  --kt-shadow-xs: 0 1px 2px rgba(16,24,40,.05);
+  --kt-shadow-sm: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+  --kt-shadow-md: 0 4px 8px -2px rgba(16,24,40,.08), 0 2px 4px -2px rgba(16,24,40,.05);
+  --kt-shadow-lg: 0 16px 32px -8px rgba(16,24,40,.14), 0 4px 8px -4px rgba(16,24,40,.06);
+  ```
+- **Senke (tamna tema)**: senka skoro ne postoji, a dubina se dobija **svetlijom površinom** i tankim
+  "odsjajem" na gornjoj ivici: `box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 1px 2px rgba(0,0,0,.4);`
+- Kartica po defaultu ima **ivicu i `shadow-xs`**. Veća senka samo za dropdown (`md`) i modale (`lg`).
+
+---
+
+## 6. Teme: svetla, tamna, sistemska
+
+- Koristi se ugrađen Bootstrap 5.3 mehanizam: atribut **`data-bs-theme`** na `<html>`.
+- Tri opcije: **Svetla / Tamna / Kao sistem** (podrazumevano: kao sistem).
+- Novo polje **`User.themePreference`** (enum: LIGHT, DARK, SYSTEM), koje se čuva AJAX-om kad se promeni, pa tema prati korisnika na svakom računaru.
+  `localStorage` služi samo kao keš da nema treptanja.
+- **Bez treptanja**: ovaj mali skript ide **inline u `<head>`, pre CSS-a**:
+  ```html
+  <script>
+  (function(){
+    var p = '{{ app.user ? app.user.themePreference.value|lower : "system" }}';
+    try { p = localStorage.getItem('kt-theme') || p; } catch(e){}
+    var dark = p === 'dark' || (p === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+  })();
+  </script>
+  ```
+- Prekidač teme je u topbaru (ikonica sunce/mesec/monitor, dropdown sa tri opcije) i u profilu.
+- Pri promeni teme okida se događaj `kt:themechange`, na koji se Chart.js grafikoni ponovo iscrtaju sa bojama nove teme.
+- `<meta name="theme-color">` za obe teme (`#F5F6F8` / `#0B0F14`).
+- Promena teme ima kratak fade (200 ms na `background-color, color, border-color`), ali **ne** na svim elementima i **ne** pri učitavanju strane.
+
+---
+
+## 7. Premium detalji po komponentama
+
+### 7.1 Sidebar
+- Širina 264px, a skupljen 76px (samo ikonice i znak, tooltip na hover). Stanje skupljenosti se pamti (localStorage).
+- Pozadina `--kt-surface-2` i ivica desno. Logo gore (lockup, 30px), ispod grupe menija sa **overline labelama**
+  ("RAD", "KLIJENTI", "ADMINISTRACIJA").
+- **Aktivna stavka**: meka plava pozadina (`--kt-primary-soft`), plava ikonica i tekst, i **tanka plava traka od 3px levo**.
+- Brojači (npr. "Čeka moju potvrdu 3") kao mali pill desno.
+- Dno sidebara: kartica korisnika (avatar, ime, rola) sa menijem (Profil, Tema, Odjava).
+
+### 7.2 Topbar
+- Visina 64px, **"stakleni" efekat**: poluprovidna pozadina i `backdrop-filter: blur(12px) saturate(140%)`, uz ivicu dole.
+  Lepljiv (sticky), sadržaj ispod se vidi zamućen pri skrolovanju.
+- Levo: breadcrumbs (`Klijenti / Firma X / Zadaci`). Sredina ili desno: **pretraga sa prečicom** `Ctrl K` (vidi 7.15).
+- Desno: prekidač teme, **zvonce** (crvena tačkica sa blagim pulsom kad ima nepročitanih), avatar.
+
+### 7.3 Kartice
+- `--kt-surface`, ivica, `--kt-radius-lg`, `shadow-xs`. Zaglavlje kartice: naslov H2 + akcije desno, **bez** obojene pozadine.
+- Kartica na koju se klikće (npr. klijent): na hover se podigne 1px, senka se poveća i ivica dobije plavu nijansu (180 ms).
+
+### 7.4 KPI kartice (dashboard)
+- Gore labela (13px, `--kt-text-2`), ispod **krupan broj** (Manrope 30px, tabular), pored njega **pill sa promenom**
+  (`▲ 12%` zeleno, `▼ 4%` crveno, u odnosu na prethodni period). Dole **sparkline** (mala linija trenda bez osa, plava sa providnim gradijentom ispod).
+- Broj se pri učitavanju **"izbroji"** od 0 do vrednosti (600 ms, ease-out), ali samo prvi put.
+- Kartica koja ukazuje na problem (npr. "Kasni: 7") ima tanku traku u boji opasnosti na vrhu, a ne crvenu celu karticu.
+
+### 7.5 Tabele
+- Zaglavlje: `--kt-surface-2`, overline stil (11px, velika slova), **lepljivo** pri skrolovanju.
+- Redovi: visina 52px (normalno) ili 40px (kompaktno, prekidač gustine pamti se po korisniku). Hover: `--kt-surface-3`.
+- Bez vertikalnih linija, samo tanka horizontalna između redova.
+- **Brojevi i iznosi desno poravnati**, tabularni. Datumi u formatu `12.11.2026.`, a uz rok koji kasni crveni tekst i ikonica.
+- Klijent i korisnik u tabeli uvek kao **avatar + ime + sekundarni red** (npr. PIB ili pozicija u `--kt-text-2`).
+- Više učesnika: **složeni avatari** (preklopljeni, sa ivicom boje pozadine, "+3" za ostale).
+- Akcije reda: pojavljuju se na hover (desno), a na telefonu su uvek vidljive u "⋯" meniju.
+- Prazna tabela: prazno stanje (7.12), nikad samo tekst "Nema podataka".
+
+### 7.6 Forme
+- Labela **iznad** polja (13px, 500), pomoćni tekst ispod (`--kt-text-3`). Obavezna polja: mala tačka, ne zvezdica.
+- Input: visina 36px, `--kt-radius-md`, ivica `--kt-border-strong`, pozadina `--kt-surface`.
+  **Fokus**: plava ivica + **prsten od 3px** (`--kt-focus`), sa animacijom od 120 ms.
+- Greška: crvena ivica, crveni prsten i poruka ispod sa ikonicom. Validacija se prikazuje posle napuštanja polja, ne dok se kuca.
+- Duge forme su podeljene u **sekcije sa naslovom levo i poljima desno** (na desktopu), sa lepljivom trakom
+  "Sačuvaj / Otkaži" dole kad ima nesačuvanih izmena.
+- Select: koristiti select dodatak iz template-a, stilizovan istim tokenima. PIB, matični broj i broj računa su u monospace fontu.
+
+### 7.7 Dugmad
+- **Primarno**: puna `--kt-primary`, **blagi gradijent odozgo** (svetlije 4%) i unutrašnji svetli odsjaj na gornjoj ivici
+  (`inset 0 1px 0 rgba(255,255,255,.18)`), plus `shadow-xs`. Na pritisak se spusti (`translateY(1px)`).
+- **Sekundarno**: `--kt-surface`, ivica, tekst `--kt-text`. **Ghost**: bez pozadine, hover `--kt-surface-3`.
+- **Opasno**: crveno samo kad je to glavna radnja (npr. potvrda u SweetAlert-u), inače ghost sa crvenim tekstom.
+- **Stanje učitavanja**: tekst ostaje (dugme ne menja širinu), a levo se pojavi mali loader od 4 tačke (7.13).
+- Jedna stranica, **jedno primarno dugme**.
+
+### 7.8 Badge-ovi
+Meka pozadina + tačkica + tekst (3.5), visina 22px, `--kt-radius-xs` ili pill, 12px, 500.
+
+### 7.9 Avatari
+- Okrugli. Bez slike: **inicijali na gradijentu**, gde se boja bira deterministički iz imena (hash imena → jedna od 8 boja timova),
+  tako da ista osoba uvek ima istu boju.
+- Tanak prsten boje pozadine, pa složeni avatari izgledaju čisto. Opciono: mala tačka statusa (odsutan = amber).
+- Veličine: 24, 32, 40, 64, 96px.
+
+### 7.10 Zadatak: checklist i napredak
+- **Checkbox po meri**: zaobljen kvadrat od 18px. Pri štikliranju se ispuni plavom bojom i **iscrta kvačica** (SVG stroke animacija, 200 ms),
+  a tekst stavke dobije precrtavanje koje "prelazi" sleva nadesno i postane `--kt-text-3`.
+- Drag & drop ručka (šest tačkica) pojavljuje se na hover.
+- **Napredak po učesniku**: segmentirana traka (svaki učesnik je segment u boji svog avatara), plus prsten napretka
+  checkliste (npr. 5/8) u zaglavlju zadatka.
+- Kad se ceo zadatak pošalje na proveru, kratak suptilan "uspeh" efekat (prsten se ispuni, zelena kvačica). **Bez konfeta.**
+
+### 7.11 Timeline (istorija izmena)
+Vertikalna tanka linija, a na njoj mali krugovi u boji tipa akcije. Svaki red ima avatar, rečenicu ("**Marko** je štiklirao *Knjiženje izvoda*"),
+relativno vreme ("pre 5 min", sa tačnim vremenom u tooltipu), a izmene polja kao `staro → novo` sa precrtanim starim.
+
+### 7.12 Prazna stanja
+Centrirano: **znak KontIT kao tanka linijska ilustracija** (samo obris krugova, `--kt-border-strong`), naslov (H3),
+jedna rečenica objašnjenja i **jedno dugme** za akciju ("Dodaj prvog klijenta").
+
+### 7.13 Loader brenda i skeleti
+- **Loader**: četiri tačke raspoređene kao u znaku (gore i dole grafit, levo i desno plava) koje se **naizmenično smanjuju i rastu**
+  i polako rotiraju (1,2 s, beskonačno). Koristi se za učitavanje strane, AJAX i dugmad. Mali (16px) i veliki (40px).
+- **Skeleti**: za liste, tabele i kartice prilikom AJAX učitavanja: sivi blokovi sa blagim "sjajem" koji prelazi preko (1,4 s).
+- Ako se nešto učita za manje od 200 ms, ne prikazivati loader (bez treptanja).
+
+### 7.14 Modali, SweetAlert i toast-ovi
+- Pozadina iza modala: tamna providna + **blur 4px**. Modal: `--kt-radius-xl`, `shadow-lg`, ulazi sa blagim scale (0,98 → 1) i fade, 180 ms.
+- **SweetAlert2** dobija isti izgled preko `customClass`: font, radius, dugmad iz sekcije 7.7, ikonice u mekom krugu boje tipa (info/warning/danger),
+  i radi u obe teme.
+- **Toast** dole desno (ne preklapa zvonce): površina, ivica, traka u boji tipa levo, ikonica, tekst i tanka traka koja odbrojava do zatvaranja.
+
+### 7.15 Komandna paleta (Ctrl + K)
+Prozor na sredini ekrana sa poljem za pretragu: **brza pretraga** klijenata (po nazivu i PIB-u), zadataka i korisnika, plus **akcije**
+("Novi zadatak", "Promeni temu", "Moji zadaci koji kasne"). Navigacija strelicama, Enter otvara.
+Ovo je jedan od detalja koji aplikaciju najviše čini "skupom". Dizajn se definiše sada, a pravi se kad budu gotovi klijenti i zadaci.
+
+### 7.16 Login strana
+- **Podeljen ekran**: levo (55%) **panel brenda**, desno forma.
+- Panel brenda: tamna plava pozadina (`#072441` → `#004588`), sa **mesh gradijentom** (dve meke svetle mrlje plave boje)
+  i **šablonom tačaka** u ritmu četiri kruga iz znaka (vrlo nisko providan, 6%). Na njemu pun logo (svetla varijanta),
+  jedna rečenica ("Vaši klijenti, rokovi i tim, na jednom mestu.") i verzija aplikacije dole.
+- Forma: kartica `--kt-radius-xl`, polja od 44px, "Zapamti me", "Zaboravljena lozinka?".
+- Na telefonu panel brenda postaje traka od 120px gore sa znakom.
+- Strane 403, 404 i 500 imaju isti stil: znak, veliki broj greške, objašnjenje i dugme "Nazad na početnu".
+
+---
+
+## 8. Pokret
+
+| Token | Trajanje | Upotreba |
+|---|---|---|
+| `--kt-dur-1` | 120 ms | hover, fokus, boje |
+| `--kt-dur-2` | 180 ms | dropdown, tooltip, kartica hover |
+| `--kt-dur-3` | 240 ms | modali, sidebar skupljanje, paneli |
+
+Easing: `cubic-bezier(.2,.8,.2,1)` (brz početak, mekan kraj). Bez "odskakanja".
+Sve animacije se isključuju za `prefers-reduced-motion: reduce`.
+
+---
+
+## 9. Ikonice
+- Isključivo iz seta koji koristi template (pravilo iz CLAUDE.md). Ako template nudi linijske (stroke) ikonice, koristiti njih.
+- Veličine 16px (u tekstu i tabelama), 18px (dugmad, meni), 20px (topbar). Boja `--kt-text-2`, a aktivna `--kt-primary`.
+- Ikonica nikad sama bez tooltipa ili labele, osim univerzalnih (zvonce, pretraga, zatvori).
+
+---
+
+## 10. Grafikoni (Chart.js)
+- Globalni `Chart.defaults` u `assets/js/charts.js`: font Inter 12px, boja teksta `--kt-text-2`, linije mreže samo horizontalne,
+  tanke i boje `--kt-border`, bez okvira oko grafikona, bez osa koje nisu potrebne.
+- Linije debljine 2px, zaobljeni krajevi, tačke samo na hover. Ispod glavne linije providan gradijent iste boje (od 18% do 0%).
+- Stubići sa zaobljenim gornjim uglovima (6px), razmak između stubića veći od debljine stubića.
+- Tooltip: `--kt-surface`, ivica, `shadow-md`, tabularni brojevi, iznosi u formatu `12.500 RSD`.
+- Boje se čitaju iz CSS varijabli, a na `kt:themechange` grafikon se osveži.
+
+---
+
+## 11. Mailovi
+- Osnova je email template (pravilo iz CLAUDE.md), ali sa bojama brenda: pozadina `#F5F6F8`, kartica bela, radius 14px,
+  primarno dugme `#006FD6`, tekst `#1F2329` / `#5E6672`.
+- Logo: `kontit-app-lockup-email@2x.png` (prikazan u širini 220px), sa apsolutnim URL-om.
+- Futer: "KontIT app · Ova poruka je poslata automatski." i link ka podešavanjima notifikacija.
+- Mailovi ostaju u svetloj temi (tamna u mail klijentima nije pouzdana).
+
+---
+
+## 12. Tekst i formati
+- Srpski, latinica. Ton: direktan, kratak, kolegijalan, na "ti" ("Tvoji zadaci", "Sačuvaj izmene"). Bez uzvičnika i emodžija u interfejsu.
+- Dugmad su glagoli: "Sačuvaj", "Dodaj klijenta", "Pošalji na proveru", a ne "OK" ili "Potvrdi" bez objekta.
+- Datum: `12.11.2026.`, vreme: `14:20`, relativno: "pre 5 min", "juče u 14:20".
+- Iznosi: `1.234.567,00 RSD` (Twig filter `money`). Procenti: `12,5%`.
+- Prazne vrednosti: crtica `—` u `--kt-text-3`, nikad "null" ni prazno polje.
+
+---
+
+## 13. Pristupačnost
+- Kontrast teksta najmanje 4,5:1 (tokeni iz sekcije 3 to već zadovoljavaju).
+- Fokus mora uvek biti vidljiv (prsten iz 7.6), i za dugmad, linkove i redove tabele kojima se upravlja tastaturom.
+- Boja nikad nije jedini nosilac značenja: status ima i tekst, a "kasni" ima i ikonicu.
+- Klikabilne površine najmanje 32×32px (na telefonu 44×44px).
+
+---
+
+## 14. Implementacija
+
+### 14.1 Fajlovi
+```
+assets/styles/
+  tokens.css          (sve --kt-* varijable za :root i [data-bs-theme=dark])
+  bootstrap-map.css   (mapiranje na --bs-* i na varijable template-a)
+  base.css            (fontovi, tipografija, tabular-nums, selekcija teksta, scrollbar)
+  components/         (sidebar.css, topbar.css, card.css, kpi.css, table.css, form.css, button.css,
+                       badge.css, avatar.css, checklist.css, timeline.css, empty.css, loader.css,
+                       skeleton.css, modal.css, swal.css, toast.css, login.css)
+  app.css             (samo importuje gornje fajlove, ovim redom)
+assets/js/
+  theme.js            (prekidač teme, čuvanje preko AJAX-a, događaj kt:themechange)
+  charts.js           (Chart.defaults i helper za boje iz CSS varijabli)
+  countup.js          (brojanje KPI vrednosti)
+templates/components/
+  _logo.html.twig, _logo_mark.html.twig, _loader.html.twig, _empty_state.html.twig,
+  _avatar.html.twig, _avatar_stack.html.twig, _status_badge.html.twig, _kpi_card.html.twig
+public/
+  favicon.svg, favicon.ico, apple-touch-icon.png, icon-192.png, icon-512.png, manifest.webmanifest
+  brand/              (ostali fajlovi iz foldera logo/)
+```
+
+### 14.2 Mapiranje na Bootstrap i template
+Template i Bootstrap ostaju netaknuti (pravilo iz CLAUDE.md). Izgled se menja **samo preko varijabli** u `bootstrap-map.css`:
+`--bs-primary`, `--bs-primary-rgb`, `--bs-body-bg`, `--bs-body-color`, `--bs-secondary-color`, `--bs-tertiary-bg`,
+`--bs-border-color`, `--bs-border-radius`, `--bs-link-color`, `--bs-focus-ring-color`, `--bs-font-sans-serif`, kao i
+**varijable samog template-a** (spisak je u `TEMPLATE_INVENTORY.md`). Gde template ima zakucane boje, prepisati selektorom u
+odgovarajućem fajlu iz `components/`, nikad menjati vendor fajl.
+
+### 14.3 Redosled "UI osvežavanja"
+1. Tokeni, mapiranje i fontovi (posle ovoga se cela aplikacija odmah promeni)
+2. Teme: polje `User.themePreference` + migracija, skript bez treptanja, prekidač, `kt:themechange`
+3. Logo, favicon i manifest
+4. Sidebar i topbar
+5. Dugmad, forme, badge-ovi, avatari
+6. Tabele i kartice (postojeće liste korisnika, timova, klijenata)
+7. Loader, skeleti, prazna stanja, SweetAlert i toast izgled
+8. Login, reset lozinke, 403/404/500
+9. Email osnova
+10. **Pregled svake postojeće strane u obe teme**. Napraviti screenshot-ove ili proći ručno i popraviti ono što odstupa.
+
+Model: prvi prolaz (tačke 1–4) **Opus 5.5**, ostalo **Sonnet 5.5**.
+
+### 14.4 Stranica vodič (opciono, preporučeno)
+Ruta `/_design` (samo superadmin i samo u `dev` okruženju) koja prikazuje sve komponente u obe teme: boje, tipografiju,
+dugmad, forme, badge-ove, tabele, KPI kartice, loader, prazno stanje. Služi da se odmah vidi kad nešto odstupa.
+
+---
+
+## 15. Šta NE raditi
+- Nema jarkih gradijenata po celom interfejsu. Gradijent samo na primarnom dugmetu (jedva vidljiv), app ikoni i login panelu.
+- Nema druge akcentne boje pored plave. Ostale boje su samo semantičke (statusi, grafikoni, timovi).
+- Nema teških senki, debelih okvira, obojenih zaglavlja kartica ni "zebra" tabela.
+- Nema centriranog teksta u tabelama (osim ikonica) i nema dugih tekstova velikim slovima.
+- Nema čiste crne pozadine u tamnoj temi i nema čisto belog teksta (koristiti `--kt-text`).
+- Nema animacija dužih od 300 ms (osim loadera i brojanja KPI vrednosti).

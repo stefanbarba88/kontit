@@ -1,0 +1,16 @@
+liip_imagine:
+    driver: gd
+    twig:
+        mode: lazy
+
+    resolvers:
+        default:
+            web_path:
+                web_root: '%kernel.project_dir%/public'
+                cache_prefix: media/cache
+
+    filter_sets:
+        avatar_thumb:
+            quality: 85
+            filters:
+                thumbnail: { size: [128, 128], mode: outbound }

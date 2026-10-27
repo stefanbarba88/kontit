@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}Uvoz klijenata iz NBS{% endblock %}
+{% block page_title %}Uvoz klijenata iz NBS{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('client_index') }}" class="breadcrumb-item">Klijenti</a>
+    <span class="breadcrumb-item active">Uvoz iz NBS</span>
+{% endblock %}
+
+{% block content %}
+    {% if not configured %}
+        <div class="alert alert-warning"><i class="ph-warning me-2"></i>NBS pristupni podaci nisu podešeni (<code>NBS_USERNAME</code>, <code>NBS_PASSWORD</code>, <code>NBS_LICENCE</code> u <code>.env.local</code>).</div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-6">
+            {{ form_start(form) }}
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">PIB-ovi i zaduženi radnici</h5></div>
+                <div class="card-body border-top">
+                    {{ form_row(form.pibs) }}
+                    {{ form_row(form.primary) }}
+                    {{ form_row(form.backup) }}
+                    <div class="text-muted fs-sm">Za svaki PIB se iz NBS-a preuzimaju naziv, adresa, matični broj, delatnost i datumi. Pravna forma se pogađa po nazivu i može se ispraviti na kartici klijenta. Klijenti koji već postoje se preskaču.</div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{{ path('client_index') }}" class="btn btn-light">Nazad</a>
+                <button class="btn btn-primary" {{ configured ? '' : 'disabled' }}>Uvezi<i class="ph-cloud-arrow-down ms-2"></i></button>
+            </div>
+            {{ form_end(form) }}
+        </div>
+
+        {% if results is not null %}
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header"><h5 class="mb-0">Rezultat</h5></div>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <tbody>
+                                {% for r in results %}
+                                    <tr>
+                                        <td>{{ r.pib }}</td>
+                                        <td>
+                                            {% if r.status == 'created' %}<span class="badge bg-success bg-opacity-20 text-success">Uvezen</span>
+                                            {% elseif r.status == 'exists' %}<span class="badge bg-secondary bg-opacity-20 text-secondary">Već postoji</span>
+                                            {% else %}<span class="badge bg-danger bg-opacity-20 text-danger">Greška</span>{% endif %}
+                                        </td>
+                                        <td>
+                                            {% if r.client %}<a href="{{ path('client_show', {id: r.client.id}) }}">{{ r.message }}</a>{% else %}{{ r.message }}{% endif %}
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr><td>{{ ui.empty_state('Nije pronađen nijedan PIB.', 'ph-magnifying-glass') }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

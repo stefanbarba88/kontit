@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dodela klijenta{% endblock %}
+{% block page_title %}Dodela: {{ client.name }}{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('client_index') }}" class="breadcrumb-item">Klijenti</a>
+    <a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.name }}</a>
+    <span class="breadcrumb-item active">Dodela</span>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Zaduženi radnici</h5></div>
+                <div class="card-body border-top">
+                    {{ form_start(form, {attr: {'data-confirm-changed': '[name$="[primary]"], [name$="[backup]"]', 'data-confirm': 'Promeniti zaduženje na klijentu?', 'data-confirm-text': 'Otvoreni zadaci ostaju kod dosadašnjeg radnika, a novi zadaci idu novom. Promena se beleži u istoriji.', 'data-confirm-type': 'warning', 'data-confirm-button': 'Da, promeni'}}) }}
+                        {{ form_row(form.primary) }}
+                        {{ form_row(form.backup) }}
+                        <div class="text-muted fs-sm mb-3">Možete dodeliti samo članove svog tima. Promene se beleže u istoriji klijenta.</div>
+                        <div class="text-end">
+                            <a href="{{ path('client_show', {id: client.id}) }}" class="btn btn-light me-2">Otkaži</a>
+                            <button class="btn btn-primary">Sačuvaj<i class="ph-floppy-disk ms-2"></i></button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

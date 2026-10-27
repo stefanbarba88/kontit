@@ -1,0 +1,10 @@
+/* Timeline (7.11): tanka vertikalna linija, mali krugovi u boji tipa akcije. */
+.timeline { position: relative; }
+.timeline::before { content: ""; position: absolute; left: 15px; top: 0; bottom: 0; width: 1px; background: var(--kt-border-strong); }
+.timeline .timeline-entry, .timeline-item { position: relative; }
+.timeline .timeline-icon > div,
+.timeline .bg-primary.text-white, .timeline .bg-success.text-white, .timeline .bg-warning.text-white,
+.timeline .bg-danger.text-white, .timeline .bg-info.text-white, .timeline .bg-secondary.text-white {
+    box-shadow: 0 0 0 4px var(--kt-surface);
+}
+.timeline s, .timeline del, .timeline .text-decoration-line-through { color: var(--kt-text-3); }

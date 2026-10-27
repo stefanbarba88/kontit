@@ -1,0 +1,7 @@
+/* Prazna stanja (7.12): linijski znak, naslov, rečenica, jedno dugme. */
+.kt-empty { text-align: center; padding: 40px 20px; color: var(--kt-text-2); }
+.kt-empty .kt-empty-mark { width: 56px; height: 56px; margin: 0 auto 12px; color: var(--kt-border-strong); }
+.kt-empty .kt-empty-mark circle { fill: none; stroke: currentColor; stroke-width: 2; }
+.kt-empty .kt-empty-mark circle:nth-child(2), .kt-empty .kt-empty-mark circle:nth-child(3) { stroke: var(--kt-brand-300); }
+.kt-empty h3 { margin-bottom: 4px; }
+.kt-empty p { margin: 0 auto 16px; max-width: 360px; color: var(--kt-text-2); }

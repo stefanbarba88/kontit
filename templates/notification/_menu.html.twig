@@ -1,0 +1,30 @@
+{# Sadržaj padajućeg menija zvonca. Iscrtava se u base.html.twig i iz AJAX odgovora (Ajax\NotificationController) #}
+<div class="d-flex align-items-center p-3 border-bottom">
+    <h6 class="mb-0">Notifikacije{% if count > 0 %} <span class="badge bg-primary rounded-pill ms-1">{{ count }}</span>{% endif %}</h6>
+    {% if count > 0 %}
+        <button type="button" class="btn btn-link btn-sm p-0 ms-auto notification-read-all">Označi sve</button>
+    {% endif %}
+</div>
+
+<div class="list-group list-group-flush overflow-auto" style="max-height: 420px;">
+    {% for n in items %}
+        <a href="{{ path('notification_open', {id: n.id}) }}" class="list-group-item list-group-item-action d-flex align-items-start {{ n.read ? '' : 'bg-primary bg-opacity-10' }}">
+            <div class="me-3">
+                <span class="d-inline-flex align-items-center justify-content-center bg-{{ n.type.color }} bg-opacity-10 text-{{ n.type.color }} rounded-pill w-40px h-40px">
+                    <i class="{{ n.type.icon }}"></i>
+                </span>
+            </div>
+            <div class="flex-fill">
+                <div class="{{ n.read ? '' : 'fw-semibold' }}">{{ n.title }}</div>
+                <div class="fs-sm text-muted">{{ n.message|length > 110 ? n.message|slice(0, 109) ~ '…' : n.message }}</div>
+                <div class="fs-xs text-muted mt-1">{{ n.createdAt|date('d.m.Y. H:i') }}</div>
+            </div>
+        </a>
+    {% else %}
+        <div class="text-center text-muted py-4"><i class="ph-bell ph-2x d-block mb-2"></i>Nema notifikacija.</div>
+    {% endfor %}
+</div>
+
+<div class="border-top text-center p-2">
+    <a href="{{ path('notification_index') }}">Sve notifikacije</a>
+</div>

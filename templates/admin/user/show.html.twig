@@ -1,0 +1,134 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+{% import 'components/timeline.html.twig' as tl %}
+
+{% block title %}{{ user.fullName }}{% endblock %}
+{% block page_title %}{{ user.fullName }}{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('admin_user_index') }}" class="breadcrumb-item">Korisnici</a>
+    <span class="breadcrumb-item active">{{ user.fullName }}</span>
+{% endblock %}
+
+{% block page_actions %}
+    {% if is_granted('USER_EDIT', user) %}
+        <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn btn-primary"><i class="ph-pencil me-2"></i>Izmeni</a>
+        {% if user.id != app.user.id %}
+            <form method="post" action="{{ path('admin_user_toggle', {id: user.id}) }}"
+                  {% if user.active %}{{ confirm_attrs('Deaktivirati korisnika?', 'Korisnik se više neće moći prijaviti ni dobijati zadatke. Istorija ostaje.', 'danger', 'Da, deaktiviraj', false, user.fullName) }}{% else %}{{ confirm_attrs('Aktivirati korisnika?', null, 'info', 'Da, aktiviraj') }}{% endif %}>
+                <input type="hidden" name="_token" value="{{ csrf_token('user_toggle_' ~ user.id) }}">
+                <button class="btn {{ user.active ? 'btn-outline-danger' : 'btn-outline-success' }}">
+                    <i class="{{ user.active ? 'ph-user-minus' : 'ph-user-plus' }} me-2"></i>{{ user.active ? 'Deaktiviraj' : 'Aktiviraj' }}
+                </button>
+            </form>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-3">{{ ui.avatar(user, 80) }}</div>
+                    <h5 class="mb-1">{{ user.fullName }}</h5>
+                    <div class="text-muted mb-3">{{ user.position ?? 'Bez pozicije' }}</div>
+                    <div class="d-flex justify-content-center gap-2">
+                        {{ ui.role_badge(user.highestRole) }}
+                        {{ ui.status_badge(user.active) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Podaci</h5></div>
+                <div class="card-body border-top">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Email</dt><dd class="col-sm-8">{{ user.email }}</dd>
+                        <dt class="col-sm-4">Telefon</dt><dd class="col-sm-8">{{ user.phone ?? '—' }}</dd>
+                        <dt class="col-sm-4">Adresa</dt>
+                        <dd class="col-sm-8">
+                            {% if user.address or user.city %}
+                                {{ [user.address, [user.postalCode, user.city]|filter(v => v)|join(' ')]|filter(v => v)|join(', ') }}
+                            {% else %}—{% endif %}
+                        </dd>
+                        <dt class="col-sm-4">Zaposlen od</dt><dd class="col-sm-8">{{ user.employedAt ? user.employedAt|date('d.m.Y.') : '—' }}</dd>
+                        <dt class="col-sm-4">Poslednja prijava</dt><dd class="col-sm-8">{{ user.lastLoginAt ? user.lastLoginAt|date('d.m.Y. H:i') : 'Nikad' }}</dd>
+                        <dt class="col-sm-4">Interna beleška</dt><dd class="col-sm-8 mb-0">{{ user.internalNote ? user.internalNote|nl2br : '—' }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Klijenti <span class="text-muted fw-normal fs-base">({{ primaryClients|length }} glavni, {{ backupClients|length }} backup)</span></h5></div>
+                <div class="card-body border-top">
+                    {% if primaryClients or backupClients %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Glavni zadužen</h6>
+                                <ul class="list-unstyled mb-0">
+                                    {% for c in primaryClients %}<li><a href="{{ path('client_show', {id: c.id}) }}">{{ c.name }}</a></li>{% else %}<li class="text-muted">—</li>{% endfor %}
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Backup (zamena)</h6>
+                                <ul class="list-unstyled mb-0">
+                                    {% for c in backupClients %}<li><a href="{{ path('client_show', {id: c.id}) }}">{{ c.name }}</a></li>{% else %}<li class="text-muted">—</li>{% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        {% if user.active %}
+                            <div class="text-muted fs-sm mt-3"><i class="ph-info me-1"></i>Korisnik ne može da se deaktivira dok je zadužen na klijentima.</div>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted">Nema zaduženih klijenata.</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Tim</h5></div>
+                <div class="card-body border-top">
+                    <div class="mb-2">
+                        <span class="text-muted">Trenutni tim:</span>
+                        {% if currentMembership %}
+                            <a href="{{ path('team_show', {id: currentMembership.team.id}) }}">{{ ui.team_badge(currentMembership.team) }}</a>
+                            <span class="text-muted fs-sm">od {{ currentMembership.joinedAt|date('d.m.Y.') }}</span>
+                        {% else %}
+                            <span class="text-muted">nije ni u jednom timu</span>
+                        {% endif %}
+                    </div>
+                    {% if ledTeam %}
+                        <div class="mb-2">
+                            <span class="text-muted">Šef tima:</span>
+                            <a href="{{ path('team_show', {id: ledTeam.id}) }}">{{ ui.team_badge(ledTeam) }}</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if history|length > 0 %}
+                    <div class="table-responsive border-top">
+                        <table class="table table-sm mb-0">
+                            <caption class="px-3 pt-2 caption-top">Istorija članstva</caption>
+                            <thead><tr><th>Tim</th><th>Od</th><th>Do</th></tr></thead>
+                            <tbody>
+                                {% for m in history %}
+                                    <tr>
+                                        <td>{{ ui.team_badge(m.team) }}</td>
+                                        <td>{{ m.joinedAt|date('d.m.Y.') }}</td>
+                                        <td>{{ m.leftAt ? m.leftAt|date('d.m.Y.') : 'danas' }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><h5 class="mb-0"><i class="ph-clock-counter-clockwise me-2"></i>Aktivnost</h5></div>
+        <div class="card-body border-top">{{ tl.timeline(activity, true) }}</div>
+    </div>
+{% endblock %}

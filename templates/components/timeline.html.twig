@@ -1,0 +1,70 @@
+{#
+    Timeline istorije izmena (ActivityLog), po obrascu "timeline timeline-start" iz template-a (timelines_left).
+    Upotreba: {% import 'components/timeline.html.twig' as tl %}{{ tl.timeline(entries) }}
+    show_target = true prikazuje i na šta se zapis odnosi (za timeline korisnika).
+#}
+
+{# Jedna promena polja: "Polje: staro → novo" #}
+{% macro change(field, change) %}
+    <div class="fs-sm">
+        <span class="text-muted">{{ field }}:</span>
+        {% if change[0] is null %}
+            {{ change[1] }}
+        {% elseif change[1] is null %}
+            <span class="text-decoration-line-through">{{ change[0] }}</span> <span class="text-muted">(uklonjeno)</span>
+        {% else %}
+            <span class="text-muted">{{ change[0] }}</span> <i class="ph-arrow-right mx-1"></i> {{ change[1] }}
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro target(entry) %}
+    {% if entry.entityType == 'Task' %}
+        <a href="{{ path('task_show', {id: entry.entityId}) }}">{{ entry.entityLabel ?? 'Zadatak' }}</a>
+    {% elseif entry.entityType == 'Client' %}
+        <a href="{{ path('client_show', {id: entry.entityId}) }}">{{ entry.entityLabel ?? 'Klijent' }}</a>
+    {% else %}
+        {{ entry.entityLabel ?? 'Korisnik' }}
+    {% endif %}
+{% endmacro %}
+
+{% macro timeline(entries, show_target = false) %}
+    {% import _self as tl %}
+    {% if entries is empty %}
+        <div class="text-center text-muted py-4"><i class="ph-clock-counter-clockwise ph-2x d-block mb-2"></i>Još nema zabeleženih izmena.</div>
+    {% else %}
+        <div class="timeline timeline-start">
+            <div class="timeline-container">
+                {% set day = null %}
+                {% for entry in entries %}
+                    {% set entry_day = entry.createdAt|date('Y-m-d') %}
+                    {% if entry_day != day %}
+                        {% set day = entry_day %}
+                        <div class="timeline-date text-muted">
+                            <i class="ph-clock-counter-clockwise me-2"></i><span class="fw-semibold">{{ entry.createdAt|date('d.m.Y.') }}</span>
+                        </div>
+                    {% endif %}
+
+                    <div class="timeline-row">
+                        <div class="timeline-icon">
+                            <div class="bg-{{ entry.action.color }} text-white"><i class="{{ entry.action.icon }}"></i></div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body py-2">
+                                <div class="d-flex flex-wrap align-items-center">
+                                    <span class="fw-semibold">{{ entry.action.label }}</span>
+                                    {% if show_target %}<span class="ms-2">· {{ tl.target(entry) }}</span>{% endif %}
+                                    <span class="ms-auto text-muted fs-sm">{{ entry.createdAt|date('H:i') }} · {{ entry.user ? entry.user.fullName : 'Sistem' }}</span>
+                                </div>
+                                {% for field, change in entry.changes %}
+                                    {{ tl.change(field, change) }}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endmacro %}

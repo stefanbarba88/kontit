@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}Za naplatu{% endblock %}
+{% block page_title %}Za naplatu: {{ month|date('m/Y') }}{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('admin_finance') }}" class="breadcrumb-item">Finansije</a>
+    <span class="breadcrumb-item active">Za naplatu</span>
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('admin_finance_billing_csv', {month: month|date('Y-m')}) }}" class="btn btn-outline-primary"><i class="ph-download-simple me-2"></i>CSV</a>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-body border-bottom">
+            <form method="get" class="d-flex gap-2 align-items-center">
+                <label class="mb-0">Mesec</label>
+                <input type="month" name="month" value="{{ month|date('Y-m') }}" class="form-control" style="width: 180px;">
+                <button class="btn btn-light">Prikaži</button>
+            </form>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Klijent</th><th>Stavke</th><th class="text-end">Paket</th><th class="text-end">Ad hoc</th><th class="text-end">Ukupno</th></tr></thead>
+                <tbody>
+                    {% set total = 0 %}
+                    {% for row in rows %}
+                        {% set total = total + row.total %}
+                        <tr>
+                            <td><a href="{{ path('client_show', {id: row.client.id}) }}" class="text-body">{{ row.client.name }}</a></td>
+                            <td class="text-muted fs-sm">{{ row.items|join(', ') }}</td>
+                            <td class="text-end">{{ row.package|number_format(2, ',', '.') }}</td>
+                            <td class="text-end">{{ row.adHoc|number_format(2, ',', '.') }}</td>
+                            <td class="text-end fw-semibold">{{ row.total|number_format(2, ',', '.') }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="5">{{ ui.empty_state('Nema stavki za naplatu u ovom mesecu.', 'ph-receipt') }}</td></tr>
+                    {% endfor %}
+                </tbody>
+                {% if rows|length %}
+                    <tfoot><tr><th colspan="4" class="text-end">Ukupno</th><th class="text-end">{{ total|number_format(2, ',', '.') }} RSD</th></tr></tfoot>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+{% endblock %}

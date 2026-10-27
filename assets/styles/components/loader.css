@@ -1,0 +1,12 @@
+/* Loader brenda (7.13): četiri tačke raspoređene kao znak, naizmenično rastu i polako rotiraju. */
+.kt-loader { --s: 40px; width: var(--s); height: var(--s); position: relative; display: inline-block; animation: kt-spin 1.2s linear infinite; }
+.kt-loader i { position: absolute; width: 28%; height: 28%; border-radius: 50%; animation: kt-beat 1.2s var(--kt-ease) infinite; }
+.kt-loader i:nth-child(1) { left: 36%; top: 4%; background: var(--kt-logo-ink); }
+.kt-loader i:nth-child(2) { left: 4%; top: 36%; background: var(--kt-logo-accent); animation-delay: .3s; }
+.kt-loader i:nth-child(3) { right: 4%; top: 36%; background: var(--kt-logo-accent); animation-delay: .3s; }
+.kt-loader i:nth-child(4) { left: 36%; bottom: 4%; background: var(--kt-logo-ink); }
+.kt-loader--sm { --s: 16px; }
+@keyframes kt-beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(.6); } }
+
+.kt-page-loader { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; background: color-mix(in srgb, var(--kt-bg) 70%, transparent); backdrop-filter: blur(2px); }
+.kt-page-loader.show { display: flex; }

@@ -1,0 +1,78 @@
+/* Sidebar (DESIGN.md 7.1): 264px, skupljen 76px, overline labele, plava traka na aktivnoj stavci. */
+.sidebar,
+.sidebar.sidebar-dark {
+    --sidebar-width: 264px;
+    --sidebar-bg: var(--kt-surface-2);
+    --sidebar-color: var(--kt-text);
+    --sidebar-border-color: var(--kt-border);
+    --sidebar-box-shadow: none;
+    color-scheme: normal;
+    border-right: 1px solid var(--kt-border);
+}
+:root[data-bs-theme="dark"] .sidebar { color-scheme: dark; }
+
+.sidebar .nav-sidebar {
+    --nav-link-color: var(--kt-text-2);
+    --nav-link-hover-color: var(--kt-text);
+    --nav-link-hover-bg: var(--kt-surface-3);
+    --nav-link-hover-active-bg: var(--kt-primary-soft);
+    --nav-link-active-bg: var(--kt-primary-soft);
+    --nav-link-active-color: var(--kt-primary);
+    --nav-link-font-weight: 500;
+    --nav-sidebar-divider-color: var(--kt-border);
+}
+
+.sidebar .nav-sidebar .nav-link {
+    border-radius: var(--kt-radius-sm);
+    margin: 1px 12px;
+    transition: background-color var(--kt-dur-1) var(--kt-ease), color var(--kt-dur-1) var(--kt-ease);
+}
+.sidebar .nav-sidebar .nav-link i { font-size: 18px; color: var(--kt-text-2); transition: color var(--kt-dur-1) var(--kt-ease); }
+.sidebar .nav-sidebar .nav-link.active i,
+.sidebar .nav-sidebar .nav-link:hover i { color: var(--kt-primary); }
+.sidebar .nav-sidebar .nav-link.active::before {
+    content: "";
+    position: absolute;
+    left: -12px; top: 8px; bottom: 8px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--kt-brand-500);
+}
+.sidebar .nav-sidebar .nav-link .badge { min-width: 20px; justify-content: center; }
+
+/* overline labele grupa */
+.sidebar .nav-sidebar .nav-item-header { padding: 20px 24px 6px; }
+.sidebar .nav-sidebar .nav-item-header > div {
+    font-size: 11px; line-height: 16px; font-weight: 600; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--kt-text-3); opacity: 1 !important;
+}
+
+.sidebar-brand { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px 6px; min-height: 64px; }
+.sidebar-brand .kt-logo { height: 30px; width: auto; display: block; }
+.sidebar-brand .kt-mark { height: 28px; width: auto; display: none; }
+.sidebar-brand a { color: var(--kt-logo-ink); display: inline-flex; }
+
+/* skupljen sidebar: 76px, samo znak i ikonice */
+.sidebar-expand-lg.sidebar-main-resized:not(.sidebar-collapsed):not(.sidebar-main-unfold) { --sidebar-width: 76px; }
+.sidebar-expand-lg.sidebar-main-resized:not(.sidebar-collapsed):not(.sidebar-main-unfold) + * { margin-left: 76px; }
+.sidebar-main-resized:not(.sidebar-main-unfold) .sidebar-brand { justify-content: center; padding-inline: 0; }
+.sidebar-main-resized:not(.sidebar-main-unfold) .sidebar-brand .kt-logo { display: none; }
+.sidebar-main-resized:not(.sidebar-main-unfold) .sidebar-brand .kt-mark { display: block; }
+.sidebar-main-resized:not(.sidebar-main-unfold) .sidebar-brand .sidebar-resize-hide { display: none !important; }
+.sidebar-main-resized:not(.sidebar-main-unfold) .nav-sidebar .nav-link { margin-inline: 14px; }
+.sidebar-main-resized:not(.sidebar-main-unfold) .nav-sidebar .nav-link.active::before { left: -14px; }
+
+/* kartica korisnika na dnu */
+.sidebar-user { margin-top: auto; border-top: 1px solid var(--kt-border); padding: 12px; }
+.sidebar-user .dropdown-toggle { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: var(--kt-radius-md); color: var(--kt-text); text-decoration: none; transition: background-color var(--kt-dur-1) var(--kt-ease); }
+.sidebar-user .dropdown-toggle:hover { background: var(--kt-surface-3); }
+.sidebar-user .dropdown-toggle::after { margin-left: auto; }
+.sidebar-user .who { min-width: 0; line-height: 16px; }
+.sidebar-user .who strong { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-user .who span { font-size: 12px; color: var(--kt-text-3); }
+.sidebar-main-resized:not(.sidebar-main-unfold) .sidebar-user .who,
+.sidebar-main-resized:not(.sidebar-main-unfold) .sidebar-user .dropdown-toggle::after { display: none; }
+.sidebar-main-resized:not(.sidebar-main-unfold) .sidebar-user .dropdown-toggle { justify-content: center; padding: 8px 0; }
+
+.sidebar .sidebar-content { display: flex; flex-direction: column; min-height: 100%; }
+.kt-bell-dot { font-size: 0; }

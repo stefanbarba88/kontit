@@ -1,0 +1,153 @@
+# PROGRESS.md — Dnevnik razvoja
+
+> Claude ažurira ovaj fajl na kraju svakog zadatka. Najnovije ide na vrh.
+
+## Trenutno stanje
+- Faza: **Korak A, 2b, 3b, 7b i NBS import završeni** (uz faze 0-7). Repo još nema nijedan commit.
+- Sledeći korak: **Faza 8** (praćenje vremena) i **Faza 9** (portal, eksport). Korisnik je rekao da se ne rade u ovom krugu.
+- Otvorenih nedoumica: 0 (1-5 rešene podrazumevanim predlozima, vidi SPEC.md sekciju 11).
+
+## Urađeno
+- 2026-10-27: **UI osvežavanje (DESIGN.md, sekcija 14)**
+  - Tokeni i mapiranje: `assets/styles/{tokens,bootstrap-map,base}.css` + `components/*.css` (sidebar, topbar, card+KPI, table, form, button, badge, avatar, checklist, timeline, empty, loader, skeleton, modal, swal, toast, login). Vendor CSS template-a netaknut; promenljive template-a (`--primary`, `--body-bg`, `--white`...) se prepisuju u `bootstrap-map.css`. Fontovi: Manrope, Inter, JetBrains Mono (Google Fonts, latin-ext).
+  - Teme: `User.themePreference` (enum `ThemePreference`, migracija Version20261027155001), `POST /ajax/theme`, inline skript u `<head>` (`_head_theme.html.twig`), `assets/js/theme.js` (prekidač, `kt:themechange`, pamćenje skupljenog sidebara). Na `<html>` se postavljaju `data-bs-theme` i `data-color-theme` (ovaj drugi koristi dark režim template-a).
+  - Layout: logo u sidebaru (`components/_logo`, `_logo_mark`), kartica korisnika na dnu, stakleni topbar sa breadcrumbs, prekidačem teme, zvoncem i avatarom; stari tamni navbar uklonjen. Favicon, ikone i `manifest.webmanifest`. `<title>` je `… · KontIT app`.
+  - Komponente: makroi u `components/ui.html.twig` (avatar sa bojom po osobi, badge-ovi sa tačkicom, `stat_card` sa brojanjem i promenom, `empty_state`, `avatar_stack`, `loader`). Boje tima: 8 unapred podešenih nijansi (`TeamType::colorChoices`). Status NA_PROVERI je sada ljubičast (`purple`). Grafikoni: `charts.js` (boje iz CSS promenljivih, ponovno iscrtavanje pri promeni teme).
+  - Login/reset: podeljen ekran (`base_auth.html.twig`); 403/404/500 u `templates/bundles/TwigBundle/Exception/error.html.twig` (vidi se u prod okruženju); mailovi (logo, boje brenda); pošiljalac je "KontIT app".
+  - `/_design` (samo superadmin, samo dev): vodič kroz komponente u obe teme.
+  - Odluke: Ctrl K paleta preskočena (na zahtev). Komponente iz 14.1 (`_avatar`, `_kpi_card`, `_status_badge`, `_empty_state`...) su Twig makroi u `ui.html.twig`, a ne zasebni fajlovi. Postojeći tekstovi ostaju u "vi" obliku, a DESIGN.md traži "ti" (nije menjano, čeka odluku).
+  - **Nije proveravano u pregledaču** (nema ga u sesiji): sve stranice vraćaju 200, ali vizuelni pregled u obe teme treba da uradi korisnik, preko `/_design` i glavnih stranica.
+- 2026-10-27: **Cene samo na klijentu**: `ServicePackage.monthlyPrice` i `JobTemplate.defaultPrice` uklonjeni (katalog nema cene); cena paketa se upisuje pri dodeli klijentu (`agreedPrice`), a cena pojedinačnog posla pri dodavanju klijentu. Nova migracija. SPEC 8b ažuriran.
+- 2026-10-27: **DESIGN.md**: pravilo dodato u CLAUDE.md, logotipi i ikone raspoređeni (`public/brand/`, `public/favicon.*`, ikone). Čeka potvrdu plana "UI osvežavanja" (sekcija 14).
+- 2026-10-27: **Korak A + Faza 2b + 3b + 7b + NBS import**
+  - Korak A: SweetAlert2 (`assets/js/confirm.js`, `ConfirmExtension::confirm_attrs`), `data-confirm*` na svim kritičnim radnjama; otkazivanje zadatka traži razlog (`TaskService::cancel`), upozorenja pri premeštaju radnika među timovima (`TeamService::moveWarnings`).
+  - NBS: `NbsService` (SOAP, nusoap), `ClientImportService`, uvoz `/clients/import`, "Osveži iz NBS", `app:nbs:sync`; nova polja na Client (opština, region, delatnost, datumi, status...). Kredencijali u `.env.local`.
+  - 2b: `CatalogVoter` (CATALOG_MANAGE, PRICE_VIEW = admin+), katalog poslova i paketa (`/admin/catalog/...`), `ClientPackageService` (dodela/ukidanje paketa, isključenje posla sa razlogom, promena cene sa istorijom, ad hoc i predlozi), stranica `/clients/{id}/packages`.
+  - 3b: `JobSchedule` (periodi, rokovi, vikend/praznik), `TaskGenerationService`, komanda `app:tasks:generate [--date]`, `/admin/generation` (pregled 30 dana + "Generiši sada"), `/admin/holidays`.
+  - 7b: `SettingsService` (prag cene sata, kapacitet), `FinanceService`, `/admin/finance` (MRR, paketi, potcenjeni klijenti, opterećenje, kalendar opterećenja, churn, ad hoc), `/admin/finance/client/{id}`, `/admin/finance/billing` (+CSV), podešavanja.
+  - Migracije: Version20261027145753 (NBS polja), Version20261027150535, Version20261027150722 (katalog, paketi, ClientJob, Holiday, AppSetting, polja na Task i User).
+  - Proveren HTTP skriptom (katalog, paket, ClientJob, istorija cena, isključenje, generisanje i idempotentnost, praznici, CSV, pristup radnika = 403).
+- 2026-10-27: **Dopuna specifikacije (UPDATE.md)**
+  - Sadržaj UPDATE.md je prenet u SPEC.md kao sekcije 8a (potvrda kritičnih radnji), 8b (katalog poslova i paketi), 8c (ponavljajući zadaci), 8d (finansijska analitika). Redosled faza u sekciji 10 je ažuriran, nedoumice 1-5 su u sekciji 11. Pravilo o SweetAlert potvrdi dodato u CLAUDE.md. Fajl je premešten u `docs/archive/UPDATE.md`. **Ništa od toga nije implementirano.**
+  - Izbor šefa tima (`TeamType`) nudi samo korisnike sa rolom SEF (`UserRepository::createLeaderChoiceQueryBuilder`), trenutni šef ostaje u izboru. Prvo se u izmeni korisnika dodeli rola šef, pa se postavi za šefa tima.
+- 2026-10-27: **Faza 7 (dashboard i statistika)**
+  - `StatisticsService` (agregatni SQL upiti preko DBAL-a, bez nove migracije): `forWorker`, `forTeams`, `byTeam`, `forCompany`. `DashboardController` bira blokove po roli; šablon `dashboard/index.html.twig`, makro `ui.stat_card`.
+  - Radnik: otvoreni, kasne, ističu u 3 dana, završeno ovaj/prošli mesec, % na vreme, vraćeno (30 d), klijenti glavni/backup. Šef (svoji timovi): bar chart opterećenja, učinak po radniku (30/90 d), čeka potvrdu, prosek do potvrde, "Čeka klijenta" > 7 dana. Admin: tabela po timovima, trend završenih (line), klijenti po timu (doughnut) i po radniku (bar), klijenti bez backup-a, bez zadatka u 30 dana, najaktivniji/najmanje aktivni.
+  - Chart.js se učitava dinamički samo kad stranica ima `canvas[data-chart]` (`assets/js/dashboard.js`). Odluke o definicijama su u SPEC.md sekciji 8.
+  - Provereno `f7test.sh` (brojke radnika za poznat scenario, vidljivost blokova po roli, tuđi tim se ne vidi). **Grafikoni nisu gledani u browseru** (nema headless-a), proveren je samo JSON konfiguracije u HTML-u.
+  - Poznato: nema filtera perioda; "Čeka klijenta" koristi `updated_at`; stranica radi upite pri svakom otvaranju (bez keša).
+- 2026-10-27: **Faza 6 (odsustva i zamena)**
+  - Odluka (upisana u SPEC.md sekciju 5): šef odobrava tuđe odsustvo, svoje ne; radnik sam sebi upisuje odsustvo na čekanju, a šef/admin upisuju odmah odobreno. Nedoumica je uklonjena.
+  - Entitet `UserAbsence` (`startDate`/`endDate`, razlog, napomena, `status`, `createdBy`, `decidedBy`, `decidedAt`), enumi `AbsenceReason` i `AbsenceStatus`, `UserAbsenceRepository`. Migracija `Version20261027132022` (samo tabela `user_absence`).
+  - `AbsenceService`, `ReplacementResolver`, `AbsenceVoter`, `UserAbsenceType`, `AbsenceController` (`/absences`, `/absences/new`, `/absences/{id}/approve|reject|cancel`), šabloni `absence/index` i `absence/form`, stavka "Odsustva" u navigaciji. Dva nova tipa obaveštenja: `ABSENCE_REQUESTED`, `ABSENCE_DECIDED`; `BACKUP_ACTIVATED` se šalje pri odobrenju i pri otkazivanju.
+  - Zamena: `TaskVoter` daje backup-u VIEW i COMPLETE na zadacima klijenta čiji je glavni zaduženi (učesnik) danas odsutan; oznaka **PREUZETO** na listi i zadatku, dugme "Završi deo kolege (zamena)" (`TaskCompletionService::markDoneAsSubstitute`), štikliranje stavki dodeljenih odsutnom (`TaskService::canToggleItem`). Istorija beleži "Učesnik X (zamena: Y)". Lista zadataka (`mine`) uključuje zadatke koje danas zamenjujem.
+  - Kartica backup klijenta u "Moji klijenti" ističe **AKTIVNU ZAMENU** i datum do kog je glavni odsutan.
+  - Provereno `f6test.sh` (čekanje/odobravanje/odbijanje/otkazivanje, ko sme šta, preklapanja, obaveštenja, pristup zameni pre/posle odobrenja i otkazivanja, buduće odsustvo, vidljivost liste). Vizuelni izgled nije proveren u browseru.
+  - Poznato: obaveštenje o preuzimanju ide pri odobrenju, ne na dan početka. Ne postoji izmena odsustva, samo otkaži pa upiši novo. Klijent bez backup-a nema zamenu. Šef kome je backup radnik van njegovog tima vidi odobravanje samo za svoj tim.
+- 2026-10-27: **Faza 5 (notifikacije)**
+  - Entitet `Notification`, enum `NotificationType` (naziv, ikonica, boja), `NotificationRepository`. Migracija `Version20261027130333` (samo tabela `notification`).
+  - `NotificationService` (jedino mesto koje pravi notifikacije; mail preko Mailer + Messenger `async`). Pozivi su u `TaskService`, `TaskCompletionService`, `ClientService` i `TeamService` (`TeamService::addMember` ima novi opcioni parametar `$actor`).
+  - Zvonce u navigaciji (`notification/_menu.html.twig`, `NotificationExtension`), poslednjih 10 i broj nepročitanih, AJAX poll na 60 s (`assets/js/notifications.js`, `GET /ajax/notifications`). Stranica `/notifications` (sve i nepročitane, označi sve). `/notifications/{id}/open` označava pročitanom i vodi na link (samo vlasnik).
+  - Checkbox "Pošalji i na mail" u formi zadatka (za HITAN se sam štiklira) i na vraćanju na doradu. Podešavanja u profilu: koje vrste obaveštenja uvek idu i na mail (`NotificationPreferencesType`).
+  - Komanda `app:notifications:due` (rok uskoro / kasni), jednom po zadatku i korisniku. Mail šablon `emails/notification.html.twig`.
+  - Provereno `f5test.sh` (primaoci po tipu, bez obaveštenja aktera, mail u redu i poslat kroz `messenger:consume`, dedupe rokova, AJAX i prava). **Zvonce i poll nisu probani u browseru.**
+  - **Pokretanje u radu:** mailovi se šalju tek kad radi worker: `php bin/console messenger:consume async` (u produkciji pod supervisor-om). Rokovi: cron `0 7 * * * php bin/console app:notifications:due`. Dok je `MAILER_DSN=null://null`, mailovi se "šalju" u prazno.
+  - Poznato: notifikacije se ne brišu (nema čišćenja starih). Poll uzima poslednjih 10 pri svakom osvežavanju.
+- 2026-10-27: **Faza 4 (ActivityLog i timeline)**
+  - Entitet `ActivityLog` (+ `entityLabel`), enum `ActivityAction` (naziv, ikonica, boja), `ActivityLogRepository` (`findForEntity`, `findForUser`). Migracija `Version20261027124050` (samo tabela `activity_log`).
+  - `ActivityLogListener` (Doctrine `onFlush` + `postFlush`) i `ActivityLogger` (pretvara changeset u prikazni tekst). Beleži Task, ChecklistItem, TaskAssignee, TaskComment, Client, članstvo u timu i User (kreiranje, aktivacija, rola). Detalji u SPEC.md sekcija 3.
+  - Vraćanje na doradu daje jedan zapis (RETURNED), bez dodatnih zapisa o statusu zadatka i učesnika. Isti podaci poslati ponovo ne prave zapis.
+  - Timeline: `components/timeline.html.twig` (obrazac `timeline-row` iz template-a) na zadatku, klijentu, stranici korisnika i profilu.
+  - Provereno `f4test.sh` (zapisi za sve tokove, sprečavanje duplih zapisa, prava pristupa na stranicama). Vizuelni izgled timeline-a nije provereni u browseru.
+  - Poznato: timeline prikazuje poslednjih 100 zapisa (bez paginacije). Doctrine u changeset-u za enum kolone vraća sirovu vrednost, pa se enum klasa polja zadaje u `ActivityLogger::diff`. Nova enum polja na Task/Client treba dodati i tamo.
+- 2026-10-27: **Faza 3 (zadaci)**
+  - Entiteti `Task`, `TaskAssignee`, `ChecklistItem`, `TaskComment`; enumi `TaskStatus`, `TaskPriority`, `CompletionMode`, `AssigneeStatus`, `CommentType`. Migracija `Version20261027115707` (samo nove tabele).
+  - `TaskVoter` (TASK_CREATE/VIEW/EDIT/COMPLETE/APPROVE/CANCEL), `TaskService` (kreiranje, izmena učesnika, checklist, komentari), `TaskCompletionService` (statusi učesnika, prelaz na proveru, potvrda, vraćanje na doradu, ponovno otvaranje).
+  - Stranice: lista zadataka sa tabovima (Svi, Danas, Ova nedelja, Kasne, Na proveri, "Čeka moju potvrdu" za šefa), forma, prikaz zadatka. Nav stavka "Zadaci" sa brojačem za potvrdu (`awaiting_approval_count()` u `TaskExtension`). Dugme "Novi zadatak" na klijentu (predpopunjava klijenta).
+  - AJAX (`/ajax/...`, `AbstractAjaxController`): checklist (dodaj, štikliraj, dodeli, obriši, redosled), komentari (dodaj, izmeni 15 min). `AjaxSubscriber` proverava CSRF header i vraća JSON za 403/404. JS: `assets/js/{ajax,checklist,comments}.js` (SortableJS za drag & drop).
+  - `UserService::setActive` blokira deaktivaciju radnika sa zadatkom u radu. Radnik bez polja učesnika zadatak dobija sam sebi.
+  - Provereno `f3test.sh` preko HTTP-a (prava po rolama, vidljivost, ALL/ANY, potvrda i vraćanje, ponovno otvaranje, AJAX, XSS, deaktivacija). **JS (drag & drop, dinamičko ubacivanje stavki/komentara) nije probano u browseru**, jer nema Node-a ni headless browsera.
+  - Poznato ograničenje: ako klijent na zadatku više nije vidljiv radniku koji ga menja (premešten), forma izmene prijavi nevažeći izbor klijenta.
+- 2026-10-27: **Prelazak na Limitless template** (međukorak pre Faze 3, bez izmena entiteta, kontrolera, voter-a i ruta)
+  - `TEMPLATE_INVENTORY.md` napravljen. `_template/email/` ne postoji, pa je mail baza ručno napravljena u istom stilu.
+  - Template CSS/JS/ikonice/fontovi kopirani neizmenjeni u `assets/vendor/template/` (`.gitignore` propušta samo taj folder iz `assets/vendor`). JS se uvozi iz `assets/app.js`; bootstrap i bootstrap-icons uklonjeni iz importmap-a.
+  - `asset_mapper.yaml`: `missing_import_mode: warn`, jer `all.min.css` referiše slike koje nisu kopirane (leaflet, login_cover.jpg, boxed_bg.png).
+  - Novi `base.html.twig` (topbar sa avatarom i menijem, sidebar po roli preko `is_granted`, breadcrumbs, flash poruke), `base_auth.html.twig` (login/reset), makroi u `components/ui.html.twig`.
+  - Prebačene sve stranice (login, reset, profil, dashboard, korisnici, timovi, klijenti) i mail za reset lozinke (`templates/emails/base.html.twig`).
+  - Ikonice: Phosphor `ph-*` bez bazne klase; `ph-user-check` ne postoji (koristi se `ph-user-circle`).
+  - Samostalno napravljeno (nema u template-u): `.border-dashed` i `.object-fit-cover` u `assets/styles/app.css`, `.badge-team` (badge tima proizvoljne boje), avatar sa inicijalima u više veličina, `empty_state` makro, brend kao ikona umesto logoa, mail baza.
+  - Provera: `lint:twig` OK, HTTP prolaz kroz sve stranice po rolama (admin, šef, radnik, neulogovan) bez grešaka, provera ikonica, regresija `f2test.sh`. **Vizuelna provera u browseru nije rađena.**
+- 2026-10-27: **Faza 2**
+  - Entiteti `Client` (sva polja iz specifikacije, `isActive`, glavni obavezan, backup opcion) i `ClientAssignmentLog` (type PRIMARY/BACKUP, startedAt/endedAt, changedBy), enumi `LegalForm` i `AssignmentType`
+  - `ClientService`: kreiranje, izmena, dodela (zatvara staru i otvara novu stavku istorije samo za ono što se promenilo), aktivacija/deaktivacija klijenta, validacija (glavni ≠ backup, aktivni radnici, šef samo svoj tim)
+  - `ClientVoter`: CLIENT_CREATE, CLIENT_EDIT (admin+), CLIENT_VIEW (admin+, glavni, backup, šef tima u kome je glavni ili backup trenutno član), CLIENT_ASSIGN (admin+, šef na klijentima svog tima ili svojim)
+  - Rute: `/clients` (admin i šef, lista u njihovom opsegu sa pretragom i statusom), `/clients/new`, `/clients/{id}`, `/clients/{id}/edit`, `/clients/{id}/assign`, `/clients/{id}/toggle`, `/my-clients` (svi)
+  - "Moji klijenti": blok "Glavni zadužen" (puna kartica) i blok "Backup / zamena" (isprekidana ivica, badge ZAMENA, ime glavnog)
+  - `UserService::setActive` ne dozvoljava deaktivaciju radnika koji je glavni ili backup na aktivnom klijentu; stranica korisnika prikazuje njegove klijente
+  - Migracija: `Version20261027112149` (client, client_assignment_log)
+  - Ručno provereno preko HTTP-a: validacije (PIB 9 cifara, duplikat PIB-a, glavni = backup, bez glavnog), kartice radnika (glavni/ZAMENA), prava radnika (403 na tuđe klijente, /clients, /clients/new, edit i assign), šef (lista samo svoj tim, 403 na tuđi tim, dodela samo članovima svog tima), premeštanje radnika (klijenti idu sa njim, stari šef gubi pristup, novi ga dobija), blokada deaktivacije zaduženog radnika, deaktivacija posle prebacivanja, odbijanje dodele deaktivirane osobe, istorija dodela, deaktivacija klijenta. Testni podaci su obrisani.
+- 2026-10-27: **Faza 1**
+  - `User` proširen: phone, address, city, postalCode, position, employedAt, internalNote, emailNotifications (JSON, UI dolazi u Fazi 5), avatar (Vich `user_avatar`, thumbnail `avatar_thumb` 128x128 preko Liip-a)
+  - Novi entiteti: `Team` (soft delete preko `deletedAt`), `TeamMember` (istorija članstva, aktivan = `leftAt` null), `TeamLeaderLog` (startedAt/endedAt)
+  - `TeamService`: kreiranje/izmena tima, promena šefa (zatvara stari i otvara novi log), dodavanje i premeštanje radnika (stari red dobija `leftAt`), uklanjanje iz tima, soft brisanje. `UserService`: čuvanje korisnika i hash lozinke, role koje akter sme da dodeli, aktivacija/deaktivacija
+  - Voteri: `UserVoter` (USER_MANAGE, USER_VIEW, USER_EDIT), `TeamVoter` (TEAM_MANAGE, TEAM_MEMBERS_VIEW)
+  - Rute: `/admin/users` (lista sa pretragom i filterima, novi, izmena, prikaz, aktiviraj/deaktiviraj), `/admin/teams` (lista, novi, izmena, brisanje, dodaj/ukloni člana), `/teams/{id}` (prikaz tima, vide ga admin i šef tog tima), `/my-team` (šef), `/profile` (lični podaci, avatar, promena lozinke)
+  - UI: makroi u `templates/components/ui.html.twig` (avatar ili inicijali, badge-ovi), meni se prikazuje preko `is_granted`
+  - Migracija: `Version20261027110044` (team, team_member, team_leader_log, nove kolone u app_user, `UPDATE` za `email_notifications`)
+  - Ručno provereno preko HTTP-a: kreiranje korisnika i validacije (duplikat emaila, kratka lozinka), pretraga i filteri, tim sa šefom (rola SEF se dodeljuje i vraća), premeštanje radnika između timova (istorija), promena šefa (log), prava (šef vidi samo svoj tim, 403 za tuđi tim i /admin), admin ne menja superadmina i ne može da napravi admina, blokade (deaktivacija šefa tima, brisanje tima sa članovima, loš CSRF), upload avatara i thumbnail 128x128, odbijanje ne-slike, uklanjanje avatara, promena lozinke. Testni podaci su obrisani iz baze.
+- 2026-10-27: **Faza 0**
+  - Symfony 7.4 skeleton + `webapp` pack, dodati: reset-password-bundle, knp-paginator, vich/uploader, liip/imagine, doctrine-messenger, orm-pack
+  - `ux-turbo` uklonjen (kosi se sa jQuery pristupom); Stimulus ostaje zbog `csrf_protection_controller`
+  - AssetMapper importmap: bootstrap 5.3, bootstrap-icons, jquery, chart.js, sortablejs (`assets/app.js` izlaže `window.$`, i šalje `X-CSRF-Token` header iz `<meta name="csrf-token">`)
+  - `User` entitet (firstName, lastName, email, roles, password, isActive, lastLoginAt + Timestampable), `Role` enum, `TimestampableTrait`
+  - Login (`/login`, remember me), logout, reset lozinke (`/reset-password`), sve na srpskom
+  - `role_hierarchy`: SUPERADMIN > ADMIN > SEF > RADNIK; `access_control` traži ROLE_RADNIK za sve osim login/reset
+  - `UserChecker` blokira deaktivirane korisnike; `User::isEqualTo` odjavljuje korisnika čim se deaktivira ili mu se promeni lozinka
+  - `LoginSuccessListener` upisuje `lastLoginAt`
+  - Komanda `php bin/console app:user:create <email> <lozinka> [--role=SUPERADMIN]`
+  - Layout (`templates/layout.html.twig`, sidebar + navbar), `_auth.html.twig` za login/reset, prazan dashboard na `/`
+  - Vich (`user_avatar` mapping) i Liip (`avatar_thumb` 128x128) konfigurisani, a entitet ih koristi tek u Fazi 1
+- Migracije: `Version20261027104938` (app_user, reset_password_request, messenger_messages)
+- Lokalni nalog: `admin@kontit.local` (SUPERADMIN), lozinka je postavljena pri kreiranju. **Promeniti pre bilo kakvog deploya.**
+- Provereno ručno preko curl-a: login, pogrešna lozinka, deaktiviran nalog, logout, zaštita `/`, slanje reset zahteva (upisuje se `reset_password_request`). Mail nije proveren jer je `MAILER_DSN=null://null`.
+- 2026-10-27: Specifikacija dopunjena odlukama (sekcije 2, 4.3, 5, 7, 9 u SPEC.md)
+
+## Odluke donete usput
+- 2026-10-27: Jedna firma, nije SaaS, pa nema Company entiteta.
+- 2026-10-27: Timove kreira samo admin. Jedan šef po timu, a šef može da se menja (TeamLeaderLog).
+- 2026-10-27: Radnik je u jednom timu u datom trenutku, ali može prelaziti između timova (istorija u TeamMember).
+- 2026-10-27: Šef ne vidi druge timove.
+- 2026-10-27: Završen zadatak mora da potvrdi šef (status NA_PROVERI). Ako je šef učesnik, potvrđuje admin.
+- 2026-10-27: Podrazumevani režim zadatka je ALL. Radnik kreira zadatke samo sebi.
+- 2026-10-27: Backup uvek vidi klijenta, a pri odsustvu glavnog preuzima njegove zadatke.
+- 2026-10-27: Notifikacije su in-app, mail je opcion (checkbox i podešavanje u profilu).
+- 2026-10-27: Praćenje vremena dolazi kasnije, bez start/stop tajmera. Portal za klijente dolazi kasnije.
+- 2026-10-27: JS je jQuery.
+- 2026-10-27: Tabela korisnika se zove `app_user` (`user` je rezervisana reč u nekim bazama).
+- 2026-10-27: Migracije su u `migrations/` (namespace `DoctrineMigrations`), ne u `src/`.
+- 2026-10-27: Lozinka min. 8 karaktera (bez PasswordStrength/NotCompromisedPassword, jer je app interna).
+- 2026-10-27: CSRF je stateless (Symfony 7.4 default). Login forma mora imati `data-controller="csrf-protection"` na `_csrf_token` polju. Za AJAX koristimo session token ID `ajax`.
+- 2026-10-27: Entitet koji koristi `TimestampableTrait` mora na klasi imati `#[ORM\HasLifecycleCallbacks]` (na trait-u se ne primenjuje).
+
+- 2026-10-27: Rola se u bazi čuva kao jedna najviša rola (`User::getHighestRole()`), uvek eksplicitno upisana. `ROLE_SEF` se dodeljuje i oduzima automatski sa funkcijom šefa tima.
+- 2026-10-27: Admin ne može da menja ni kreira admine/superadmina (samo superadmin), a to rešava `UserVoter` i lista rola u `UserService::assignableRoles`.
+- 2026-10-27: Tim se briše soft (`deletedAt`), jer istorija članstva i statistika (Faza 7) moraju da prežive.
+- 2026-10-27: Klijenti idu sa radnikom pri prelasku u drugi tim (klijent je vezan za osobu). Radnik se ne može deaktivirati dok je zadužen na aktivnom klijentu, a istorija ostaje vidljiva. Odluka je upisana u SPEC.md i uklonjena iz nedoumica.
+- 2026-10-27: Podatke klijenta menja samo admin+, a dodelu radnika i šef (samo svoj tim). Klijent se ne briše, već deaktivira.
+- 2026-10-27: Promena sopstvene lozinke ne odjavljuje korisnika (token u sesiji nosi novi hash).
+
+## Poznati problemi / TODO
+- SweetAlert dijalozi nisu proveravani u pregledaču (nema browsera u sesiji), samo serverska strana (CSRF, Voter, razlog).
+- Analitika po klijentu: broj vraćanja na doradu i prosečno trajanje čekanja klijenta nisu dostupni dok nema istorije statusa (dolazi uz Fazu 8). Sati su procena iz poslova, a `FinanceService::monthlyHours()` je jedino mesto koje Faza 8 menja.
+- Demo klijenti imaju izmišljene PIB-ove, pa `app:nbs:sync` za njih prijavljuje neuspeh. Očekivano.
+- Cron: `0 6 * * * php bin/console app:tasks:generate` (nije podešen u dev okruženju).
+- Deaktiviran korisnik ostaje u aktivnim članovima tima (badge "Neaktivan"), a `TeamMember` se ne zatvara. To je odluka iz Faze 2. Pravilo za zadatke (ne može da dobije zadatak, ne može da se deaktivira dok ima zadatak u radu) je uvedeno u Fazi 3.
+- U Twig šablonima ne imenovati promenljivu `pending` jer je `base.html.twig` prepisuje (broj zadataka za potvrdu). U `absence/index` se zove `pendingAbsences`.
+- `QueryBuilder::orderBy('x', 'ASC')` ispisuje deprecation u Doctrine ORM 3.x (string umesto `SortDirection`). Bezopasno, a čisti se kad se pređe na novu sintaksu.
+- Liip thumbnail i `/uploads/avatars` su javni fajlovi (bez provere prijave), što je prihvatljivo za avatare, ali ne za buduće dokumente klijenata (Portal, Faza 8).
+- Nema automatskih testova (PHPUnit nije instaliran). Provera je ručna preko HTTP-a. Predlog: uvesti `symfony/test-pack` pre Faze 3, kad logika postane složenija.
+- **Baza je MariaDB 10.4.32 (XAMPP), a CLAUDE.md navodi MySQL 8.** `DATABASE_URL` koristi `serverVersion=mariadb-10.4.32`. DBAL ispisuje deprecation za MariaDB < 10.6. Radi, ali treba nadograditi XAMPP ili preći na MySQL 8 pre produkcije.
+- **PHP je 8.2.12, a CLAUDE.md navodi 8.3+.** Symfony 7.4 radi na 8.2 (`composer.json: >=8.2`). Ne koristiti 8.3-only sintaksu (tipizirane konstante klase, `#[\Override]`, `json_validate`) dok se ne nadogradi.
+- `MAILER_DSN=null://null`: u dev-u se mailovi ne šalju. Za test postaviti Mailpit/SMTP u `.env.local`.
+- Dev server: `php -S 127.0.0.1:8000 -t public router.php`. **Router je obavezan**: bez njega php -S vraća 404 za `/assets/...` i stranica se prikaže kao goli HTML bez CSS-a.
+- Nema Node-a, što je u skladu sa AssetMapper odlukom.

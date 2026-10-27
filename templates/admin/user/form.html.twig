@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% set is_new = user.id is null %}
+
+{% block title %}{{ is_new ? 'Novi korisnik' : 'Izmena korisnika' }}{% endblock %}
+{% block page_title %}{{ is_new ? 'Novi korisnik' : 'Izmena: ' ~ user.fullName }}{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('admin_user_index') }}" class="breadcrumb-item">Korisnici</a>
+    {% if not is_new %}<a href="{{ path('admin_user_show', {id: user.id}) }}" class="breadcrumb-item">{{ user.fullName }}</a>{% endif %}
+    <span class="breadcrumb-item active">{{ is_new ? 'Novi' : 'Izmena' }}</span>
+{% endblock %}
+
+{% block content %}
+    {{ form_start(form, {attr: {'data-confirm-changed': '[name$="[role]"]', 'data-confirm': 'Promeniti rolu korisnika?', 'data-confirm-text': 'Promena role menja prava pristupa korisnika.', 'data-confirm-type': 'warning', 'data-confirm-button': 'Da, promeni'}}) }}
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Osnovni podaci</h5></div>
+                <div class="card-body border-top">
+                    <div class="row">
+                        <div class="col-md-6">{{ form_row(form.firstName) }}</div>
+                        <div class="col-md-6">{{ form_row(form.lastName) }}</div>
+                    </div>
+                    {{ form_row(form.email) }}
+                    {{ form_row(form.role) }}
+                    <div class="row">
+                        <div class="col-md-6">{{ form_row(form.plainPassword.first) }}</div>
+                        <div class="col-md-6">{{ form_row(form.plainPassword.second) }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Kontakt</h5></div>
+                <div class="card-body border-top">
+                    {{ form_row(form.phone) }}
+                    {{ form_row(form.address) }}
+                    <div class="row">
+                        <div class="col-md-8">{{ form_row(form.city) }}</div>
+                        <div class="col-md-4">{{ form_row(form.postalCode) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Posao</h5></div>
+                <div class="card-body border-top">
+                    {{ form_row(form.position) }}
+                    {{ form_row(form.employedAt) }}
+                    {{ form_row(form.internalNote) }}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Avatar</h5></div>
+                <div class="card-body border-top">
+                    {% if user.avatarName %}
+                        <div class="mb-3">{{ ui.avatar(user, 80) }}</div>
+                    {% endif %}
+                    {{ form_row(form.avatarFile) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2">
+        <a href="{{ is_new ? path('admin_user_index') : path('admin_user_show', {id: user.id}) }}" class="btn btn-light">Otkaži</a>
+        <button class="btn btn-primary">Sačuvaj<i class="ph-floppy-disk ms-2"></i></button>
+    </div>
+    {{ form_end(form) }}
+{% endblock %}

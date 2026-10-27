@@ -1,0 +1,19 @@
+/* Avatari (7.9): inicijali na gradijentu, boja iz imena (hash), tanak prsten u boji pozadine. */
+.kt-avatar {
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+    border-radius: 999px; color: #fff; font-weight: 600; line-height: 1; letter-spacing: .02em;
+    background: linear-gradient(135deg, var(--kt-av-1, #0089FF), var(--kt-av-2, #0058AB));
+    box-shadow: 0 0 0 2px var(--kt-surface);
+    user-select: none;
+}
+.kt-avatar[data-tone="0"] { --kt-av-1: #3BA3FF; --kt-av-2: #0067C7; }
+.kt-avatar[data-tone="1"] { --kt-av-1: #7B88FF; --kt-av-2: #4453D9; }
+.kt-avatar[data-tone="2"] { --kt-av-1: #A47CF8; --kt-av-2: #6D3FD6; }
+.kt-avatar[data-tone="3"] { --kt-av-1: #2DD4BF; --kt-av-2: #0E8F80; }
+.kt-avatar[data-tone="4"] { --kt-av-1: #4ADE80; --kt-av-2: #15A34A; }
+.kt-avatar[data-tone="5"] { --kt-av-1: #FBBF24; --kt-av-2: #D97706; }
+.kt-avatar[data-tone="6"] { --kt-av-1: #FB7185; --kt-av-2: #E11D48; }
+.kt-avatar[data-tone="7"] { --kt-av-1: #94A3B8; --kt-av-2: #475569; }
+img.kt-avatar { object-fit: cover; background: var(--kt-surface-3); }
+.kt-avatar.kt-away { position: relative; }
+.kt-avatar.kt-away::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 28%; height: 28%; min-width: 8px; min-height: 8px; border-radius: 50%; background: var(--kt-warning); box-shadow: 0 0 0 2px var(--kt-surface); }

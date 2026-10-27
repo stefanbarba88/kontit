@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dodela paketa — {{ client.name }}{% endblock %}
+{% block page_title %}Dodela paketa: {{ client.name }}{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.name }}</a>
+    <a href="{{ path('client_packages', {id: client.id}) }}" class="breadcrumb-item">Paketi i poslovi</a>
+    <span class="breadcrumb-item active">Dodela paketa</span>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Novi paket za klijenta</h5></div>
+                <div class="card-body border-top">
+                    {{ form_start(form, {attr: {'data-confirm': 'Dodeliti paket klijentu?', 'data-confirm-text': 'Svi poslovi iz paketa se odmah dodaju klijentu i počinju da generišu zadatke.', 'data-confirm-type': 'info', 'data-confirm-button': 'Da, dodeli'}}) }}
+                        {{ form_row(form.package) }}
+                        {{ form_row(form.agreedPrice) }}
+                        {{ form_row(form.discountPercent) }}
+                        {{ form_row(form.startDate) }}
+                        {{ form_row(form.note) }}
+                        <div class="text-end">
+                            <a href="{{ path('client_packages', {id: client.id}) }}" class="btn btn-light me-2">Otkaži</a>
+                            <button class="btn btn-primary">Dodeli<i class="ph-check ms-2"></i></button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

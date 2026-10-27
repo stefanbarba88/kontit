@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}{{ team.name }}{% endblock %}
+{% block page_title %}{{ team.name }}{% endblock %}
+{% block breadcrumbs %}
+    {% if is_granted('TEAM_MANAGE') %}<a href="{{ path('admin_team_index') }}" class="breadcrumb-item">Timovi</a>{% endif %}
+    <span class="breadcrumb-item active">{{ team.name }}</span>
+{% endblock %}
+
+{% block page_actions %}
+    {% if is_granted('TEAM_MANAGE') %}
+        <a href="{{ path('admin_team_edit', {id: team.id}) }}" class="btn btn-primary"><i class="ph-pencil me-2"></i>Izmeni</a>
+        <form method="post" action="{{ path('admin_team_delete', {id: team.id}) }}" {{ confirm_attrs('Obrisati tim?', 'Tim mora biti prazan. Istorija šefova ostaje.', 'danger', 'Da, obriši', false, team.name) }}>
+            <input type="hidden" name="_token" value="{{ csrf_token('team_delete_' ~ team.id) }}">
+            <button class="btn btn-outline-danger"><i class="ph-trash me-2"></i>Obriši</button>
+        </form>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% if team.description %}<p class="text-muted">{{ team.description }}</p>{% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Članovi <span class="text-muted fw-normal fs-base">({{ team.activeMembers|length }})</span></h5></div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr><th>Radnik</th><th>Pozicija</th><th>U timu od</th><th class="text-center" style="width: 1%;"></th></tr></thead>
+                        <tbody>
+                            {% for m in team.activeMembers %}
+                                <tr>
+                                    <td>
+                                        {% if is_granted('USER_VIEW', m.user) %}
+                                            <a href="{{ path('admin_user_show', {id: m.user.id}) }}" class="text-body">{{ ui.user_chip(m.user) }}</a>
+                                        {% else %}
+                                            {{ ui.user_chip(m.user) }}
+                                        {% endif %}
+                                        {% if not m.user.active %}<span class="badge bg-secondary bg-opacity-20 text-secondary ms-1">Neaktivan</span>{% endif %}
+                                    </td>
+                                    <td>{{ m.user.position ?? '—' }}</td>
+                                    <td>{{ m.joinedAt|date('d.m.Y.') }}</td>
+                                    <td class="text-center">
+                                        {% if is_granted('TEAM_MANAGE') %}
+                                            <form method="post" action="{{ path('admin_team_member_remove', {id: m.id}) }}" {{ confirm_attrs('Ukloniti radnika iz tima?', 'Radnik ' ~ m.user.fullName ~ ' ostaje u sistemu, ali bez tima.', 'warning', 'Da, ukloni') }}>
+                                                <input type="hidden" name="_token" value="{{ csrf_token('member_remove_' ~ m.id) }}">
+                                                <button class="btn btn-light btn-icon btn-sm rounded-pill border-transparent text-danger" title="Ukloni iz tima"><i class="ph-user-minus"></i></button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="4">{{ ui.empty_state('Tim još nema članova.', 'ph-users') }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if addMemberForm %}
+                    <div class="card-footer">
+                        {{ form_start(addMemberForm, {attr: {class: 'row g-2 align-items-end', 'data-confirm-changed': '[name$="[user]"]', 'data-confirm-option-warning': '1', 'data-confirm': 'Premestiti radnika u ovaj tim?', 'data-confirm-type': 'warning', 'data-confirm-button': 'Da, premesti'}}) }}
+                            <div class="col">{{ form_row(addMemberForm.user, {row_attr: {class: 'mb-0'}}) }}</div>
+                            <div class="col-auto"><button class="btn btn-primary"><i class="ph-user-plus me-2"></i>Dodaj / premesti</button></div>
+                        {{ form_end(addMemberForm) }}
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if team.pastMembers|length > 0 %}
+                <div class="card">
+                    <div class="card-header"><h5 class="mb-0">Bivši članovi</h5></div>
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead><tr><th>Radnik</th><th>Od</th><th>Do</th></tr></thead>
+                            <tbody>
+                                {% for m in team.pastMembers %}
+                                    <tr><td>{{ m.user.fullName }}</td><td>{{ m.joinedAt|date('d.m.Y.') }}</td><td>{{ m.leftAt|date('d.m.Y.') }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Šef tima</h5></div>
+                <div class="card-body border-top">{{ ui.user_chip(team.leader, 40) }}</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Istorija šefova</h5></div>
+                <ul class="list-group list-group-flush border-top">
+                    {% for log in leaderLog %}
+                        <li class="list-group-item">
+                            <div class="fw-semibold">{{ log.user.fullName }}</div>
+                            <div class="text-muted fs-sm">
+                                {{ log.startedAt|date('d.m.Y.') }} – {{ log.endedAt ? log.endedAt|date('d.m.Y.') : 'danas' }}
+                                {% if log.changedBy %}· postavio {{ log.changedBy.fullName }}{% endif %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

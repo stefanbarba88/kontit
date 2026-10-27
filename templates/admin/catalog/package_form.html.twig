@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% set is_new = package.id is null %}
+
+{% block title %}{{ is_new ? 'Novi paket' : 'Izmena paketa' }}{% endblock %}
+{% block page_title %}{{ is_new ? 'Novi paket' : 'Izmena: ' ~ package.name }}{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('admin_package_index') }}" class="breadcrumb-item">Paketi usluga</a>
+    <span class="breadcrumb-item active">{{ is_new ? 'Novi' : 'Izmena' }}</span>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Podaci o paketu</h5></div>
+                <div class="card-body border-top">
+                    {% set attrs = {} %}
+                    {% if not is_new and clients > 0 %}
+                        {% set attrs = {'data-confirm': 'Sačuvati izmene paketa?', 'data-confirm-text': 'Paket koristi ' ~ clients ~ ' klijenata. Ako je označeno „primeni na klijente“, novi poslovi se odmah dodaju svima. Ukinuti poslovi ostaju kod klijenata.', 'data-confirm-type': 'warning', 'data-confirm-button': 'Da, sačuvaj'} %}
+                    {% endif %}
+                    {{ form_start(form, {attr: attrs}) }}
+                        {{ form_row(form.name) }}
+                        {{ form_row(form.description) }}
+                        {{ form_row(form.jobTemplates) }}
+                        {% if not is_new and clients > 0 %}
+                            <div class="form-check mb-3">
+                                <input type="checkbox" class="form-check-input" id="apply_to_clients" name="apply_to_clients" value="1">
+                                <label class="form-check-label" for="apply_to_clients">Primeni na {{ clients }} klijenata koji imaju ovaj paket (dodaj nove poslove)</label>
+                            </div>
+                        {% endif %}
+                        {{ form_row(form.active) }}
+                        <div class="text-end">
+                            <a href="{{ path('admin_package_index') }}" class="btn btn-light me-2">Otkaži</a>
+                            <button class="btn btn-primary">Sačuvaj<i class="ph-floppy-disk ms-2"></i></button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

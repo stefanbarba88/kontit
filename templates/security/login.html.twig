@@ -1,0 +1,50 @@
+{% extends 'base_auth.html.twig' %}
+
+{% block title %}Prijava{% endblock %}
+{% block auth_title %}Prijavite se na nalog{% endblock %}
+{% block auth_subtitle %}Unesite email i lozinku{% endblock %}
+
+{% block auth_content %}
+    <form method="post">
+        {% if error %}
+            <div class="alert alert-danger alert-icon-start" role="alert">
+                <span class="alert-icon bg-danger text-white"><i class="ph-x-circle"></i></span>
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        {% endif %}
+
+        <div class="mb-3">
+            <label for="username" class="form-label">Email</label>
+            <div class="form-control-feedback form-control-feedback-start">
+                <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" placeholder="ime@firma.rs" autocomplete="email" required autofocus>
+                <div class="form-control-feedback-icon">
+                    <i class="ph-user-circle text-muted"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Lozinka</label>
+            <div class="form-control-feedback form-control-feedback-start">
+                <input type="password" name="_password" id="password" class="form-control" placeholder="•••••••••••" autocomplete="current-password" required>
+                <div class="form-control-feedback-icon">
+                    <i class="ph-lock text-muted"></i>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+
+        <div class="form-check mb-3">
+            <input type="checkbox" name="_remember_me" id="remember_me" class="form-check-input" checked>
+            <label for="remember_me" class="form-check-label">Zapamti me</label>
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary w-100">Prijavi se</button>
+        </div>
+
+        <div class="text-center">
+            <a href="{{ path('app_forgot_password_request') }}">Zaboravljena lozinka?</a>
+        </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,213 @@
+import $ from 'jquery';
+import Swal from 'sweetalert2';
+
+/**
+ * Jedan globalni mehanizam potvrde (SPEC 8a). Radi preko data atributa:
+ *   data-confirm="Pitanje?"            (obavezno)
+ *   data-confirm-text="Objašnjenje"
+ *   data-confirm-type="info|warning|danger"
+ *   data-confirm-button="Da, ..."
+ *   data-confirm-reason="required"     traži razlog, šalje se kao polje `reason`
+ *   data-confirm-type-name="Naziv"     korisnik mora da ukuca naziv
+ * Potvrda je samo UI sloj: bez JS-a forma ide običnim POST-om, a server proverava Voter i CSRF.
+ */
+const buttons = {
+    info: 'btn kt-btn-confirm',
+    warning: 'btn kt-btn-confirm',
+    danger: 'btn kt-btn-danger',
+};
+
+const icons = { info: 'info', warning: 'warning', danger: 'warning' };
+
+const swal = Swal.mixin({
+    buttonsStyling: false,
+    reverseButtons: true,
+    focusCancel: true,
+    customClass: { cancelButton: 'btn', confirmButton: '', popup: 'kt-swal text-start' },
+});
+
+const toaster = Swal.mixin({
+    toast: true,
+    position: 'bottom-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    customClass: { popup: 'kt-toast' },
+});
+
+/**
+ * Toast gore desno, 3 s. type: success | danger | warning | info
+ */
+export function toast(message, type = 'success') {
+    const icon = { success: 'success', danger: 'error', warning: 'warning', info: 'info' }[type] || 'info';
+    toaster.fire({ icon, title: message });
+}
+
+/**
+ * Prikazuje dijalog. Rešava se sa { confirmed, reason }.
+ */
+export function confirmDialog(options) {
+    const type = buttons[options.type] ? options.type : 'warning';
+    const typeName = options.typeName || '';
+    const needsReason = options.reason === 'required';
+    const html = [];
+
+    if (options.text) {
+        html.push(`<div class="mb-2"></div>`);
+    }
+    if (typeName) {
+        html.push('<div class="mb-1 text-muted">Za potvrdu ukucajte: <strong class="swal-type-name"></strong></div><input class="form-control swal-type-input" autocomplete="off">');
+    }
+    if (needsReason) {
+        html.push('<textarea class="form-control swal-reason mt-2" rows="3" placeholder="Razlog (obavezno)"></textarea>');
+    }
+
+    return swal
+        .fire({
+            title: options.message,
+            text: html.length ? undefined : options.text,
+            icon: icons[type],
+            showCancelButton: true,
+            confirmButtonText: options.button || 'Potvrdi',
+            cancelButtonText: 'Odustani',
+            customClass: { confirmButton: buttons[type], cancelButton: 'btn', popup: 'kt-swal text-start' },
+            html: html.length ? `<p class="mb-2 text-muted">${$('<div>').text(options.text || '').html()}</p>${html.join('')}` : undefined,
+            didOpen: (popup) => {
+                $(popup).find('.swal-type-name').text(typeName);
+            },
+            preConfirm: () => {
+                const popup = Swal.getPopup();
+                if (typeName && $.trim($(popup).find('.swal-type-input').val()) !== typeName) {
+                    Swal.showValidationMessage('Uneti naziv se ne poklapa.');
+                    return false;
+                }
+                const reason = $.trim($(popup).find('.swal-reason').val() || '');
+                if (needsReason && !reason) {
+                    Swal.showValidationMessage('Razlog je obavezan.');
+                    return false;
+                }
+                return { reason };
+            },
+        })
+        .then((result) => ({ confirmed: result.isConfirmed, reason: result.value?.reason || '' }));
+}
+
+/**
+ * Opcije dijaloga iz data atributa elementa.
+ */
+export function optionsFrom(el) {
+    const $el = $(el);
+
+    return {
+        message: $el.data('confirm'),
+        text: $el.data('confirmText'),
+        type: $el.data('confirmType'),
+        button: $el.data('confirmButton'),
+        reason: $el.data('confirmReason'),
+        typeName: $el.data('confirmTypeName'),
+    };
+}
+
+const submitConfirmed = (form, submitter, reason) => {
+    const $form = $(form);
+    if (reason) {
+        $form.find('input[name=reason][data-confirm-added]').remove();
+        $form.find('textarea[name=reason], input[name=reason]:not([data-confirm-added])').val(reason);
+        if (!$form.find('[name=reason]').length) {
+            $('<input type="hidden" name="reason" data-confirm-added>').val(reason).appendTo($form);
+        }
+    }
+    $form.data('confirmed', true);
+    if (submitter && form.requestSubmit) {
+        form.requestSubmit(submitter);
+    } else {
+        form.submit();
+    }
+};
+
+// Forma koja traži potvrdu samo ako se promeni neko od polja: data-confirm-changed="CSS selektor polja".
+// data-confirm-option-warning: pita samo ako izabrana <option> ima data-warning, a taj tekst je objašnjenje.
+$(function () {
+    $('form[data-confirm-changed]').each(function () {
+        $(this).find($(this).data('confirmChanged')).each(function () {
+            $(this).data('initial', $(this).val());
+        });
+    });
+});
+
+const changedConfirm = (form) => {
+    const $form = $(form);
+    const $fields = $form.find($form.data('confirmChanged')).filter(function () {
+        return $(this).data('initial') !== $(this).val();
+    });
+    if (!$fields.length) {
+        return null;
+    }
+    const options = optionsFrom(form);
+    const $selected = $fields.first().is('select') ? $fields.first().find('option:selected') : $();
+    const warning = $selected.data('warning');
+    if ($form.is('[data-confirm-option-warning]') && !warning) {
+        return null;
+    }
+
+    return warning ? { ...options, text: warning } : options;
+};
+
+$(document).on('submit', 'form[data-confirm-changed]', function (event) {
+    if ($(this).data('confirmed')) {
+        return;
+    }
+    const options = changedConfirm(this);
+    if (!options) {
+        return;
+    }
+    event.preventDefault();
+    const form = this;
+    confirmDialog(options).then(({ confirmed, reason }) => {
+        if (confirmed) {
+            submitConfirmed(form, null, reason);
+        }
+    });
+});
+
+// Dugme/link unutar forme (data-confirm na dugmetu) ili cela forma (data-confirm na formi)
+$(document).on('click', 'button[data-confirm][type=submit], button[data-confirm]:not([type]), input[type=submit][data-confirm]', function (event) {
+    const form = this.form;
+    if (!form || $(form).data('confirmed')) {
+        return;
+    }
+    event.preventDefault();
+    const button = this;
+    confirmDialog(optionsFrom(button)).then(({ confirmed, reason }) => {
+        if (confirmed) {
+            submitConfirmed(form, button, reason);
+        }
+    });
+});
+
+$(document).on('submit', 'form[data-confirm]', function (event) {
+    if ($(this).data('confirmed')) {
+        return;
+    }
+    event.preventDefault();
+    const form = this;
+    confirmDialog(optionsFrom(form)).then(({ confirmed, reason }) => {
+        if (confirmed) {
+            submitConfirmed(form, null, reason);
+        }
+    });
+});
+
+// Link sa potvrdom (GET navigacija)
+$(document).on('click', 'a[data-confirm]', function (event) {
+    event.preventDefault();
+    const href = this.href;
+    confirmDialog(optionsFrom(this)).then(({ confirmed }) => {
+        if (confirmed) {
+            window.location.href = href;
+        }
+    });
+});
+
+// dostupno stranicama (npr. /_design) bez uvoza modula
+window.ktToast = toast;

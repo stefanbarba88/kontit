@@ -1,0 +1,58 @@
+/*
+ * Mapiranje naših tokena na promenljive template-a (Limitless koristi --primary, --body-bg, --white...).
+ * Vendor CSS se ne menja, sve ide preko promenljivih. Selektor html:root je jači od :root iz template-a.
+ */
+html:root,
+html:root[data-bs-theme] {
+    --primary: var(--kt-primary);
+    --primary-rgb: 0, 111, 214;
+    --component-active-bg: var(--kt-primary);
+    --component-active-color: var(--kt-on-primary);
+    --focus-ring-box-shadow: 0 0 0 3px var(--kt-focus);
+    --link-color: var(--kt-primary);
+    --link-hover-color: var(--kt-primary-hover);
+    --body-bg: var(--kt-bg);
+    --body-color: var(--kt-text);
+    --body-font-family: var(--kt-font-ui);
+    --font-sans-serif: var(--kt-font-ui);
+    --font-monospace: var(--kt-font-mono);
+    --border-color: var(--kt-border-strong);
+    --border-color-translucent: var(--kt-border);
+    --border-radius: var(--kt-radius-md);
+    --border-radius-sm: var(--kt-radius-sm);
+    --border-radius-lg: var(--kt-radius-lg);
+    --border-radius-xl: var(--kt-radius-xl);
+    --box-shadow: var(--kt-shadow-xs);
+    --box-shadow-sm: var(--kt-shadow-xs);
+    --box-shadow-lg: var(--kt-shadow-lg);
+    --success: var(--kt-success);
+    --warning: var(--kt-warning);
+    --danger: var(--kt-danger);
+    --info: var(--kt-primary);
+    --transition-base-timer: .12s;
+}
+
+html:root[data-bs-theme="dark"] {
+    --primary-rgb: 59, 163, 255;
+    --white: var(--kt-surface);
+    --light: var(--kt-surface-3);
+    --gray-100: var(--kt-surface-2);
+    --gray-200: var(--kt-surface-3);
+    --gray-300: var(--kt-border-strong);
+    --body-color-rgb: 236, 238, 241;
+    --body-bg-rgb: 11, 15, 20;
+    --success-rgb: 74, 222, 128;
+    --warning-rgb: 251, 191, 36;
+    --danger-rgb: 248, 113, 113;
+}
+
+/* površine template-a prate tokene u obe teme */
+.card, .dropdown-menu, .modal-content, .offcanvas, .popover, .list-group-item, .table {
+    --card-bg: var(--kt-surface);
+}
+.form-control, .form-select {
+    background-color: var(--kt-surface);
+    color: var(--kt-text);
+}
+.text-muted { color: var(--kt-text-2) !important; }
+.text-body { color: var(--kt-text) !important; }

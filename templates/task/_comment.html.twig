@@ -1,0 +1,17 @@
+{# Jedan komentar. Prikazuje se i iz AJAX odgovora (CommentController) #}
+{% import 'components/ui.html.twig' as ui %}
+{% set returned = comment.type.value == 'VRACANJE_NA_DORADU' %}
+<div class="d-flex mb-3 task-comment {{ returned ? 'border-start border-warning border-3 ps-3' : '' }}" data-id="{{ comment.id }}">
+    <div class="me-3">{{ ui.avatar(comment.author, 40) }}</div>
+    <div class="flex-fill">
+        <div class="d-flex align-items-center">
+            <span class="fw-semibold">{{ comment.author.fullName }}</span>
+            {% if returned %}<span class="badge bg-warning bg-opacity-20 text-warning ms-2">Vraćeno na doradu</span>{% endif %}
+            <span class="text-muted fs-sm ms-2">{{ comment.createdAt|date('d.m.Y. H:i') }}{% if comment.editedAt %} · izmenjeno{% endif %}</span>
+            {% if comment.isEditableBy(app.user) %}
+                <button type="button" class="btn btn-sm btn-link ms-auto comment-edit-start" title="Izmeni (prvih 15 minuta)"><i class="ph-pencil"></i></button>
+            {% endif %}
+        </div>
+        <div class="comment-body" data-raw="{{ comment.body }}">{{ comment.body|nl2br }}</div>
+    </div>
+</div>

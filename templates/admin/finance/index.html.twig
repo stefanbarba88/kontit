@@ -1,0 +1,189 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}Finansije{% endblock %}
+{% block page_title %}Finansije{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item active">Finansije</span>{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('admin_finance_billing') }}" class="btn btn-outline-primary"><i class="ph-receipt me-2"></i>Za naplatu</a>
+    <a href="{{ path('admin_finance_settings') }}" class="btn btn-light"><i class="ph-gear me-2"></i>Podešavanja</a>
+{% endblock %}
+
+{% block content %}
+    <div class="row mb-3">
+        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-currency-circle-dollar', data.mrr|number_format(0, ',', '.') ~ ' RSD', 'Mesečni prihod (MRR)', 'success') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-buildings', data.clientCount, 'Aktivnih klijenata', 'primary') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-warning', data.underpriced|length, 'Potcenjenih klijenata', data.underpriced|length ? 'danger' : 'success', 'cena sata ispod ' ~ data.minRate|number_format(0, ',', '.') ~ ' RSD') }}</div>
+        <div class="col-md-3 mb-3">{{ ui.stat_card('ph-clock', (data.rows|reduce((c, r) => c + r.hours, 0))|number_format(0, ',', '.') ~ ' h', 'Procenjeno sati mesečno', 'info') }}</div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-lg-8 mb-3">
+            <div class="card h-100 mb-0">
+                <div class="card-header"><h6 class="mb-0">MRR po mesecima</h6></div>
+                <div class="card-body" style="height: 280px;">
+                    <canvas data-chart="{{ {
+                        type: 'line',
+                        data: {
+                            labels: data.mrrTrend|map(m => m.label),
+                            datasets: [{label: 'MRR (RSD)', data: data.mrrTrend|map(m => m.mrr), borderColor: '#26a69a', backgroundColor: 'rgba(38,166,154,.15)', fill: true, tension: 0.3}],
+                        },
+                        options: {scales: {y: {beginAtZero: true}}, plugins: {legend: {display: false}}},
+                    }|json_encode|e('html_attr') }}"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-3">
+            <div class="card h-100 mb-0">
+                <div class="card-header"><h6 class="mb-0">Prihod po paketu</h6></div>
+                <div class="card-body" style="height: 280px;">
+                    <canvas data-chart="{{ {
+                        type: 'doughnut',
+                        data: {
+                            labels: data.packages|map(p => p.name),
+                            datasets: [{data: data.packages|map(p => p.revenue), backgroundColor: ['#5c6bc0', '#26a69a', '#ffa726', '#ef5350', '#8d6e63', '#29b6f6']}],
+                        },
+                    }|json_encode|e('html_attr') }}"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-lg-6 mb-3">
+            <div class="card h-100 mb-0">
+                <div class="card-header"><h6 class="mb-0">Izgubljeni MRR (ukinuti paketi)</h6></div>
+                <div class="card-body" style="height: 240px;">
+                    <canvas data-chart="{{ {
+                        type: 'bar',
+                        data: {labels: data.churn|map(c => c.label), datasets: [{label: 'Izgubljeno (RSD)', data: data.churn|map(c => c.lost), backgroundColor: '#ef5350'}]},
+                        options: {scales: {y: {beginAtZero: true}}, plugins: {legend: {display: false}}},
+                    }|json_encode|e('html_attr') }}"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-3">
+            <div class="card h-100 mb-0">
+                <div class="card-header"><h6 class="mb-0">Prihod od ad hoc poslova</h6></div>
+                <div class="card-body" style="height: 240px;">
+                    <canvas data-chart="{{ {
+                        type: 'bar',
+                        data: {labels: data.adHocByMonth|map(c => c.label), datasets: [{label: 'Prihod (RSD)', data: data.adHocByMonth|map(c => c.revenue), backgroundColor: '#ffa726'}]},
+                        options: {scales: {y: {beginAtZero: true}}, plugins: {legend: {display: false}}},
+                    }|json_encode|e('html_attr') }}"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-lg-7 mb-3">
+            <div class="card h-100 mb-0">
+                <div class="card-header"><h6 class="mb-0">Vrednost portfolija i opterećenje po radniku</h6></div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr><th>Radnik</th><th>Klijenata</th><th>MRR</th><th>Sati / kapacitet</th><th>Opterećenje</th></tr></thead>
+                        <tbody>
+                            {% for entry in data.perUser %}
+                                <tr>
+                                    <td>{{ ui.user_chip(entry.user, 28) }}</td>
+                                    <td>{{ entry.clients }}</td>
+                                    <td>{{ entry.mrr|number_format(0, ',', '.') }}</td>
+                                    <td>{{ entry.hours|number_format(0) }} / {{ entry.capacity|number_format(0) }} h</td>
+                                    <td>
+                                        {% set cls = entry.load is null ? 'secondary' : (entry.load > 100 ? 'danger' : (entry.load > 80 ? 'warning' : 'success')) %}
+                                        <span class="badge bg-{{ cls }}">{{ entry.load is null ? '—' : entry.load ~ '%' }}</span>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="5">{{ ui.empty_state('Nema podataka.', 'ph-users') }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5 mb-3">
+            <div class="card h-100 mb-0">
+                <div class="card-header"><h6 class="mb-0">Portfolio po timu</h6></div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr><th>Tim</th><th>Klijenata</th><th>MRR</th><th>Sati</th></tr></thead>
+                        <tbody>
+                            {% for entry in data.perTeam %}
+                                <tr><td>{{ ui.team_badge(entry.team) }}</td><td>{{ entry.clients }}</td><td>{{ entry.mrr|number_format(0, ',', '.') }}</td><td>{{ entry.hours|number_format(0) }}</td></tr>
+                            {% else %}
+                                <tr><td colspan="4">{{ ui.empty_state('Nema podataka.', 'ph-users-three') }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-lg-7 mb-3">
+            <div class="card h-100 mb-0">
+                <div class="card-header"><h6 class="mb-0">Klijenti po ceni sata (najlošiji prvo)</h6></div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr><th>Klijent</th><th>MRR</th><th>Sati mes.</th><th>Cena sata</th></tr></thead>
+                        <tbody>
+                            {% for row in data.rows|slice(0, 15) %}
+                                <tr>
+                                    <td><a href="{{ path('admin_finance_client', {id: row.client.id}) }}" class="text-body">{{ row.client.name }}</a></td>
+                                    <td>{{ row.mrr|number_format(0, ',', '.') }}</td>
+                                    <td>{{ row.hours|number_format(1, ',') }}</td>
+                                    <td>{% if row.rate is null %}—{% else %}<span class="{{ row.underpriced ? 'text-danger fw-semibold' : '' }}">{{ row.rate|number_format(0, ',', '.') }} RSD</span>{% if row.underpriced %} <i class="ph-warning text-danger"></i>{% endif %}{% endif %}</td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="4">{{ ui.empty_state('Nema klijenata.', 'ph-buildings') }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5 mb-3">
+            <div class="card mb-3">
+                <div class="card-header"><h6 class="mb-0">Najčešće isključivani poslovi</h6></div>
+                <ul class="list-group list-group-flush">
+                    {% for e in data.excluded|slice(0, 6) %}
+                        <li class="list-group-item d-flex justify-content-between">{{ e.name }}<span class="badge bg-light text-body border">{{ e.count }}</span></li>
+                    {% else %}
+                        <li class="list-group-item text-muted">Nijedan posao nije isključen.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="card mb-0">
+                <div class="card-header"><h6 class="mb-0">Popularnost paketa</h6></div>
+                <ul class="list-group list-group-flush">
+                    {% for p in data.packages %}
+                        <li class="list-group-item d-flex justify-content-between">{{ p.name }}<span>{{ p.clients }} klijenata · {{ p.revenue|number_format(0, ',', '.') }} RSD</span></li>
+                    {% else %}
+                        <li class="list-group-item text-muted">Nema aktivnih paketa.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h6 class="mb-0">Kalendar opterećenja (naredna 2 meseca, procenjeni sati po danu)</h6></div>
+        <div class="card-body">
+            <div class="d-flex flex-wrap gap-1">
+                {% for day, minutes in data.heatmap %}
+                    {% set d = day|date('U') %}
+                    {% set weekend = day|date('N') >= 6 %}
+                    {% set level = minutes == 0 ? 0 : (minutes < 240 ? 1 : (minutes < 480 ? 2 : (minutes < 960 ? 3 : 4))) %}
+                    {% set colors = ['var(--kt-surface-3)', 'color-mix(in srgb, var(--kt-success) 28%, var(--kt-surface))', 'color-mix(in srgb, var(--kt-warning) 28%, var(--kt-surface))', 'color-mix(in srgb, var(--kt-warning) 60%, var(--kt-surface))', 'color-mix(in srgb, var(--kt-danger) 65%, var(--kt-surface))'] %}
+                    <div title="{{ day|date('d.m.Y.') }}: {{ (minutes / 60)|number_format(1, ',') }} h" class="rounded text-center fs-xs {{ weekend ? 'opacity-50' : '' }}" style="width: 38px; height: 38px; background: {{ colors[level] }}; color: var(--kt-text); line-height: 1.1; padding-top: 4px;">
+                        {{ day|date('d.m') }}<br>{{ (minutes / 60)|round }}h
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

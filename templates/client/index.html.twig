@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}Klijenti{% endblock %}
+{% block page_title %}Klijenti{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item active">Klijenti</span>{% endblock %}
+
+{% block page_actions %}
+    {% if is_granted('CLIENT_CREATE') %}
+        <a href="{{ path('client_import') }}" class="btn btn-outline-primary"><i class="ph-cloud-arrow-down me-2"></i>Uvoz iz NBS</a>
+        <a href="{{ path('client_new') }}" class="btn btn-primary"><i class="ph-plus me-2"></i>Novi klijent</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-body">
+            <form method="get" class="row g-2">
+                <div class="col-12 col-md-6">
+                    <div class="form-control-feedback form-control-feedback-start">
+                        <input type="search" name="q" value="{{ filters.q }}" class="form-control" placeholder="Naziv, PIB, matični broj ili grad">
+                        <div class="form-control-feedback-icon"><i class="ph-magnifying-glass text-muted"></i></div>
+                    </div>
+                </div>
+                <div class="col-8 col-md-4">
+                    <select name="status" class="form-select">
+                        <option value="active" {{ filters.status == 'active' ? 'selected' : '' }}>Aktivni</option>
+                        <option value="inactive" {{ filters.status == 'inactive' ? 'selected' : '' }}>Neaktivni</option>
+                        <option value="all" {{ filters.status == 'all' ? 'selected' : '' }}>Svi</option>
+                    </select>
+                </div>
+                <div class="col-4 col-md-2">
+                    <button class="btn btn-light w-100"><i class="ph-funnel me-2"></i>Traži</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr><th>Klijent</th><th>PIB</th><th>Glavni zaduženi</th><th>Backup</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    {% for client in pagination %}
+                        <tr>
+                            <td>
+                                <a href="{{ path('client_show', {id: client.id}) }}" class="fw-semibold">{{ client.name }}</a>
+                                <div class="text-muted fs-sm">{{ client.legalForm.label }}{% if client.city %} · {{ client.city }}{% endif %}</div>
+                            </td>
+                            <td>{{ client.pib ?? '—' }}</td>
+                            <td>{{ ui.user_chip(client.primaryAccountant, 24) }}</td>
+                            <td>
+                                {% if client.backupAccountant %}{{ ui.user_chip(client.backupAccountant, 24) }}
+                                {% else %}<span class="text-warning"><i class="ph-warning me-1"></i>nema</span>{% endif %}
+                            </td>
+                            <td>{{ ui.status_badge(client.active) }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="5">{{ ui.empty_state('Nema klijenata za zadate filtere.', 'ph-buildings') }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center">{{ knp_pagination_render(pagination) }}</div>
+{% endblock %}

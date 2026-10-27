@@ -1,0 +1,27 @@
+{# Jedna stavka checkliste. Prikazuje se i iz AJAX odgovora (ChecklistController) #}
+{% import 'components/ui.html.twig' as ui %}
+<li class="list-group-item d-flex align-items-center checklist-item" data-id="{{ item.id }}">
+    {% if is_granted('TASK_EDIT', task) %}
+        <span class="checklist-handle text-muted me-2" title="Prevucite za promenu redosleda" style="cursor: grab;"><i class="ph-dots-six-vertical"></i></span>
+    {% endif %}
+
+    <div class="form-check mb-0 flex-grow-1">
+        <input type="checkbox" class="form-check-input checklist-toggle" id="ci-{{ item.id }}" {{ item.done ? 'checked' : '' }} {{ can_toggle_item(item) ? '' : 'disabled' }}>
+        <label class="form-check-label {{ item.done ? 'text-decoration-line-through text-muted' : '' }}" for="ci-{{ item.id }}">{{ item.text }}</label>
+        {% if item.done %}
+            <div class="fs-xs text-muted">{{ item.doneBy.fullName }}, {{ item.doneAt|date('d.m. H:i') }}</div>
+        {% endif %}
+    </div>
+
+    {% if is_granted('TASK_EDIT', task) %}
+        <select class="form-select form-select-sm checklist-assign w-auto ms-2" title="Dodeljena osoba">
+            <option value="">Zajednička</option>
+            {% for a in task.assignees %}
+                <option value="{{ a.user.id }}" {{ item.assignedTo == a.user ? 'selected' : '' }}>{{ a.user.fullName }}</option>
+            {% endfor %}
+        </select>
+        <button type="button" class="btn btn-sm btn-icon btn-light text-danger ms-2 checklist-delete" title="Obriši stavku"><i class="ph-trash"></i></button>
+    {% elseif item.assignedTo %}
+        <span class="ms-2" title="{{ item.assignedTo.fullName }}">{{ ui.avatar(item.assignedTo, 24) }}</span>
+    {% endif %}
+</li>

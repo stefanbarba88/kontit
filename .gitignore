@@ -1,0 +1,29 @@
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
+
+###> symfony/asset-mapper ###
+/public/assets/
+/assets/vendor/*
+!/assets/vendor/template/
+###< symfony/asset-mapper ###
+
+/.idea/
+/public/uploads/avatars/*
+!/public/uploads/avatars/.gitkeep
+/public/media/
+
+# kupljeni template (izvor, ne deo aplikacije; uklanja se po UPDATE-DIZAJN.md)
+/_template/

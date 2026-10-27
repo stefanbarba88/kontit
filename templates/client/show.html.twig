@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+{% import 'components/timeline.html.twig' as tl %}
+
+{% block title %}{{ client.name }}{% endblock %}
+{% block page_title %}{{ client.name }} {{ ui.status_badge(client.active) }}{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('client_index') }}" class="breadcrumb-item">Klijenti</a>
+    <span class="breadcrumb-item active">{{ client.name }}</span>
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('task_new', {client: client.id}) }}" class="btn btn-outline-primary"><i class="ph-list-checks me-2"></i>Novi zadatak</a>
+    <a href="{{ path('client_packages', {id: client.id}) }}" class="btn btn-outline-primary"><i class="ph-package me-2"></i>Paketi i poslovi</a>
+    {% if is_granted('PRICE_VIEW') %}
+        <a href="{{ path('admin_finance_client', {id: client.id}) }}" class="btn btn-outline-primary"><i class="ph-chart-line-up me-2"></i>Analitika</a>
+    {% endif %}
+    {% if is_granted('CLIENT_ASSIGN', client) %}
+        <a href="{{ path('client_assign', {id: client.id}) }}" class="btn btn-outline-primary"><i class="ph-users me-2"></i>Dodela</a>
+    {% endif %}
+    {% if is_granted('CLIENT_EDIT', client) %}
+        <a href="{{ path('client_edit', {id: client.id}) }}" class="btn btn-primary"><i class="ph-pencil me-2"></i>Izmeni</a>
+        <form method="post" action="{{ path('client_toggle', {id: client.id}) }}" {% if client.active %}{{ confirm_attrs('Deaktivirati klijenta?', 'Klijent se više neće nuditi za nove zadatke. Istorija ostaje.', 'danger', 'Da, deaktiviraj', false, client.name) }}{% else %}{{ confirm_attrs('Aktivirati klijenta?', null, 'info', 'Da, aktiviraj') }}{% endif %}>
+            <input type="hidden" name="_token" value="{{ csrf_token('client_toggle_' ~ client.id) }}">
+            <button class="btn {{ client.active ? 'btn-outline-danger' : 'btn-outline-success' }}">{{ client.active ? 'Deaktiviraj' : 'Aktiviraj' }}</button>
+        </form>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="text-muted mb-3">{{ client.legalForm.label }}{% if client.pdvObveznik %} · PDV obveznik{% endif %}</div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Podaci</h5></div>
+                <div class="card-body border-top">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">PIB</dt><dd class="col-sm-8">{{ client.pib ?? '—' }}</dd>
+                        <dt class="col-sm-4">Matični broj</dt><dd class="col-sm-8">{{ client.maticniBroj ?? '—' }}</dd>
+                        {% if client.shortName %}<dt class="col-sm-4">Skraćeni naziv</dt><dd class="col-sm-8">{{ client.shortName }}</dd>{% endif %}
+                        <dt class="col-sm-4">Adresa</dt><dd class="col-sm-8">{{ [client.address, [client.postalCode, client.city]|filter(v => v)|join(' ')]|filter(v => v)|join(', ') ?: '—' }}</dd>
+                        {% if client.municipality or client.region %}<dt class="col-sm-4">Opština / okrug</dt><dd class="col-sm-8">{{ [client.municipality, client.region]|filter(v => v)|join(' / ') }}</dd>{% endif %}
+                        {% if client.activityName %}<dt class="col-sm-4">Delatnost</dt><dd class="col-sm-8">{{ client.activityName }}</dd>{% endif %}
+                        {% if client.registrationDate %}<dt class="col-sm-4">Registrovan</dt><dd class="col-sm-8">{{ client.registrationDate|date('d.m.Y.') }}{% if client.foundingDate and client.foundingDate != client.registrationDate %} (osnovan {{ client.foundingDate|date('d.m.Y.') }}){% endif %}</dd>{% endif %}
+                        <dt class="col-sm-4">Kontakt osoba</dt><dd class="col-sm-8">{{ client.contactPerson ?? '—' }}</dd>
+                        <dt class="col-sm-4">Telefon</dt><dd class="col-sm-8">{{ client.phone ?? '—' }}</dd>
+                        <dt class="col-sm-4">Email</dt><dd class="col-sm-8">{{ client.email ?? '—' }}</dd>
+                        <dt class="col-sm-4">Klijent od</dt><dd class="col-sm-8">{{ client.startDate ? client.startDate|date('d.m.Y.') : '—' }}</dd>
+                        <dt class="col-sm-4">Napomena</dt><dd class="col-sm-8 mb-0">{{ client.note ? client.note|nl2br : '—' }}</dd>
+                    </dl>
+                </div>
+                <div class="card-footer d-flex align-items-center text-muted fs-sm">
+                    {% if client.nbsSyncedAt %}<span><i class="ph-cloud-check me-1"></i>NBS podaci od {{ client.nbsSyncedAt|date('d.m.Y. H:i') }}</span>{% else %}<span><i class="ph-cloud-slash me-1"></i>Nije povučeno iz NBS-a</span>{% endif %}
+                    {% if client.pib and is_granted('CLIENT_EDIT', client) %}
+                        <form method="post" action="{{ path('client_nbs_refresh', {id: client.id}) }}" class="ms-auto"
+                              {{ confirm_attrs('Osvežiti podatke iz NBS-a?', 'Naziv, adresa, matični broj i ostali podaci iz NBS-a će zameniti trenutne vrednosti. Telefon i email se ne diraju.', 'warning', 'Da, osveži') }}>
+                            <input type="hidden" name="_token" value="{{ csrf_token('client_nbs_' ~ client.id) }}">
+                            <button class="btn btn-sm btn-outline-primary"><i class="ph-cloud-arrow-down me-1"></i>Osveži iz NBS</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Istorija dodela</h5></div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead><tr><th>Radnik</th><th>Uloga</th><th>Od</th><th>Do</th><th>Promenio</th></tr></thead>
+                        <tbody>
+                            {% for log in history %}
+                                <tr>
+                                    <td>{{ log.user.fullName }}{% if not log.user.active %} <span class="badge bg-secondary bg-opacity-20 text-secondary">Neaktivan</span>{% endif %}</td>
+                                    <td>{{ log.type.label }}</td>
+                                    <td>{{ log.startedAt|date('d.m.Y.') }}</td>
+                                    <td>{{ log.endedAt ? log.endedAt|date('d.m.Y.') : 'danas' }}</td>
+                                    <td>{{ log.changedBy ? log.changedBy.fullName : '—' }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0"><i class="ph-clock-counter-clockwise me-2"></i>Istorija izmena</h5></div>
+                <div class="card-body border-top">{{ tl.timeline(activity) }}</div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Glavni zaduženi</h5></div>
+                <div class="card-body border-top">{{ ui.user_chip(client.primaryAccountant, 40) }}</div>
+            </div>
+            <div class="card {{ client.backupAccountant ? '' : 'border-warning' }}">
+                <div class="card-header"><h5 class="mb-0">Backup (zamena)</h5></div>
+                <div class="card-body border-top">
+                    {% if client.backupAccountant %}
+                        {{ ui.user_chip(client.backupAccountant, 40) }}
+                    {% else %}
+                        <span class="text-warning"><i class="ph-warning me-1"></i>Klijent nema backup radnika.</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

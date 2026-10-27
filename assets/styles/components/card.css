@@ -1,0 +1,43 @@
+/* Kartice (7.3) i KPI kartice (7.4). */
+.card {
+    --card-border-color: var(--kt-border);
+    --card-box-shadow: var(--kt-shadow-xs);
+    --card-bg: var(--kt-surface);
+    background: var(--kt-surface);
+    border: 1px solid var(--kt-border);
+    border-radius: var(--kt-radius-lg);
+    box-shadow: var(--kt-shadow-xs);
+    margin-bottom: 16px;
+}
+.card-header { background: transparent; border-bottom: 1px solid var(--kt-border); padding: 16px 20px; }
+.card-body { padding: 20px; }
+@media (min-width: 992px) { .card-body { padding: 24px; } .card-header { padding: 18px 24px; } }
+.card-header .card-title, .card-header h5, .card-header h6 { margin: 0; }
+.card-footer { background: transparent; border-top: 1px solid var(--kt-border); }
+
+/* klikabilna kartica (npr. klijent): podigne se 1px, senka raste, ivica poplavi */
+.card:has(.stretched-link) {
+    transition: transform var(--kt-dur-2) var(--kt-ease), box-shadow var(--kt-dur-2) var(--kt-ease), border-color var(--kt-dur-2) var(--kt-ease);
+}
+.card:has(.stretched-link):hover {
+    transform: translateY(-1px); box-shadow: var(--kt-shadow-md);
+    border-color: color-mix(in srgb, var(--kt-brand-500) 40%, var(--kt-border));
+}
+
+/* KPI */
+.kt-kpi { position: relative; overflow: hidden; height: 100%; margin-bottom: 0; }
+.kt-kpi .kt-kpi-label { font-size: 13px; color: var(--kt-text-2); }
+.kt-kpi .kt-kpi-value { font-family: var(--kt-font-display); font-size: 30px; line-height: 36px; font-weight: 700; letter-spacing: -.02em; color: var(--kt-text); }
+.kt-kpi .kt-kpi-hint { font-size: 12px; color: var(--kt-text-3); }
+.kt-kpi .kt-kpi-icon { width: 36px; height: 36px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; }
+.kt-kpi.kt-kpi--danger::before, .kt-kpi.kt-kpi--warning::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+}
+.kt-kpi.kt-kpi--danger::before { background: var(--kt-danger); }
+.kt-kpi.kt-kpi--warning::before { background: var(--kt-warning); }
+.kt-delta { display: inline-flex; align-items: center; gap: 2px; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+.kt-delta--up { color: var(--kt-success); background: var(--kt-success-soft); }
+.kt-delta--down { color: var(--kt-danger); background: var(--kt-danger-soft); }
+.kt-sparkline { height: 36px; margin-top: 8px; }
+
+.card.bg-light { background: var(--kt-surface-2) !important; }

@@ -1,0 +1,30 @@
+/*
+ * KontIT app: izgled (DESIGN.md). Vendor CSS template-a se ne menja, sve naše izmene idu preko ovih fajlova.
+ * Redosled je bitan: tokeni, mapiranje na template, osnova, pa komponente.
+ */
+@import "tokens.css";
+@import "bootstrap-map.css";
+@import "base.css";
+@import "components/sidebar.css";
+@import "components/topbar.css";
+@import "components/card.css";
+@import "components/table.css";
+@import "components/form.css";
+@import "components/button.css";
+@import "components/badge.css";
+@import "components/avatar.css";
+@import "components/checklist.css";
+@import "components/timeline.css";
+@import "components/empty.css";
+@import "components/loader.css";
+@import "components/skeleton.css";
+@import "components/modal.css";
+@import "components/swal.css";
+@import "components/toast.css";
+@import "components/login.css";
+
+/* Avatar slika u krugu (template nema object-fit utility) */
+.object-fit-cover { object-fit: cover; }
+
+/* Isprekidana ivica kartice za klijente u zameni (backup) */
+.border-dashed { border-style: dashed !important; }

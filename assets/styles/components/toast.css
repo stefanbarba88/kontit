@@ -1,0 +1,14 @@
+/* Toast (7.14): dole desno, traka u boji tipa levo i traka koja odbrojava. */
+.swal2-popup.kt-toast {
+    font-family: var(--kt-font-ui); background: var(--kt-surface); color: var(--kt-text);
+    border: 1px solid var(--kt-border); border-left: 3px solid var(--kt-primary); border-radius: var(--kt-radius-md);
+    box-shadow: var(--kt-shadow-md); padding: 10px 14px;
+}
+.kt-toast.swal2-icon-success { border-left-color: var(--kt-success); }
+.kt-toast.swal2-icon-error { border-left-color: var(--kt-danger); }
+.kt-toast.swal2-icon-warning { border-left-color: var(--kt-warning); }
+.kt-toast .swal2-title { font-size: 14px; font-weight: 500; margin: 0 8px; color: var(--kt-text); }
+.kt-toast .swal2-icon { margin: 0; border: 0; transform: scale(.7); }
+.kt-toast .swal2-timer-progress-bar { background: var(--kt-brand-500); height: 2px; }
+.kt-toast.swal2-icon-success .swal2-timer-progress-bar { background: var(--kt-success); }
+.kt-toast.swal2-icon-error .swal2-timer-progress-bar { background: var(--kt-danger); }

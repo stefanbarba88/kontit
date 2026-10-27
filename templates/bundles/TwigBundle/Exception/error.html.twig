@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="sr" data-bs-theme="light" data-color-theme="light">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Greška {{ status_code }} · KontIT app</title>
+	{{ include('_head_theme.html.twig') }}
+	<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap&subset=latin-ext" rel="stylesheet">
+	<link href="{{ asset('vendor/template/css/all.min.css') }}" rel="stylesheet">
+	<link href="{{ asset('styles/app.css') }}" rel="stylesheet">
+</head>
+<body>
+	{% set messages = {
+		403: ['Nemate pristup', 'Ova stranica nije dostupna za vaš nalog. Ako mislite da treba da bude, javite se administratoru.'],
+		404: ['Stranica nije pronađena', 'Adresa možda nije tačna ili je stranica premeštena.'],
+		500: ['Nešto je pošlo naopako', 'Greška je zabeležena. Pokušajte ponovo za nekoliko trenutaka.'],
+	} %}
+	{% set info = messages[status_code] ?? ['Došlo je do greške', 'Zahtev nije mogao da se obradi.'] %}
+	<div class="kt-error">
+		{{ include('components/_logo_mark.html.twig') }}
+		<div class="kt-code">{{ status_code }}</div>
+		<h1>{{ info[0] }}</h1>
+		<p>{{ info[1] }}</p>
+		<a href="/" class="btn btn-primary">Nazad na početnu</a>
+	</div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% set is_new = team.id is null %}
+
+{% block title %}{{ is_new ? 'Novi tim' : 'Izmena tima' }}{% endblock %}
+{% block page_title %}{{ is_new ? 'Novi tim' : 'Izmena: ' ~ team.name }}{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('admin_team_index') }}" class="breadcrumb-item">Timovi</a>
+    {% if not is_new %}<a href="{{ path('team_show', {id: team.id}) }}" class="breadcrumb-item">{{ team.name }}</a>{% endif %}
+    <span class="breadcrumb-item active">{{ is_new ? 'Novi' : 'Izmena' }}</span>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Podaci o timu</h5></div>
+                <div class="card-body border-top">
+                    {% if not is_new %}{{ form_start(form, {attr: {'data-confirm-changed': '[name$="[leader]"]', 'data-confirm': 'Promeniti šefa tima?', 'data-confirm-text': 'Novi šef odmah dobija uvid u klijente i zadatke tima, a stari ih više ne vidi. Promena se beleži u istoriji.', 'data-confirm-type': 'warning', 'data-confirm-button': 'Da, promeni'}}) }}{% else %}{{ form_start(form) }}{% endif %}
+                        {{ form_row(form.name) }}
+                        {{ form_row(form.description) }}
+                        {{ form_row(form.color) }}
+                        {{ form_row(form.leader) }}
+                        <div class="text-end">
+                            <a href="{{ is_new ? path('admin_team_index') : path('team_show', {id: team.id}) }}" class="btn btn-light me-2">Otkaži</a>
+                            <button class="btn btn-primary">Sačuvaj<i class="ph-floppy-disk ms-2"></i></button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

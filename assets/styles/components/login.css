@@ -1,0 +1,36 @@
+/* Login i auth strane (7.16): podeljen ekran, panel brenda levo, forma desno. 403/404/500 u istom stilu. */
+.kt-auth { min-height: 100vh; display: flex; background: var(--kt-bg); }
+.kt-auth-brand {
+    flex: 0 0 55%; position: relative; overflow: hidden; color: #fff; display: flex; flex-direction: column; justify-content: space-between; padding: 48px 56px;
+    background:
+        radial-gradient(60% 50% at 18% 12%, rgba(59, 163, 255, .35), transparent 70%),
+        radial-gradient(55% 55% at 85% 90%, rgba(0, 137, 255, .28), transparent 70%),
+        linear-gradient(135deg, #072441, #004588);
+}
+.kt-auth-brand::before {
+    content: ""; position: absolute; inset: 0; opacity: .06; pointer-events: none;
+    background-image: radial-gradient(circle, #fff 2px, transparent 2.5px); background-size: 28px 28px;
+}
+.kt-auth-brand > * { position: relative; }
+.kt-auth-brand .kt-logo-img { height: 56px; width: auto; }
+.kt-auth-brand h2 { font-family: var(--kt-font-display); font-size: 32px; line-height: 40px; font-weight: 700; letter-spacing: -.02em; color: #fff; max-width: 420px; }
+.kt-auth-brand .kt-version { font-size: 12px; opacity: .6; }
+.kt-auth-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px 24px; }
+.kt-auth-card { width: 100%; max-width: 420px; background: var(--kt-surface); border: 1px solid var(--kt-border); border-radius: var(--kt-radius-xl); box-shadow: var(--kt-shadow-md); padding: 36px 32px; }
+.kt-auth-card .form-control { min-height: 44px; }
+.kt-auth-card .btn { min-height: 44px; }
+.kt-auth-card h1 { font-family: var(--kt-font-display); font-size: 24px; margin-bottom: 4px; }
+
+@media (max-width: 991.98px) {
+    .kt-auth { flex-direction: column; }
+    .kt-auth-brand { flex: 0 0 120px; padding: 0 24px; flex-direction: row; align-items: center; justify-content: center; }
+    .kt-auth-brand h2, .kt-auth-brand .kt-version, .kt-auth-brand .kt-logo-img { display: none; }
+    .kt-auth-brand .kt-mark { height: 48px; width: auto; color: #fff; --kt-logo-ink: #fff; --kt-logo-accent: #84C6FF; }
+}
+@media (min-width: 992px) { .kt-auth-brand .kt-mark { display: none; } }
+
+.kt-error { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; background: var(--kt-bg); }
+.kt-error .kt-mark { height: 56px; width: auto; margin-bottom: 20px; opacity: .9; }
+.kt-error .kt-code { font-family: var(--kt-font-display); font-size: 96px; line-height: 1; font-weight: 800; letter-spacing: -.04em; color: var(--kt-brand-500); }
+.kt-error h1 { margin: 8px 0 4px; }
+.kt-error p { color: var(--kt-text-2); max-width: 420px; margin-bottom: 24px; }

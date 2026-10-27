@@ -1,0 +1,39 @@
+/* Checklist (7.10): checkbox po meri sa SVG kvačicom, precrtavanje, ručka za prevlačenje na hover. */
+.checklist-item .form-check-input,
+.kt-check {
+    appearance: none; -webkit-appearance: none;
+    width: 18px; height: 18px; margin: 0; flex: none;
+    border: 1.5px solid var(--kt-border-strong); border-radius: 6px; background: var(--kt-surface);
+    cursor: pointer; position: relative;
+    transition: background-color var(--kt-dur-1) var(--kt-ease), border-color var(--kt-dur-1) var(--kt-ease), box-shadow var(--kt-dur-1) var(--kt-ease);
+}
+.checklist-item .form-check-input:hover, .kt-check:hover { border-color: var(--kt-brand-500); }
+.checklist-item .form-check-input:checked, .kt-check:checked { background: var(--kt-primary); border-color: var(--kt-primary); }
+.checklist-item .form-check-input::after, .kt-check::after {
+    content: ""; position: absolute; left: 4px; top: 1px; width: 6px; height: 10px;
+    border: solid var(--kt-on-primary); border-width: 0 2px 2px 0; transform: rotate(45deg) scale(0); transform-origin: center;
+    transition: transform 200ms var(--kt-ease);
+}
+.checklist-item .form-check-input:checked::after, .kt-check:checked::after { transform: rotate(45deg) scale(1); }
+
+/* tekst stavke: precrtavanje prelazi sleva nadesno */
+.checklist-item .checklist-text, .kt-check-label {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat; background-position: 0 55%; background-size: 0 1px;
+    transition: background-size 220ms var(--kt-ease), color var(--kt-dur-2) var(--kt-ease);
+}
+.checklist-item.is-done .checklist-text,
+.checklist-item .form-check-input:checked ~ .checklist-text,
+.kt-check:checked + .kt-check-label { background-size: 100% 1px; color: var(--kt-text-3); }
+
+.checklist-item .drag-handle, .checklist-item .ph-dots-six-vertical { color: var(--kt-text-3); opacity: 0; cursor: grab; transition: opacity var(--kt-dur-1) var(--kt-ease); }
+.checklist-item:hover .drag-handle, .checklist-item:hover .ph-dots-six-vertical { opacity: 1; }
+
+/* napredak: prsten i segmentirana traka */
+.kt-ring { --p: 0; width: 44px; height: 44px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 11px; font-weight: 600;
+    background: conic-gradient(var(--kt-brand-500) calc(var(--p) * 1%), var(--kt-border) 0); position: relative; font-variant-numeric: tabular-nums; }
+.kt-ring::before { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--kt-surface); }
+.kt-ring > span { position: relative; }
+.kt-segments { display: flex; gap: 3px; height: 6px; }
+.kt-segments > i { flex: 1; border-radius: 99px; background: var(--kt-border); }
+.kt-segments > i.done { background: var(--kt-seg, var(--kt-brand-500)); }

@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}Moji klijenti{% endblock %}
+{% block page_title %}Moji klijenti{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item active">Moji klijenti</span>{% endblock %}
+
+{% block content %}
+    <div class="d-flex align-items-center mb-3">
+        <h5 class="mb-0"><i class="ph-user-circle me-2"></i>Glavni zadužen</h5>
+        <span class="badge bg-primary rounded-pill ms-2">{{ primary|length }}</span>
+    </div>
+    <div class="row mb-4">
+        {% for client in primary %}
+            <div class="col-md-6 col-xl-4 mb-3">{{ ui.client_card(client, 'primary') }}</div>
+        {% else %}
+            <div class="col-12"><div class="text-muted">Nemate klijenata kao glavni zaduženi.</div></div>
+        {% endfor %}
+    </div>
+
+    <div class="d-flex align-items-center mb-3">
+        <h5 class="mb-0"><i class="ph-arrows-clockwise me-2"></i>Backup / zamena</h5>
+        <span class="badge bg-secondary rounded-pill ms-2">{{ backup|length }}</span>
+    </div>
+    <div class="row">
+        {% for client in backup %}
+            <div class="col-md-6 col-xl-4 mb-3">{{ ui.client_card(client, 'backup', replacements[client.id] ?? null) }}</div>
+        {% else %}
+            <div class="col-12"><div class="text-muted">Nemate klijenata kao backup.</div></div>
+        {% endfor %}
+    </div>
+{% endblock %}

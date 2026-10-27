@@ -1,0 +1,43 @@
+/* Topbar (DESIGN.md 7.2): 64px, stakleni efekat, lepljiv. */
+.kt-topbar {
+    position: sticky; top: 0; z-index: 1030;
+    height: 64px;
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 24px;
+    background: color-mix(in srgb, var(--kt-bg) 78%, transparent);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    backdrop-filter: blur(12px) saturate(140%);
+    border-bottom: 1px solid var(--kt-border);
+}
+.kt-topbar .breadcrumb { margin: 0; padding: 0; font-size: 13px; color: var(--kt-text-2); }
+.kt-topbar .breadcrumb-item a { color: var(--kt-text-2); text-decoration: none; }
+.kt-topbar .breadcrumb-item a:hover { color: var(--kt-primary); }
+.kt-topbar .breadcrumb-item.active { color: var(--kt-text); font-weight: 500; }
+.kt-topbar .kt-topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+
+.kt-icon-btn {
+    width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
+    border: 0; border-radius: 999px; background: transparent; color: var(--kt-text-2); position: relative;
+    transition: background-color var(--kt-dur-1) var(--kt-ease), color var(--kt-dur-1) var(--kt-ease);
+}
+.kt-icon-btn:hover, .kt-icon-btn[aria-expanded="true"] { background: var(--kt-surface-3); color: var(--kt-text); }
+.kt-icon-btn i { font-size: 20px; }
+
+/* zvonce: crvena tačkica sa blagim pulsom */
+.kt-bell-dot {
+    position: absolute; top: 7px; right: 8px; min-width: 8px; height: 8px; border-radius: 999px;
+    background: var(--kt-danger); box-shadow: 0 0 0 2px var(--kt-bg);
+}
+.kt-bell-dot::after { content: ""; position: absolute; inset: -3px; border-radius: inherit; border: 2px solid var(--kt-danger); opacity: 0; animation: kt-ping 2s var(--kt-ease) infinite; }
+.kt-bell-dot.d-none { display: none; }
+@keyframes kt-ping { 0% { transform: scale(.6); opacity: .7; } 80%, 100% { transform: scale(1.5); opacity: 0; } }
+
+.kt-theme-menu .dropdown-item.active { background: var(--kt-primary-soft); color: var(--kt-primary); }
+
+/* page-header template-a: naslov strane ostaje, ali bez teške kartice */
+.page-header, .page-header.page-header-light {
+    background: transparent; box-shadow: none; border: 0;
+}
+.page-header .page-header-content { padding-inline: 24px; }
+.page-header .page-header-content.border-top { display: none !important; }
+.content { padding: 8px 24px 24px; }

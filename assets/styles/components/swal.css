@@ -1,0 +1,31 @@
+/* SweetAlert2 (7.14): isti izgled preko customClass, radi u obe teme. */
+.swal2-container.swal2-backdrop-show { background: rgba(11, 15, 20, .55) !important; backdrop-filter: blur(4px); }
+.swal2-popup.kt-swal {
+    font-family: var(--kt-font-ui);
+    background: var(--kt-surface); color: var(--kt-text);
+    border: 1px solid var(--kt-border); border-radius: var(--kt-radius-xl); box-shadow: var(--kt-shadow-lg);
+    padding: 28px 24px 20px;
+}
+.kt-swal .swal2-title { font-family: var(--kt-font-display); font-size: 18px; font-weight: 650; letter-spacing: -.01em; color: var(--kt-text); padding: 0; }
+.kt-swal .swal2-html-container { font-size: 14px; color: var(--kt-text-2); margin: 8px 0 0; }
+.kt-swal .swal2-actions { gap: 8px; margin-top: 20px; }
+.kt-swal .swal2-styled { border-radius: var(--kt-radius-md); font-weight: 500; font-size: 14px; min-height: 36px; padding: 0 16px; box-shadow: none; }
+.kt-swal .swal2-styled:focus { box-shadow: 0 0 0 3px var(--kt-focus); }
+.kt-swal .swal2-confirm.kt-btn-confirm { background: var(--kt-primary); color: var(--kt-on-primary); }
+.kt-swal .swal2-confirm.kt-btn-danger { background: var(--kt-danger); color: #fff; }
+:root[data-bs-theme="dark"] .kt-swal .swal2-confirm.kt-btn-danger { color: #1a0505; }
+.kt-swal .swal2-cancel { background: var(--kt-surface); color: var(--kt-text); border: 1px solid var(--kt-border-strong); }
+.kt-swal .swal2-input, .kt-swal .swal2-textarea { border: 1px solid var(--kt-border-strong); border-radius: var(--kt-radius-md); background: var(--kt-surface); color: var(--kt-text); box-shadow: none; }
+.kt-swal .swal2-input:focus, .kt-swal .swal2-textarea:focus { border-color: var(--kt-brand-500); box-shadow: 0 0 0 3px var(--kt-focus); }
+
+/* ikonica u mekom krugu boje tipa */
+.kt-swal .swal2-icon { border: 0; width: 56px; height: 56px; margin: 0 auto 12px; }
+.kt-swal .swal2-icon .swal2-icon-content { font-size: 28px; }
+.kt-swal .swal2-icon.swal2-warning { background: var(--kt-warning-soft); color: var(--kt-warning); }
+.kt-swal .swal2-icon.swal2-info { background: var(--kt-info-soft); color: var(--kt-primary); }
+.kt-swal .swal2-icon.swal2-error { background: var(--kt-danger-soft); color: var(--kt-danger); }
+.kt-swal .swal2-icon.swal2-question { background: var(--kt-primary-soft); color: var(--kt-primary); }
+.kt-swal .swal2-icon.swal2-success { background: var(--kt-success-soft); color: var(--kt-success); }
+.kt-swal .swal2-icon.swal2-success [class^="swal2-success-line"] { background: var(--kt-success); }
+.kt-swal .swal2-icon.swal2-success .swal2-success-ring { border-color: transparent; }
+.kt-swal .swal2-icon.swal2-success [class^="swal2-success-circular-line"], .kt-swal .swal2-icon.swal2-success .swal2-success-fix { background: transparent; }

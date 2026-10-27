@@ -1,0 +1,15 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}Resetovanje lozinke{% endblock %}
+
+{% block content %}
+    <h2 style="margin:0 0 16px;font-size:20px;color:#333;">Resetovanje lozinke</h2>
+    <p style="margin:0 0 16px;">Zdravo! Da biste resetovali lozinku, kliknite na dugme ispod.</p>
+    <p style="margin:0 0 24px;">
+        <a href="{{ url('app_reset_password', {token: resetToken.token}) }}" style="display:inline-block;background-color:#006FD6;color:#fff;text-decoration:none;padding:10px 20px;border-radius:10px;font-weight:600;">Postavi novu lozinku</a>
+    </p>
+    <p style="margin:0 0 16px;font-size:13px;color:#666;">Ako dugme ne radi, kopirajte ovaj link u pregledač:<br>
+        <a href="{{ url('app_reset_password', {token: resetToken.token}) }}" style="color:#006FD6;word-break:break-all;">{{ url('app_reset_password', {token: resetToken.token}) }}</a></p>
+    <p style="margin:0 0 16px;font-size:13px;color:#666;">Link važi {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
+    <p style="margin:0;font-size:13px;color:#666;">Ako niste tražili resetovanje, ignorišite ovu poruku.</p>
+{% endblock %}
