@@ -3,7 +3,7 @@
 namespace App\Command;
 
 use App\Repository\ClientRepository;
-use App\Service\NbsService;
+use App\Nbs\NbsCompanyLookupService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -17,7 +17,7 @@ class NbsSyncCommand extends Command
 {
     public function __construct(
         private readonly ClientRepository $clients,
-        private readonly NbsService $nbs,
+        private readonly NbsCompanyLookupService $nbs,
         private readonly EntityManagerInterface $em,
     ) {
         parent::__construct();

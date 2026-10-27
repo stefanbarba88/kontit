@@ -73,7 +73,7 @@ if ($page.length) {
     $('#checklist-add').on('submit', function (event) {
         event.preventDefault();
         const $form = $(this);
-        const text = $.trim($form.find('[name=text]').val());
+        const text = String($form.find('[name=text]').val() ?? '').trim();
         if (!text) {
             return;
         }

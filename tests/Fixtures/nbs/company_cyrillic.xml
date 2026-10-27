@@ -1,0 +1,17 @@
+<CompanyDataSet>
+  <Company>
+    <NationalIdentificationNumber>7810318</NationalIdentificationNumber>
+    <TaxIdentificationNumber>100002119</TaxIdentificationNumber>
+    <Name>ЂОРЂЕ ШАРИЋ ПР ЉУБИЧАСТА РАДЊА ЧАЧАК</Name>
+    <ShortName></ShortName>
+    <Address>Његошева 12</Address>
+    <City>Чачак</City>
+    <Municipality>Чачак</Municipality>
+    <Region>Моравички</Region>
+    <PostalCode>32000</PostalCode>
+    <ActivityName>Џем и мармелада</ActivityName>
+    <RegistrationDate>2010-05-03T00:00:00+02:00</RegistrationDate>
+    <CompanyTypeID>2</CompanyTypeID>
+    <CompanyStatusID>3</CompanyStatusID>
+  </Company>
+</CompanyDataSet>

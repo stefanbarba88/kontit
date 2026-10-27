@@ -10,7 +10,7 @@ if ($page.length) {
     $('#comment-add').on('submit', function (event) {
         event.preventDefault();
         const $form = $(this);
-        const body = $.trim($form.find('[name=body]').val());
+        const body = String($form.find('[name=body]').val() ?? '').trim();
         if (!body) {
             return;
         }
@@ -45,7 +45,7 @@ if ($page.length) {
 
     $comments.on('click', '.comment-edit-save', function () {
         const $comment = $(this).closest('.task-comment');
-        const body = $.trim($comment.find('textarea').val());
+        const body = String($comment.find('textarea').val() ?? '').trim();
         ajax('POST', withId(urls.commentEditUrl, $comment.data('id')), { body })
             .then(({ data }) => $comment.replaceWith(data.html))
             .catch((error) => flash($page, error.message));

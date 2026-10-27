@@ -77,11 +77,11 @@ export function confirmDialog(options) {
             },
             preConfirm: () => {
                 const popup = Swal.getPopup();
-                if (typeName && $.trim($(popup).find('.swal-type-input').val()) !== typeName) {
+                if (typeName && String($(popup).find('.swal-type-input').val() ?? '').trim() !== typeName) {
                     Swal.showValidationMessage('Uneti naziv se ne poklapa.');
                     return false;
                 }
-                const reason = $.trim($(popup).find('.swal-reason').val() || '');
+                const reason = String($(popup).find('.swal-reason').val() ?? '').trim();
                 if (needsReason && !reason) {
                     Swal.showValidationMessage('Razlog je obavezan.');
                     return false;

@@ -14,7 +14,7 @@ use App\Repository\UserRepository;
 use App\Service\AbsenceService;
 use App\Service\ClientImportService;
 use App\Service\ClientService;
-use App\Service\NbsService;
+use App\Nbs\NbsCompanyLookupService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Knp\Component\Pager\PaginatorInterface;
@@ -29,7 +29,7 @@ class ClientController extends AbstractController
     public function __construct(
         private readonly ClientService $clients,
         private readonly UserRepository $users,
-        private readonly NbsService $nbs,
+        private readonly NbsCompanyLookupService $nbs,
         private readonly EntityManagerInterface $em,
     ) {
     }

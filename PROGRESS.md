@@ -8,6 +8,15 @@
 - Otvorenih nedoumica: 0 (1-5 rešene podrazumevanim predlozima, vidi SPEC.md sekciju 11).
 
 ## Urađeno
+- 2026-10-27: **UPDATE-DIZAJN korak 1: NBS dijagnoza i popravka**
+  - Dijagnoza: izvor je zvanični NBS veb servis (CoreXmlService.GetCompany) preko našeg servera; server je radio (HTTP 200, ~1,8 s). Uzrok je bio u pregledaču: `TypeError: $.trim is not a function`, jer importmap učitava jQuery 4.0, koji je izbacio `$.trim`. Ista greška je obarala i dodavanje checklist stavke, komentare i SweetAlert potvrde sa razlogom/ukucavanjem naziva. Ispravljeno svuda (`String(x ?? '').trim()`).
+  - Novo: `src/Nbs/` (`NbsCompanyLookupService`, `CompanyLookupProviderInterface`, `NbsWebServiceProvider`, `NbsXmlParser`, `IdentifierChecksum`, `Transliterator`), validatori `App\Validator\Pib` i `MaticniBroj` na `Client`, ruta `/ajax/client/lookup` (zamenila `/ajax/nbs`), tekući računi iz `CompanyAccountXmlService.GetCompanyAccount`, keš 24h po PIB-u, timeout 8 s, rate limit 20/min po korisniku (`symfony/rate-limiter`), poruke "NBS trenutno ne odgovara, unesi podatke ručno".
+  - Forma klijenta: dugme "Učitaj iz NBS" sa loaderom, provera PIB-a i u JS-u, SweetAlert pre prepisivanja, popunjena polja zasijaju, lista tekućih računa (samo prikaz, Client nema polje za račune).
+  - Env: `NBS_PROVIDER`, `NBS_WS_USERNAME`, `NBS_WS_PASSWORD`, `NBS_WS_LICENCE` (ključevi u `.env.local` preimenovani, vrednosti nepromenjene). `NbsService` uklonjen.
+  - Testovi: `tests/Nbs/` (parser nad sačuvanim odgovorima u `tests/Fixtures/nbs/`, ćirilica, kontrolne cifre), 6 testova. Pokretanje: `php vendor/bin/phpunit`.
+  - **Rezervni izvor (javna stranica) nije napravljen**: stranica vraća rezultate samo pregledaču, a automatski zahtev koji bi se predstavljao kao pregledač je zaobilaženje zaštite, pa to nije rađeno. Zvanični servis radi sa postojećim kredencijalima.
+  - Demo podaci: PIB/MB demo klijenata dobili su ispravne kontrolne cifre. Posle `app:nbs:sync` 9 demo klijenata nosi podatke stvarnih firmi sa tim PIB-ovima.
+  - Provereno u headless Chrome-u (CDP skripta): popunjavanje, 11 računa, dijalog za prepisivanje, odbijanje neispravnog PIB-a, bez grešaka u konzoli.
 - 2026-10-27: **UI osvežavanje (DESIGN.md, sekcija 14)**
   - Tokeni i mapiranje: `assets/styles/{tokens,bootstrap-map,base}.css` + `components/*.css` (sidebar, topbar, card+KPI, table, form, button, badge, avatar, checklist, timeline, empty, loader, skeleton, modal, swal, toast, login). Vendor CSS template-a netaknut; promenljive template-a (`--primary`, `--body-bg`, `--white`...) se prepisuju u `bootstrap-map.css`. Fontovi: Manrope, Inter, JetBrains Mono (Google Fonts, latin-ext).
   - Teme: `User.themePreference` (enum `ThemePreference`, migracija Version20261027155001), `POST /ajax/theme`, inline skript u `<head>` (`_head_theme.html.twig`), `assets/js/theme.js` (prekidač, `kt:themechange`, pamćenje skupljenog sidebara). Na `<html>` se postavljaju `data-bs-theme` i `data-color-theme` (ovaj drugi koristi dark režim template-a).

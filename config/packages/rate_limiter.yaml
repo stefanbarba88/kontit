@@ -1,0 +1,8 @@
+framework:
+    rate_limiter:
+        # upiti ka NBS-u po korisniku (rezultat se ionako kešira 24h po PIB-u)
+        nbs_lookup:
+            policy: 'sliding_window'
+            limit: 20
+            interval: '1 minute'
+            lock_factory: null

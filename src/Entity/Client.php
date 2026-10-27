@@ -8,6 +8,7 @@ use App\Repository\ClientRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use App\Validator as AppAssert;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
@@ -34,10 +35,12 @@ class Client
 
     #[ORM\Column(length: 9, nullable: true)]
     #[Assert\Regex(pattern: '/^\d{9}$/', message: 'PIB mora imati tačno 9 cifara.')]
+    #[AppAssert\Pib]
     private ?string $pib = null;
 
     #[ORM\Column(length: 8, nullable: true)]
     #[Assert\Regex(pattern: '/^\d{8}$/', message: 'Matični broj mora imati tačno 8 cifara.')]
+    #[AppAssert\MaticniBroj]
     private ?string $maticniBroj = null;
 
     #[ORM\Column(options: ['default' => false])]
@@ -59,7 +62,7 @@ class Client
     #[Assert\Length(max: 150)]
     private ?string $shortName = null;
 
-    // --- podaci iz NBS-a (NbsService), osim naziva ostalo se ne unosi ručno ---
+    // --- podaci iz NBS-a (NbsCompanyLookupService), osim naziva ostalo se ne unosi ručno ---
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $municipality = null;
 
@@ -364,7 +367,7 @@ class Client
     }
 
     /**
-     * Upisuje podatke iz NBS-a (NbsService::lookup). Prazne vrednosti ne brišu ručno unete podatke
+     * Upisuje podatke iz NBS-a (NbsCompanyLookupService::lookup). Prazne vrednosti ne brišu ručno unete podatke
      * (telefon, email), a naziv i adresa iz NBS-a su izvor istine.
      *
      * @param array<string, mixed> $data

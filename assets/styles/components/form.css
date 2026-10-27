@@ -48,3 +48,7 @@ input[name$="[pib]"], input[name$="[maticniBroj]"], input[name$="[bankAccount]"]
 .kt-swatches .form-check-input { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--kt-surface); box-shadow: 0 0 0 1px var(--kt-border-strong); background-image: none; margin: 0; cursor: pointer; }
 .kt-swatches .form-check-input:checked { box-shadow: 0 0 0 2px var(--kt-surface), 0 0 0 4px var(--kt-primary); background-image: none; }
 .kt-swatches .form-check-label { display: none; }
+
+/* polje popunjeno iz NBS-a kratko zasija */
+.kt-flash { animation: kt-flash 1s var(--kt-ease); }
+@keyframes kt-flash { 0%, 40% { box-shadow: 0 0 0 3px var(--kt-focus); background-color: var(--kt-primary-soft); } 100% { box-shadow: none; } }

@@ -28,12 +28,16 @@
                             {{ form_label(form.pib) }}
                             <div class="input-group mb-3">
                                 {{ form_widget(form.pib) }}
-                                {% if nbs_configured %}<button type="button" class="btn btn-outline-primary" id="nbs-fetch" data-url="{{ path('ajax_nbs') }}" data-exclude="{{ client.id ?? 0 }}"><i class="ph-cloud-arrow-down me-1"></i>NBS</button>{% endif %}
+                                {% if nbs_configured %}<button type="button" class="btn btn-outline-primary" id="nbs-fetch" data-url="{{ path('ajax_client_lookup') }}" data-exclude="{{ client.id ?? 0 }}"><i class="ph-cloud-arrow-down me-1"></i>Učitaj iz NBS</button>{% endif %}
                             </div>
                             {{ form_errors(form.pib) }}
                         </div>
                         <div class="col-md-5">{{ form_row(form.maticniBroj) }}</div>
                         <div class="col-md-2 d-flex align-items-center pt-3">{{ form_row(form.pdvObveznik) }}</div>
+                    </div>
+                    <div id="nbs-accounts" class="mb-3 d-none">
+                        <div class="kt-overline mb-1">Tekući računi iz NBS-a</div>
+                        <ul class="list-unstyled mb-0 fs-sm"></ul>
                     </div>
                     {{ form_row(form.note) }}
                 </div>

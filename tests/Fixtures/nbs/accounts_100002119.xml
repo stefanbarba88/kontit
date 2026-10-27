@@ -1,0 +1,255 @@
+<CompanyAccountDataSet>
+  <CompanyAccount>
+    <Account>155-0000000042455-06</Account>
+    <BankCode>155</BankCode>
+    <AccountNumber>42455</AccountNumber>
+    <ControlNumber>6</ControlNumber>
+    <CompanyName>AKCIONARSKO DRUSTVO ZA OSIGURANJE MILENIJUM OSIGURANJE  ADO, BEOGRAD (NOVI BEOGRAD)</CompanyName>
+    <NationalIdentificationNumber>7810318</NationalIdentificationNumber>
+    <TaxIdentificationNumber>100002119    </TaxIdentificationNumber>
+    <Address>BULEVAR MILUTINA MILANKOVICA 3B 110</Address>
+    <City>BEOGRAD (NOVI BEOGRAD)</City>
+    <MunicipalityCode>70181</MunicipalityCode>
+    <ActivityCode>6512</ActivityCode>
+    <MunicipalityName>Beograd-Novi Beograd</MunicipalityName>
+    <ActivityName>Neživotno osiguranje</ActivityName>
+    <BankName>Halkbank Akcionarsko društvo Beograd</BankName>
+    <CompanyAccountStatusID>0</CompanyAccountStatusID>
+    <CompanyAccountBlockadeStatusID>0</CompanyAccountBlockadeStatusID>
+    <CompanyAccountTypeID>1</CompanyAccountTypeID>
+    <LegalUserTypeID>0</LegalUserTypeID>
+    <InitializationDate>2019-12-27T00:00:00+01:00</InitializationDate>
+    <ChangeDate>2026-10-19T00:00:00+02:00</ChangeDate>
+    <UpdateDate>2026-10-19T13:00:04.536+02:00</UpdateDate>
+  </CompanyAccount>
+  <CompanyAccount>
+    <Account>265-1100310001107-26</Account>
+    <BankCode>265</BankCode>
+    <AccountNumber>1100310001107</AccountNumber>
+    <ControlNumber>26</ControlNumber>
+    <CompanyName>AKCIONARSKO DRUŠTVO ZA OSIGURANJE MILENIJUM OSIGURANJE  ADO, BEOGRAD (NOVI BEOGRAD)</CompanyName>
+    <NationalIdentificationNumber>7810318</NationalIdentificationNumber>
+    <TaxIdentificationNumber>100002119    </TaxIdentificationNumber>
+    <Address>BULEVAR MILUTINA MILANKOVIĆA 3B</Address>
+    <City>BEOGRAD-NOVI BEOGRAD</City>
+    <MunicipalityCode>70181</MunicipalityCode>
+    <ActivityCode>6512</ActivityCode>
+    <MunicipalityName>Beograd-Novi Beograd</MunicipalityName>
+    <ActivityName>Neživotno osiguranje</ActivityName>
+    <BankName>Raiffeisen banka A.D.- Beograd</BankName>
+    <CompanyAccountStatusID>0</CompanyAccountStatusID>
+    <CompanyAccountBlockadeStatusID>0</CompanyAccountBlockadeStatusID>
+    <CompanyAccountTypeID>1</CompanyAccountTypeID>
+    <LegalUserTypeID>0</LegalUserTypeID>
+    <InitializationDate>2003-03-04T00:00:00+01:00</InitializationDate>
+    <ChangeDate>2026-10-19T00:00:00+02:00</ChangeDate>
+    <UpdateDate>2026-10-19T18:30:05.912+02:00</UpdateDate>
+  </CompanyAccount>
+  <CompanyAccount>
+    <Account>325-9500600056161-56</Account>
+    <BankCode>325</BankCode>
+    <AccountNumber>9500600056161</AccountNumber>
+    <ControlNumber>56</ControlNumber>
+    <CompanyName>AKCIONARSKO DRUŠTVO ZA OSIGURANJE MILENIJUM OSIGURANJE  ADO, BEOGRAD (NOVI BEOGRAD)</CompanyName>
+    <NationalIdentificationNumber>7810318</NationalIdentificationNumber>
+    <TaxIdentificationNumber>100002119    </TaxIdentificationNumber>
+    <Address>BULEVAR MILUTINA MILANKOVIĆA 3B SPR</Address>
+    <City>BEOGRAD (NOVI BEOGRAD)</City>
+    <MunicipalityCode>70181</MunicipalityCode>
+    <ActivityCode>6512</ActivityCode>
+    <MunicipalityName>Beograd-Novi Beograd</MunicipalityName>
+    <ActivityName>Neživotno osiguranje</ActivityName>
+    <BankName>OTP Banka Srbija a.d. Novi Sad </BankName>
+    <CompanyAccountStatusID>0</CompanyAccountStatusID>
+    <CompanyAccountBlockadeStatusID>0</CompanyAccountBlockadeStatusID>
+    <CompanyAccountTypeID>1</CompanyAccountTypeID>
+    <LegalUserTypeID>0</LegalUserTypeID>
+    <InitializationDate>2002-12-27T00:00:00+01:00</InitializationDate>
+    <ChangeDate>2026-10-19T00:00:00+02:00</ChangeDate>
+    <UpdateDate>2026-10-19T13:30:01.574+02:00</UpdateDate>
+  </CompanyAccount>
+  <CompanyAccount>
+    <Account>160-6000002052443-86</Account>
+    <BankCode>160</BankCode>
+    <AccountNumber>6000002052443</AccountNumber>
+    <ControlNumber>86</ControlNumber>
+    <CompanyName>MILENIJUM OSIGURANJE A.D.</CompanyName>
+    <NationalIdentificationNumber>7810318</NationalIdentificationNumber>
+    <TaxIdentificationNumber>100002119    </TaxIdentificationNumber>
+    <Address>BULEVAR MILUTINA MILANKOVIĆA 3B 1</Address>
+    <City>BEOGRAD (NOVI BEOGRAD)</City>
+    <MunicipalityCode>70181</MunicipalityCode>
+    <ActivityCode>6512</ActivityCode>
+    <MunicipalityName>Beograd-Novi Beograd</MunicipalityName>
+    <ActivityName>Neživotno osiguranje</ActivityName>
+    <BankName>Banca Intesa A.D.- Beograd</BankName>
+    <CompanyAccountStatusID>0</CompanyAccountStatusID>
+    <CompanyAccountBlockadeStatusID>0</CompanyAccountBlockadeStatusID>
+    <CompanyAccountTypeID>1</CompanyAccountTypeID>
+    <LegalUserTypeID>0</LegalUserTypeID>
+    <InitializationDate>2024-08-15T00:00:00+02:00</InitializationDate>
+    <ChangeDate>2026-10-19T00:00:00+02:00</ChangeDate>
+    <UpdateDate>2026-10-19T15:00:03.564+02:00</UpdateDate>
+  </CompanyAccount>
+  <CompanyAccount>
+    <Account>170-0030013907003-10</Account>
+    <BankCode>170</BankCode>
+    <AccountNumber>30013907003</AccountNumber>
+    <ControlNumber>10</ControlNumber>
+    <CompanyName>MILENIJUM OSIGURANJE A.D.O</CompanyName>
+    <NationalIdentificationNumber>7810318</NationalIdentificationNumber>
+    <TaxIdentificationNumber>100002119    </TaxIdentificationNumber>
+    <Address>BULEVAR MILUTINA MILANKOVICA 3B</Address>
+    <City>BEOGRAD (NOVI BEOGRAD)</City>
+    <MunicipalityCode>70181</MunicipalityCode>
+    <ActivityCode>6512</ActivityCode>
+    <MunicipalityName>Beograd-Novi Beograd</MunicipalityName>
+    <ActivityName>Neživotno osiguranje</ActivityName>
+    <BankName>Unicredit Bank Srbija A.D.- Beograd</BankName>
+    <CompanyAccountStatusID>0</CompanyAccountStatusID>
+    <CompanyAccountBlockadeStatusID>0</CompanyAccountBlockadeStatusID>
+    <CompanyAccountTypeID>1</CompanyAccountTypeID>
+    <LegalUserTypeID>0</LegalUserTypeID>
+    <InitializationDate>2016-11-03T00:00:00+01:00</InitializationDate>
+    <ChangeDate>2024-09-12T00:00:00+02:00</ChangeDate>
+    <UpdateDate>2024-09-13T15:00:04.75+02:00</UpdateDate>
+  </CompanyAccount>
+  <CompanyAccount>
+    <Account>170-0030013907014-74</Account>
+    <BankCode>170</BankCode>
+    <AccountNumber>30013907014</AccountNumber>
+    <ControlNumber>74</ControlNumber>
+    <CompanyName>MILENIJUM OSIGURANJE A.D.O</CompanyName>
+    <NationalIdentificationNumber>7810318</NationalIdentificationNumber>
+    <TaxIdentificationNumber>100002119    </TaxIdentificationNumber>
+    <Address>BULEVAR MILUTINA MILANKOVICA 3B</Address>
+    <City>BEOGRAD (NOVI BEOGRAD)</City>
+    <MunicipalityCode>70181</MunicipalityCode>
+    <ActivityCode>6512</ActivityCode>
+    <MunicipalityName>Beograd-Novi Beograd</MunicipalityName>
+    <ActivityName>Neživotno osiguranje</ActivityName>
+    <BankName>Unicredit Bank Srbija A.D.- Beograd</BankName>
+    <CompanyAccountStatusID>0</CompanyAccountStatusID>
+    <CompanyAccountBlockadeStatusID>0</CompanyAccountBlockadeStatusID>
+    <CompanyAccountTypeID>1</CompanyAccountTypeID>
+    <LegalUserTypeID>0</LegalUserTypeID>
+    <InitializationDate>2021-02-09T00:00:00+01:00</InitializationDate>
+    <ChangeDate>2024-09-12T00:00:00+02:00</ChangeDate>
+    <UpdateDate>2024-09-13T15:00:04.754+02:00</UpdateDate>
+  </CompanyAccount>
+  <CompanyAccount>
+    <Account>190-0000000076020-71</Account>
+    <BankCode>190</BankCode>
+    <AccountNumber>76020</AccountNumber>
+    <ControlNumber>71</ControlNumber>
+    <CompanyName>MILENIJUM-OSIGURANJE ADO BEOGRAD</CompanyName>
+    <NationalIdentificationNumber>7810318</NationalIdentificationNumber>
+    <TaxIdentificationNumber>100002119    </TaxIdentificationNumber>
+    <Address>BULEVAR MILUTINA MILANKOVICA 3B</Address>
+    <City>BEOGRAD (NOVI BEOGRAD)</City>
+    <MunicipalityCode>70181</MunicipalityCode>
+    <ActivityCode>6512</ActivityCode>
+    <MunicipalityName>Beograd-Novi Beograd</MunicipalityName>
+    <ActivityName>Neživotno osiguranje</ActivityName>
+    <BankName>ALTA BANKA A.D. BEOGRAD</BankName>
+    <CompanyAccountStatusID>0</CompanyAccountStatusID>
+    <CompanyAccountBlockadeStatusID>0</CompanyAccountBlockadeStatusID>
+    <CompanyAccountTypeID>1</CompanyAccountTypeID>
+    <LegalUserTypeID>0</LegalUserTypeID>
+    <InitializationDate>2024-04-23T00:00:00+02:00</InitializationDate>
+    <ChangeDate>2026-10-19T00:00:00+02:00</ChangeDate>
+    <UpdateDate>2026-10-19T14:30:04.135+02:00</UpdateDate>
+  </CompanyAccount>
+  <CompanyAccount>
+    <Account>205-0000000018356-19</Account>
+    <BankCode>205</BankCode>
+    <AccountNumber>18356</AccountNumber>
+    <ControlNumber>19</ControlNumber>
+    <CompanyName>MILENIJUM-OSIGURANJE ADO, BEOGRAD</CompanyName>
+    <NationalIdentificationNumber>7810318</NationalIdentificationNumber>
+    <TaxIdentificationNumber>100002119    </TaxIdentificationNumber>
+    <Address>BULEVAR MILUTINA MILANKOVICA 3B</Address>
+    <City>BEOGRAD (NOVI BEOGRAD)</City>
+    <MunicipalityCode>70181</MunicipalityCode>
+    <ActivityCode>6512</ActivityCode>
+    <MunicipalityName>Beograd-Novi Beograd</MunicipalityName>
+    <ActivityName>Neživotno osiguranje</ActivityName>
+    <BankName>NLB Banka AD Beograd</BankName>
+    <CompanyAccountStatusID>0</CompanyAccountStatusID>
+    <CompanyAccountBlockadeStatusID>0</CompanyAccountBlockadeStatusID>
+    <CompanyAccountTypeID>1</CompanyAccountTypeID>
+    <LegalUserTypeID>0</LegalUserTypeID>
+    <InitializationDate>2002-12-27T00:00:00+01:00</InitializationDate>
+    <ChangeDate>2026-10-19T00:00:00+02:00</ChangeDate>
+    <UpdateDate>2026-10-19T15:30:02.51+02:00</UpdateDate>
+  </CompanyAccount>
+  <CompanyAccount>
+    <Account>205-0000000084233-74</Account>
+    <BankCode>205</BankCode>
+    <AccountNumber>84233</AccountNumber>
+    <ControlNumber>74</ControlNumber>
+    <CompanyName>MILENIJUM-OSIGURANJE ADO, BEOGRAD</CompanyName>
+    <NationalIdentificationNumber>7810318</NationalIdentificationNumber>
+    <TaxIdentificationNumber>100002119    </TaxIdentificationNumber>
+    <Address>BULEVAR MILUTINA MILANKOVICA 3B</Address>
+    <City>BEOGRAD (NOVI BEOGRAD)</City>
+    <MunicipalityCode>70181</MunicipalityCode>
+    <ActivityCode>6512</ActivityCode>
+    <MunicipalityName>Beograd-Novi Beograd</MunicipalityName>
+    <ActivityName>Neživotno osiguranje</ActivityName>
+    <BankName>NLB Banka AD Beograd</BankName>
+    <CompanyAccountStatusID>0</CompanyAccountStatusID>
+    <CompanyAccountBlockadeStatusID>2</CompanyAccountBlockadeStatusID>
+    <CompanyAccountTypeID>1</CompanyAccountTypeID>
+    <LegalUserTypeID>0</LegalUserTypeID>
+    <InitializationDate>2005-02-17T00:00:00+01:00</InitializationDate>
+    <ChangeDate>2025-02-21T00:00:00+01:00</ChangeDate>
+    <UpdateDate>2025-02-21T12:30:01.144+01:00</UpdateDate>
+  </CompanyAccount>
+  <CompanyAccount>
+    <Account>340-0000011011782-68</Account>
+    <BankCode>340</BankCode>
+    <AccountNumber>11011782</AccountNumber>
+    <ControlNumber>68</ControlNumber>
+    <CompanyName>MILENIJUM-OSIGURANJE ADO, BEOGRAD</CompanyName>
+    <NationalIdentificationNumber>7810318</NationalIdentificationNumber>
+    <TaxIdentificationNumber>100002119    </TaxIdentificationNumber>
+    <Address>BULEVAR MILUTINA MILANKOVIĆA 3/B</Address>
+    <City>BEOGRAD (NOVI BEOGRAD)</City>
+    <MunicipalityCode>70181</MunicipalityCode>
+    <ActivityCode>6512</ActivityCode>
+    <MunicipalityName>Beograd-Novi Beograd</MunicipalityName>
+    <ActivityName>Neživotno osiguranje</ActivityName>
+    <BankName>Erste Bank A.D.- Novi Sad</BankName>
+    <CompanyAccountStatusID>0</CompanyAccountStatusID>
+    <CompanyAccountBlockadeStatusID>0</CompanyAccountBlockadeStatusID>
+    <CompanyAccountTypeID>1</CompanyAccountTypeID>
+    <LegalUserTypeID>0</LegalUserTypeID>
+    <InitializationDate>2014-10-20T00:00:00+02:00</InitializationDate>
+    <ChangeDate>2026-10-19T00:00:00+02:00</ChangeDate>
+    <UpdateDate>2026-10-19T13:30:02.315+02:00</UpdateDate>
+  </CompanyAccount>
+  <CompanyAccount>
+    <Account>105-0000002775762-96</Account>
+    <BankCode>105</BankCode>
+    <AccountNumber>2775762</AccountNumber>
+    <ControlNumber>96</ControlNumber>
+    <CompanyName>MILENIJUM-OSIGURANJE ADO, BEOGRAD</CompanyName>
+    <NationalIdentificationNumber>7810318</NationalIdentificationNumber>
+    <TaxIdentificationNumber>100002119    </TaxIdentificationNumber>
+    <Address>BULEVAR MILUTINA MILANKOVIĆA 3B</Address>
+    <City>NOVI BEOGRAD</City>
+    <MunicipalityCode>70181</MunicipalityCode>
+    <ActivityCode>6512</ActivityCode>
+    <MunicipalityName>Beograd-Novi Beograd</MunicipalityName>
+    <ActivityName>Neživotno osiguranje</ActivityName>
+    <BankName>AikBank akcionarsko društvo Beograd</BankName>
+    <CompanyAccountStatusID>0</CompanyAccountStatusID>
+    <CompanyAccountBlockadeStatusID>0</CompanyAccountBlockadeStatusID>
+    <CompanyAccountTypeID>1</CompanyAccountTypeID>
+    <LegalUserTypeID>0</LegalUserTypeID>
+    <InitializationDate>2023-02-15T00:00:00+01:00</InitializationDate>
+    <ChangeDate>2026-10-19T00:00:00+02:00</ChangeDate>
+    <UpdateDate>2026-10-19T17:00:01.397+02:00</UpdateDate>
+  </CompanyAccount>
+</CompanyAccountDataSet>

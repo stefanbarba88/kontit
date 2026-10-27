@@ -1,0 +1,21 @@
+<CompanyDataSet>
+  <Company>
+    <CompanyID>4402f1ee-2e23-4509-ac76-c3f236a46194</CompanyID>
+    <NationalIdentificationNumber>7810318</NationalIdentificationNumber>
+    <TaxIdentificationNumber>100002119</TaxIdentificationNumber>
+    <Name>AKCIONARSKO DRUŠTVO ZA OSIGURANJE MILENIJUM OSIGURANJE  ADO, BEOGRAD (NOVI BEOGRAD)</Name>
+    <ShortName>MILENIJUM-OSIGURANJE ADO, BEOGRAD</ShortName>
+    <Address>Bulevar Milutina Milankovića 3B</Address>
+    <City>BEOGRAD (NOVI BEOGRAD)</City>
+    <Municipality>NOVI BEOGRAD</Municipality>
+    <Region>GRAD BEOGRAD</Region>
+    <PostalCode>11070</PostalCode>
+    <ActivityName>Neživotno osiguranje</ActivityName>
+    <RegistrationDate>1992-02-24T00:00:00+01:00</RegistrationDate>
+    <FoundingDate>1992-02-24T00:00:00+01:00</FoundingDate>
+    <CompanyTypeID>1</CompanyTypeID>
+    <CompanyStatusID>3</CompanyStatusID>
+    <NBSDate>2026-10-13T05:17:45.537+02:00</NBSDate>
+    <Resource>1</Resource>
+  </Company>
+</CompanyDataSet>

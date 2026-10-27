@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Client;
 use App\Entity\User;
 use App\Enum\LegalForm;
+use App\Nbs\NbsCompanyLookupService;
 use App\Repository\ClientRepository;
 
 /**
@@ -20,7 +21,7 @@ class ClientImportService
     public const LIMIT = 30;
 
     public function __construct(
-        private readonly NbsService $nbs,
+        private readonly NbsCompanyLookupService $nbs,
         private readonly ClientService $clients,
         private readonly ClientRepository $repository,
     ) {

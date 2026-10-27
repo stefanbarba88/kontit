@@ -2,8 +2,8 @@
 
 namespace App\Controller\Ajax;
 
+use App\Nbs\NbsCompanyLookupService;
 use App\Repository\ClientRepository;
-use App\Service\NbsService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -12,11 +12,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class NbsController extends AbstractAjaxController
 {
     /**
-     * Podaci firme iz NBS-a za popunjavanje forme klijenta. Odbija PIB koji već postoji.
+     * Podaci firme iz NBS-a za popunjavanje forme klijenta: naziv, adresa, mesto, PIB, matični broj, tekući računi.
+     * Odbija neispravan PIB (kontrolna cifra) i PIB koji već postoji kod drugog klijenta.
      */
-    #[Route('/ajax/nbs', name: 'ajax_nbs', methods: ['GET'])]
+    #[Route('/ajax/client/lookup', name: 'ajax_client_lookup', methods: ['GET'])]
     #[IsGranted('CLIENT_CREATE')]
-    public function lookup(Request $request, NbsService $nbs, ClientRepository $clients): JsonResponse
+    public function lookup(Request $request, NbsCompanyLookupService $nbs, ClientRepository $clients): JsonResponse
     {
         $pib = trim($request->query->getString('pib'));
         $existing = preg_match('/^\d{9}$/', $pib) ? $clients->findOneBy(['pib' => $pib]) : null;
@@ -25,11 +26,11 @@ class NbsController extends AbstractAjaxController
         }
 
         try {
-            $data = $nbs->lookup($pib);
+            $data = $nbs->lookup($pib, 'user_'.$this->actor()->getId());
         } catch (\DomainException $e) {
-            return $this->fail($e->getMessage());
+            return $this->fail($e->getMessage(), 422);
         } catch (\Throwable) {
-            return $this->fail('Greška pri pozivu NBS servisa.', 502);
+            return $this->fail('NBS trenutno ne odgovara, unesi podatke ručno.', 502);
         }
 
         // datumi kao tekst za <input type="date">
