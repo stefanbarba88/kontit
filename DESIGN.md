@@ -1,13 +1,7 @@
 # DESIGN.md — Vizuelni identitet: KontIT app
 
-> **Uputstvo za Claude Code:**
-> 1. Pročitaj ceo fajl. U **CLAUDE.md**, u sekciju "UI template", dodaj pravilo:
->    *"Pre svakog UI posla pročitaj DESIGN.md. Template određuje **strukturu** (layout, raspored, komponente),
->    a DESIGN.md određuje **izgled** (boje, tipografija, razmaci, senke, teme, detalji). Kad se razlikuju, važi DESIGN.md."*
-> 2. Logotipe iz foldera `logo/` rasporedi po sekciji 2.1.
-> 3. Uradi međukorak **"UI osvežavanje"** po sekciji 14, pre nastavka trenutne faze.
->    Pokaži mi plan i sačekaj potvrdu. Ne menjaj entitete ni poslovnu logiku, osim polja `User.themePreference`.
-> 4. Na kraju ažuriraj PROGRESS.md.
+> Izgled aplikacije se gradi na **Bootstrap 5.3 + tokenima i komponentama iz ovog fajla** (nema kupljenog template-a).
+> Pre svakog UI posla pročitaj ceo fajl. Dozvoljene biblioteke su navedene u `docs/archive/UPDATE-DIZAJN.md` sekciji 2 i u CLAUDE.md.
 
 ---
 
@@ -256,7 +250,7 @@ Jedna serija je uvek plava. "Plan naspram ostvarenog": plan je neutralna ispreki
 - Greška: crvena ivica, crveni prsten i poruka ispod sa ikonicom. Validacija se prikazuje posle napuštanja polja, ne dok se kuca.
 - Duge forme su podeljene u **sekcije sa naslovom levo i poljima desno** (na desktopu), sa lepljivom trakom
   "Sačuvaj / Otkaži" dole kad ima nesačuvanih izmena.
-- Select: koristiti select dodatak iz template-a, stilizovan istim tokenima. PIB, matični broj i broj računa su u monospace fontu.
+- Select: **Tom Select**, stilizovan istim tokenima (visina, ivica, radius i fokus kao input). PIB, matični broj i broj računa su u monospace fontu.
 
 ### 7.7 Dugmad
 - **Primarno**: puna `--kt-primary`, **blagi gradijent odozgo** (svetlije 4%) i unutrašnji svetli odsjaj na gornjoj ivici
@@ -270,8 +264,9 @@ Jedna serija je uvek plava. "Plan naspram ostvarenog": plan je neutralna ispreki
 Meka pozadina + tačkica + tekst (3.5), visina 22px, `--kt-radius-xs` ili pill, 12px, 500.
 
 ### 7.9 Avatari
-- Okrugli. Bez slike: **inicijali na gradijentu**, gde se boja bira deterministički iz imena (hash imena → jedna od 8 boja timova),
+- Okrugli, **samo inicijali na gradijentu** (nema upload-a slike). Boja se bira deterministički iz imena (hash imena → jedna od 8 boja timova),
   tako da ista osoba uvek ima istu boju.
+- Inicijali: prvo slovo imena + prvo slovo prezimena, velikim slovima, sa ispravnim Č, Ć, Š, Ž, Đ ("Đorđe Šarić" = "ĐŠ"). Za "Dž" samo "D".
 - Tanak prsten boje pozadine, pa složeni avatari izgledaju čisto. Opciono: mala tačka statusa (odsutan = amber).
 - Veličine: 24, 32, 40, 64, 96px.
 
@@ -333,14 +328,15 @@ Sve animacije se isključuju za `prefers-reduced-motion: reduce`.
 ---
 
 ## 9. Ikonice
-- Isključivo iz seta koji koristi template (pravilo iz CLAUDE.md). Ako template nudi linijske (stroke) ikonice, koristiti njih.
+- Isključivo **Lucide** preko `symfony/ux-icons`: `{{ ux_icon('lucide:check', {class: 'kt-icon'}) }}` (inline SVG), debljina linije **1,75**.
+  Posle dodavanja novih ikonica: `php bin/console ux:icons:lock` (ikonice se čuvaju lokalno, bez povlačenja sa interneta u produkciji).
 - Veličine 16px (u tekstu i tabelama), 18px (dugmad, meni), 20px (topbar). Boja `--kt-text-2`, a aktivna `--kt-primary`.
 - Ikonica nikad sama bez tooltipa ili labele, osim univerzalnih (zvonce, pretraga, zatvori).
 
 ---
 
-## 10. Grafikoni (Chart.js)
-- Globalni `Chart.defaults` u `assets/js/charts.js`: font Inter 12px, boja teksta `--kt-text-2`, linije mreže samo horizontalne,
+## 10. Grafikoni (ApexCharts)
+- Globalne opcije u `assets/js/charts.js` (ApexCharts): font Inter 12px, boja teksta `--kt-text-2`, linije mreže samo horizontalne,
   tanke i boje `--kt-border`, bez okvira oko grafikona, bez osa koje nisu potrebne.
 - Linije debljine 2px, zaobljeni krajevi, tačke samo na hover. Ispod glavne linije providan gradijent iste boje (od 18% do 0%).
 - Stubići sa zaobljenim gornjim uglovima (6px), razmak između stubića veći od debljine stubića.
@@ -350,7 +346,7 @@ Sve animacije se isključuju za `prefers-reduced-motion: reduce`.
 ---
 
 ## 11. Mailovi
-- Osnova je email template (pravilo iz CLAUDE.md), ali sa bojama brenda: pozadina `#F5F6F8`, kartica bela, radius 14px,
+- Osnova je naš tabelarni šablon (`templates/emails/base.html.twig`, sav stil inline), sa bojama brenda: pozadina `#F5F6F8`, kartica bela, radius 14px,
   primarno dugme `#006FD6`, tekst `#1F2329` / `#5E6672`.
 - Logo: `kontit-app-lockup-email@2x.png` (prikazan u širini 220px), sa apsolutnim URL-om.
 - Futer: "KontIT app · Ova poruka je poslata automatski." i link ka podešavanjima notifikacija.
@@ -381,7 +377,7 @@ Sve animacije se isključuju za `prefers-reduced-motion: reduce`.
 ```
 assets/styles/
   tokens.css          (sve --kt-* varijable za :root i [data-bs-theme=dark])
-  bootstrap-map.css   (mapiranje na --bs-* i na varijable template-a)
+  bootstrap-map.css   (mapiranje na --bs-*)
   base.css            (fontovi, tipografija, tabular-nums, selekcija teksta, scrollbar)
   components/         (sidebar.css, topbar.css, card.css, kpi.css, table.css, form.css, button.css,
                        badge.css, avatar.css, checklist.css, timeline.css, empty.css, loader.css,
@@ -399,12 +395,11 @@ public/
   brand/              (ostali fajlovi iz foldera logo/)
 ```
 
-### 14.2 Mapiranje na Bootstrap i template
-Template i Bootstrap ostaju netaknuti (pravilo iz CLAUDE.md). Izgled se menja **samo preko varijabli** u `bootstrap-map.css`:
+### 14.2 Mapiranje na Bootstrap
+Bootstrap ostaje netaknut. Izgled se menja **samo preko varijabli** u `bootstrap-map.css`:
 `--bs-primary`, `--bs-primary-rgb`, `--bs-body-bg`, `--bs-body-color`, `--bs-secondary-color`, `--bs-tertiary-bg`,
-`--bs-border-color`, `--bs-border-radius`, `--bs-link-color`, `--bs-focus-ring-color`, `--bs-font-sans-serif`, kao i
-**varijable samog template-a** (spisak je u `TEMPLATE_INVENTORY.md`). Gde template ima zakucane boje, prepisati selektorom u
-odgovarajućem fajlu iz `components/`, nikad menjati vendor fajl.
+`--bs-border-color`, `--bs-border-radius`, `--bs-link-color`, `--bs-focus-ring-color`, `--bs-font-sans-serif`.
+Izgled biblioteka (Tom Select, flatpickr, SweetAlert2, ApexCharts, FilePond) se prepisuje u odgovarajućem fajlu iz `components/`, nikad u vendor fajlu.
 
 ### 14.3 Redosled "UI osvežavanja"
 1. Tokeni, mapiranje i fontovi (posle ovoga se cela aplikacija odmah promeni)
@@ -433,3 +428,72 @@ dugmad, forme, badge-ove, tabele, KPI kartice, loader, prazno stanje. Služi da 
 - Nema centriranog teksta u tabelama (osim ikonica) i nema dugih tekstova velikim slovima.
 - Nema čiste crne pozadine u tamnoj temi i nema čisto belog teksta (koristiti `--kt-text`).
 - Nema animacija dužih od 300 ms (osim loadera i brojanja KPI vrednosti).
+
+---
+
+## 16. Mobilni prikaz (pravi prikaz za telefon, ne smanjen desktop)
+
+Prelomne tačke: **telefon < 576px**, tablet 576–991px, desktop ≥ 992px. Testirati na širinama **360, 390 i 430px**.
+
+### 16.1 Prostor
+- Bočne margine strane: **12px** na telefonu (desktop 24–32px). Razmak između kartica 12px, unutrašnji razmak kartice 16px.
+- **Liste od ivice do ivice**: na telefonu kartice sa listama (zadaci, klijenti) idu preko cele širine, bez bočne margine i zaobljenja, samo sa tankom linijom gore i dole.
+- Bez horizontalnog skrolovanja strane, nikad. Za visinu ekrana koristiti `100dvh`.
+- Poštovati "notch" i dno iPhone-a: `env(safe-area-inset-*)` za topbar, donju navigaciju i lepljiva dugmad.
+
+### 16.2 Navigacija
+- **Donja traka sa tabovima** (fiksirana, 64px + safe area): **Početna · Zadaci · (+) · Klijenti · Više**.
+  - Srednje **"+" dugme** je istaknuto (plavi krug) i otvara meni brzih akcija: "Novi zadatak", a za admina i "Novi klijent".
+  - Brojač na "Zadaci" (koji kasne ili čekaju potvrdu).
+  - "Više" otvara bottom sheet sa ostatkom menija (Timovi, Korisnici, Katalog, Statistika, Profil, Tema, Odjava).
+- Sidebar na telefonu **ne postoji**.
+- **Topbar na telefonu** (56px): naslov strane na sredini, levo dugme "nazad" na stranama detalja, desno zvonce. Pretraga je ikonica koja otvara pretragu preko celog ekrana.
+
+### 16.3 Tabele postaju liste
+- Na telefonu se **nijedna tabela ne prikazuje kao tabela**. Svaki red postaje kartica-red: avatar, glavni red (naziv), sekundarni red (1–2 podatka), status ili badge, i meni "⋯".
+- Filteri i sortiranje se otvaraju u **bottom sheet-u** (dugme "Filteri" sa brojem aktivnih filtera).
+- Paginacija: dugme "Učitaj još" ili beskonačno skrolovanje, umesto brojeva strana.
+
+### 16.4 Zadaci na telefonu
+- Lista zadataka grupisana po roku: **Kasni / Danas / Sutra / Ove nedelje / Kasnije**, sa lepljivim zaglavljima grupa.
+- **Prevlačenje reda** (swipe) ulevo otvara brze akcije: "Moj deo je gotov" i "Otvori". Ista akcija postoji i u meniju "⋯".
+- Detalj zadatka: checklist je odmah gore, komentari ispod, a polje za komentar je **lepljivo na dnu** kao u chat aplikacijama.
+- Dugme "Moj deo je gotov" je lepljivo na dnu ekrana, iznad donje navigacije.
+
+### 16.5 Forme i modali
+- Forme u jednoj koloni. Polja visine **44px**, a font u poljima **16px** (inače iPhone sam zumira stranu pri kucanju).
+- Pravilni tipovi tastature: `inputmode="numeric"` za PIB i matični broj, `inputmode="decimal"` za iznose, `type="email"`, `type="tel"`.
+- Dugmad "Sačuvaj / Otkaži" lepljiva na dnu ekrana.
+- **Modali postaju bottom sheet-ovi**: izlaze odozdo, imaju ručku za povlačenje i zatvaraju se prevlačenjem nadole.
+- SweetAlert na telefonu: puna širina sa marginom od 12px, dugmad jedno ispod drugog (primarno gore).
+
+### 16.6 Dodir
+- Površina dodira najmanje **44×44px**.
+- Ništa ne sme da zavisi od hover-a: akcije redova su uvek dostupne preko "⋯".
+- Ukloniti plavi "bljesak" pri dodiru (`-webkit-tap-highlight-color: transparent`) i umesto njega dati sopstveno pritisnuto stanje.
+
+### 16.7 Instalacija na telefon (PWA)
+- `manifest.webmanifest` (naziv "KontIT app", ikonice iz `logo/`, `display: standalone`, boje teme). Bez offline rada za sada.
+
+---
+
+## 17. Sitnice
+
+Sve se stilizuje tokenima, u obe teme, i prikazuje na `/_design` vodiču.
+
+- **Checkbox**: 18px, zaobljen 5px, ivica `--kt-border-strong`. Štikliran: plava ispuna i animirano iscrtana kvačica. Stanje **"delimično"** (crtica) za "označi sve". Klik radi i na labelu, površina klika najmanje 32px.
+- **Radio**: isti stil, krug sa unutrašnjom tačkom koja "izraste" pri izboru.
+- **Switch**: za uključeno/isključeno podešavanja, plava kad je uključen, sa glatkim pomeranjem kružića.
+- **Select (Tom Select)**: ista visina, ivica, radius i fokus kao input. Dropdown sa senkom `md`, hover na opcijama, izabrana opcija ima kvačicu desno, višestruki izbor ima "čipove" sa x. Poruka "Nema rezultata" i loader dok se traži.
+- **Datum (flatpickr)**: kalendar u našim bojama, današnji dan obeležen prstenom, izabrani pun plavi, vikend prigušen, praznici (tabela `Holiday`) obeleženi tačkicom. Format `d.m.Y.`, nedelja počinje ponedeljkom, prečice "Danas", "Ovaj mesec", "Prošli mesec".
+- **Input stanja**: normalno, hover, fokus, greška, uspeh, **disabled** (prigušeno, kursor not-allowed), **readonly** (bez ivice, pozadina `--kt-surface-2`).
+- **Ikonica unutar inputa** (pretraga levo, "x" za brisanje desno kad ima teksta).
+- **Lozinka**: dugme oko za prikaz i sakrivanje i upozorenje "Caps Lock je uključen".
+- **Autofill**: ukloniti žutu/plavu pozadinu Chrome autofill-a (posebno u tamnoj temi), preko `-webkit-autofill` i `box-shadow` trika.
+- **Brojevi**: bez strelica na `input[type=number]`, a iznosi preko IMask maske (`1.234,56`). Maske i za PIB, matični broj, telefon i tekući račun.
+- **Textarea**: auto-visina (autosize) i brojač karaktera gde postoji limit.
+- **Skrol bar**: tanak, u boji `--kt-border-strong`, a u tamnoj temi taman (`color-scheme: dark`).
+- **Selekcija teksta**: plava providna (`::selection`).
+- **Tooltip**: tamna pozadina u obe teme, mali radius, pojavljuje se posle 300 ms.
+- **Prelazi između strana**: View Transitions API (`@view-transition { navigation: auto; }`), bez JS-a. Isključen za `prefers-reduced-motion`.
+- **Prazno polje u prikazu**: crtica `—`, nikad prazno.

@@ -38,11 +38,12 @@ Objektna prava rešavaju Voteri:
 ### User
 - firstName, lastName, email (login, unique), password
 - phone, address, city, postalCode
-- avatar (upload, thumbnail 128px), a ako ga nema, inicijali u krugu
+- avatar = inicijali na gradijentu, bez slike (upload avatara je ukinut)
+- themePreference (LIGHT, DARK, SYSTEM; podrazumevano SYSTEM)
 - position (npr. "Knjigovođa", "Samostalni knjigovođa")
 - employedAt (datum zaposlenja)
 - roles (JSON, čuva se jedna najviša rola; hijerarhiju rešava `role_hierarchy`), isActive, lastLoginAt
-- Admin može da menja samo radnike i šefove. Admine i superadmina menja i kreira samo superadmin. Svako sam menja svoj profil (ime, kontakt, avatar, lozinka), a email, rolu i poziciju menja admin.
+- Admin može da menja samo radnike i šefove. Admine i superadmina menja i kreira samo superadmin. Svako sam menja svoj profil (ime, kontakt, lozinka, tema), a email, rolu i poziciju menja admin.
 - internalNote (vidi samo admin+)
 - emailNotifications (JSON: koje vrste notifikacija korisnik želi i na mail)
 - createdAt, updatedAt
@@ -72,6 +73,15 @@ Objektna prava rešavaju Voteri:
 - Radnik se **ne može deaktivirati** dok je glavni ili backup na aktivnom klijentu (prvo se klijenti prebace). Deaktiviran radnik nema pristup, ne može da dobije klijente ni zadatke, a cela istorija (dodele, članstvo, zadaci) ostaje vidljiva. Njegovo članstvo u timu se ne zatvara.
 - Podatke klijenta (kreiranje, izmena, aktivacija) menja samo admin+. **Dodelu** glavnog i backup radnika menja admin+ i šef, a šef samo na klijentima svog tima i samo na članove svog tima (ili sebe).
 - Klijent se ne briše, nego se deaktivira (`isActive = false`).
+
+
+**Učitavanje iz NBS-a i provera brojeva**
+- `NbsCompanyLookupService` sa zamenljivim izvorom: `NbsWebServiceProvider` (zvanični servis, kredencijali `NBS_WS_USERNAME`, `NBS_WS_PASSWORD`, `NBS_WS_LICENCE` u `.env.local`) i `NbsPublicPageProvider` (javna stranica, rezerva). Izbor u `.env`; ako zvanični nije podešen, koristi se rezervni.
+- AJAX `/ajax/client/lookup?pib=...` vraća naziv, adresu, mesto, PIB, matični broj i tekuće račune. Poziv uvek ide preko našeg servera.
+- Pre poziva se proverava kontrolna cifra: PIB (9 cifara, ISO 7064 MOD 11,10), matični broj (8 cifara, MOD 11). Pogrešan broj se odbija bez poziva NBS-u. Ista provera je i Symfony validator na entitetu.
+- Keš 24h po PIB-u, timeout 8 s, rate limit po korisniku. Odgovor na ćirilici se preslovljava u latinicu pre upisa.
+- UI: dugme "Učitaj iz NBS" pored PIB-a, loader na dugmetu, popunjena polja kratko zasijaju; ako polja već imaju vrednosti, SweetAlert pita da li da se prepišu. Kad NBS ne odgovori: jasna poruka, a forma se uvek može sačuvati ručno.
+- Parser ima test sa sačuvanim primerom odgovora (`tests/Fixtures/nbs/`).
 
 ### Task (zadatak)
 - title, description
@@ -433,6 +443,17 @@ Kasnije se zamenjuje stvarnim vremenom iz agenta (Faza 8), pa analitiku treba pi
 ### 8d.3 Podešavanja (admin)
 - prag minimalne cene sata (RSD/h)
 - mesečni kapacitet radnika u satima (globalno + override po radniku)
+
+---
+
+## 8e. Izvoz
+
+- Svaka lista (klijenti, zadaci, korisnici, kasnije statistika) ima dugme **"Izvoz"** sa izborom **Excel / CSV / PDF**.
+- Izvozi se **ono što je trenutno filtrirano**, i to **samo redovi koje korisnik sme da vidi** (isti upit i isti Voteri kao lista).
+- Cene i finansije se izvoze samo adminu i superadminu.
+- Naziv fajla: `kontit-klijenti-2026-10-27.xlsx`.
+- Veliki izvozi (preko 2.000 redova) idu preko Messenger-a, a korisnik dobije notifikaciju sa linkom kad je fajl spreman.
+- Excel (phpspreadsheet): formatirano zaglavlje, širine kolona, iznosi kao brojevi, zamrznut prvi red, autofilter. CSV (league/csv): UTF-8 sa BOM-om, separator `;`. PDF (dompdf): šabloni u `templates/pdf/`, logo, Inter, boje brenda.
 
 ---
 

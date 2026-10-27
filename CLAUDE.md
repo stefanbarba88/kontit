@@ -17,12 +17,16 @@ Ovaj fajl Claude Code čita automatski na početku svake sesije. Ovde su **trajn
 ## Stack
 - PHP 8.3+, Symfony 7.4 LTS (full webapp skeleton)
 - MySQL 8, Doctrine ORM + Doctrine Migrations
-- Twig + Bootstrap 5.3 (+ Bootstrap Icons)
+- Twig + Bootstrap 5.3 (bez kupljenog template-a), tokeni i komponente iz DESIGN.md
+- Ikonice: Lucide preko `symfony/ux-icons`
 - AssetMapper (bez Node/Webpacka, osim ako ne odlučimo drugačije)
-- jQuery za AJAX i interakcije (preko AssetMapper importmap-a), Chart.js za grafikone, SortableJS za drag & drop
+- jQuery za AJAX i interakcije (preko AssetMapper importmap-a)
+- Frontend biblioteke (importmap): ApexCharts (grafikoni), SortableJS (drag & drop), SweetAlert2 (potvrde i toast), Tom Select,
+  flatpickr (sr locale), IMask, CountUp.js, FilePond, PDF.js (`pdfjs-dist`), autosize
 - Symfony Messenger (doctrine transport) za asinhrono slanje mailova
-- Paketi: `symfonycasts/reset-password-bundle`, `knplabs/knp-paginator-bundle`,
-  `vich/uploader-bundle` (avatari), `liip/imagine-bundle` (thumbnail avatara)
+- Paketi: `symfonycasts/reset-password-bundle`, `knplabs/knp-paginator-bundle`, `symfony/ux-icons`,
+  `dompdf/dompdf` (PDF), `phpoffice/phpspreadsheet` (Excel), `league/csv` (CSV)
+- Avatar je samo inicijali (bez upload-a slike). `vich/uploader-bundle` se odlučuje tek kad se prave prilozi dokumenata.
 
 ## Konvencije koda
 - **Kod, entiteti, kolone, rute na engleskom**, a **UI tekst na srpskom (latinica)**.
@@ -38,23 +42,17 @@ Ovaj fajl Claude Code čita automatski na početku svake sesije. Ovde su **trajn
   CSRF token se šalje u headeru `X-CSRF-Token`.
 - Posle svake izmene entiteta: `php bin/console make:migration`, pregledaj migraciju, pa je pokreni.
 - Ne menjaj već izvršene migracije, nego napravi novu.
+- Izvoz (Excel / CSV / PDF) uvek koristi isti upit i iste Votere kao lista koju izvozi.
 
-UI template (OBAVEZNO)
-
-Izgled aplikacije se pravi isključivo na osnovu gotovih template-a u _template/:
-
-_template/admin/: Bootstrap 5 admin template (izgled cele aplikacije)
-
-Pravila:
-
-Pre prvog UI posla pregledaj ceo _template/admin/ i napravi TEMPLATE_INVENTORY.md: spisak stranica i čemu koja služi, komponente (kartice, tabele, forme, modali, badge-ovi, tabovi, dropdown, timeline, avatari), set ikonica i način korišćenja, uključeni JS dodaci i boje i CSS varijable. Posle toga koristi taj popis, ne pretražuj template ispočetka svaki put.
-Layout (base.html.twig, sidebar, topbar, login) se prenosi iz template-a što vernije. Komponente koje se ponavljaju idu u templates/components/ kao Twig include ili macro.
-CSS i JS iz template-a se kopiraju u assets/vendor/template/ i ne menjaju se. Sve naše izmene idu u assets/styles/app.css.
-Ikonice samo iz seta koji template koristi. Ne dodavati drugi icon set.
-Kad komponenta ne postoji u template-u, napravi je u istom stilu, od postojećih klasa template-a i Bootstrap utility klasa. Ne uvoditi nove UI biblioteke bez pitanja.
-JS dodatke (datepicker, select, grafikoni) uzimaj iz template-a ako ih ima, pre nego što dodaš nove.
-
-_template/ je samo izvor i ne servira se javno (nije u public/).
+## UI sistem (OBAVEZNO)
+1. Izgled se gradi na **Bootstrap 5.3 + tokenima i komponentama iz `DESIGN.md`**. Nema kupljenog template-a.
+2. Pre svakog UI posla pročitaj `DESIGN.md`.
+3. Dozvoljene biblioteke su **samo one iz `DESIGN.md` / `docs/archive/UPDATE-DIZAJN.md` sekcije 2**. Nova biblioteka samo uz odobrenje korisnika.
+4. Ikonice **samo Lucide** preko `ux_icon()`. Posle dodavanja novih pokrenuti `php bin/console ux:icons:lock`.
+5. Vendor CSS se ne menja, a izgled biblioteka se prepisuje u `assets/styles/components/`.
+6. **Mobile-first**: svaki novi ekran se pravi i proverava na 390px pre desktopa. Tabela na telefonu je uvek lista (`DESIGN.md` 16).
+7. Svaka nova komponenta se dodaje na `/_design` vodič, u obe teme.
+8. Komponente koje se ponavljaju idu u `templates/components/` kao Twig include ili macro.
 
 ## Struktura
 ```
@@ -79,6 +77,3 @@ Da li je neko "radnik u praksi" zavisi od toga da li mu je dodeljen klijent ili 
 
 ## Potvrda kritičnih radnji
 Svaka nova radnja koja briše, deaktivira, otkazuje, menja prava, menja dodelu ili utiče na više zapisa **mora** imati SweetAlert potvrdu preko globalnog `data-confirm` mehanizma (`assets/js/confirm.js`, Twig makro u `templates/components/`). Nikad `confirm()` iz browsera. Potvrda je samo UI sloj: server uvek proverava prava (Voter) i CSRF.
-
-## Dizajn (DESIGN.md)
-Pre svakog UI posla pročitaj `DESIGN.md`. Template određuje **strukturu** (layout, raspored, komponente), a `DESIGN.md` određuje **izgled** (boje, tipografija, razmaci, senke, teme, detalji). Kad se razlikuju, važi `DESIGN.md`.
