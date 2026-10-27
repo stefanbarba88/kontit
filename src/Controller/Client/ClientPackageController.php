@@ -93,7 +93,7 @@ class ClientPackageController extends AbstractController
             $from = new \DateTimeImmutable('today');
         }
         if (!is_numeric($price) || (float) $price < 0) {
-            $this->addFlash('danger', 'Unesite ispravnu cenu.');
+            $this->addFlash('danger', 'Unesi ispravnu cenu.');
         } else {
             $this->service->changePrice($clientPackage, number_format((float) $price, 2, '.', ''), $from, $this->getUser());
             $this->addFlash('success', 'Cena paketa je izmenjena.');

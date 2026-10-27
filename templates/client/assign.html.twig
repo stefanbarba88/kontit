@@ -17,8 +17,8 @@
                     {{ form_start(form, {attr: {'data-confirm-changed': '[name$="[primary]"], [name$="[backup]"]', 'data-confirm': 'Promeniti zaduženje na klijentu?', 'data-confirm-text': 'Otvoreni zadaci ostaju kod dosadašnjeg radnika, a novi zadaci idu novom. Promena se beleži u istoriji.', 'data-confirm-type': 'warning', 'data-confirm-button': 'Da, promeni'}}) }}
                         {{ form_row(form.primary) }}
                         {{ form_row(form.backup) }}
-                        <div class="text-muted fs-sm mb-3">Možete dodeliti samo članove svog tima. Promene se beleže u istoriji klijenta.</div>
-                        <div class="text-end">
+                        <div class="text-muted kt-text-sm mb-3">Možeš dodeliti samo članove svog tima. Promene se beleže u istoriji klijenta.</div>
+                        <div class="kt-form-actions">
                             <a href="{{ path('client_show', {id: client.id}) }}" class="btn btn-light me-2">Otkaži</a>
                             <button class="btn btn-primary">Sačuvaj{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
                         </div>

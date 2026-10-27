@@ -26,14 +26,14 @@
 
     {% if pendingAbsences %}
         <div class="card border-warning">
-            <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:calendar-check', {class: 'kt-icon me-2'}) }}Čeka vaše odobrenje <span class="badge bg-warning rounded-pill ms-1">{{ pendingAbsences|length }}</span></h5></div>
+            <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:calendar-check', {class: 'kt-icon me-2'}) }}Čeka tvoje odobrenje <span class="badge bg-warning rounded-pill ms-1">{{ pendingAbsences|length }}</span></h5></div>
             <div class="table-responsive">
                 <table class="table align-middle mb-0">
                     <tbody>
                         {% for a in pendingAbsences %}
                             <tr>
                                 <td>{{ ui.user_chip(a.user, 32) }}</td>
-                                <td>{{ a.startDate|date('d.m.Y.') }} – {{ a.endDate|date('d.m.Y.') }}<div class="fs-sm text-muted">{{ a.reason.label }}{% if a.note %} · {{ a.note }}{% endif %}</div></td>
+                                <td>{{ a.startDate|date('d.m.Y.') }} – {{ a.endDate|date('d.m.Y.') }}<div class="kt-text-sm text-muted">{{ a.reason.label }}{% if a.note %} · {{ a.note }}{% endif %}</div></td>
                                 <td class="text-end">
                                     {% if is_granted('ABSENCE_DECIDE', a) %}
                                         {{ _self.action_form(a, 'approve', 'Odobri', 'btn-success', 'check') }}
@@ -57,12 +57,12 @@
                         <tr>
                             <td>{{ ui.user_chip(a.user, 32) }}</td>
                             <td>{{ a.startDate|date('d.m.Y.') }} – {{ a.endDate|date('d.m.Y.') }}</td>
-                            <td>{{ a.reason.label }}{% if a.note %}<div class="fs-sm text-muted">{{ a.note }}</div>{% endif %}</td>
+                            <td>{{ a.reason.label }}{% if a.note %}<div class="kt-text-sm text-muted">{{ a.note }}</div>{% endif %}</td>
                             <td>
-                                <span class="badge bg-{{ a.status.color }} bg-opacity-20 text-{{ a.status.color }}">{{ a.status.label }}</span>
-                                {% if a.decidedBy %}<div class="fs-xs text-muted">{{ a.decidedBy.fullName }}</div>{% endif %}
+                                <span class="badge kt-badge-{{ a.status.color }}">{{ a.status.label }}</span>
+                                {% if a.decidedBy %}<div class="kt-text-xs text-muted">{{ a.decidedBy.fullName }}</div>{% endif %}
                             </td>
-                            <td class="fs-sm text-muted">{{ a.createdBy.fullName }}</td>
+                            <td class="kt-text-sm text-muted">{{ a.createdBy.fullName }}</td>
                             <td class="text-end">
                                 {% if is_granted('ABSENCE_DECIDE', a) %}
                                     {{ _self.action_form(a, 'approve', 'Odobri', 'btn-success', 'check') }}

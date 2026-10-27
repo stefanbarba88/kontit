@@ -97,7 +97,7 @@ class FinanceController extends AbstractController
                 $em->flush();
                 $this->addFlash('success', 'Podešavanja su sačuvana.');
             } else {
-                $this->addFlash('danger', 'Unesite ispravne vrednosti.');
+                $this->addFlash('danger', 'Unesi ispravne vrednosti.');
             }
 
             return $this->redirectToRoute('admin_finance_settings');

@@ -11,9 +11,9 @@
 </head>
 <body>
 	{% set messages = {
-		403: ['Nemate pristup', 'Ova stranica nije dostupna za vaš nalog. Ako mislite da treba da bude, javite se administratoru.'],
+		403: ['Nemaš pristup', 'Ova stranica nije dostupna za tvoj nalog. Ako misliš da treba da bude, javi se administratoru.'],
 		404: ['Stranica nije pronađena', 'Adresa možda nije tačna ili je stranica premeštena.'],
-		500: ['Nešto je pošlo naopako', 'Greška je zabeležena. Pokušajte ponovo za nekoliko trenutaka.'],
+		500: ['Nešto je pošlo naopako', 'Greška je zabeležena. Pokušaj ponovo za nekoliko trenutaka.'],
 	} %}
 	{% set info = messages[status_code] ?? ['Došlo je do greške', 'Zahtev nije mogao da se obradi.'] %}
 	<div class="kt-error">

@@ -18,7 +18,7 @@ class OwnPasswordType extends AbstractType
             ->add('currentPassword', PasswordType::class, [
                 'label' => 'Trenutna lozinka',
                 'attr' => ['autocomplete' => 'current-password'],
-                'constraints' => [new NotBlank(message: 'Unesite trenutnu lozinku.'), new UserPassword(message: 'Trenutna lozinka nije ispravna.')],
+                'constraints' => [new NotBlank(message: 'Unesi trenutnu lozinku.'), new UserPassword(message: 'Trenutna lozinka nije ispravna.')],
             ])
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
@@ -26,7 +26,7 @@ class OwnPasswordType extends AbstractType
                 'second_options' => ['label' => 'Ponovite novu lozinku', 'attr' => ['autocomplete' => 'new-password']],
                 'invalid_message' => 'Lozinke se ne poklapaju.',
                 'constraints' => [
-                    new NotBlank(message: 'Unesite novu lozinku.'),
+                    new NotBlank(message: 'Unesi novu lozinku.'),
                     new Length(min: 8, minMessage: 'Lozinka mora imati najmanje {{ limit }} karaktera.', max: 4096),
                 ],
             ]);

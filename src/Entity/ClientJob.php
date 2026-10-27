@@ -31,7 +31,7 @@ class ClientJob
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull(message: 'Izaberite posao.')]
+    #[Assert\NotNull(message: 'Izaberi posao.')]
     private ?JobTemplate $jobTemplate = null;
 
     #[ORM\Column(length: 20, enumType: JobSource::class)]
@@ -73,7 +73,7 @@ class ClientJob
     private ?string $price = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    #[Assert\NotNull(message: 'Unesite početak.')]
+    #[Assert\NotNull(message: 'Unesi početak.')]
     private ?\DateTimeImmutable $startDate = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]

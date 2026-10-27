@@ -60,9 +60,9 @@ class AbsenceService
      */
     public function create(UserAbsence $absence, User $actor): void
     {
-        $user = $absence->getUser() ?? throw new \DomainException('Izaberite radnika.');
+        $user = $absence->getUser() ?? throw new \DomainException('Izaberi radnika.');
         if (!$this->canEnterFor($actor, $user)) {
-            throw new \DomainException('Ne možete upisati odsustvo za ovog radnika.');
+            throw new \DomainException('Ne možeš upisati odsustvo za ovog radnika.');
         }
         if (!$user->isActive()) {
             throw new \DomainException('Radnik nije aktivan.');
@@ -88,8 +88,8 @@ class AbsenceService
                 $this->notifications->notify(
                     $user,
                     NotificationType::ABSENCE_DECIDED,
-                    'Upisano vam je odsustvo',
-                    sprintf('%s vam je upisao odsustvo: %s.', $actor->getFullName(), $absence->summary()),
+                    'Upisano ti je odsustvo',
+                    sprintf('%s ti je upisao odsustvo: %s.', $actor->getFullName(), $absence->summary()),
                     ['absence_index'],
                     $actor,
                 );
@@ -117,7 +117,7 @@ class AbsenceService
             $absence->getUser(),
             NotificationType::ABSENCE_DECIDED,
             'Odsustvo je odobreno',
-            sprintf('Vaše odsustvo je odobreno: %s.', $absence->summary()),
+            sprintf('Tvoje odsustvo je odobreno: %s.', $absence->summary()),
             ['absence_index'],
             $actor,
         );
@@ -133,7 +133,7 @@ class AbsenceService
             $absence->getUser(),
             NotificationType::ABSENCE_DECIDED,
             'Odsustvo je odbijeno',
-            sprintf('Vaše odsustvo je odbijeno: %s.', $absence->summary()),
+            sprintf('Tvoje odsustvo je odbijeno: %s.', $absence->summary()),
             ['absence_index'],
             $actor,
         );
@@ -158,7 +158,7 @@ class AbsenceService
                     $backup,
                     NotificationType::BACKUP_ACTIVATED,
                     'Zamena je otkazana',
-                    sprintf('%s je otkazao odsustvo (%s). Više ne preuzimate njegove klijente.', $absence->getUser()->getFullName(), $absence->summary()),
+                    sprintf('%s je otkazao odsustvo (%s). Više ne preuzimaš njegove klijente.', $absence->getUser()->getFullName(), $absence->summary()),
                     ['client_mine'],
                     $actor,
                 );
@@ -210,9 +210,9 @@ class AbsenceService
             $this->notifications->notify(
                 $row['user'],
                 NotificationType::BACKUP_ACTIVATED,
-                'Preuzimate klijente kolege',
+                'Preuzimaš klijente kolege',
                 sprintf(
-                    'Preuzimate klijente za %s od %s do %s: %s.',
+                    'Preuzimaš klijente za %s od %s do %s: %s.',
                     $user->getFullName(),
                     $absence->getStartDate()->format('d.m.Y.'),
                     $absence->getEndDate()->format('d.m.Y.'),

@@ -24,7 +24,7 @@
     <div class="row">
         <div class="col-lg-8">
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Članovi <span class="text-muted fw-normal fs-base">({{ team.activeMembers|length }})</span></h5></div>
+                <div class="card-header"><h5 class="mb-0">Članovi <span class="text-muted fw-normal">({{ team.activeMembers|length }})</span></h5></div>
                 <div class="table-responsive">
                     <table class="table align-middle">
                         <thead><tr><th>Radnik</th><th>Pozicija</th><th>U timu od</th><th class="text-center" style="width: 1%;"></th></tr></thead>
@@ -37,7 +37,7 @@
                                         {% else %}
                                             {{ ui.user_chip(m.user) }}
                                         {% endif %}
-                                        {% if not m.user.active %}<span class="badge bg-secondary bg-opacity-20 text-secondary ms-1">Neaktivan</span>{% endif %}
+                                        {% if not m.user.active %}<span class="badge kt-badge-secondary ms-1">Neaktivan</span>{% endif %}
                                     </td>
                                     <td>{{ m.user.position ?? '—' }}</td>
                                     <td>{{ m.joinedAt|date('d.m.Y.') }}</td>
@@ -45,7 +45,7 @@
                                         {% if is_granted('TEAM_MANAGE') %}
                                             <form method="post" action="{{ path('admin_team_member_remove', {id: m.id}) }}" {{ confirm_attrs('Ukloniti radnika iz tima?', 'Radnik ' ~ m.user.fullName ~ ' ostaje u sistemu, ali bez tima.', 'warning', 'Da, ukloni') }}>
                                                 <input type="hidden" name="_token" value="{{ csrf_token('member_remove_' ~ m.id) }}">
-                                                <button class="btn btn-light btn-icon btn-sm rounded-pill border-transparent text-danger" title="Ukloni iz tima">{{ ux_icon('lucide:user-minus', {class: 'kt-icon'}) }}</button>
+                                                <button class="btn kt-kt-btn-icon btn-sm text-danger" title="Ukloni iz tima">{{ ux_icon('lucide:user-minus', {class: 'kt-icon'}) }}</button>
                                             </form>
                                         {% endif %}
                                     </td>
@@ -95,7 +95,7 @@
                     {% for log in leaderLog %}
                         <li class="list-group-item">
                             <div class="fw-semibold">{{ log.user.fullName }}</div>
-                            <div class="text-muted fs-sm">
+                            <div class="text-muted kt-text-sm">
                                 {{ log.startedAt|date('d.m.Y.') }} – {{ log.endedAt ? log.endedAt|date('d.m.Y.') : 'danas' }}
                                 {% if log.changedBy %}· postavio {{ log.changedBy.fullName }}{% endif %}
                             </div>

@@ -22,7 +22,7 @@ class Team
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
-    #[Assert\NotBlank(message: 'Unesite naziv tima.')]
+    #[Assert\NotBlank(message: 'Unesi naziv tima.')]
     #[Assert\Length(max: 100)]
     private ?string $name = null;
 

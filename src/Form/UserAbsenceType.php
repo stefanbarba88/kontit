@@ -26,7 +26,7 @@ class UserAbsenceType extends AbstractType
                 'class' => User::class,
                 'query_builder' => $options['user_query_builder'],
                 'choice_label' => 'fullName',
-                'placeholder' => 'Izaberite radnika',
+                'placeholder' => 'Izaberi radnika',
             ]);
         }
 

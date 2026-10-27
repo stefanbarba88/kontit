@@ -69,7 +69,7 @@ class TaskType extends AbstractType
                 'expanded' => true,
                 'mapped' => false,
                 'data' => $task->getAssigneeUsers() ?: ($options['default_assignees'] ?? []),
-                'constraints' => [new Count(min: 1, minMessage: 'Izaberite bar jednog učesnika.')],
+                'constraints' => [new Count(min: 1, minMessage: 'Izaberi bar jednog učesnika.')],
             ]);
             $builder->add('notifyByEmail', CheckboxType::class, [
                 'label' => 'Pošalji učesnicima i na mail',

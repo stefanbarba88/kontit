@@ -14,7 +14,7 @@
         {% for client in primary %}
             <div class="col-md-6 col-xl-4 mb-3">{{ ui.client_card(client, 'primary') }}</div>
         {% else %}
-            <div class="col-12"><div class="text-muted">Nemate klijenata kao glavni zaduženi.</div></div>
+            <div class="col-12"><div class="text-muted">Nemaš klijenata kao glavni zaduženi.</div></div>
         {% endfor %}
     </div>
 
@@ -26,7 +26,7 @@
         {% for client in backup %}
             <div class="col-md-6 col-xl-4 mb-3">{{ ui.client_card(client, 'backup', replacements[client.id] ?? null) }}</div>
         {% else %}
-            <div class="col-12"><div class="text-muted">Nemate klijenata kao backup.</div></div>
+            <div class="col-12"><div class="text-muted">Nemaš klijenata kao backup.</div></div>
         {% endfor %}
     </div>
 {% endblock %}

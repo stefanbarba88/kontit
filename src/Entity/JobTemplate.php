@@ -31,7 +31,7 @@ class JobTemplate
     private ?int $id = null;
 
     #[ORM\Column(length: 150)]
-    #[Assert\NotBlank(message: 'Unesite naziv posla.')]
+    #[Assert\NotBlank(message: 'Unesi naziv posla.')]
     #[Assert\Length(max: 150)]
     private ?string $name = null;
 
@@ -88,10 +88,10 @@ class JobTemplate
     public function validateRecurrence(ExecutionContextInterface $context): void
     {
         if (in_array($this->recurrence, [Recurrence::MONTHLY, Recurrence::QUARTERLY, Recurrence::YEARLY], true) && null === $this->dueDay) {
-            $context->buildViolation('Unesite dan roka.')->atPath('dueDay')->addViolation();
+            $context->buildViolation('Unesi dan roka.')->atPath('dueDay')->addViolation();
         }
         if (Recurrence::YEARLY === $this->recurrence && null === $this->dueMonth) {
-            $context->buildViolation('Unesite mesec roka.')->atPath('dueMonth')->addViolation();
+            $context->buildViolation('Unesi mesec roka.')->atPath('dueMonth')->addViolation();
         }
     }
 

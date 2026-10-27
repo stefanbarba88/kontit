@@ -22,7 +22,7 @@
                     {{ form_row(form.pibs) }}
                     {{ form_row(form.primary) }}
                     {{ form_row(form.backup) }}
-                    <div class="text-muted fs-sm">Za svaki PIB se iz NBS-a preuzimaju naziv, adresa, matični broj, delatnost i datumi. Pravna forma se pogađa po nazivu i može se ispraviti na kartici klijenta. Klijenti koji već postoje se preskaču.</div>
+                    <div class="text-muted kt-text-sm">Za svaki PIB se iz NBS-a preuzimaju naziv, adresa, matični broj, delatnost i datumi. Pravna forma se pogađa po nazivu i može se ispraviti na kartici klijenta. Klijenti koji već postoje se preskaču.</div>
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-2">
@@ -43,9 +43,9 @@
                                     <tr>
                                         <td>{{ r.pib }}</td>
                                         <td>
-                                            {% if r.status == 'created' %}<span class="badge bg-success bg-opacity-20 text-success">Uvezen</span>
-                                            {% elseif r.status == 'exists' %}<span class="badge bg-secondary bg-opacity-20 text-secondary">Već postoji</span>
-                                            {% else %}<span class="badge bg-danger bg-opacity-20 text-danger">Greška</span>{% endif %}
+                                            {% if r.status == 'created' %}<span class="badge kt-badge-success">Uvezen</span>
+                                            {% elseif r.status == 'exists' %}<span class="badge kt-badge-secondary">Već postoji</span>
+                                            {% else %}<span class="badge kt-badge-danger">Greška</span>{% endif %}
                                         </td>
                                         <td>
                                             {% if r.client %}<a href="{{ path('client_show', {id: r.client.id}) }}">{{ r.message }}</a>{% else %}{{ r.message }}{% endif %}

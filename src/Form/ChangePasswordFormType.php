@@ -25,7 +25,7 @@ class ChangePasswordFormType extends AbstractType
                 'first_options' => [
                     'constraints' => [
                         new NotBlank(
-                            message: 'Unesite lozinku',
+                            message: 'Unesi lozinku',
                         ),
                         new Length(
                             min: 8,

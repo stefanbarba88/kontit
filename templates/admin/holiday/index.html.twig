@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header"><h5 class="mb-0">Novi praznik</h5></div>
                 <div class="card-body border-top">
-                    <p class="text-muted fs-sm">Rok zadatka koji padne na vikend ili praznik pomera se na prvi sledeći radni dan.</p>
+                    <p class="text-muted kt-text-sm">Rok zadatka koji padne na vikend ili praznik pomera se na prvi sledeći radni dan.</p>
                     {{ form_start(form) }}
                         {{ form_row(form.date) }}
                         {{ form_row(form.name) }}
@@ -33,7 +33,7 @@
                                     <td>
                                         <form method="post" action="{{ path('admin_holiday_delete', {id: holiday.id}) }}" {{ confirm_attrs('Obrisati praznik?', 'Rokovi se više neće pomerati zbog ovog datuma.', 'danger', 'Da, obriši') }}>
                                             <input type="hidden" name="_token" value="{{ csrf_token('holiday_delete_' ~ holiday.id) }}">
-                                            <button class="btn btn-light btn-icon btn-sm rounded-pill border-transparent text-danger" title="Obriši">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}</button>
+                                            <button class="btn kt-kt-btn-icon btn-sm text-danger" title="Obriši">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}</button>
                                         </form>
                                     </td>
                                 </tr>

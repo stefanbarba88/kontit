@@ -35,7 +35,7 @@
                 <div class="card-body border-top">
                     {% if form.assignees is defined %}
                         <div class="overflow-auto" style="max-height: 320px;">{{ form_row(form.assignees) }}</div>
-                        <div class="text-muted fs-sm mt-2 mb-3">Izabrani učesnici dobijaju zadatak. Svaki ima svoj status.</div>
+                        <div class="text-muted kt-text-sm mt-2 mb-3">Izabrani učesnici dobijaju zadatak. Svaki ima svoj status.</div>
                         {{ form_row(form.notifyByEmail) }}
                     {% else %}
                         <div class="text-muted">Zadatak se dodeljuje vama.</div>

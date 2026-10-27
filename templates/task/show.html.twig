@@ -49,7 +49,7 @@
 
     {% if task.status.value == 'NA_PROVERI' and is_granted('TASK_APPROVE', task) %}
         <div class="card border-info">
-            <div class="card-header bg-info bg-opacity-10"><h5 class="mb-0">{{ ux_icon('lucide:circle-check', {class: 'kt-icon me-2'}) }}Čeka vašu potvrdu</h5></div>
+            <div class="card-header bg-info bg-opacity-10"><h5 class="mb-0">{{ ux_icon('lucide:circle-check', {class: 'kt-icon me-2'}) }}Čeka tvoju potvrdu</h5></div>
             <div class="card-body">
                 <div class="d-flex flex-wrap gap-3 align-items-start">
                     <form method="post" action="{{ path('task_approve', {id: task.id}) }}">
@@ -142,7 +142,7 @@
                         <dt class="col-5">Rok</dt><dd class="col-7">{{ ui.due_date(task) }}</dd>
                         <dt class="col-5">Prioritet</dt><dd class="col-7">{{ ui.priority_badge(task.priority) }}</dd>
                         <dt class="col-5">Završetak</dt><dd class="col-7">{{ task.completionMode.value == 'ALL' ? 'Svi učesnici' : 'Dovoljan jedan' }}</dd>
-                        <dt class="col-5">Kreirao</dt><dd class="col-7">{{ task.createdBy.fullName }}<div class="text-muted fs-sm">{{ task.createdAt|date('d.m.Y.') }}</div></dd>
+                        <dt class="col-5">Kreirao</dt><dd class="col-7">{{ task.createdBy.fullName }}<div class="text-muted kt-text-sm">{{ task.createdAt|date('d.m.Y.') }}</div></dd>
                     </dl>
                 </div>
             </div>
@@ -150,7 +150,7 @@
             <div class="card">
                 <div class="card-header d-flex align-items-center">
                     <h5 class="mb-0">Učesnici</h5>
-                    <span class="ms-auto text-muted fs-sm">{{ task.finishedAssigneesCount }}/{{ task.assignees|length }} završilo</span>
+                    <span class="ms-auto text-muted kt-text-sm">{{ task.finishedAssigneesCount }}/{{ task.assignees|length }} završilo</span>
                 </div>
                 <ul class="list-group list-group-flush border-top">
                     {% for a in task.assignees %}
@@ -159,8 +159,8 @@
                                 {{ ui.user_chip(a.user, 32) }}
                                 <span class="ms-auto">{{ ui.assignee_status(a.status) }}</span>
                             </div>
-                            {% if a.completedAt %}<div class="fs-xs text-muted mt-1">Završio {{ a.completedAt|date('d.m. H:i') }}</div>{% endif %}
-                            {% if a.note %}<div class="fs-sm mt-1">„{{ a.note }}“</div>{% endif %}
+                            {% if a.completedAt %}<div class="kt-text-xs text-muted mt-1">Završio {{ a.completedAt|date('d.m. H:i') }}</div>{% endif %}
+                            {% if a.note %}<div class="kt-text-sm mt-1">„{{ a.note }}“</div>{% endif %}
                         </li>
                     {% endfor %}
                 </ul>
@@ -170,7 +170,7 @@
                     <div class="card-body border-top">
                         <div class="alert alert-info mb-2">
                             <span class="badge bg-info me-1">PREUZETO</span>
-                            Zamenjujete: <strong>{% for u in replaced %}{{ u.fullName }}{% if not loop.last %}, {% endif %}{% endfor %}</strong>.
+                            Zamenjuješ: <strong>{% for u in replaced %}{{ u.fullName }}{% if not loop.last %}, {% endif %}{% endfor %}</strong>.
                         </div>
                         <form method="post" action="{{ path('task_my_part', {id: task.id, action: 'done'}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('task_my_part_' ~ task.id) }}">

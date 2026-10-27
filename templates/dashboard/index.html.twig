@@ -53,7 +53,7 @@
                                 <ul class="list-group list-group-flush border-top">
                                     {% for t in team.waiting %}
                                         <li class="list-group-item"><a href="{{ path('task_show', {id: t.id}) }}">{{ t.title }}</a>
-                                            <span class="text-muted fs-sm">{{ t.client ?: 'Interni' }} · od {{ t.updated_at|date('d.m.') }}</span></li>
+                                            <span class="text-muted kt-text-sm">{{ t.client ?: 'Interni' }} · od {{ t.updated_at|date('d.m.') }}</span></li>
                                     {% else %}
                                         <li class="list-group-item text-muted">Nema takvih zadataka.</li>
                                     {% endfor %}
@@ -88,10 +88,10 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="card-footer text-muted fs-sm">Na vreme: završeno do roka (zadaci sa rokom). Vraćeno: vraćanja na doradu u odnosu na broj završenih. Radnici sa najviše kašnjenja su na vrhu.</div>
+                <div class="card-footer text-muted kt-text-sm">Na vreme: završeno do roka (zadaci sa rokom). Vraćeno: vraćanja na doradu u odnosu na broj završenih. Radnici sa najviše kašnjenja su na vrhu.</div>
             </div>
         {% else %}
-            <div class="card"><div class="card-body">{{ ui.empty_state('Nemate radnike u timu.', 'users') }}</div></div>
+            <div class="card"><div class="card-body">{{ ui.empty_state('Nemaš radnike u timu.', 'users') }}</div></div>
         {% endif %}
     {% endif %}
 
@@ -169,7 +169,7 @@
                     <div class="card-header"><h6 class="mb-0">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon text-warning me-2'}) }}Klijenti bez backup radnika <span class="badge bg-warning rounded-pill ms-1">{{ company.noBackup|length }}</span></h6></div>
                     <ul class="list-group list-group-flush border-top overflow-auto" style="max-height: 180px;">
                         {% for c in company.noBackup %}
-                            <li class="list-group-item"><a href="{{ path('client_show', {id: c.id}) }}">{{ c.name }}</a> <span class="text-muted fs-sm">· {{ c.worker }}</span></li>
+                            <li class="list-group-item"><a href="{{ path('client_show', {id: c.id}) }}">{{ c.name }}</a> <span class="text-muted kt-text-sm">· {{ c.worker }}</span></li>
                         {% else %}
                             <li class="list-group-item text-muted">Svi klijenti imaju backup.</li>
                         {% endfor %}
@@ -179,7 +179,7 @@
                     <div class="card-header"><h6 class="mb-0">{{ ux_icon('lucide:moon', {class: 'kt-icon me-2'}) }}Klijenti bez zadatka u 30 dana <span class="badge bg-secondary rounded-pill ms-1">{{ company.idleClients|length }}</span></h6></div>
                     <ul class="list-group list-group-flush border-top overflow-auto" style="max-height: 180px;">
                         {% for c in company.idleClients %}
-                            <li class="list-group-item"><a href="{{ path('client_show', {id: c.id}) }}">{{ c.name }}</a> <span class="text-muted fs-sm">· {{ c.worker }}</span></li>
+                            <li class="list-group-item"><a href="{{ path('client_show', {id: c.id}) }}">{{ c.name }}</a> <span class="text-muted kt-text-sm">· {{ c.worker }}</span></li>
                         {% else %}
                             <li class="list-group-item text-muted">Svaki klijent ima bar jedan zadatak.</li>
                         {% endfor %}

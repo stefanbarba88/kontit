@@ -20,14 +20,14 @@
                 <tbody>
                     {% for job in jobs %}
                         <tr>
-                            <td>{{ job.name }}{% if job.checklistItems|length %}<div class="text-muted fs-sm">{{ job.checklistItems|length }} stavki checkliste</div>{% endif %}</td>
+                            <td>{{ job.name }}{% if job.checklistItems|length %}<div class="text-muted kt-text-sm">{{ job.checklistItems|length }} stavki checkliste</div>{% endif %}</td>
                             <td><span class="badge bg-light text-body border">{{ job.category.label }}</span></td>
                             <td>{{ job.recurrence.label }}</td>
                             <td>{{ job.dueDay ?? '—' }}{% if job.dueMonth %}.{{ job.dueMonth }}.{% endif %}</td>
                             <td>{{ job.estimatedMinutes }} min</td>
                             <td>{{ job.priceUnit.label }}</td>
                             <td>{{ ui.status_badge(job.active) }}</td>
-                            <td><a href="{{ path('admin_job_edit', {id: job.id}) }}" class="btn btn-light btn-icon btn-sm rounded-pill border-transparent" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a></td>
+                            <td><a href="{{ path('admin_job_edit', {id: job.id}) }}" class="btn kt-kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a></td>
                         </tr>
                     {% else %}
                         <tr><td colspan="8">{{ ui.empty_state('Katalog je prazan.', 'list-checks') }}</td></tr>

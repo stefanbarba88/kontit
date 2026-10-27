@@ -25,7 +25,7 @@ class ServicePackage
     private ?int $id = null;
 
     #[ORM\Column(length: 150)]
-    #[Assert\NotBlank(message: 'Unesite naziv paketa.')]
+    #[Assert\NotBlank(message: 'Unesi naziv paketa.')]
     #[Assert\Length(max: 150)]
     private ?string $name = null;
 

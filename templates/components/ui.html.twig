@@ -1,8 +1,7 @@
 {#
-    Mali UI makroi zasnovani na komponentama template-a (vidi TEMPLATE_INVENTORY.md).
+    Mali UI makroi po DESIGN.md (badge-ovi, avatari, KPI, prazna stanja, loader).
     Upotreba: {% import 'components/ui.html.twig' as ui %}
-
-    Dozvoljene veličine avatara su one koje template ima kao klase (w-Npx h-Npx): 24, 32, 40, 48, 56, 64, 72, 80.
+    Veličine avatara: 24, 32, 40, 64, 96px.
 #}
 
 {# Avatar (DESIGN.md 7.9): slika ili inicijali na gradijentu; boja se bira iz imena (hash), pa je ista osoba uvek iste boje #}
@@ -33,14 +32,14 @@
         'ROLE_SEF': 'info',
         'ROLE_RADNIK': 'secondary',
     } %}
-    <span class="badge bg-{{ cls[role.value] }} bg-opacity-20 text-{{ cls[role.value] }}">{{ role.label }}</span>
+    <span class="badge kt-badge-{{ cls[role.value] }}">{{ role.label }}</span>
 {% endmacro %}
 
 {% macro status_badge(active) %}
     {% if active %}
-        <span class="badge bg-success bg-opacity-20 text-success">Aktivan</span>
+        <span class="badge kt-badge-success">Aktivan</span>
     {% else %}
-        <span class="badge bg-secondary bg-opacity-20 text-secondary">Neaktivan</span>
+        <span class="badge kt-badge-secondary">Neaktivan</span>
     {% endif %}
 {% endmacro %}
 
@@ -57,14 +56,14 @@
                 {{ client.legalForm.label }}{% if client.pib %} · PIB {{ client.pib }}{% endif %}{% if client.pdvObveznik %} · PDV{% endif %}
             </div>
             {% if mode == 'backup' %}
-                <div class="fs-sm">{{ ux_icon('lucide:circle-user', {class: 'kt-icon me-1'}) }}Glavni zaduženi: <span class="fw-semibold">{{ client.primaryAccountant.fullName }}</span></div>
+                <div class="kt-text-sm">{{ ux_icon('lucide:circle-user', {class: 'kt-icon me-1'}) }}Glavni zaduženi: <span class="fw-semibold">{{ client.primaryAccountant.fullName }}</span></div>
                 {% if absence %}
-                    <div class="fs-sm text-info mt-1">{{ ux_icon('lucide:plane', {class: 'kt-icon me-1'}) }}Odsutan do {{ absence.endDate|date('d.m.Y.') }} ({{ absence.reason.label }}) · preuzimate</div>
+                    <div class="kt-text-sm text-info mt-1">{{ ux_icon('lucide:plane', {class: 'kt-icon me-1'}) }}Odsutan do {{ absence.endDate|date('d.m.Y.') }} ({{ absence.reason.label }}) · preuzimaš</div>
                 {% endif %}
             {% elseif client.backupAccountant %}
-                <div class="fs-sm text-muted">{{ ux_icon('lucide:refresh-cw', {class: 'kt-icon me-1'}) }}Backup: {{ client.backupAccountant.fullName }}</div>
+                <div class="kt-text-sm text-muted">{{ ux_icon('lucide:refresh-cw', {class: 'kt-icon me-1'}) }}Backup: {{ client.backupAccountant.fullName }}</div>
             {% else %}
-                <div class="fs-sm text-warning">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon me-1'}) }}Bez backup-a</div>
+                <div class="kt-text-sm text-warning">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon me-1'}) }}Bez backup-a</div>
             {% endif %}
         </div>
     </div>
@@ -72,15 +71,15 @@
 
 {# Badge-ovi zadatka (3.5): meka pozadina + tačkica; OTKAZANO precrtan #}
 {% macro task_status(status) %}
-    <span class="badge bg-{{ status.color }} bg-opacity-20 text-{{ status.color }} {{ status.value == 'OTKAZANO' ? 'kt-strike' : '' }}">{{ status.label }}</span>
+    <span class="badge kt-badge-{{ status.color }} {{ status.value == 'OTKAZANO' ? 'kt-strike' : '' }}">{{ status.label }}</span>
 {% endmacro %}
 
 {% macro priority_badge(priority) %}
-    <span class="badge bg-{{ priority.color }} bg-opacity-20 text-{{ priority.color }} {{ priority.value == 'HITAN' ? 'kt-pulse' : '' }}">{{ priority.label }}</span>
+    <span class="badge kt-badge-{{ priority.color }} {{ priority.value == 'HITAN' ? 'kt-pulse' : (priority.value == 'NORMALAN' ? 'kt-badge-outline' : '') }}">{{ priority.label }}</span>
 {% endmacro %}
 
 {% macro assignee_status(status) %}
-    <span class="badge bg-{{ status.color }} bg-opacity-20 text-{{ status.color }}">{{ status.label }}</span>
+    <span class="badge kt-badge-{{ status.color }}">{{ status.label }}</span>
 {% endmacro %}
 
 {# Rok zadatka: crveno ako kasni #}

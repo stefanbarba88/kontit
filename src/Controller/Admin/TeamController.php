@@ -111,7 +111,7 @@ class TeamController extends AbstractController
                 $this->addFlash('danger', $e->getMessage());
             }
         } else {
-            $this->addFlash('danger', 'Izaberite radnika.');
+            $this->addFlash('danger', 'Izaberi radnika.');
         }
 
         return $this->redirectToRoute('team_show', ['id' => $team->getId()]);

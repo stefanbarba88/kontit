@@ -61,7 +61,7 @@
             </div>
 
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Klijenti <span class="text-muted fw-normal fs-base">({{ primaryClients|length }} glavni, {{ backupClients|length }} backup)</span></h5></div>
+                <div class="card-header"><h5 class="mb-0">Klijenti <span class="text-muted fw-normal">({{ primaryClients|length }} glavni, {{ backupClients|length }} backup)</span></h5></div>
                 <div class="card-body border-top">
                     {% if primaryClients or backupClients %}
                         <div class="row">
@@ -79,7 +79,7 @@
                             </div>
                         </div>
                         {% if user.active %}
-                            <div class="text-muted fs-sm mt-3">{{ ux_icon('lucide:info', {class: 'kt-icon me-1'}) }}Korisnik ne može da se deaktivira dok je zadužen na klijentima.</div>
+                            <div class="text-muted kt-text-sm mt-3">{{ ux_icon('lucide:info', {class: 'kt-icon me-1'}) }}Korisnik ne može da se deaktivira dok je zadužen na klijentima.</div>
                         {% endif %}
                     {% else %}
                         <span class="text-muted">Nema zaduženih klijenata.</span>
@@ -94,7 +94,7 @@
                         <span class="text-muted">Trenutni tim:</span>
                         {% if currentMembership %}
                             <a href="{{ path('team_show', {id: currentMembership.team.id}) }}">{{ ui.team_badge(currentMembership.team) }}</a>
-                            <span class="text-muted fs-sm">od {{ currentMembership.joinedAt|date('d.m.Y.') }}</span>
+                            <span class="text-muted kt-text-sm">od {{ currentMembership.joinedAt|date('d.m.Y.') }}</span>
                         {% else %}
                             <span class="text-muted">nije ni u jednom timu</span>
                         {% endif %}

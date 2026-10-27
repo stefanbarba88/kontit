@@ -18,8 +18,6 @@ h3, .h3, h4, .h4, h5, .h5, h6, .h6 { font-family: var(--kt-font-ui); color: var(
 h3, .h3 { font-size: 15px; line-height: 22px; font-weight: 600; }
 .card-header h6 { font-size: 15px; font-weight: 600; }
 .page-title { font-size: 24px; line-height: 32px; font-weight: 700; letter-spacing: -.015em; }
-.fs-sm { font-size: 13px !important; line-height: 18px; }
-.fs-xs { font-size: 12px !important; }
 
 .kt-overline {
     font-size: 11px; line-height: 16px; font-weight: 600; text-transform: uppercase;
@@ -58,3 +56,9 @@ html.kt-theme-transition .form-control {
 .btn .kt-icon { font-size: 18px; vertical-align: -0.2em; }
 .dropdown-item { display: flex; align-items: center; gap: 10px; }
 .dropdown-item .kt-icon { font-size: 18px; color: var(--kt-text-2); }
+
+/* naše male utility klase (zamena za klase iz uklonjenog template-a) */
+.kt-text-sm { font-size: 13px; line-height: 18px; }
+.kt-text-xs { font-size: 12px; line-height: 16px; }
+.min-w-0 { min-width: 0; }
+.text-purple { color: var(--kt-purple) !important; }

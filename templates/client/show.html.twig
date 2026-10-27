@@ -50,7 +50,7 @@
                         <dt class="col-sm-4">Napomena</dt><dd class="col-sm-8 mb-0">{{ client.note ? client.note|nl2br : '—' }}</dd>
                     </dl>
                 </div>
-                <div class="card-footer d-flex align-items-center text-muted fs-sm">
+                <div class="card-footer d-flex align-items-center text-muted kt-text-sm">
                     {% if client.nbsSyncedAt %}<span>{{ ux_icon('lucide:cloud-check', {class: 'kt-icon me-1'}) }}NBS podaci od {{ client.nbsSyncedAt|date('d.m.Y. H:i') }}</span>{% else %}<span>{{ ux_icon('lucide:cloud-off', {class: 'kt-icon me-1'}) }}Nije povučeno iz NBS-a</span>{% endif %}
                     {% if client.pib and is_granted('CLIENT_EDIT', client) %}
                         <form method="post" action="{{ path('client_nbs_refresh', {id: client.id}) }}" class="ms-auto"
@@ -70,7 +70,7 @@
                         <tbody>
                             {% for log in history %}
                                 <tr>
-                                    <td>{{ log.user.fullName }}{% if not log.user.active %} <span class="badge bg-secondary bg-opacity-20 text-secondary">Neaktivan</span>{% endif %}</td>
+                                    <td>{{ log.user.fullName }}{% if not log.user.active %} <span class="badge kt-badge-secondary">Neaktivan</span>{% endif %}</td>
                                     <td>{{ log.type.label }}</td>
                                     <td>{{ log.startedAt|date('d.m.Y.') }}</td>
                                     <td>{{ log.endedAt ? log.endedAt|date('d.m.Y.') : 'danas' }}</td>

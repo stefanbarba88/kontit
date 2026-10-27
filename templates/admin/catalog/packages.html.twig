@@ -20,11 +20,11 @@
                 <tbody>
                     {% for package in packages %}
                         <tr>
-                            <td>{{ package.name }}{% if package.description %}<div class="text-muted fs-sm">{{ package.description|slice(0, 80) }}</div>{% endif %}</td>
+                            <td>{{ package.name }}{% if package.description %}<div class="text-muted kt-text-sm">{{ package.description|slice(0, 80) }}</div>{% endif %}</td>
                             <td>{% for job in package.jobTemplates %}<span class="badge bg-light text-body border me-1">{{ job.name }}</span>{% endfor %}</td>
                             <td>{{ clientCounts[package.id] }}</td>
                             <td>{{ ui.status_badge(package.active) }}</td>
-                            <td><a href="{{ path('admin_package_edit', {id: package.id}) }}" class="btn btn-light btn-icon btn-sm rounded-pill border-transparent" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a></td>
+                            <td><a href="{{ path('admin_package_edit', {id: package.id}) }}" class="btn kt-kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a></td>
                         </tr>
                     {% else %}
                         <tr><td colspan="5">{{ ui.empty_state('Još nema paketa.', 'package') }}</td></tr>

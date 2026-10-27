@@ -1,10 +1,23 @@
-/* Timeline (7.11): tanka vertikalna linija, mali krugovi u boji tipa akcije. */
-.timeline { position: relative; }
-.timeline::before { content: ""; position: absolute; left: 15px; top: 0; bottom: 0; width: 1px; background: var(--kt-border-strong); }
-.timeline .timeline-entry, .timeline-item { position: relative; }
-.timeline .timeline-icon > div,
-.timeline .bg-primary.text-white, .timeline .bg-success.text-white, .timeline .bg-warning.text-white,
-.timeline .bg-danger.text-white, .timeline .bg-info.text-white, .timeline .bg-secondary.text-white {
-    box-shadow: 0 0 0 4px var(--kt-surface);
+/* Timeline (DESIGN.md 7.11): tanka vertikalna linija, mali krugovi u boji tipa akcije. */
+.kt-timeline { list-style: none; margin: 0; padding: 0; position: relative; }
+.kt-timeline::before { content: ""; position: absolute; left: 13px; top: 8px; bottom: 8px; width: 1px; background: var(--kt-border-strong); }
+.kt-tl-day { position: relative; padding: 4px 0 8px 40px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--kt-text-3); }
+.kt-tl-item { position: relative; display: flex; gap: 12px; padding: 0 0 16px; }
+.kt-tl-dot {
+    position: relative; z-index: 1; flex: none; width: 28px; height: 28px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 14px;
+    background: var(--kt-neutral-soft); color: var(--kt-text-2); box-shadow: 0 0 0 4px var(--kt-surface);
 }
-.timeline s, .timeline del, .timeline .text-decoration-line-through { color: var(--kt-text-3); }
+.kt-tl-dot--primary, .kt-tl-dot--info { background: var(--kt-primary-soft); color: var(--kt-primary); }
+.kt-tl-dot--success { background: var(--kt-success-soft); color: var(--kt-success); }
+.kt-tl-dot--warning { background: var(--kt-warning-soft); color: var(--kt-warning); }
+.kt-tl-dot--danger { background: var(--kt-danger-soft); color: var(--kt-danger); }
+.kt-tl-dot--purple { background: var(--kt-purple-soft); color: var(--kt-purple); }
+.kt-tl-body { flex: 1; min-width: 0; padding-top: 3px; }
+.kt-tl-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; }
+.kt-tl-head strong { font-weight: 600; }
+.kt-tl-time { margin-left: auto; font-size: 12px; color: var(--kt-text-3); font-variant-numeric: tabular-nums; }
+.kt-tl-change { font-size: 13px; color: var(--kt-text); margin-top: 2px; }
+.kt-tl-change .kt-icon { color: var(--kt-text-3); margin: 0 2px; }
+.kt-tl-field { color: var(--kt-text-3); }
+.kt-tl-change del { color: var(--kt-text-3); }

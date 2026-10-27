@@ -14,9 +14,9 @@
         <div class="card-body">
             <form method="get" class="row g-2" data-kt-filters>
                 <div class="col-12 col-md-5">
-                    <div class="form-control-feedback form-control-feedback-start">
+                    <div class="kt-input-icon">
                         <input type="search" name="q" value="{{ filters.q }}" class="form-control" placeholder="Ime, prezime ili email">
-                        <div class="form-control-feedback-icon">{{ ux_icon('lucide:search', {class: 'kt-icon text-muted'}) }}</div>
+                        <div class="kt-input-icon-start">{{ ux_icon('lucide:search', {class: 'kt-icon text-muted'}) }}</div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
@@ -62,7 +62,7 @@
                                     {{ ui.avatar(user, 40, 'me-3') }}
                                     <div>
                                         <div class="fw-semibold">{{ user.fullName }}</div>
-                                        <div class="text-muted fs-sm">{{ user.email }}</div>
+                                        <div class="text-muted kt-text-sm">{{ user.email }}</div>
                                     </div>
                                 </a>
                             </td>
@@ -72,7 +72,7 @@
                             <td>{{ user.lastLoginAt ? user.lastLoginAt|date('d.m.Y. H:i') : '—' }}</td>
                             <td class="text-center">
                                 {% if is_granted('USER_EDIT', user) %}
-                                    <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn btn-light btn-icon btn-sm rounded-pill border-transparent" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a>
+                                    <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn kt-kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a>
                                 {% endif %}
                             </td>
                         </tr>

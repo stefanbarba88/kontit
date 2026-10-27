@@ -26,7 +26,7 @@
                 <tbody>
                     {% for cp in clientPackages %}
                         <tr>
-                            <td>{{ cp.package.name }}{% if cp.note %}<div class="text-muted fs-sm">{{ cp.note }}</div>{% endif %}</td>
+                            <td>{{ cp.package.name }}{% if cp.note %}<div class="text-muted kt-text-sm">{{ cp.note }}</div>{% endif %}</td>
                             <td>{{ cp.startDate|date('d.m.Y.') }} – {{ cp.endDate ? cp.endDate|date('d.m.Y.') : '…' }}</td>
                             {% if is_granted('PRICE_VIEW') %}
                                 <td>
@@ -47,7 +47,7 @@
                                 {% if cp.active and is_granted('CATALOG_MANAGE') %}
                                     <form method="post" action="{{ path('client_package_remove', {id: cp.id}) }}" {{ confirm_attrs('Ukinuti paket klijentu?', 'Svi poslovi iz ovog paketa se završavaju danas. Istorija ostaje.', 'danger', 'Da, ukini', true) }}>
                                         <input type="hidden" name="_token" value="{{ csrf_token('client_package_remove_' ~ cp.id) }}">
-                                        <div class="form-check mb-1"><input type="checkbox" class="form-check-input" name="cancel_tasks" value="1" id="ct{{ cp.id }}"><label class="form-check-label fs-sm" for="ct{{ cp.id }}">otkaži otvorene zadatke</label></div>
+                                        <div class="form-check mb-1"><input type="checkbox" class="form-check-input" name="cancel_tasks" value="1" id="ct{{ cp.id }}"><label class="form-check-label kt-text-sm" for="ct{{ cp.id }}">otkaži otvorene zadatke</label></div>
                                         <button class="btn btn-outline-danger btn-sm">Ukini paket</button>
                                     </form>
                                 {% endif %}
@@ -73,8 +73,8 @@
                         <tr class="{{ job.excluded or not job.active ? 'text-muted' : '' }}">
                             <td>
                                 {{ job.jobTemplate.name }}
-                                {% if job.excluded %}<div class="fs-sm text-danger">Isključen: {{ job.excludedReason }}</div>{% endif %}
-                                {% if not job.approved %}<div class="fs-sm text-warning">Čeka odobrenje{% if job.proposedBy %} ({{ job.proposedBy.fullName }}){% endif %}</div>{% endif %}
+                                {% if job.excluded %}<div class="kt-text-sm text-danger">Isključen: {{ job.excludedReason }}</div>{% endif %}
+                                {% if not job.approved %}<div class="kt-text-sm text-warning">Čeka odobrenje{% if job.proposedBy %} ({{ job.proposedBy.fullName }}){% endif %}</div>{% endif %}
                             </td>
                             <td>{{ job.source.label }}</td>
                             <td>{{ job.recurrence.label }}</td>

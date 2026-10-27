@@ -8,12 +8,12 @@
     </div>
 {% endblock %}
 {% block auth_title %}Resetovanje lozinke{% endblock %}
-{% block auth_subtitle %}Poslaćemo vam uputstvo na email{% endblock %}
+{% block auth_subtitle %}Poslaćemo ti uputstvo na email{% endblock %}
 
 {% block auth_content %}
     {% for flash_error in app.flashes('reset_password_error') %}
-        <div class="alert alert-danger alert-icon-start" role="alert">
-            <span class="alert-icon bg-danger text-white">{{ ux_icon('lucide:circle-x', {class: 'kt-icon'}) }}</span>
+        <div class="alert alert-danger kt-alert" role="alert">
+            <span class="kt-alert-icon">{{ ux_icon('lucide:circle-x', {class: 'kt-icon'}) }}</span>
             {{ flash_error }}
         </div>
     {% endfor %}

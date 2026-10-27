@@ -32,17 +32,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
-    #[Assert\NotBlank(message: 'Unesite ime.')]
+    #[Assert\NotBlank(message: 'Unesi ime.')]
     #[Assert\Length(max: 100)]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
-    #[Assert\NotBlank(message: 'Unesite prezime.')]
+    #[Assert\NotBlank(message: 'Unesi prezime.')]
     #[Assert\Length(max: 100)]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 180)]
-    #[Assert\NotBlank(message: 'Unesite email.')]
+    #[Assert\NotBlank(message: 'Unesi email.')]
     #[Assert\Email(message: 'Email adresa nije ispravna.')]
     #[Assert\Length(max: 180)]
     private ?string $email = null;

@@ -20,7 +20,7 @@
 
 {% block content %}
     <div class="card">
-        <ul class="nav nav-tabs nav-tabs-underline px-3 pt-2">
+        <ul class="nav nav kt-tabs px-3 pt-2">
             {% for key, label in tabs %}
                 <li class="nav-item">
                     <a href="{{ path('task_index', filters|merge({tab: key, page: null})) }}" class="nav-link {{ filters.tab == key ? 'active' : '' }}">
@@ -120,7 +120,7 @@
                         <tr>
                             <td>
                                 <a href="{{ path('task_show', {id: task.id}) }}" class="fw-semibold">{{ task.title }}</a>
-                                {% if substituting_for(task) %}<span class="badge bg-info bg-opacity-20 text-info ms-1" title="Zamenjujete: {% for u in substituting_for(task) %}{{ u.fullName }}{% endfor %}">PREUZETO</span>{% endif %}
+                                {% if substituting_for(task) %}<span class="badge kt-badge-info ms-1" title="Zamenjuješ: {% for u in substituting_for(task) %}{{ u.fullName }}{% endfor %}">PREUZETO</span>{% endif %}
                             </td>
                             <td>{% if task.client %}{{ task.client.name }}{% else %}<span class="text-muted">Interni</span>{% endif %}</td>
                             <td>
@@ -130,7 +130,7 @@
                             </td>
                             <td>{{ ui.due_date(task) }}</td>
                             <td>{{ ui.priority_badge(task.priority) }}</td>
-                            <td class="fs-sm text-muted">
+                            <td class="kt-text-sm text-muted">
                                 {{ task.finishedAssigneesCount }}/{{ task.assignees|length }} učesnika
                                 {% if task.checklistTotal > 0 %}<br>checklist {{ task.checklistDone }}/{{ task.checklistTotal }}{% endif %}
                             </td>

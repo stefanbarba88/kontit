@@ -57,7 +57,7 @@ class TaskCompletionService
             $this->approversFor($task),
             NotificationType::TASK_SUBMITTED,
             'Zadatak čeka potvrdu',
-            sprintf('Zadatak „%s“ je završen i čeka vašu potvrdu.', $task->getTitle()),
+            sprintf('Zadatak „%s“ je završen i čeka tvoju potvrdu.', $task->getTitle()),
             ['task_show', ['id' => $task->getId()]],
             $actor,
         );
@@ -88,7 +88,7 @@ class TaskCompletionService
 
         foreach ($task->getChecklistItems() as $item) {
             if (!$item->isDone() && $item->getAssignedTo() === $user) {
-                throw new \DomainException('Imate neštikliranih stavki checkliste koje su dodeljene vama.');
+                throw new \DomainException('Imaš neštikliranih stavki checkliste koje su dodeljene vama.');
             }
         }
 
@@ -110,14 +110,14 @@ class TaskCompletionService
     {
         $substituted = $this->replacements->substitutedAssignees($task, $substitute);
         if ([] === $substituted) {
-            throw new \DomainException('Ne zamenjujete nijednog učesnika ovog zadatka.');
+            throw new \DomainException('Ne zamenjuješ nijednog učesnika ovog zadatka.');
         }
         $this->assertWorkable($task);
 
         foreach ($substituted as $assignee) {
             foreach ($task->getChecklistItems() as $item) {
                 if (!$item->isDone() && $item->getAssignedTo() === $assignee->getUser()) {
-                    throw new \DomainException('Ima neštikliranih stavki koje su dodeljene kolegi koga zamenjujete.');
+                    throw new \DomainException('Ima neštikliranih stavki koje su dodeljene kolegi koga zamenjuješ.');
                 }
             }
         }
@@ -198,7 +198,7 @@ class TaskCompletionService
         }
         $reason = trim($reason);
         if ('' === $reason) {
-            throw new \DomainException('Unesite razlog vraćanja na doradu.');
+            throw new \DomainException('Unesi razlog vraćanja na doradu.');
         }
 
         $this->em->wrapInTransaction(function () use ($task, $reviewer, $reason): void {
@@ -251,7 +251,7 @@ class TaskCompletionService
 
     private function requireAssignee(Task $task, User $user): \App\Entity\TaskAssignee
     {
-        return $task->findAssignee($user) ?? throw new \DomainException('Niste učesnik ovog zadatka.');
+        return $task->findAssignee($user) ?? throw new \DomainException('Nisi učesnik ovog zadatka.');
     }
 
     private function assertWorkable(Task $task): void

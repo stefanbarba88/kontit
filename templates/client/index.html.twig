@@ -17,9 +17,9 @@
         <div class="card-body">
             <form method="get" class="row g-2" data-kt-filters>
                 <div class="col-12 col-md-6">
-                    <div class="form-control-feedback form-control-feedback-start">
+                    <div class="kt-input-icon">
                         <input type="search" name="q" value="{{ filters.q }}" class="form-control" placeholder="Naziv, PIB, matični broj ili grad">
-                        <div class="form-control-feedback-icon">{{ ux_icon('lucide:search', {class: 'kt-icon text-muted'}) }}</div>
+                        <div class="kt-input-icon-start">{{ ux_icon('lucide:search', {class: 'kt-icon text-muted'}) }}</div>
                     </div>
                 </div>
                 <div class="col-8 col-md-4">
@@ -47,7 +47,7 @@
                         <tr>
                             <td>
                                 <a href="{{ path('client_show', {id: client.id}) }}" class="fw-semibold">{{ client.name }}</a>
-                                <div class="text-muted fs-sm">{{ client.legalForm.label }}{% if client.city %} · {{ client.city }}{% endif %}</div>
+                                <div class="text-muted kt-text-sm">{{ client.legalForm.label }}{% if client.city %} · {{ client.city }}{% endif %}</div>
                             </td>
                             <td>{{ client.pib ?? '—' }}</td>
                             <td>{{ ui.user_chip(client.primaryAccountant, 24) }}</td>

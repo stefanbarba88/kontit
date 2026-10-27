@@ -49,3 +49,10 @@
 .apexcharts-tooltip.apexcharts-theme-light { background: var(--kt-surface) !important; color: var(--kt-text) !important; }
 .apexcharts-tooltip.apexcharts-theme-dark { background: var(--kt-surface-2) !important; color: var(--kt-text) !important; }
 .apexcharts-tooltip-title { background: transparent !important; border-bottom-color: var(--kt-border) !important; }
+
+/* tabovi sa linijom ispod */
+.kt-tabs { gap: 4px; border-bottom: 1px solid var(--kt-border); flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.kt-tabs .nav-link { position: relative; border: 0; background: none; color: var(--kt-text-2); font-weight: 500; padding: 12px 10px; white-space: nowrap; }
+.kt-tabs .nav-link:hover { color: var(--kt-text); }
+.kt-tabs .nav-link.active { color: var(--kt-primary); }
+.kt-tabs .nav-link.active::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 2px; border-radius: 2px; background: var(--kt-primary); }

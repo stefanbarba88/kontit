@@ -22,7 +22,7 @@ class ClientPackageType extends AbstractType
             ->add('package', EntityType::class, [
                 'label' => 'Paket',
                 'class' => ServicePackage::class,
-                'placeholder' => '— izaberite paket —',
+                'placeholder' => '— izaberi paket —',
                 'choice_label' => static fn (ServicePackage $p) => $p->getName(),
                 'query_builder' => static fn (ServicePackageRepository $r) => $r->createQueryBuilder('p')->andWhere('p.isActive = true')->orderBy('p.name'),
             ])

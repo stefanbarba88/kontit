@@ -8,7 +8,6 @@
         color var(--kt-dur-1) var(--kt-ease), box-shadow var(--kt-dur-1) var(--kt-ease), transform var(--kt-dur-1) var(--kt-ease);
 }
 .btn-sm { min-height: 32px; border-radius: var(--kt-radius-sm); }
-.btn-icon { min-height: 0; }
 .btn:focus-visible { box-shadow: 0 0 0 3px var(--kt-focus); outline: 0; }
 .btn:active:not(:disabled) { transform: translateY(1px); }
 
@@ -72,3 +71,16 @@
         radial-gradient(circle 2.6px at 50% 85%, #fff 98%, transparent);
 }
 @keyframes kt-spin { to { transform: rotate(360deg); } }
+
+/* dugme samo sa ikonicom (ghost): akcije u redovima tabela */
+.kt-btn-icon { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; min-height: 0; padding: 0; border: 0; border-radius: 999px; background: transparent; color: var(--kt-text-2); }
+.kt-btn-icon.btn-sm { width: 32px; height: 32px; }
+.kt-btn-icon:hover { background: var(--kt-surface-3); color: var(--kt-text); }
+.kt-btn-icon.text-danger:hover { background: var(--kt-danger-soft); }
+.kt-btn-icon .kt-icon { font-size: 18px; }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--kt-text-2); box-shadow: none; }
+.btn-ghost:hover { background: var(--kt-surface-3); color: var(--kt-text); }
+
+/* dugmad na kraju forme (na telefonu lepljiva, vidi mobile.css) */
+.kt-form-actions { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 8px; }
+.kt-form-actions .me-2 { margin-right: 0 !important; }

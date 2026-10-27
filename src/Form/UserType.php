@@ -47,7 +47,7 @@ class UserType extends AbstractType
                 'invalid_message' => 'Lozinke se ne poklapaju.',
                 'help' => $options['require_password'] ? null : 'Ostavite prazno da lozinka ostane ista.',
                 'constraints' => array_filter([
-                    $options['require_password'] ? new NotBlank(message: 'Unesite lozinku.') : null,
+                    $options['require_password'] ? new NotBlank(message: 'Unesi lozinku.') : null,
                     new Length(min: 8, minMessage: 'Lozinka mora imati najmanje {{ limit }} karaktera.', max: 4096),
                 ]),
             ])

@@ -40,7 +40,7 @@ class UserService
         if (null !== $role) {
             // Šef tima ne može da padne ispod ROLE_SEF dok vodi tim
             if (Role::RADNIK === $role && $user->getId() && $this->teams->countActiveLedBy($user) > 0) {
-                throw new \DomainException('Korisnik vodi tim. Prvo promenite šefa tima.');
+                throw new \DomainException('Korisnik vodi tim. Prvo promeni šefa tima.');
             }
             $user->setHighestRole($role);
         }
@@ -63,10 +63,10 @@ class UserService
     {
         if (!$active) {
             if ($user === $actor) {
-                throw new \DomainException('Ne možete deaktivirati sopstveni nalog.');
+                throw new \DomainException('Ne možeš deaktivirati sopstveni nalog.');
             }
             if ($this->teams->countActiveLedBy($user) > 0) {
-                throw new \DomainException('Korisnik vodi tim. Prvo promenite šefa tima.');
+                throw new \DomainException('Korisnik vodi tim. Prvo promeni šefa tima.');
             }
             $clients = $this->clients->countActiveAssignedTo($user);
             if ($clients > 0) {

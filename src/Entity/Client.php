@@ -25,12 +25,12 @@ class Client
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'Unesite naziv klijenta.')]
+    #[Assert\NotBlank(message: 'Unesi naziv klijenta.')]
     #[Assert\Length(max: 255)]
     private ?string $name = null;
 
     #[ORM\Column(length: 20, enumType: LegalForm::class)]
-    #[Assert\NotNull(message: 'Izaberite pravnu formu.')]
+    #[Assert\NotNull(message: 'Izaberi pravnu formu.')]
     private ?LegalForm $legalForm = null;
 
     #[ORM\Column(length: 9, nullable: true)]

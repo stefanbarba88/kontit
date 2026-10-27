@@ -20,7 +20,7 @@
                         {{ form_row(form.discountPercent) }}
                         {{ form_row(form.startDate) }}
                         {{ form_row(form.note) }}
-                        <div class="text-end">
+                        <div class="kt-form-actions">
                             <a href="{{ path('client_packages', {id: client.id}) }}" class="btn btn-light me-2">Otkaži</a>
                             <button class="btn btn-primary">Dodeli{{ ux_icon('lucide:check', {class: 'kt-icon ms-2'}) }}</button>
                         </div>

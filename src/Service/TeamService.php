@@ -133,8 +133,8 @@ class TeamService
             NotificationType::TEAM_CHANGED,
             'Promena tima',
             null === $previous
-                ? sprintf('Dodati ste u tim „%s“.', $team->getName())
-                : sprintf('Prebačeni ste iz tima „%s“ u tim „%s“.', $previous->getName(), $team->getName()),
+                ? sprintf('Sada si u timu „%s“.', $team->getName())
+                : sprintf('Tvoj tim je promenjen: iz „%s“ u „%s“.', $previous->getName(), $team->getName()),
             null,
             $actor,
         );
@@ -178,8 +178,8 @@ class TeamService
         $this->notifications->notify(
             $leader,
             NotificationType::TEAM_CHANGED,
-            $appointed ? 'Postavljeni ste za šefa tima' : 'Više niste šef tima',
-            sprintf($appointed ? 'Postavljeni ste za šefa tima „%s“.' : 'Više niste šef tima „%s“.', $team->getName()),
+            $appointed ? 'Sada vodiš tim' : 'Više ne vodiš tim',
+            sprintf($appointed ? 'Sada vodiš tim „%s“.' : 'Više ne vodiš tim „%s“.', $team->getName()),
             $appointed ? ['team_show', ['id' => $team->getId()]] : null,
             $actor,
         );

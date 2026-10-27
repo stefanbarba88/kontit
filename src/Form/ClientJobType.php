@@ -23,7 +23,7 @@ class ClientJobType extends AbstractType
             ->add('jobTemplate', EntityType::class, [
                 'label' => 'Posao',
                 'class' => JobTemplate::class,
-                'placeholder' => '— izaberite posao —',
+                'placeholder' => '— izaberi posao —',
                 'choice_label' => static fn (JobTemplate $j) => $j->getName().' ('.$j->getRecurrence()->label().')',
                 'query_builder' => static fn (JobTemplateRepository $r) => $r->createQueryBuilder('j')->andWhere('j.isActive = true')->orderBy('j.category')->addOrderBy('j.name'),
             ])

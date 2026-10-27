@@ -23,11 +23,11 @@ class TeamMemberType extends AbstractType
         $builder->add('user', EntityType::class, [
             'label' => 'Radnik',
             'class' => User::class,
-            'placeholder' => '— izaberite radnika —',
+            'placeholder' => '— izaberi radnika —',
             'choice_label' => static fn (User $u) => $u->getFullName(),
             'query_builder' => static fn (UserRepository $r) => $r->createActiveChoiceQueryBuilder(),
             'choice_attr' => static fn (User $u) => isset($options['warnings'][$u->getId()]) ? ['data-warning' => $options['warnings'][$u->getId()]] : [],
-            'constraints' => [new NotNull(message: 'Izaberite radnika.')],
+            'constraints' => [new NotNull(message: 'Izaberi radnika.')],
             'help' => 'Ako je radnik u drugom timu, biće premešten. Njegovi klijenti i zadaci idu sa njim.',
         ]);
     }

@@ -77,7 +77,7 @@ class AbsenceController extends AbstractController
         $this->denyAccessUnlessGranted('cancel' === $action ? 'ABSENCE_CANCEL' : 'ABSENCE_DECIDE', $absence);
 
         if (!$this->isCsrfTokenValid('absence_'.$absence->getId(), $request->request->getString('_token'))) {
-            $this->addFlash('danger', 'Neispravan bezbednosni token. Pokušajte ponovo.');
+            $this->addFlash('danger', 'Neispravan bezbednosni token. Pokušaj ponovo.');
         } else {
             try {
                 $me = $this->actor();

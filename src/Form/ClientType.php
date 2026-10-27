@@ -33,7 +33,7 @@ class ClientType extends AbstractType
                 'label' => 'Pravna forma',
                 'class' => LegalForm::class,
                 'choice_label' => static fn (LegalForm $f) => $f->label(),
-                'placeholder' => '— izaberite —',
+                'placeholder' => '— izaberi —',
             ])
             ->add('pib', TextType::class, ['label' => 'PIB', 'required' => false, 'attr' => ['maxlength' => 9, 'inputmode' => 'numeric']])
             ->add('maticniBroj', TextType::class, ['label' => 'Matični broj', 'required' => false, 'attr' => ['maxlength' => 8, 'inputmode' => 'numeric']])
@@ -73,8 +73,8 @@ class ClientType extends AbstractType
             ->add('primary', EntityType::class, $common + [
                 'label' => 'Glavni zaduženi',
                 'data' => $client->getPrimaryAccountant(),
-                'placeholder' => '— izaberite —',
-                'constraints' => [new NotNull(message: 'Izaberite glavnog zaduženog.')],
+                'placeholder' => '— izaberi —',
+                'constraints' => [new NotNull(message: 'Izaberi glavnog zaduženog.')],
             ])
             ->add('backup', EntityType::class, $common + [
                 'label' => 'Backup (zamena)',

@@ -179,7 +179,7 @@
                     {% set weekend = day|date('N') >= 6 %}
                     {% set level = minutes == 0 ? 0 : (minutes < 240 ? 1 : (minutes < 480 ? 2 : (minutes < 960 ? 3 : 4))) %}
                     {% set colors = ['var(--kt-surface-3)', 'color-mix(in srgb, var(--kt-success) 28%, var(--kt-surface))', 'color-mix(in srgb, var(--kt-warning) 28%, var(--kt-surface))', 'color-mix(in srgb, var(--kt-warning) 60%, var(--kt-surface))', 'color-mix(in srgb, var(--kt-danger) 65%, var(--kt-surface))'] %}
-                    <div title="{{ day|date('d.m.Y.') }}: {{ (minutes / 60)|number_format(1, ',') }} h" class="rounded text-center fs-xs {{ weekend ? 'opacity-50' : '' }}" style="width: 38px; height: 38px; background: {{ colors[level] }}; color: var(--kt-text); line-height: 1.1; padding-top: 4px;">
+                    <div title="{{ day|date('d.m.Y.') }}: {{ (minutes / 60)|number_format(1, ',') }} h" class="rounded text-center kt-text-xs {{ weekend ? 'opacity-50' : '' }}" style="width: 38px; height: 38px; background: {{ colors[level] }}; color: var(--kt-text); line-height: 1.1; padding-top: 4px;">
                         {{ day|date('d.m') }}<br>{{ (minutes / 60)|round }}h
                     </div>
                 {% endfor %}

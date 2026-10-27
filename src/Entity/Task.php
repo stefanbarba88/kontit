@@ -27,7 +27,7 @@ class Task
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'Unesite naslov zadatka.')]
+    #[Assert\NotBlank(message: 'Unesi naslov zadatka.')]
     #[Assert\Length(max: 255)]
     private ?string $title = null;
 
@@ -46,14 +46,14 @@ class Task
     private ?\DateTimeImmutable $dueDate = null;
 
     #[ORM\Column(length: 20, enumType: TaskPriority::class)]
-    #[Assert\NotNull(message: 'Izaberite prioritet.')]
+    #[Assert\NotNull(message: 'Izaberi prioritet.')]
     private TaskPriority $priority = TaskPriority::NORMALAN;
 
     #[ORM\Column(length: 20, enumType: TaskStatus::class)]
     private TaskStatus $status = TaskStatus::NOVO;
 
     #[ORM\Column(length: 3, enumType: CompletionMode::class)]
-    #[Assert\NotNull(message: 'Izaberite režim završetka.')]
+    #[Assert\NotNull(message: 'Izaberi režim završetka.')]
     private CompletionMode $completionMode = CompletionMode::ALL;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]

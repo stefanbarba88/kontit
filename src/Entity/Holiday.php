@@ -21,11 +21,11 @@ class Holiday
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, unique: true)]
-    #[Assert\NotNull(message: 'Unesite datum.')]
+    #[Assert\NotNull(message: 'Unesi datum.')]
     private ?\DateTimeImmutable $date = null;
 
     #[ORM\Column(length: 150)]
-    #[Assert\NotBlank(message: 'Unesite naziv.')]
+    #[Assert\NotBlank(message: 'Unesi naziv.')]
     #[Assert\Length(max: 150)]
     private ?string $name = null;
 

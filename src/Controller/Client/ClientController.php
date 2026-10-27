@@ -103,7 +103,7 @@ class ClientController extends AbstractController
                 'label' => 'PIB-ovi',
                 'attr' => ['rows' => 6, 'placeholder' => "100002119\n101234567"],
                 'help' => sprintf('Jedan ili više PIB-ova (od 9 cifara), razdvojenih novim redom, razmakom ili zarezom. Najviše %d odjednom.', ClientImportService::LIMIT),
-                'constraints' => [new \Symfony\Component\Validator\Constraints\NotBlank(message: 'Unesite bar jedan PIB.')],
+                'constraints' => [new \Symfony\Component\Validator\Constraints\NotBlank(message: 'Unesi bar jedan PIB.')],
             ]);
         ClientType::addAssignment($builder, $this->assigneeQueryBuilder(new Client()), new Client());
         $form = $builder->getForm();
@@ -126,7 +126,7 @@ class ClientController extends AbstractController
     public function nbsRefresh(Request $request, Client $client): Response
     {
         if (!$this->isCsrfTokenValid('client_nbs_'.$client->getId(), $request->request->getString('_token'))) {
-            $this->addFlash('danger', 'Neispravan bezbednosni token. Pokušajte ponovo.');
+            $this->addFlash('danger', 'Neispravan bezbednosni token. Pokušaj ponovo.');
         } else {
             try {
                 $this->nbs->refresh($client);

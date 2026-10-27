@@ -92,7 +92,7 @@ class ClientPackageService
     {
         $reason = trim($reason);
         if ('' === $reason) {
-            throw new \DomainException('Unesite razlog ukidanja paketa.');
+            throw new \DomainException('Unesi razlog ukidanja paketa.');
         }
 
         $cancelled = 0;
@@ -134,7 +134,7 @@ class ClientPackageService
     {
         $reason = trim($reason);
         if ('' === $reason) {
-            throw new \DomainException('Unesite razlog isključenja.');
+            throw new \DomainException('Unesi razlog isključenja.');
         }
 
         $cancelled = 0;

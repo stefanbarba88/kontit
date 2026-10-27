@@ -28,11 +28,11 @@ class ClientPackage
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull(message: 'Izaberite paket.')]
+    #[Assert\NotNull(message: 'Izaberi paket.')]
     private ?ServicePackage $package = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    #[Assert\NotNull(message: 'Unesite dogovorenu cenu.')]
+    #[Assert\NotNull(message: 'Unesi dogovorenu cenu.')]
     #[Assert\PositiveOrZero]
     private ?string $agreedPrice = null;
 
@@ -41,7 +41,7 @@ class ClientPackage
     private ?string $discountPercent = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    #[Assert\NotNull(message: 'Unesite početak.')]
+    #[Assert\NotNull(message: 'Unesi početak.')]
     private ?\DateTimeImmutable $startDate = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]

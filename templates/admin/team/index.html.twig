@@ -21,12 +21,12 @@
                         <tr>
                             <td>
                                 <a href="{{ path('team_show', {id: team.id}) }}" class="text-body">{{ ui.team_badge(team) }}</a>
-                                {% if team.description %}<div class="text-muted fs-sm mt-1">{{ team.description|slice(0, 80) }}</div>{% endif %}
+                                {% if team.description %}<div class="text-muted kt-text-sm mt-1">{{ team.description|slice(0, 80) }}</div>{% endif %}
                             </td>
                             <td>{{ ui.user_chip(team.leader) }}</td>
                             <td>{{ team.activeMembers|length }}</td>
                             <td class="text-center">
-                                <a href="{{ path('admin_team_edit', {id: team.id}) }}" class="btn btn-light btn-icon btn-sm rounded-pill border-transparent" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a>
+                                <a href="{{ path('admin_team_edit', {id: team.id}) }}" class="btn kt-kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a>
                             </td>
                         </tr>
                     {% else %}

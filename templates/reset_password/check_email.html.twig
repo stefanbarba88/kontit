@@ -7,7 +7,7 @@
         {{ ux_icon('lucide:mail-open', {class: 'kt-icon kt-icon-lg'}) }}
     </div>
 {% endblock %}
-{% block auth_title %}Proverite email{% endblock %}
+{% block auth_title %}Proveri email{% endblock %}
 {% block auth_subtitle %}Uputstvo je poslato{% endblock %}
 
 {% block auth_content %}
@@ -15,7 +15,7 @@
         Ako nalog sa tom email adresom postoji, poslali smo poruku sa linkom za resetovanje lozinke.
         Link važi {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
     </p>
-    <p class="text-muted">Ako poruka ne stigne, proverite spam folder ili <a href="{{ path('app_forgot_password_request') }}">pokušajte ponovo</a>.</p>
+    <p class="text-muted">Ako poruka ne stigne, proveri spam folder ili <a href="{{ path('app_forgot_password_request') }}">pokušaj ponovo</a>.</p>
     <div class="text-center">
         <a href="{{ path('app_login') }}">Nazad na prijavu</a>
     </div>

@@ -201,7 +201,7 @@ function initTextareas(root) {
 }
 
 function initTooltips(root) {
-    root.querySelectorAll('[data-bs-toggle="tooltip"], .btn-icon[title], .kt-btn-icon[title], .kt-icon-btn[title]').forEach((el) => {
+    root.querySelectorAll('[data-bs-toggle="tooltip"], .kt-btn-icon[title], .kt-icon-btn[title]').forEach((el) => {
         if (!Tooltip.getInstance(el)) {
             new Tooltip(el, { delay: { show: 300, hide: 0 }, trigger: 'hover focus' });
         }

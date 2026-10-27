@@ -29,19 +29,19 @@ class UserAbsence
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull(message: 'Izaberite radnika.')]
+    #[Assert\NotNull(message: 'Izaberi radnika.')]
     private ?User $user = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    #[Assert\NotNull(message: 'Unesite početak odsustva.')]
+    #[Assert\NotNull(message: 'Unesi početak odsustva.')]
     private ?\DateTimeImmutable $startDate = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    #[Assert\NotNull(message: 'Unesite kraj odsustva.')]
+    #[Assert\NotNull(message: 'Unesi kraj odsustva.')]
     private ?\DateTimeImmutable $endDate = null;
 
     #[ORM\Column(length: 20, enumType: AbsenceReason::class)]
-    #[Assert\NotNull(message: 'Izaberite razlog.')]
+    #[Assert\NotNull(message: 'Izaberi razlog.')]
     private ?AbsenceReason $reason = AbsenceReason::GODISNJI;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

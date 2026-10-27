@@ -31,7 +31,7 @@ class NotificationController extends AbstractAjaxController
     public function read(Notification $notification): JsonResponse
     {
         if ($notification->getUser() !== $this->getUser()) {
-            return $this->fail('Nemate pravo na ovu akciju.', 403);
+            return $this->fail('Nemaš pravo na ovu akciju.', 403);
         }
 
         $notification->markRead();

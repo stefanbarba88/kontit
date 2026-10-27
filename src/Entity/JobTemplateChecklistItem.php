@@ -22,7 +22,7 @@ class JobTemplateChecklistItem
     private ?JobTemplate $jobTemplate = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'Unesite tekst stavke.')]
+    #[Assert\NotBlank(message: 'Unesi tekst stavke.')]
     #[Assert\Length(max: 255)]
     private ?string $text = null;
 

@@ -96,7 +96,7 @@ class ClientService
         if ($active) {
             foreach ([$client->getPrimaryAccountant(), $client->getBackupAccountant()] as $user) {
                 if (null !== $user && !$user->isActive()) {
-                    throw new \DomainException(sprintf('%s je deaktiviran. Prvo promenite dodelu klijenta.', $user->getFullName()));
+                    throw new \DomainException(sprintf('%s je deaktiviran. Prvo promeni dodelu klijenta.', $user->getFullName()));
                 }
             }
         }
@@ -110,8 +110,8 @@ class ClientService
         $this->notifications->notify(
             $user,
             NotificationType::CLIENT_ASSIGNED,
-            'Dodeljen vam je klijent',
-            sprintf('Dodeljeni ste na klijentu „%s“ kao %s.', $client->getName(), AssignmentType::PRIMARY === $type ? 'glavni zaduženi' : 'backup (zamena)'),
+            'Dodeljen ti je klijent',
+            sprintf('Dodeljen ti je klijent „%s“, uloga: %s.', $client->getName(), AssignmentType::PRIMARY === $type ? 'glavni zaduženi' : 'backup (zamena)'),
             ['client_show', ['id' => $client->getId()]],
             $actor,
         );
@@ -140,7 +140,7 @@ class ClientService
                 throw new \DomainException(sprintf('%s je deaktiviran i ne može biti zadužen.', $user->getFullName()));
             }
             if (!$this->canAssignAnyone($actor) && !$this->users->isInLeaderScope($actor, $user)) {
-                throw new \DomainException(sprintf('%s nije član vašeg tima.', $user->getFullName()));
+                throw new \DomainException(sprintf('%s nije član tvog tima.', $user->getFullName()));
             }
         }
     }

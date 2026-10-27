@@ -149,7 +149,7 @@ class TaskService
             throw new \DomainException('Tekst stavke mora imati između 1 i 255 karaktera.');
         }
         if (null !== $assignedTo && !$task->hasAssignee($assignedTo)) {
-            throw new \DomainException('Stavku možete dodeliti samo učesniku zadatka.');
+            throw new \DomainException('Stavku možeš dodeliti samo učesniku zadatka.');
         }
 
         $position = 0;
@@ -204,7 +204,7 @@ class TaskService
     public function assignChecklistItem(ChecklistItem $item, ?User $user): void
     {
         if (null !== $user && !$item->getTask()->hasAssignee($user)) {
-            throw new \DomainException('Stavku možete dodeliti samo učesniku zadatka.');
+            throw new \DomainException('Stavku možeš dodeliti samo učesniku zadatka.');
         }
         $item->setAssignedTo($user);
         $this->em->flush();
@@ -267,7 +267,7 @@ class TaskService
     public function editComment(TaskComment $comment, User $actor, string $body): void
     {
         if (!$comment->isEditableBy($actor)) {
-            throw new \DomainException(sprintf('Komentar možete izmeniti samo prvih %d minuta posle objave.', TaskComment::EDIT_WINDOW_MINUTES));
+            throw new \DomainException(sprintf('Komentar možeš izmeniti samo prvih %d minuta posle objave.', TaskComment::EDIT_WINDOW_MINUTES));
         }
         $body = trim($body);
         if ('' === $body) {
@@ -288,7 +288,7 @@ class TaskService
             $recipients,
             NotificationType::TASK_ASSIGNED,
             $urgent ? 'Novi HITAN zadatak' : 'Novi zadatak',
-            sprintf('Dodeljen vam je zadatak „%s“%s%s. Dodelio: %s.', $task->getTitle(), null !== $task->getClient() ? ' ('.$task->getClient()->getName().')' : '', null !== $task->getDueDate() ? ', rok '.$task->getDueDate()->format('d.m.Y.') : '', $actor->getFullName()),
+            sprintf('Dodeljen ti je zadatak „%s“%s%s. Dodelio: %s.', $task->getTitle(), null !== $task->getClient() ? ' ('.$task->getClient()->getName().')' : '', null !== $task->getDueDate() ? ', rok '.$task->getDueDate()->format('d.m.Y.') : '', $actor->getFullName()),
             ['task_show', ['id' => $task->getId()]],
             $actor,
             $email,
@@ -314,7 +314,7 @@ class TaskService
                 throw new \DomainException(sprintf('%s je deaktiviran i ne može dobiti zadatak.', $user->getFullName()));
             }
             if (!$this->canAssignTo($actor, $user)) {
-                throw new \DomainException(sprintf('Ne možete dodeliti zadatak korisniku %s.', $user->getFullName()));
+                throw new \DomainException(sprintf('Ne možeš dodeliti zadatak korisniku %s.', $user->getFullName()));
             }
         }
     }

@@ -30,8 +30,8 @@
 
 /* akcije reda: na hover (desktop) */
 @media (hover: hover) and (min-width: 992px) {
-    .table > tbody > tr .btn-icon { opacity: .55; transition: opacity var(--kt-dur-1) var(--kt-ease); }
-    .table > tbody > tr:hover .btn-icon { opacity: 1; }
+    .table > tbody > tr .kt-btn-icon { opacity: .55; transition: opacity var(--kt-dur-1) var(--kt-ease); }
+    .table > tbody > tr:hover .kt-btn-icon { opacity: 1; }
 }
 
 /* složeni avatari */

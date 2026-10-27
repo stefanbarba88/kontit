@@ -14,16 +14,16 @@
         <div class="card-body">
             <div class="kt-overline mb-2">Kont plava</div>
             <div class="d-flex flex-wrap gap-2 mb-4">
-                {% for k, c in blues %}<div class="text-center"><div style="width: 56px; height: 40px; border-radius: 8px; background: {{ c }}; box-shadow: 0 0 0 1px var(--kt-border);"></div><div class="fs-xs mt-1 kt-mono">{{ k }}</div></div>{% endfor %}
+                {% for k, c in blues %}<div class="text-center"><div style="width: 56px; height: 40px; border-radius: 8px; background: {{ c }}; box-shadow: 0 0 0 1px var(--kt-border);"></div><div class="kt-text-xs mt-1 kt-mono">{{ k }}</div></div>{% endfor %}
             </div>
             <div class="kt-overline mb-2">Grafit (neutralna skala)</div>
             <div class="d-flex flex-wrap gap-2 mb-4">
-                {% for k, c in neutrals %}<div class="text-center"><div style="width: 56px; height: 40px; border-radius: 8px; background: {{ c }}; box-shadow: 0 0 0 1px var(--kt-border);"></div><div class="fs-xs mt-1 kt-mono">{{ k }}</div></div>{% endfor %}
+                {% for k, c in neutrals %}<div class="text-center"><div style="width: 56px; height: 40px; border-radius: 8px; background: {{ c }}; box-shadow: 0 0 0 1px var(--kt-border);"></div><div class="kt-text-xs mt-1 kt-mono">{{ k }}</div></div>{% endfor %}
             </div>
             <div class="kt-overline mb-2">Semantika (prate temu)</div>
             <div class="d-flex flex-wrap gap-2">
                 {% for t in ['bg', 'surface', 'surface-2', 'surface-3', 'primary', 'primary-soft', 'success', 'warning', 'danger', 'purple'] %}
-                    <div class="text-center"><div style="width: 72px; height: 40px; border-radius: 8px; background: var(--kt-{{ t }}); box-shadow: 0 0 0 1px var(--kt-border);"></div><div class="fs-xs mt-1 kt-mono">{{ t }}</div></div>
+                    <div class="text-center"><div style="width: 72px; height: 40px; border-radius: 8px; background: var(--kt-{{ t }}); box-shadow: 0 0 0 1px var(--kt-border);"></div><div class="kt-text-xs mt-1 kt-mono">{{ t }}</div></div>
                 {% endfor %}
             </div>
         </div>
@@ -37,7 +37,7 @@
             <h2>H2 naslov kartice</h2>
             <h3>H3 podnaslov</h3>
             <p class="mb-1">Tekst 14/20, Inter 400. Šćžčđ ŠĆŽČĐ: latin-ext podskup radi.</p>
-            <p class="fs-sm mb-1">Mali tekst 13/18</p>
+            <p class="kt-text-sm mb-1">Mali tekst 13/18</p>
             <div class="kt-overline mb-2">Overline labela</div>
             <p class="mb-0"><span class="kt-mono">PIB 100002119 · 20123456</span> (JetBrains Mono) · <span class="kt-num">1.234.567,00 RSD</span> (tabularni brojevi)</p>
         </div>
@@ -48,12 +48,12 @@
         <div class="card-body d-flex flex-wrap gap-2 align-items-center">
             <button class="btn btn-primary">Primarno</button>
             <button class="btn btn-light">Sekundarno</button>
-            <button class="btn btn-flat-white">Ghost</button>
+            <button class="btn btn-ghost">Ghost</button>
             <button class="btn btn-outline-danger">Opasno (ghost)</button>
             <button class="btn btn-primary is-loading">Učitavanje</button>
             <button class="btn btn-primary" disabled>Onemogućeno</button>
             <button class="btn btn-light btn-sm">Kompaktno</button>
-            <button class="btn btn-light btn-icon rounded-pill" title="Ikonica">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button>
+            <button class="btn btn-light kt-btn-icon rounded-pill" title="Ikonica">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button>
         </div>
     </div>
 
@@ -61,13 +61,13 @@
         <div class="card-header"><h5>Badge-ovi i avatari</h5></div>
         <div class="card-body">
             <div class="d-flex flex-wrap gap-2 mb-3">
-                <span class="badge bg-secondary bg-opacity-20 text-secondary">Novo</span>
-                <span class="badge bg-primary bg-opacity-20 text-primary">U radu</span>
-                <span class="badge bg-warning bg-opacity-20 text-warning">Čeka klijenta</span>
-                <span class="badge bg-purple bg-opacity-20 text-purple">Na proveri</span>
-                <span class="badge bg-success bg-opacity-20 text-success">Završeno</span>
-                <span class="badge bg-secondary bg-opacity-20 text-secondary kt-strike">Otkazano</span>
-                <span class="badge bg-danger bg-opacity-20 text-danger kt-pulse">Hitan</span>
+                <span class="badge kt-badge-secondary">Novo</span>
+                <span class="badge kt-badge-primary">U radu</span>
+                <span class="badge kt-badge-warning">Čeka klijenta</span>
+                <span class="badge kt-badge-purple">Na proveri</span>
+                <span class="badge kt-badge-success">Završeno</span>
+                <span class="badge kt-badge-secondary kt-strike">Otkazano</span>
+                <span class="badge kt-badge-danger kt-pulse">Hitan</span>
             </div>
             <div class="d-flex align-items-center gap-3">
                 {% for size in [24, 32, 40, 64] %}
@@ -94,7 +94,7 @@
             <div class="row">
                 <div class="col-md-4 mb-3"><label class="form-label required">Naziv</label><input class="form-control" value="Firma d.o.o."><div class="form-text">Pomoćni tekst ispod polja</div></div>
                 <div class="col-md-4 mb-3"><label class="form-label">PIB</label><input class="form-control kt-mono" value="100002119"></div>
-                <div class="col-md-4 mb-3"><label class="form-label">Sa greškom</label><input class="form-control is-invalid" value="pogrešno"><div class="invalid-feedback">Unesite ispravnu vrednost.</div></div>
+                <div class="col-md-4 mb-3"><label class="form-label">Sa greškom</label><input class="form-control is-invalid" value="pogrešno"><div class="invalid-feedback">Unesi ispravnu vrednost.</div></div>
                 <div class="col-md-4 mb-3"><label class="form-label">Izbor</label><select class="form-select"><option>Prva opcija</option><option>Druga opcija</option></select></div>
                 <div class="col-md-4 mb-3"><label class="form-label">Checklist</label>
                     <div class="d-flex align-items-center gap-2 checklist-item mb-1"><input type="checkbox" class="form-check-input" checked><span class="checklist-text">Knjiženje izvoda</span></div>
@@ -113,14 +113,14 @@
             <table class="table table-hover align-middle">
                 <thead><tr><th>Klijent</th><th>Učesnici</th><th>Status</th><th class="text-end">Iznos</th><th style="width: 1%;"></th></tr></thead>
                 <tbody>
-                    <tr><td><div class="d-flex align-items-center gap-2"><span class="kt-avatar" data-tone="1" style="width: 32px; height: 32px; font-size: 12px;">PZ</span><div><div class="fw-medium">Pekara Zlatni klas</div><div class="fs-sm text-muted kt-mono">101000001</div></div></div></td>
+                    <tr><td><div class="d-flex align-items-center gap-2"><span class="kt-avatar" data-tone="1" style="width: 32px; height: 32px; font-size: 12px;">PZ</span><div><div class="fw-medium">Pekara Zlatni klas</div><div class="kt-text-sm text-muted kt-mono">101000001</div></div></div></td>
                         <td><span class="kt-avatar-stack"><span class="kt-avatar" data-tone="0" style="width: 28px; height: 28px; font-size: 11px;">MP</span><span class="kt-avatar" data-tone="3" style="width: 28px; height: 28px; font-size: 11px;">JK</span></span></td>
-                        <td><span class="badge bg-primary bg-opacity-20 text-primary">U radu</span></td><td class="text-end">16.000,00 RSD</td>
-                        <td><button class="btn btn-light btn-icon btn-sm rounded-pill border-transparent">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button></td></tr>
-                    <tr><td><div class="d-flex align-items-center gap-2"><span class="kt-avatar" data-tone="5" style="width: 32px; height: 32px; font-size: 12px;">AB</span><div><div class="fw-medium">Auto-servis Brzi</div><div class="fs-sm text-muted kt-mono">101000002</div></div></div></td>
+                        <td><span class="badge kt-badge-primary">U radu</span></td><td class="text-end">16.000,00 RSD</td>
+                        <td><button class="btn kt-kt-btn-icon btn-sm">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button></td></tr>
+                    <tr><td><div class="d-flex align-items-center gap-2"><span class="kt-avatar" data-tone="5" style="width: 32px; height: 32px; font-size: 12px;">AB</span><div><div class="fw-medium">Auto-servis Brzi</div><div class="kt-text-sm text-muted kt-mono">101000002</div></div></div></td>
                         <td><span class="kt-empty-value">—</span></td>
-                        <td><span class="badge bg-danger bg-opacity-20 text-danger">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon'}) }} Kasni</span></td><td class="text-end">9.500,00 RSD</td>
-                        <td><button class="btn btn-light btn-icon btn-sm rounded-pill border-transparent">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button></td></tr>
+                        <td><span class="badge kt-badge-danger">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon'}) }} Kasni</span></td><td class="text-end">9.500,00 RSD</td>
+                        <td><button class="btn kt-kt-btn-icon btn-sm">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button></td></tr>
                 </tbody>
             </table>
         </div>

@@ -144,9 +144,9 @@ class TaskController extends AbstractController
             };
 
             return match ($action) {
-                'start' => 'Označeno je da radite na zadatku.',
-                'done' => 'Vaš deo je označen kao gotov.',
-                'undo' => 'Vaš deo je ponovo u radu.',
+                'start' => 'Označeno je da radiš na zadatku.',
+                'done' => 'Tvoj deo je označen kao gotov.',
+                'undo' => 'Tvoj deo je ponovo u radu.',
             };
         });
     }
@@ -204,7 +204,7 @@ class TaskController extends AbstractController
     private function perform(Request $request, Task $task, string $tokenId, callable $action): Response
     {
         if (!$this->isCsrfTokenValid($tokenId, $request->request->getString('_token'))) {
-            $this->addFlash('danger', 'Neispravan bezbednosni token. Pokušajte ponovo.');
+            $this->addFlash('danger', 'Neispravan bezbednosni token. Pokušaj ponovo.');
         } else {
             try {
                 $this->addFlash('success', $action());

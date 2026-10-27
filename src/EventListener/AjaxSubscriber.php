@@ -42,7 +42,7 @@ class AjaxSubscriber implements EventSubscriberInterface
 
         $token = (string) $request->headers->get('X-CSRF-Token', '');
         if (!$this->csrf->isTokenValid(new CsrfToken(self::TOKEN_ID, $token))) {
-            $event->setResponse($this->json('Neispravan bezbednosni token. Osvežite stranicu.', 403));
+            $event->setResponse($this->json('Neispravan bezbednosni token. Osveži stranicu.', 403));
         }
     }
 
@@ -54,7 +54,7 @@ class AjaxSubscriber implements EventSubscriberInterface
 
         $e = $event->getThrowable();
         if ($e instanceof AccessDeniedException) {
-            $event->setResponse($this->json('Nemate pravo na ovu akciju.', 403));
+            $event->setResponse($this->json('Nemaš pravo na ovu akciju.', 403));
         } elseif ($e instanceof HttpExceptionInterface && $e->getStatusCode() < 500) {
             $event->setResponse($this->json(404 === $e->getStatusCode() ? 'Stavka nije pronađena.' : ($e->getMessage() ?: 'Zahtev nije dozvoljen.'), $e->getStatusCode()));
         }

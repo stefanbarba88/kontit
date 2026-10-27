@@ -37,10 +37,10 @@ class TeamType extends AbstractType
                 'class' => User::class,
                 'mapped' => false,
                 'data' => $team->getLeader(),
-                'placeholder' => '— izaberite šefa —',
+                'placeholder' => '— izaberi šefa —',
                 'choice_label' => static fn (User $u) => $u->getFullName().' ('.$u->getEmail().')',
                 'query_builder' => static fn (UserRepository $r) => $r->createLeaderChoiceQueryBuilder($team->getLeader()),
-                'constraints' => [new NotNull(message: 'Izaberite šefa tima.')],
+                'constraints' => [new NotNull(message: 'Izaberi šefa tima.')],
                 'help' => 'Prikazani su samo korisnici sa rolom šef. Promena šefa se beleži u istoriji.',
             ]);
     }

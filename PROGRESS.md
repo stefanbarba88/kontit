@@ -8,6 +8,10 @@
 - Otvorenih nedoumica: 0 (1-5 rešene podrazumevanim predlozima, vidi SPEC.md sekciju 11).
 
 ## Urađeno
+- 2026-10-27: **UPDATE-DIZAJN korak 5: postojeće strane na novom sistemu**
+  - Sve klase iz uklonjenog template-a zamenjene našim: meki badge-ovi `kt-badge-{boja}` (NORMALAN prioritet samo ivica), `kt-btn-icon`, `btn-ghost`, `kt-text-sm/xs`, `kt-tabs`, `kt-alert`, `kt-input-icon`, `kt-icon-circle kt-tone-*`, `kt-form-actions`. `legacy.css` obrisan. Skripta proverava da u `templates/` nema klase koja ne postoji u Bootstrap-u ili našem CSS-u (ostali su samo JS hook-ovi).
+  - Timeline prepisan (`kt-timeline`, DESIGN.md 7.11: krugovi u boji akcije, avatar, vreme sa tooltipom, `staro → novo` sa precrtanim starim).
+  - Ton obraćanja: ceo UI prebačen na "ti" (DESIGN.md 12): šabloni, flash poruke, forme, validacija, notifikacije, mail za reset lozinke. Rečenice sa rodom ("Dodeljeni ste", "Postavljeni ste") preformulisane neutralno.
 - 2026-10-27: **UPDATE-DIZAJN korak 4: mobilni prikaz (DESIGN.md 16)**
   - Telefon < 576px: nema sidebara; donja traka (Početna, Zadaci sa brojačem kašnjenja + čekanja potvrde, "+" brze akcije, Klijenti, Više) u `components/_mobile_nav.html.twig`; bottom sheet-ovi (Bootstrap offcanvas-bottom sa ručkom, zatvaranje prevlačenjem); topbar 56px sa dugmetom nazad (istorija ili poslednja karika putanje), naslovom na sredini, pretragom preko celog ekrana i zvoncem; safe-area za notch.
   - `assets/js/mobile.js`: tabele dobijaju `data-label` iz zaglavlja i na telefonu postaju kartice-redovi (glavni red + sekundarni red + akcije), filteri (`form[data-kt-filters]`) idu u bottom sheet sa brojem aktivnih, "Učitaj još" umesto brojeva strana, swipe akcije, filtriranje "Moji klijenti" po `?q=`.
