@@ -12,8 +12,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
  * ABSENCE_CREATE (bez subjekta): svako prijavljen (za koga sme, proverava AbsenceService).
- * ABSENCE_DECIDE: odsustvo čeka odobrenje, a odobrava admin+ ili šef tima radnika (nikad sam sebi).
- * ABSENCE_CANCEL: odsustvo čeka ili je odobreno i nije prošlo, a otkazuje radnik, onaj ko ga je upisao, admin+ ili šef tima.
+ * ABSENCE_DECIDE: odsustvo je na odobrenju, a odobrava admin+ ili šef tima radnika (nikad sam sebi).
+ * ABSENCE_CANCEL: podnosilac (ili onaj ko je upisao) dok je na odobrenju, admin+ u bilo kom trenutku.
  */
 class AbsenceVoter extends Voter
 {
@@ -48,10 +48,11 @@ class AbsenceVoter extends Voter
         $status = $subject->getStatus();
 
         return match ($attribute) {
-            self::DECIDE => AbsenceStatus::NA_CEKANJU === $status && !$subject->hasEnded()
-                && $this->service->canDecide($user, $subject->getUser()),
-            self::CANCEL => in_array($status, [AbsenceStatus::NA_CEKANJU, AbsenceStatus::ODOBRENO], true) && !$subject->hasEnded()
-                && ($subject->getUser() === $user || $subject->getCreatedBy() === $user || $this->service->canDecide($user, $subject->getUser())),
+            self::DECIDE => AbsenceStatus::NA_ODOBRENJU === $status && $this->service->canDecide($user, $subject->getUser()),
+            // podnosilac dok je zahtev na odobrenju, admin u bilo kom trenutku (SPEC 8j.2)
+            self::CANCEL => \in_array($status, AbsenceStatus::blocking(), true)
+                && ((AbsenceStatus::NA_ODOBRENJU === $status && ($subject->getUser() === $user || $subject->getCreatedBy() === $user))
+                    || \in_array('ROLE_ADMIN', $token->getRoleNames(), true) || \in_array('ROLE_SUPERADMIN', $token->getRoleNames(), true)),
             default => false,
         };
     }

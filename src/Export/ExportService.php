@@ -108,7 +108,7 @@ class ExportService
                     $sheet->getStyle($cell)->getNumberFormat()->setFormatCode('dd.mm.yyyy.');
                 } elseif (\in_array($column['type'], ['number', 'money'], true)) {
                     $sheet->setCellValue($cell, (float) $value);
-                    $sheet->getStyle($cell)->getNumberFormat()->setFormatCode('money' === $column['type'] ? '#,##0.00' : '0');
+                    $sheet->getStyle($cell)->getNumberFormat()->setFormatCode('money' === $column['type'] ? '#,##0.00' : 'General');
                 } else {
                     // tekst ostaje tekst (PIB i matični broj sa vodećim nulama)
                     $sheet->setCellValueExplicit($cell, (string) $value, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);

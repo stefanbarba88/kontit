@@ -576,7 +576,9 @@ Zamenjuje `Holiday` tabelu. Admin+ upravlja na **Podešavanja → Neradni dani**
 - Pregled: godišnji kalendar (12 malih meseci) sa obojenim neradnim danima i lista ispod.
 - **`WorkingDayService`** (jedino mesto za "da li je radni dan"): `isWorkingDay`, `nextWorkingDay`, `previousWorkingDay`, `countWorkingDays`, `nonWorkingDaysBetween`. Keš po godini, briše se pri izmeni. Koriste ga `ScheduleCalculator`, odsustva, flatpickr (`/ajax/calendar/non-working?year=`) i kalendar.
 
-## 8j. Odsustva (zamenjuje UserAbsence iz sekcije 3 i dopunjuje sekciju 5)
+## 8j. Odsustva (zamenjuje UserAbsence iz sekcije 3 i dopunjuje sekciju 5; implementirano u P6)
+
+> Entitet se i dalje zove `UserAbsence` (tabela `user_absence`); to je "Absence" iz ove sekcije. `createdBy` je podnosilac (requestedBy).
 
 ### 8j.1 Vrste odsustva (CRUD za admina)
 `AbsenceType`: name, color, icon, requiresApproval, countsAgainstLeave, requiresDocument, maxDaysPerYear (opciono), isActive.

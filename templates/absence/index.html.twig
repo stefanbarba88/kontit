@@ -1,85 +1,227 @@
 {% extends 'base.html.twig' %}
 {% import 'components/ui.html.twig' as ui %}
+{% import 'components/export.html.twig' as ex %}
 
 {% block title %}Odsustva{% endblock %}
 {% block page_title %}Odsustva{% endblock %}
 {% block breadcrumbs %}<span class="breadcrumb-item active">Odsustva</span>{% endblock %}
 
-{% macro action_form(absence, action, label, btn, icon) %}
+{% block page_actions %}
+    {% if tab == 'evidencija' %}{{ ex.menu('odsustva') }}{% endif %}
+    <a href="{{ path('absence_new') }}" class="btn btn-primary">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Zahtev za odsustvo</a>
+{% endblock %}
+
+{# Dugme radnje sa SweetAlert potvrdom; odbijanje traži razlog #}
+{% macro action_form(absence, action, label, btn, icon, back = null) %}
     <form method="post" action="{{ path('absence_action', {id: absence.id, action: action}) }}" class="d-inline"
           {% if action == 'approve' %}{{ confirm_attrs('Odobriti odsustvo?', absence.user.fullName ~ ': ' ~ absence.summary, 'info', 'Da, odobri') }}
-          {% elseif action == 'reject' %}{{ confirm_attrs('Odbiti odsustvo?', absence.user.fullName ~ ': ' ~ absence.summary, 'warning', 'Da, odbij') }}
-          {% else %}{{ confirm_attrs('Otkazati odsustvo?', 'Backup više neće preuzimati klijente za ovaj period.', 'danger', 'Da, otkaži') }}{% endif %}>
+          {% elseif action == 'reject' %}{{ confirm_attrs('Odbiti odsustvo?', absence.user.fullName ~ ': ' ~ absence.summary ~ '. Razlog dobija podnosilac.', 'warning', 'Da, odbij', true) }}
+          {% else %}{{ confirm_attrs('Otkazati odsustvo?', absence.summary ~ '. Zamena više neće preuzimati klijente za ovaj period.', 'danger', 'Da, otkaži') }}{% endif %}>
         <input type="hidden" name="_token" value="{{ csrf_token('absence_' ~ absence.id) }}">
+        {% if back %}<input type="hidden" name="back" value="{{ back }}">{% endif %}
         <button class="btn btn-sm {{ btn }}">{{ ux_icon('lucide:' ~ icon, {class: 'kt-icon me-1'}) }}{{ label }}</button>
     </form>
 {% endmacro %}
 
+{% macro type_badge(type) %}
+    <span class="kt-cat-badge" style="--kt-cat: {{ type.color }};">{% if type.icon %}{{ ux_icon('lucide:' ~ type.icon, {class: 'kt-icon'}) }}{% endif %}{{ type.name }}</span>
+{% endmacro %}
+
+{% macro status(a) %}
+    <span class="badge kt-badge-{{ a.status.color }}">{{ a.status.label }}</span>
+    {% if a.pending and a.approvalDeadline %}<div class="kt-text-xs text-muted" data-kt-countdown="{{ a.approvalDeadline|date('c') }}">automatski do {{ a.approvalDeadline|date('d.m. H:i') }}</div>{% endif %}
+    {% if a.decidedBy %}<div class="kt-text-xs text-muted">{{ a.decidedBy.fullName }}</div>{% endif %}
+    {% if a.decisionNote %}<div class="kt-text-xs text-muted">„{{ a.decisionNote }}“</div>{% endif %}
+{% endmacro %}
+
 {% block content %}
-    <div class="d-flex align-items-center mb-3">
-        <div class="btn-group">
-            <a href="{{ path('absence_index') }}" class="btn btn-light {{ current ? 'active' : '' }}">Aktuelna</a>
-            <a href="{{ path('absence_index', {history: 1}) }}" class="btn btn-light {{ not current ? 'active' : '' }}">Istorija</a>
-        </div>
-        <a href="{{ path('absence_new') }}" class="btn btn-primary ms-auto">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Novo odsustvo</a>
+    {% set leave_text = balance.remaining|number_format(1, ',', '.')|replace({',0': ''}) %}
+    <div class="kt-leave-strip mb-3">
+        <div><span class="kt-overline">Godišnji odmor {{ balance.year }}.</span><strong class="fs-5">{{ leave_text }}</strong> <span class="text-muted">dana preostalo</span></div>
+        <div class="kt-text-sm text-muted">pravo {{ balance.entitled|number_format(1, ',', '.')|replace({',0': ''}) }}{% if balance.carriedOver > 0 %} · preneto {{ balance.carriedOver|number_format(1, ',', '.')|replace({',0': ''}) }} (do 30.6.){% endif %} · iskorišćeno {{ balance.used|number_format(1, ',', '.')|replace({',0': ''}) }}{% if balance.pending > 0 %} · na odobrenju {{ balance.pending|number_format(1, ',', '.')|replace({',0': ''}) }}{% endif %}{% if balance.carryExpired > 0 %} · propalo {{ balance.carryExpired|number_format(1, ',', '.')|replace({',0': ''}) }}{% endif %}</div>
     </div>
 
-    {% if pendingAbsences %}
-        <div class="card border-warning">
-            <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:calendar-check', {class: 'kt-icon me-2'}) }}Čeka tvoje odobrenje <span class="badge bg-warning rounded-pill ms-1">{{ pendingAbsences|length }}</span></h5></div>
+    {% if canManage %}
+        <ul class="nav kt-tabs mb-3">
+            <li class="nav-item"><a href="{{ path('absence_index') }}" class="nav-link {{ tab == 'zahtevi' ? 'active' }}">Zahtevi</a></li>
+            <li class="nav-item"><a href="{{ path('absence_index', {tab: 'odobrenje'}) }}" class="nav-link {{ tab == 'odobrenje' ? 'active' }}">Na odobrenju{% if pendingCount %} <span class="badge bg-warning rounded-pill ms-1">{{ pendingCount }}</span>{% endif %}</a></li>
+            <li class="nav-item"><a href="{{ path('absence_index', {tab: 'pregled'}) }}" class="nav-link {{ tab == 'pregled' ? 'active' }}">Pregled</a></li>
+            <li class="nav-item"><a href="{{ path('absence_index', {tab: 'evidencija'}) }}" class="nav-link {{ tab == 'evidencija' ? 'active' }}">Evidencija</a></li>
+        </ul>
+    {% endif %}
+
+    {% if tab == 'zahtevi' %}
+        <div class="d-flex mb-3">
+            <div class="btn-group">
+                <a href="{{ path('absence_index') }}" class="btn btn-light {{ current ? 'active' }}">Aktuelna</a>
+                <a href="{{ path('absence_index', {history: 1}) }}" class="btn btn-light {{ not current ? 'active' }}">Istorija</a>
+            </div>
+        </div>
+        <div class="card">
             <div class="table-responsive">
-                <table class="table align-middle mb-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Radnik</th><th>Period</th><th>Vrsta</th><th>Dani</th><th>Status</th><th></th></tr></thead>
                     <tbody>
-                        {% for a in pendingAbsences %}
+                        {% for a in pagination %}
                             <tr>
                                 <td>{{ ui.user_chip(a.user, 32) }}</td>
-                                <td>{{ a.startDate|date('d.m.Y.') }} – {{ a.endDate|date('d.m.Y.') }}<div class="kt-text-sm text-muted">{{ a.reason.label }}{% if a.note %} · {{ a.note }}{% endif %}</div></td>
-                                <td class="text-end">
+                                <td class="text-nowrap">{{ a.startDate|date('d.m.Y.') }}{% if a.endDate != a.startDate %} – {{ a.endDate|date('d.m.Y.') }}{% endif %}{% if a.note %}<div class="kt-text-sm text-muted">{{ a.note }}</div>{% endif %}</td>
+                                <td>{{ _self.type_badge(a.type) }}</td>
+                                <td class="text-nowrap">{{ a.halfDay ? 'pola dana' : a.workingDays|number_format(1, ',', '.')|replace({',0': ''}) }}</td>
+                                <td>{{ _self.status(a) }}</td>
+                                <td class="text-end text-nowrap">
                                     {% if is_granted('ABSENCE_DECIDE', a) %}
                                         {{ _self.action_form(a, 'approve', 'Odobri', 'btn-success', 'check') }}
                                         {{ _self.action_form(a, 'reject', 'Odbij', 'btn-outline-danger', 'x') }}
                                     {% endif %}
+                                    {% if is_granted('ABSENCE_CANCEL', a) %}{{ _self.action_form(a, 'cancel', 'Otkaži', 'btn-light', 'ban') }}{% endif %}
                                 </td>
                             </tr>
+                        {% else %}
+                            <tr><td colspan="6">{{ ui.empty_state(current ? 'Nema aktuelnih odsustava.' : 'Nema odsustava.', 'plane') }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center">{{ knp_pagination_render(pagination) }}</div>
+
+    {% elseif tab == 'odobrenje' %}
+        <div class="kt-approvals">
+            {% for a in pendingAbsences %}
+                <div class="card kt-swipe kt-approval mb-2">
+                    <div class="kt-swipe-actions">
+                        {% if is_granted('ABSENCE_DECIDE', a) %}
+                            {{ _self.action_form(a, 'reject', 'Odbij', 'btn-danger', 'x', path('absence_index', {tab: 'odobrenje'})) }}
+                            {{ _self.action_form(a, 'approve', 'Odobri', 'btn-success', 'check', path('absence_index', {tab: 'odobrenje'})) }}
+                        {% endif %}
+                    </div>
+                    <div class="kt-swipe-content card-body d-flex flex-wrap align-items-center gap-3">
+                        {{ ui.user_chip(a.user, 36) }}
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="fw-semibold">{{ a.startDate|date('d.m.Y.') }}{% if a.endDate != a.startDate %} – {{ a.endDate|date('d.m.Y.') }}{% endif %} · {{ a.halfDay ? 'pola dana' : a.workingDays|number_format(1, ',', '.')|replace({',0': ''}) ~ ' rad. dana' }}</div>
+                            <div class="d-flex flex-wrap gap-2 align-items-center mt-1">{{ _self.type_badge(a.type) }}{% if a.note %}<span class="kt-text-sm text-muted">{{ a.note }}</span>{% endif %}</div>
+                        </div>
+                        <div class="text-end">
+                            {% if a.approvalDeadline %}<div class="kt-text-sm text-warning" data-kt-countdown="{{ a.approvalDeadline|date('c') }}">Automatski se odobrava {{ a.approvalDeadline|date('d.m. H:i') }}</div>{% endif %}
+                            <div class="d-none d-sm-flex gap-1 justify-content-end mt-1">
+                                {% if is_granted('ABSENCE_DECIDE', a) %}
+                                    {{ _self.action_form(a, 'approve', 'Odobri', 'btn-success', 'check', path('absence_index', {tab: 'odobrenje'})) }}
+                                    {{ _self.action_form(a, 'reject', 'Odbij', 'btn-outline-danger', 'x', path('absence_index', {tab: 'odobrenje'})) }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card"><div class="card-body">{{ ui.empty_state('Nema zahteva koji čekaju tvoje odobrenje.', 'calendar-check') }}</div></div>
+            {% endfor %}
+        </div>
+        <p class="kt-text-sm text-muted d-sm-none">Prevuci karticu ulevo za Odobri / Odbij.</p>
+
+    {% elseif tab == 'pregled' %}
+        {% set prev = month|date_modify('-1 month')|date('Y-m') %}
+        {% set next = month|date_modify('+1 month')|date('Y-m') %}
+        <div class="card">
+            <div class="card-header d-flex flex-wrap align-items-center gap-2">
+                <a href="{{ path('absence_index', {tab: 'pregled', month: prev, team: teamId}) }}" class="btn btn-ghost kt-btn-icon btn-sm" aria-label="Prethodni mesec">{{ ux_icon('lucide:chevron-left', {class: 'kt-icon'}) }}</a>
+                <h5 class="mb-0">{{ ['Januar', 'Februar', 'Mart', 'April', 'Maj', 'Jun', 'Jul', 'Avgust', 'Septembar', 'Oktobar', 'Novembar', 'Decembar'][month|date('n') - 1] }} {{ month|date('Y') }}.</h5>
+                <a href="{{ path('absence_index', {tab: 'pregled', month: next, team: teamId}) }}" class="btn btn-ghost kt-btn-icon btn-sm" aria-label="Sledeći mesec">{{ ux_icon('lucide:chevron-right', {class: 'kt-icon'}) }}</a>
+                {% if teams|length > 1 %}
+                    <form method="get" class="ms-auto" data-kt-autosubmit>
+                        <input type="hidden" name="tab" value="pregled"><input type="hidden" name="month" value="{{ month|date('Y-m') }}">
+                        <select name="team" class="form-select form-select-sm" data-native onchange="this.form.submit()" aria-label="Tim">
+                            <option value="">Svi timovi</option>
+                            {% for t in teams %}<option value="{{ t.id }}" {{ teamId == t.id ? 'selected' }}>{{ t.name }}</option>{% endfor %}
+                        </select>
+                    </form>
+                {% endif %}
+            </div>
+            {# desktop: radnik × dani #}
+            <div class="table-responsive d-none d-md-block">
+                <table class="table table-sm kt-absence-grid mb-0">
+                    <thead>
+                        <tr>
+                            <th class="kt-ag-name">Radnik</th>
+                            {% for d in grid.days %}<th class="{{ grid.nonWorking[d|date('Y-m-d')] is defined ? 'is-off' }}" title="{{ grid.nonWorking[d|date('Y-m-d')] ?? '' }}">{{ d|date('j') }}<span>{{ ['', 'p', 'u', 's', 'č', 'p', 's', 'n'][d|date('N')] }}</span></th>{% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in grid.users %}
+                            <tr>
+                                <td class="kt-ag-name text-nowrap">{{ ui.avatar(u, 22) }} {{ u.fullName }}</td>
+                                {% for d in grid.days %}
+                                    {% set key = d|date('Y-m-d') %}
+                                    {% set a = grid.cells[u.id][key] ?? null %}
+                                    <td class="{{ grid.nonWorking[key] is defined ? 'is-off' }}">
+                                        {% if a %}<span class="kt-ag-cell{{ a.pending ? ' is-pending' }}" style="--kt-cat: {{ a.type.color }};" title="{{ a.type.name }}{{ a.pending ? ' (na odobrenju)' }}" data-bs-toggle="tooltip"></span>{% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {# telefon: lista po danima #}
+            <ul class="list-group list-group-flush d-md-none">
+                {% set any = false %}
+                {% for d in grid.days %}
+                    {% set key = d|date('Y-m-d') %}
+                    {% set people = grid.users|filter(u => grid.cells[u.id][key] is defined) %}
+                    {% if people is not empty %}
+                        {% set any = true %}
+                        <li class="list-group-item">
+                            <div class="kt-overline mb-1">{{ d|date('d.m.') }} {{ ['', 'ponedeljak', 'utorak', 'sreda', 'četvrtak', 'petak', 'subota', 'nedelja'][d|date('N')] }}</div>
+                            {% for u in people %}{% set a = grid.cells[u.id][key] %}<div class="d-flex align-items-center gap-2 mb-1">{{ ui.avatar(u, 22) }} <span class="flex-grow-1">{{ u.fullName }}</span>{{ _self.type_badge(a.type) }}</div>{% endfor %}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                {% if not any %}<li class="list-group-item">{{ ui.empty_state('U ovom mesecu niko nije odsutan.', 'plane') }}</li>{% endif %}
+            </ul>
+        </div>
+
+    {% else %}
+        <div class="card">
+            <div class="card-header d-flex flex-wrap align-items-center gap-2">
+                <a href="{{ path('absence_index', {tab: 'evidencija', year: year - 1, team: teamId}) }}" class="btn btn-ghost kt-btn-icon btn-sm" aria-label="Prethodna godina">{{ ux_icon('lucide:chevron-left', {class: 'kt-icon'}) }}</a>
+                <h5 class="mb-0">Evidencija {{ year }}.</h5>
+                <a href="{{ path('absence_index', {tab: 'evidencija', year: year + 1, team: teamId}) }}" class="btn btn-ghost kt-btn-icon btn-sm" aria-label="Sledeća godina">{{ ux_icon('lucide:chevron-right', {class: 'kt-icon'}) }}</a>
+                {% if teams|length > 1 %}
+                    <form method="get" class="ms-auto">
+                        <input type="hidden" name="tab" value="evidencija"><input type="hidden" name="year" value="{{ year }}">
+                        <select name="team" class="form-select form-select-sm" data-native onchange="this.form.submit()" aria-label="Tim">
+                            <option value="">Svi timovi</option>
+                            {% for t in teams %}<option value="{{ t.id }}" {{ teamId == t.id ? 'selected' }}>{{ t.name }}</option>{% endfor %}
+                        </select>
+                    </form>
+                {% endif %}
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Radnik</th>
+                            {% for t in records.types %}<th class="text-end">{{ t.name }}</th>{% endfor %}
+                            <th class="text-end">Ukupno</th>
+                            <th class="text-end">Godišnji: pravo + preneto</th>
+                            <th class="text-end">Preostalo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in records.rows %}
+                            <tr>
+                                <td>{{ ui.user_chip(r.user, 28) }}</td>
+                                {% for t in records.types %}<td class="text-end">{{ (r.byType[t.id] ?? 0) ? (r.byType[t.id])|number_format(1, ',', '.')|replace({',0': ''}) : '—' }}</td>{% endfor %}
+                                <td class="text-end fw-semibold">{{ r.total|number_format(1, ',', '.')|replace({',0': ''}) }}</td>
+                                <td class="text-end">{{ r.leave.entitled|number_format(1, ',', '.')|replace({',0': ''}) }}{% if r.leave.carriedOver %} + {{ r.leave.carriedOver|number_format(1, ',', '.')|replace({',0': ''}) }}{% endif %}</td>
+                                <td class="text-end {{ r.leave.remaining < 0 ? 'text-danger' }}">{{ r.leave.remaining|number_format(1, ',', '.')|replace({',0': ''}) }}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="{{ records.types|length + 4 }}">{{ ui.empty_state('Nema radnika u izabranom opsegu.', 'users') }}</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     {% endif %}
-
-    <div class="card">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead><tr><th>Radnik</th><th>Period</th><th>Razlog</th><th>Status</th><th>Upisao</th><th></th></tr></thead>
-                <tbody>
-                    {% for a in pagination %}
-                        <tr>
-                            <td>{{ ui.user_chip(a.user, 32) }}</td>
-                            <td>{{ a.startDate|date('d.m.Y.') }} – {{ a.endDate|date('d.m.Y.') }}</td>
-                            <td>{{ a.reason.label }}{% if a.note %}<div class="kt-text-sm text-muted">{{ a.note }}</div>{% endif %}</td>
-                            <td>
-                                <span class="badge kt-badge-{{ a.status.color }}">{{ a.status.label }}</span>
-                                {% if a.decidedBy %}<div class="kt-text-xs text-muted">{{ a.decidedBy.fullName }}</div>{% endif %}
-                            </td>
-                            <td class="kt-text-sm text-muted">{{ a.createdBy.fullName }}</td>
-                            <td class="text-end">
-                                {% if is_granted('ABSENCE_DECIDE', a) %}
-                                    {{ _self.action_form(a, 'approve', 'Odobri', 'btn-success', 'check') }}
-                                    {{ _self.action_form(a, 'reject', 'Odbij', 'btn-outline-danger', 'x') }}
-                                {% endif %}
-                                {% if is_granted('ABSENCE_CANCEL', a) %}
-                                    {{ _self.action_form(a, 'cancel', 'Otkaži', 'btn-light', 'ban') }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr><td colspan="6">{{ ui.empty_state(current ? 'Nema aktuelnih odsustava.' : 'Nema odsustava.', 'plane') }}</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="d-flex justify-content-center">{{ knp_pagination_render(pagination) }}</div>
 {% endblock %}

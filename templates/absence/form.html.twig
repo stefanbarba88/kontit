@@ -1,41 +1,45 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Novo odsustvo{% endblock %}
-{% block page_title %}Novo odsustvo{% endblock %}
+{% block title %}Zahtev za odsustvo{% endblock %}
+{% block page_title %}Zahtev za odsustvo{% endblock %}
 {% block breadcrumbs %}
     <a href="{{ path('absence_index') }}" class="breadcrumb-item">Odsustva</a>
-    <span class="breadcrumb-item active">Novo</span>
+    <span class="breadcrumb-item active">Novi zahtev</span>
 {% endblock %}
 
 {% block content %}
+    {{ form_start(form, {attr: {'data-kt-absence-form': '', 'data-preview-url': path('ajax_absence_preview'), 'data-me': me.id}}) }}
     <div class="row">
-        <div class="col-lg-6">
-            {{ form_start(form) }}
+        <div class="col-lg-7">
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Odsustvo</h5></div>
-                <div class="card-body border-top">
+                <div class="card-body">
                     {{ form_errors(form) }}
                     {% if form.user is defined %}{{ form_row(form.user) }}{% endif %}
+                    {{ form_row(form.type) }}
                     <div class="row">
                         <div class="col-md-6">{{ form_row(form.startDate) }}</div>
                         <div class="col-md-6">{{ form_row(form.endDate) }}</div>
                     </div>
-                    {{ form_row(form.reason) }}
+                    <div data-kt-absence-half-row>{{ form_row(form.halfDay) }}</div>
                     {{ form_row(form.note) }}
-                    <div class="text-muted kt-text-sm">
-                        {% if needsApproval %}
-                            Odsustvo čeka odobrenje šefa tima. Backup preuzima tvoje klijente tek kad bude odobreno.
-                        {% else %}
-                            Odsustvo je odmah na snazi. Backup radnici se obaveštavaju da preuzimaju klijente.
-                        {% endif %}
+                    <div class="kt-text-sm text-muted" data-kt-absence-document hidden>{{ ux_icon('lucide:file-text', {class: 'kt-icon me-1'}) }}Ova vrsta traži dokument (npr. doznaku). Možeš da ga dodaš i kasnije, u roku od 3 dana, u Dokumentima na profilu.</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:calendar-days', {class: 'kt-icon me-2'}) }}Pregled zahteva</h5></div>
+                <div class="card-body border-top">
+                    <div class="kt-absence-info" data-kt-absence-info>
+                        <p class="text-muted mb-0">Izaberi vrstu i period.</p>
                     </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-end gap-2">
-                <a href="{{ path('absence_index') }}" class="btn btn-light">Otkaži</a>
-                <button class="btn btn-primary">{{ needsApproval ? 'Pošalji na odobrenje' : 'Sačuvaj' }}{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
-            </div>
-            {{ form_end(form) }}
         </div>
     </div>
+    <div class="kt-form-actions">
+        <a href="{{ path('absence_index') }}" class="btn btn-light">Otkaži</a>
+        <button class="btn btn-primary" data-kt-absence-submit>{{ canChooseUser ? 'Sačuvaj' : 'Pošalji zahtev' }}{{ ux_icon('lucide:send', {class: 'kt-icon ms-2'}) }}</button>
+    </div>
+    {{ form_end(form) }}
 {% endblock %}

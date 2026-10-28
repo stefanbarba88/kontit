@@ -79,6 +79,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $internalNote = null;
 
+    /** Broj dana godišnjeg odmora po godini (prazno = podrazumevano iz podešavanja, SPEC 8j.3) */
+    #[ORM\Column(nullable: true)]
+    #[Assert\Range(min: 0, max: 60)]
+    private ?int $annualLeaveDays = null;
+
     /** Izbor teme prikaza (DESIGN.md sekcija 6) */
     #[ORM\Column(length: 10, enumType: ThemePreference::class, options: ['default' => 'SYSTEM'])]
     private ThemePreference $themePreference = ThemePreference::SYSTEM;
@@ -288,6 +293,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     public function setEmployedAt(?\DateTimeImmutable $employedAt): static
     {
         $this->employedAt = $employedAt;
+
+        return $this;
+    }
+
+    public function getAnnualLeaveDays(): ?int
+    {
+        return $this->annualLeaveDays;
+    }
+
+    public function setAnnualLeaveDays(?int $days): static
+    {
+        $this->annualLeaveDays = $days;
 
         return $this;
     }

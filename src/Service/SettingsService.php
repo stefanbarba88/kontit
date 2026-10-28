@@ -13,10 +13,21 @@ class SettingsService
 {
     public const MIN_HOURLY_RATE = 'min_hourly_rate';
     public const DEFAULT_CAPACITY_HOURS = 'default_capacity_hours';
+    /** Podrazumevan broj dana godišnjeg odmora (SPEC 8j.3) */
+    public const ANNUAL_LEAVE_DAYS = 'annual_leave_days';
+    /** Rok za automatsko odobravanje odsustva, u radnim satima (SPEC 8m) */
+    public const ABSENCE_APPROVAL_HOURS = 'absence_approval_hours';
+    /** Automatsko odobravanje potvrde zadatka (NA_PROVERI): podrazumevano isključeno, rok u radnim danima */
+    public const TASK_AUTO_APPROVE = 'task_auto_approve';
+    public const TASK_AUTO_APPROVE_DAYS = 'task_auto_approve_days';
 
     private const DEFAULTS = [
         self::MIN_HOURLY_RATE => '2500',
         self::DEFAULT_CAPACITY_HOURS => '160',
+        self::ANNUAL_LEAVE_DAYS => '20',
+        self::ABSENCE_APPROVAL_HOURS => '48',
+        self::TASK_AUTO_APPROVE => '0',
+        self::TASK_AUTO_APPROVE_DAYS => '3',
     ];
 
     public function __construct(

@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}Vrste odsustva{% endblock %}
+{% block page_title %}Vrste odsustva{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item">Podešavanja</span><span class="breadcrumb-item active">Vrste odsustva</span>{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('admin_absence_type_new') }}" class="btn btn-primary">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Nova vrsta</a>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead><tr><th>Vrsta</th><th>Odobrenje</th><th>Troši godišnji</th><th>Dokument</th><th>Najviše dana</th><th>Status</th><th style="width: 1%;"></th></tr></thead>
+                        <tbody>
+                            {% for t in types %}
+                                <tr>
+                                    <td><span class="kt-cat-badge" style="--kt-cat: {{ t.color }};">{% if t.icon %}{{ ux_icon('lucide:' ~ t.icon, {class: 'kt-icon'}) }}{% endif %}{{ t.name }}</span></td>
+                                    <td>{{ t.requiresApproval ? 'da' : 'ne (evidencija)' }}</td>
+                                    <td>{{ t.countsAgainstLeave ? 'da' : 'ne' }}</td>
+                                    <td>{{ t.requiresDocument ? 'da' : 'ne' }}</td>
+                                    <td>{{ t.maxDaysPerYear ?? '—' }}</td>
+                                    <td>{{ ui.status_badge(t.active) }}</td>
+                                    <td><a href="{{ path('admin_absence_type_edit', {id: t.id}) }}" class="btn kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a></td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="7">{{ ui.empty_state('Još nema vrsta odsustva.', 'plane') }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <p class="kt-text-sm text-muted">Vrsta koja se više ne koristi se deaktivira (u izmeni); postojeća odsustva je zadržavaju.</p>
+        </div>
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Podešavanja</h5></div>
+                <form method="post" action="{{ path('admin_absence_settings') }}" class="card-body border-top" {{ confirm_attrs('Sačuvati podešavanja odsustva?', 'Novi rokovi važe za zahteve podnete od sada.', 'warning', 'Da, sačuvaj') }}>
+                    <input type="hidden" name="_token" value="{{ csrf_token('absence_settings') }}">
+                    <div class="mb-3"><label class="form-label" for="s-leave">Podrazumevan godišnji odmor (dana)</label><input type="number" min="0" max="60" class="form-control" id="s-leave" name="leaveDays" value="{{ leaveDays }}"><div class="form-text">Važi kad korisnik nema upisan svoj broj dana.</div></div>
+                    <div class="mb-3"><label class="form-label" for="s-hours">Rok za automatsko odobravanje odsustva (radnih sati)</label><input type="number" min="1" max="720" class="form-control" id="s-hours" name="approvalHours" value="{{ approvalHours }}"><div class="form-text">Računaju se samo sati u radnim danima. Rok je najkasnije dan pre početka odsustva.</div></div>
+                    <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" role="switch" id="s-task" name="taskAuto" value="1" {{ taskAuto ? 'checked' }}><label class="form-check-label" for="s-task">Automatski potvrdi zadatke na proveri</label></div>
+                    <div class="mb-3"><label class="form-label" for="s-task-days">posle (radnih dana)</label><input type="number" min="1" max="30" class="form-control" id="s-task-days" name="taskAutoDays" value="{{ taskAutoDays }}"></div>
+                    <button class="btn btn-primary">Sačuvaj</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

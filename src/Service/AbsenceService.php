@@ -14,9 +14,10 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Odsustva i zamena (SPEC 5).
- * Radnik koji sam sebi upiše odsustvo čeka odobrenje šefa tima (ili admina, ako nema šefa).
- * Šef i admin upisuju odmah odobreno, pa i šef sebi. Backup preuzima klijente samo za ODOBRENO odsustvo.
+ * Odsustva i zamena (SPEC 5, 8j).
+ * Radnik podnosi zahtev za sebe; odobrava šef njegovog tima, a ako je podnosilac šef, nema tim ili mu je šef odsutan, admin.
+ * Šef i admin koji upisuju odsustvo drugome upisuju ga odmah odobreno; admin i sebi. Vrsta bez odobrenja (bolovanje) je odmah na snazi.
+ * Zahtev na odobrenju ima rok, posle koga se automatski odobrava (ApprovalService, SPEC 8m).
  */
 class AbsenceService
 {
@@ -28,6 +29,10 @@ class AbsenceService
         private readonly TeamMemberRepository $members,
         private readonly TaskService $tasks,
         private readonly NotificationService $notifications,
+        private readonly WorkingDayService $workingDays,
+        private readonly LeaveService $leave,
+        private readonly ApprovalDeadlineCalculator $deadlines,
+        private readonly SettingsService $settings,
     ) {
     }
 
@@ -56,28 +61,109 @@ class AbsenceService
     }
 
     /**
-     * Upis odsustva. Šef i admin odobravaju odmah, radnik čeka odobrenje.
+     * Radni dani zahteva (bez vikenda, praznika i kolektivnog odmora); pola dana = 0,5.
+     */
+    public function workingDaysFor(\DateTimeImmutable $from, \DateTimeImmutable $to, bool $halfDay): float
+    {
+        $days = (float) $this->workingDays->countWorkingDays($from, $to);
+
+        return $halfDay && $from == $to && $days > 0 ? 0.5 : $days;
+    }
+
+    /**
+     * Podaci za formu zahteva (AJAX): radni dani, preostali godišnji posle zahteva, ko je još iz tima odsutan, upozorenja.
+     *
+     * @return array{workingDays: float, nonWorking: array<string, string>, leave: ?array{remaining: float, after: float}, teamAbsent: list<array{name: string, period: string, type: string, pending: bool}>, errors: list<string>, warnings: list<string>}
+     */
+    public function preview(User $user, ?\App\Entity\AbsenceType $type, \DateTimeImmutable $from, \DateTimeImmutable $to, bool $halfDay): array
+    {
+        $errors = [];
+        $warnings = [];
+        $days = $this->workingDaysFor($from, $to, $halfDay);
+        if ($to < $from) {
+            $errors[] = 'Kraj odsustva ne može biti pre početka.';
+        } elseif (0.0 === $days) {
+            $errors[] = 'U izabranom periodu nema radnih dana.';
+        }
+        if ($this->absences->hasOverlap($user, $from, $to)) {
+            $errors[] = 'Već postoji odsustvo koje se preklapa sa ovim periodom.';
+        }
+
+        $leave = null;
+        if (null !== $type && $type->isCountsAgainstLeave()) {
+            $balance = $this->leave->balance($user, (int) $from->format('Y'));
+            $leave = ['remaining' => $balance['remaining'] - $balance['pending'], 'after' => $balance['remaining'] - $balance['pending'] - $days];
+            if ($leave['after'] < 0) {
+                $warnings[] = sprintf('Posle ovog zahteva godišnji odmor je u minusu (%s dana).', number_format($leave['after'], 1, ',', ''));
+            }
+        }
+        if (null !== $type && null !== $type->getMaxDaysPerYear()) {
+            $usedOfType = $this->absences->sumTypeDays($user, $type, (int) $from->format('Y'));
+            if ($usedOfType + $days > $type->getMaxDaysPerYear()) {
+                $errors[] = sprintf('Za „%s“ je dozvoljeno najviše %d dana godišnje (već: %s).', $type->getName(), $type->getMaxDaysPerYear(), number_format($usedOfType, 1, ',', ''));
+            }
+        }
+
+        // ko je još iz tima odsutan u tom periodu (upozorenje, ne zabrana)
+        $teamAbsent = [];
+        foreach ($this->absences->findInPeriod($this->teammates($user), $from, $to) as $other) {
+            $teamAbsent[] = [
+                'name' => $other->getUser()->getFullName(),
+                'period' => $other->getStartDate()->format('d.m.').' – '.$other->getEndDate()->format('d.m.'),
+                'type' => (string) $other->getType()?->getName(),
+                'pending' => $other->isPending(),
+            ];
+        }
+
+        return [
+            'workingDays' => $days,
+            'nonWorking' => $this->workingDays->nonWorkingDaysBetween($from, min($to, $from->modify('+62 days'))),
+            'leave' => $leave,
+            'teamAbsent' => $teamAbsent,
+            'errors' => $errors,
+            'warnings' => $warnings,
+        ];
+    }
+
+    /**
+     * Upis odsustva (SPEC 8j.2).
      */
     public function create(UserAbsence $absence, User $actor): void
     {
         $user = $absence->getUser() ?? throw new \DomainException('Izaberi radnika.');
+        $type = $absence->getType() ?? throw new \DomainException('Izaberi vrstu odsustva.');
         if (!$this->canEnterFor($actor, $user)) {
             throw new \DomainException('Ne možeš upisati odsustvo za ovog radnika.');
         }
         if (!$user->isActive()) {
             throw new \DomainException('Radnik nije aktivan.');
         }
-        if ($this->absences->hasOverlap($user, $absence->getStartDate(), $absence->getEndDate())) {
-            throw new \DomainException('Radnik već ima odsustvo koje se preklapa sa ovim periodom.');
+        if (!$type->isActive()) {
+            throw new \DomainException('Ova vrsta odsustva se više ne koristi.');
         }
+        $preview = $this->preview($user, $type, $absence->getStartDate(), $absence->getEndDate(), $absence->isHalfDay());
+        if ([] !== $preview['errors']) {
+            throw new \DomainException($preview['errors'][0]);
+        }
+        $absence->setHalfDay($absence->isHalfDay() && $absence->getStartDate() == $absence->getEndDate())
+            ->setWorkingDays($preview['workingDays'])
+            ->setCreatedBy($actor);
 
-        $absence->setCreatedBy($actor);
-        $immediate = $this->tasks->isAdmin($actor) || $this->tasks->isLeader($actor);
+        // odmah na snazi: vrsta bez odobrenja (evidencija), šef/admin upisuje drugome, admin sebi
+        $immediate = !$type->isRequiresApproval()
+            || ($actor !== $user && ($this->tasks->isAdmin($actor) || $this->tasks->isLeader($actor)))
+            || $this->tasks->isAdmin($actor);
 
         if ($immediate) {
             $absence->setStatus(AbsenceStatus::ODOBRENO);
+            if ($type->isRequiresApproval()) {
+                $absence->decide(AbsenceStatus::ODOBRENO, $actor);
+            }
         } else {
-            $absence->setStatus(AbsenceStatus::NA_CEKANJU);
+            $now = new \DateTimeImmutable();
+            $hours = (int) $this->settings->getFloat(SettingsService::ABSENCE_APPROVAL_HOURS);
+            $absence->setStatus(AbsenceStatus::NA_ODOBRENJU)
+                ->setApprovalDeadline($this->deadlines->deadline($now, $hours, $absence->getStartDate()));
         }
         $this->em->persist($absence);
         $this->em->flush();
@@ -85,23 +171,18 @@ class AbsenceService
         if ($immediate) {
             $this->activate($absence, $actor);
             if ($actor !== $user) {
-                $this->notifications->notify(
-                    $user,
-                    NotificationType::ABSENCE_DECIDED,
-                    'Upisano ti je odsustvo',
-                    sprintf('%s ti je upisao odsustvo: %s.', $actor->getFullName(), $absence->summary()),
-                    ['absence_index'],
-                    $actor,
-                );
+                $this->notifications->notify($user, NotificationType::ABSENCE_APPROVED, 'Upisano ti je odsustvo', sprintf('%s ti je upisao odsustvo: %s.', $actor->getFullName(), $absence->summary()), ['absence_index'], $actor);
             }
         } else {
+            $urgent = $this->deadlines->isUrgent(new \DateTimeImmutable(), $absence->getApprovalDeadline(), (int) $this->settings->getFloat(SettingsService::ABSENCE_APPROVAL_HOURS));
             $this->notifications->notifyMany(
                 $this->approversFor($user),
                 NotificationType::ABSENCE_REQUESTED,
-                'Odsustvo čeka odobrenje',
-                sprintf('%s traži odsustvo: %s.', $user->getFullName(), $absence->summary()),
-                ['absence_index'],
+                $urgent ? 'HITNO: odsustvo čeka odobrenje' : 'Odsustvo čeka odobrenje',
+                sprintf('%s traži odsustvo: %s. Ako ne odgovoriš do %s, zahtev se automatski odobrava.', $user->getFullName(), $absence->summary(), $absence->getApprovalDeadline()->format('d.m.Y. H:i')),
+                ['absence_index', ['tab' => 'odobrenje']],
                 $actor,
+                $urgent,
             );
         }
     }
@@ -113,56 +194,41 @@ class AbsenceService
         $this->em->flush();
 
         $this->activate($absence, $actor);
-        $this->notifications->notify(
-            $absence->getUser(),
-            NotificationType::ABSENCE_DECIDED,
-            'Odsustvo je odobreno',
-            sprintf('Tvoje odsustvo je odobreno: %s.', $absence->summary()),
-            ['absence_index'],
-            $actor,
-        );
+        $this->notifications->notify($absence->getUser(), NotificationType::ABSENCE_APPROVED, 'Odsustvo je odobreno', sprintf('Tvoje odsustvo je odobreno: %s.', $absence->summary()), ['absence_index'], $actor);
     }
 
-    public function reject(UserAbsence $absence, User $actor): void
+    public function reject(UserAbsence $absence, User $actor, string $reason): void
     {
         $this->assertPending($absence);
-        $absence->decide(AbsenceStatus::ODBIJENO, $actor);
+        if ('' === trim($reason)) {
+            throw new \DomainException('Unesi razlog odbijanja.');
+        }
+        $absence->decide(AbsenceStatus::ODBIJENO, $actor, $reason);
         $this->em->flush();
 
-        $this->notifications->notify(
-            $absence->getUser(),
-            NotificationType::ABSENCE_DECIDED,
-            'Odsustvo je odbijeno',
-            sprintf('Tvoje odsustvo je odbijeno: %s.', $absence->summary()),
-            ['absence_index'],
-            $actor,
-        );
+        $this->notifications->notify($absence->getUser(), NotificationType::ABSENCE_REJECTED, 'Odsustvo je odbijeno', sprintf('Tvoje odsustvo je odbijeno: %s. Razlog: %s', $absence->summary(), trim($reason)), ['absence_index'], $actor);
     }
 
     /**
-     * Otkazivanje odsustva koje čeka ili je odobreno. Zamena se tada završava.
+     * Otkazivanje: podnosilac dok je zahtev na odobrenju, admin u bilo kom trenutku. Zamena se tada završava.
      */
     public function cancel(UserAbsence $absence, User $actor): void
     {
-        if (!in_array($absence->getStatus(), [AbsenceStatus::NA_CEKANJU, AbsenceStatus::ODOBRENO], true) || $absence->hasEnded()) {
+        if (!\in_array($absence->getStatus(), AbsenceStatus::blocking(), true)) {
             throw new \DomainException('Ovo odsustvo se više ne može otkazati.');
         }
 
-        $wasApproved = AbsenceStatus::ODOBRENO === $absence->getStatus();
+        $wasApproved = $absence->isApproved();
         $absence->setStatus(AbsenceStatus::OTKAZANO);
         $this->em->flush();
 
-        if ($wasApproved) {
+        if ($wasApproved && !$absence->hasEnded()) {
             foreach ($this->backupsFor($absence->getUser()) as $backup) {
-                $this->notifications->notify(
-                    $backup,
-                    NotificationType::BACKUP_ACTIVATED,
-                    'Zamena je otkazana',
-                    sprintf('%s je otkazao odsustvo (%s). Više ne preuzimaš njegove klijente.', $absence->getUser()->getFullName(), $absence->summary()),
-                    ['client_mine'],
-                    $actor,
-                );
+                $this->notifications->notify($backup, NotificationType::BACKUP_ACTIVATED, 'Zamena je otkazana', sprintf('%s je otkazao odsustvo (%s). Više ne preuzimaš njegove klijente.', $absence->getUser()->getFullName(), $absence->summary()), ['client_mine'], $actor);
             }
+        }
+        if ($actor !== $absence->getUser()) {
+            $this->notifications->notify($absence->getUser(), NotificationType::ABSENCE_REJECTED, 'Odsustvo je otkazano', sprintf('%s je otkazao tvoje odsustvo: %s.', $actor->getFullName(), $absence->summary()), ['absence_index'], $actor);
         }
     }
 
@@ -192,9 +258,25 @@ class AbsenceService
     }
 
     /**
+     * Ko odobrava odsustvo radnika: šef njegovog tima, ako to nije sam radnik i ako šef danas nije odsutan; inače admini.
+     *
+     * @return list<User>
+     */
+    public function approversFor(User $user): array
+    {
+        $leader = $this->teamLeader($user);
+        if (null !== $leader && $leader !== $user && $leader->isActive()
+            && null === $this->absences->findApprovedCovering($leader, new \DateTimeImmutable('today'))) {
+            return [$leader];
+        }
+
+        return $this->users->findActiveAdmins();
+    }
+
+    /**
      * Posle odobrenja: backup-ovi dobijaju obaveštenje "Preuzimaš klijente za ...".
      */
-    private function activate(UserAbsence $absence, User $actor): void
+    public function activate(UserAbsence $absence, ?User $actor): void
     {
         $user = $absence->getUser();
         $byBackup = [];
@@ -211,17 +293,35 @@ class AbsenceService
                 $row['user'],
                 NotificationType::BACKUP_ACTIVATED,
                 'Preuzimaš klijente kolege',
-                sprintf(
-                    'Preuzimaš klijente za %s od %s do %s: %s.',
-                    $user->getFullName(),
-                    $absence->getStartDate()->format('d.m.Y.'),
-                    $absence->getEndDate()->format('d.m.Y.'),
-                    implode(', ', $row['clients']),
-                ),
+                sprintf('Preuzimaš klijente za %s od %s do %s: %s.', $user->getFullName(), $absence->getStartDate()->format('d.m.Y.'), $absence->getEndDate()->format('d.m.Y.'), implode(', ', $row['clients'])),
                 ['client_mine'],
                 $actor,
             );
         }
+    }
+
+    /**
+     * Aktivni članovi istih timova kao radnik (bez njega), za upozorenje "ko je još odsutan".
+     *
+     * @return list<User>
+     */
+    public function teammates(User $user): array
+    {
+        $team = $this->members->findActiveByUser($user)?->getTeam();
+        if (null === $team) {
+            return [];
+        }
+        $out = [];
+        foreach ($this->members->findBy(['team' => $team, 'leftAt' => null]) as $member) {
+            if ($member->getUser() !== $user && $member->getUser()->isActive()) {
+                $out[] = $member->getUser();
+            }
+        }
+        if (null !== ($leader = $team->getLeader()) && $leader !== $user && !\in_array($leader, $out, true)) {
+            $out[] = $leader;
+        }
+
+        return $out;
     }
 
     /**
@@ -239,18 +339,6 @@ class AbsenceService
         return array_values($backups);
     }
 
-    /**
-     * Ko odobrava odsustvo radnika: šef njegovog tima (ako nije sam radnik), a inače admini.
-     *
-     * @return list<User>
-     */
-    private function approversFor(User $user): array
-    {
-        $team = $this->teamLeader($user);
-
-        return null !== $team && $team !== $user && $team->isActive() ? [$team] : $this->users->findActiveAdmins();
-    }
-
     private function teamLeader(User $user): ?User
     {
         $team = $this->members->findActiveByUser($user)?->getTeam();
@@ -260,11 +348,8 @@ class AbsenceService
 
     private function assertPending(UserAbsence $absence): void
     {
-        if (AbsenceStatus::NA_CEKANJU !== $absence->getStatus()) {
-            throw new \DomainException('Odsustvo nije na čekanju.');
-        }
-        if ($absence->hasEnded()) {
-            throw new \DomainException('Period ovog odsustva je već prošao.');
+        if (!$absence->isPending()) {
+            throw new \DomainException('Odsustvo nije na odobrenju.');
         }
     }
 }

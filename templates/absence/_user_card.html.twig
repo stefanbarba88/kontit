@@ -1,0 +1,39 @@
+{# Kartica "Odsustva" (SPEC 8j.3) na profilu i stranici korisnika. edit: admin menja pravo i prenos za godinu. #}
+{% set b = leave_balance(person) %}
+{% macro fmt(n) %}{{ n|number_format(1, ',', '.')|replace({',0': ''}) }}{% endmacro %}
+{% import _self as f %}
+<div class="card">
+    <div class="card-header d-flex align-items-center"><h5 class="mb-0">{{ ux_icon('lucide:plane', {class: 'kt-icon me-2'}) }}Odsustva {{ b.year }}.</h5><a href="{{ path('absence_new') }}" class="btn btn-ghost btn-sm ms-auto">{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Zahtev</a></div>
+    <div class="card-body border-top">
+        <div class="row text-center g-2 mb-3">
+            <div class="col-3"><div class="fs-5 fw-semibold">{{ f.fmt(b.remaining) }}</div><div class="kt-text-xs text-muted">preostalo</div></div>
+            <div class="col-3"><div class="fs-5 fw-semibold">{{ f.fmt(b.used) }}</div><div class="kt-text-xs text-muted">iskorišćeno</div></div>
+            <div class="col-3"><div class="fs-5 fw-semibold">{{ f.fmt(b.entitled) }}</div><div class="kt-text-xs text-muted">pravo</div></div>
+            <div class="col-3"><div class="fs-5 fw-semibold">{{ f.fmt(b.carriedOver) }}</div><div class="kt-text-xs text-muted">preneto (do 30.6.)</div></div>
+        </div>
+        {% if b.pending > 0 %}<p class="kt-text-sm text-warning">Na odobrenju: {{ f.fmt(b.pending) }} dana.</p>{% endif %}
+        {% if b.carryExpired > 0 %}<p class="kt-text-sm text-muted">Propalo od prenetih dana: {{ f.fmt(b.carryExpired) }}.</p>{% endif %}
+        <ul class="list-unstyled mb-0 kt-text-sm">
+            {% for a in absences_of(person)|reverse %}
+                <li class="d-flex gap-2 py-1 border-bottom">
+                    <span class="text-nowrap">{{ a.startDate|date('d.m.') }}{% if a.endDate != a.startDate %}–{{ a.endDate|date('d.m.') }}{% endif %}</span>
+                    <span class="flex-grow-1">{{ a.type.name }} · {{ a.halfDay ? 'pola dana' : f.fmt(a.workingDays) ~ ' d' }}</span>
+                    <span class="badge kt-badge-{{ a.status.color }}">{{ a.status.label }}</span>
+                </li>
+            {% else %}
+                <li class="text-muted">Nema odsustava ove godine.</li>
+            {% endfor %}
+        </ul>
+        {% if edit|default(false) %}
+            <form method="post" action="{{ path('admin_user_leave', {id: person.id}) }}" class="row g-2 align-items-end mt-3" {{ confirm_attrs('Sačuvati godišnji odmor?', 'Menja se broj dana za ' ~ person.fullName ~ ' u ' ~ b.year ~ '.', 'warning', 'Da, sačuvaj') }}>
+                <input type="hidden" name="_token" value="{{ csrf_token('leave_' ~ person.id) }}">
+                <input type="hidden" name="year" value="{{ b.year }}">
+                <div class="col-5"><label class="form-label kt-text-sm" for="le-{{ person.id }}">Pravo (dana)</label><input type="text" class="form-control form-control-sm" id="le-{{ person.id }}" name="entitled" value="{{ f.fmt(b.entitled) }}"></div>
+                <div class="col-4"><label class="form-label kt-text-sm" for="lc-{{ person.id }}">Preneto</label><input type="text" class="form-control form-control-sm" id="lc-{{ person.id }}" name="carriedOver" value="{{ f.fmt(b.carriedOver) }}"></div>
+                <div class="col-3"><button class="btn btn-light btn-sm w-100">Sačuvaj</button></div>
+                {% set prev = leave_balance(person, b.year - 1) %}
+                <div class="col-12 kt-text-xs text-muted">Predlog prenosa iz {{ b.year - 1 }}.: {{ f.fmt(prev.suggestedCarry) }} dana neiskorišćeno.</div>
+            </form>
+        {% endif %}
+    </div>
+</div>

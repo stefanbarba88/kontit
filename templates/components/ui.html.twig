@@ -57,7 +57,7 @@
             {% if mode == 'backup' %}
                 <div class="kt-text-sm">{{ ux_icon('lucide:circle-user', {class: 'kt-icon me-1'}) }}Glavni zaduženi: <span class="fw-semibold">{{ client.primaryAccountant.fullName }}</span></div>
                 {% if absence %}
-                    <div class="kt-text-sm text-info mt-1">{{ ux_icon('lucide:plane', {class: 'kt-icon me-1'}) }}Odsutan do {{ absence.endDate|date('d.m.Y.') }} ({{ absence.reason.label }}) · preuzimaš</div>
+                    <div class="kt-text-sm text-info mt-1">{{ ux_icon('lucide:plane', {class: 'kt-icon me-1'}) }}Odsutan do {{ absence.endDate|date('d.m.Y.') }} ({{ absence.type.name }}) · preuzimaš</div>
                 {% endif %}
             {% elseif client.backupAccountant %}
                 <div class="kt-text-sm text-muted">{{ ux_icon('lucide:refresh-cw', {class: 'kt-icon me-1'}) }}Backup: {{ client.backupAccountant.fullName }}</div>

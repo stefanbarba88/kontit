@@ -15,7 +15,13 @@ enum NotificationType: string
     case BACKUP_ACTIVATED = 'BACKUP_ACTIVATED';
     case TEAM_CHANGED = 'TEAM_CHANGED';
     case ABSENCE_REQUESTED = 'ABSENCE_REQUESTED';
-    case ABSENCE_DECIDED = 'ABSENCE_DECIDED';
+    case ABSENCE_APPROVED = 'ABSENCE_APPROVED';
+    case ABSENCE_REJECTED = 'ABSENCE_REJECTED';
+    case ABSENCE_AUTO_APPROVED = 'ABSENCE_AUTO_APPROVED';
+    case APPROVAL_DEADLINE_SOON = 'APPROVAL_DEADLINE_SOON';
+    case DOCUMENT_EXPIRING = 'DOCUMENT_EXPIRING';
+    case DOCUMENT_ADDED = 'DOCUMENT_ADDED';
+    case CALENDAR_SYNC_FAILED = 'CALENDAR_SYNC_FAILED';
     case EXPORT_READY = 'EXPORT_READY';
 
     /**
@@ -35,7 +41,13 @@ enum NotificationType: string
             self::BACKUP_ACTIVATED => 'Preuzimam klijente kolege (zamena)',
             self::TEAM_CHANGED => 'Promena tima ili šefa',
             self::ABSENCE_REQUESTED => 'Odsustvo čeka moje odobrenje',
-            self::ABSENCE_DECIDED => 'Odluka o mom odsustvu',
+            self::ABSENCE_APPROVED => 'Moje odsustvo je odobreno',
+            self::ABSENCE_REJECTED => 'Moje odsustvo je odbijeno',
+            self::ABSENCE_AUTO_APPROVED => 'Odsustvo je automatski odobreno',
+            self::APPROVAL_DEADLINE_SOON => 'Ističe rok za odobrenje',
+            self::DOCUMENT_EXPIRING => 'Dokument uskoro ističe',
+            self::DOCUMENT_ADDED => 'Dodat mi je dokument',
+            self::CALENDAR_SYNC_FAILED => 'Google kalendar ne može da se osveži',
             self::EXPORT_READY => 'Izvoz je spreman za preuzimanje',
         };
     }
@@ -55,7 +67,11 @@ enum NotificationType: string
             self::TASK_OVERDUE => 'circle-alert',
             self::CLIENT_ASSIGNED, self::BACKUP_ACTIVATED => 'building-2',
             self::TEAM_CHANGED => 'users',
-            self::ABSENCE_REQUESTED, self::ABSENCE_DECIDED => 'calendar-check',
+            self::ABSENCE_REQUESTED, self::ABSENCE_APPROVED, self::ABSENCE_AUTO_APPROVED => 'calendar-check',
+            self::ABSENCE_REJECTED => 'calendar-x',
+            self::APPROVAL_DEADLINE_SOON => 'hourglass',
+            self::DOCUMENT_EXPIRING, self::DOCUMENT_ADDED => 'file-text',
+            self::CALENDAR_SYNC_FAILED => 'cloud-off',
             self::EXPORT_READY => 'download',
         };
     }
@@ -63,13 +79,12 @@ enum NotificationType: string
     public function color(): string
     {
         return match ($this) {
-            self::TASK_ASSIGNED, self::CLIENT_ASSIGNED, self::TEAM_CHANGED => 'primary',
-            self::TASK_SUBMITTED, self::TASK_COMMENTED, self::BACKUP_ACTIVATED => 'info',
-            self::ABSENCE_REQUESTED => 'warning',
-            self::ABSENCE_DECIDED => 'primary',
-            self::TASK_APPROVED, self::EXPORT_READY => 'success',
+            self::TASK_ASSIGNED, self::CLIENT_ASSIGNED, self::TEAM_CHANGED, self::DOCUMENT_ADDED => 'primary',
+            self::TASK_SUBMITTED, self::TASK_COMMENTED, self::BACKUP_ACTIVATED, self::ABSENCE_AUTO_APPROVED => 'info',
+            self::ABSENCE_REQUESTED, self::APPROVAL_DEADLINE_SOON, self::DOCUMENT_EXPIRING => 'warning',
+            self::TASK_APPROVED, self::EXPORT_READY, self::ABSENCE_APPROVED => 'success',
             self::TASK_RETURNED, self::TASK_DUE_SOON => 'warning',
-            self::TASK_OVERDUE => 'danger',
+            self::TASK_OVERDUE, self::ABSENCE_REJECTED, self::CALENDAR_SYNC_FAILED => 'danger',
         };
     }
 }

@@ -50,7 +50,7 @@
 			{{ nav.group('Rad') }}
 			{{ nav.link(path('app_dashboard'), 'house', 'Početna', route == 'app_dashboard') }}
 			{{ nav.link(path('client_mine'), 'briefcase', 'Moji klijenti', route == 'client_mine') }}
-			{{ nav.link(path('absence_index'), 'plane', 'Odsustva', route starts with 'absence_') }}
+			{{ nav.link(path('absence_index'), 'plane', 'Odsustva', route starts with 'absence_', pending_absence_count()) }}
 			{{ nav.link(path('task_index'), 'list-checks', 'Zadaci', route starts with 'task_', awaiting_approval_count()) }}
 
 			{% if is_granted('ROLE_SEF') %}
@@ -70,6 +70,7 @@
 					{{ nav.link(path('admin_package_index'), 'package', 'Paketi usluga', route starts with 'admin_package') }}
 					{{ nav.link(path('admin_generation'), 'refresh-cw', 'Generisanje zadataka', route starts with 'admin_generation') }}
 					{{ nav.link(path('admin_non_working_index'), 'calendar-x', 'Neradni dani', route starts with 'admin_non_working') }}
+					{{ nav.link(path('admin_absence_type_index'), 'palmtree', 'Vrste odsustva', route starts with 'admin_absence') }}
 					{{ nav.link(path('admin_finance'), 'trending-up', 'Finansije', route starts with 'admin_finance') }}
 				{% endif %}
 				{% if is_granted('USER_MANAGE') %}

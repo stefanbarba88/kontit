@@ -28,7 +28,7 @@ class TaskRepository extends ServiceEntityRepository
     /** Zadatak kolege koji je trenutno odsutan, a $me mu je backup na klijentu zadatka (zamena, SPEC 5) */
     private const IS_SUBSTITUTE = 'EXISTS (SELECT 1 FROM App\Entity\TaskAssignee sa JOIN t.client sc '
         .'WHERE sa.task = t AND sc.isActive = true AND sc.backupAccountant = :me AND sc.primaryAccountant = sa.user AND sa.user <> :me '
-        .'AND EXISTS (SELECT 1 FROM App\Entity\UserAbsence ab WHERE ab.user = sa.user AND ab.status = :absApproved '
+        .'AND EXISTS (SELECT 1 FROM App\Entity\UserAbsence ab WHERE ab.user = sa.user AND ab.status IN (:absApproved) '
         .'AND ab.startDate <= :absToday AND ab.endDate >= :absToday))';
 
     public function __construct(ManagerRegistry $registry)
@@ -95,7 +95,7 @@ class TaskRepository extends ServiceEntityRepository
 
     private function bindSubstitute(QueryBuilder $qb): void
     {
-        $qb->setParameter('absApproved', \App\Enum\AbsenceStatus::ODOBRENO)->setParameter('absToday', new \DateTimeImmutable('today'));
+        $qb->setParameter('absApproved', \App\Enum\AbsenceStatus::approved())->setParameter('absToday', new \DateTimeImmutable('today'));
     }
 
     /**

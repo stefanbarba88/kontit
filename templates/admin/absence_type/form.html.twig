@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ type.id ? 'Izmena vrste odsustva' : 'Nova vrsta odsustva' }}{% endblock %}
+{% block page_title %}{{ type.id ? 'Izmena: ' ~ type.name : 'Nova vrsta odsustva' }}{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('admin_absence_type_index') }}" class="breadcrumb-item">Vrste odsustva</a>
+    <span class="breadcrumb-item active">{{ type.id ? 'Izmena' : 'Nova' }}</span>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        {{ form_row(form.name) }}
+                        {{ form_row(form.color) }}
+                        <div class="row">
+                            <div class="col-md-6">{{ form_row(form.icon) }}</div>
+                            <div class="col-md-3">{{ form_row(form.maxDaysPerYear) }}</div>
+                            <div class="col-md-3">{{ form_row(form.position) }}</div>
+                        </div>
+                        {{ form_row(form.requiresApproval) }}
+                        {{ form_row(form.countsAgainstLeave) }}
+                        {{ form_row(form.requiresDocument) }}
+                        {{ form_row(form.active) }}
+                        <div class="kt-form-actions">
+                            <a href="{{ path('admin_absence_type_index') }}" class="btn btn-light">Odustani</a>
+                            <button class="btn btn-primary">Sačuvaj</button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
