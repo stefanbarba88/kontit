@@ -47,7 +47,7 @@
                                 </form>
                             {% else %}
                                 <a class="dropdown-item" href="{{ path('client_job_edit', {id: job.id}) }}">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-2'}) }}Izmeni</a>
-                                <a class="dropdown-item" href="{{ path('task_new', {client: client.id, job: job.id}) }}">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Kreiraj zadatak sada</a>
+                                <a class="dropdown-item" href="{{ path('client_task_new', {clientId: client.id, job: job.id}) }}">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Kreiraj zadatak sada</a>
                                 <div class="dropdown-divider"></div>
                                 {% if job.clientPackage %}
                                     <form method="post" action="{{ path('client_job_exclude', {id: job.id}) }}" {{ confirm_attrs('Isključiti „' ~ job.jobTemplate.name ~ '“ za ovog klijenta?', 'Zadaci za ovaj posao se više neće praviti. Otvoreni zadaci se otkazuju.', 'warning', 'Da, isključi', true) }}>

@@ -17,6 +17,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Index(name: 'IDX_TASK_STATUS_DUE', fields: ['status', 'dueDate'])]
+// jedan zadatak po poslu klijenta i periodu (SPEC 8i.1); ručni zadaci iz posla imaju period_key = NULL, pa ih može biti više
+#[ORM\UniqueConstraint(name: 'UNIQ_TASK_JOB_PERIOD', columns: ['client_job_id', 'period_key'])]
 class Task
 {
     use TimestampableTrait;
@@ -59,7 +61,7 @@ class Task
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $submittedAt = null;
 
-    /** Ponavljajući zadatak: posao klijenta iz koga je nastao i period (npr. 2026-11, 2026-Q4, 2026, 2026-W45) */
+    /** Posao klijenta iz koga je zadatak nastao, i period ako ga je napravio sistem (npr. 2026-11, 2026-Q4, 2026, 2026-W45) */
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?ClientJob $clientJob = null;
@@ -67,15 +69,16 @@ class Task
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $periodKey = null;
 
-    /** "idPosla:period"; jedinstveno, pa komanda ne može da napravi dva zadatka za isti posao i period */
-    #[ORM\Column(length: 40, nullable: true, unique: true)]
-    private ?string $generationKey = null;
-
     #[ORM\Column(nullable: true)]
     private ?int $estimatedMinutes = null;
 
     #[ORM\Column]
     private bool $generatedAutomatically = false;
+
+    /** Generisan zadatak koji je dobila zamena jer je glavni radnik bio na odsustvu ("PREUZETO", SPEC 8i.1) */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    private ?User $takenOverFrom = null;
 
     #[ORM\ManyToOne]
     private ?User $approvedBy = null;
@@ -160,9 +163,37 @@ class Task
     {
         $this->clientJob = $job;
         $this->periodKey = $periodKey;
-        $this->generationKey = $job->getId().':'.$periodKey;
         $this->estimatedMinutes = $estimatedMinutes;
         $this->generatedAutomatically = true;
+
+        return $this;
+    }
+
+    /**
+     * Ručno napravljen zadatak iz ugovorenog posla ("Kreiraj zadatak sada", posao "po potrebi"): bez perioda.
+     */
+    public function linkJob(?ClientJob $job): static
+    {
+        $this->clientJob = $job;
+        $this->estimatedMinutes = $job?->getEstimatedMinutes();
+
+        return $this;
+    }
+
+    /** Za formu zadatka (polje "Posao") */
+    public function setClientJob(?ClientJob $job): static
+    {
+        return $this->linkJob($job);
+    }
+
+    public function getTakenOverFrom(): ?User
+    {
+        return $this->takenOverFrom;
+    }
+
+    public function setTakenOverFrom(?User $user): static
+    {
+        $this->takenOverFrom = $user;
 
         return $this;
     }

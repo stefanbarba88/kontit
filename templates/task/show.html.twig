@@ -6,7 +6,7 @@
 {% set can_complete = is_granted('TASK_COMPLETE', task) %}
 
 {% block title %}{{ task.title }}{% endblock %}
-{% block page_title %}{{ task.title }} {{ ui.task_status(task.status) }}{% endblock %}
+{% block page_title %}{{ task.title }} {{ ui.task_status(task.status) }}{% if task.takenOverFrom %} <span class="badge kt-badge-info" title="Zadatak je dobila zamena jer je {{ task.takenOverFrom.fullName }} bio na odsustvu" data-bs-toggle="tooltip">PREUZETO</span>{% endif %}{% endblock %}
 {% block breadcrumbs %}
     <a href="{{ path('task_index') }}" class="breadcrumb-item">Zadaci</a>
     <span class="breadcrumb-item active">{{ task.title }}</span>

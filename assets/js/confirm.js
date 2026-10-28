@@ -56,7 +56,7 @@ export function confirmDialog(options) {
         html.push(`<div class="mb-2"></div>`);
     }
     if (typeName) {
-        html.push('<div class="mb-1 text-muted">Za potvrdu ukucajte: <strong class="swal-type-name"></strong></div><input class="form-control swal-type-input" autocomplete="off">');
+        html.push('<div class="mb-1 text-muted">Za potvrdu ukucaj: <strong class="swal-type-name"></strong></div><input class="form-control swal-type-input" autocomplete="off">');
     }
     if (needsReason) {
         html.push('<textarea class="form-control swal-reason mt-2" rows="3" placeholder="Razlog (obavezno)"></textarea>');

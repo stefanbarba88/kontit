@@ -39,3 +39,4 @@ import './js/schedule-form.js';
 import './js/catalog.js';
 import './js/job-picker.js';
 import './js/client-services.js';
+import './js/task-form.js';

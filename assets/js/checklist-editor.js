@@ -75,6 +75,17 @@ export function initChecklistEditor(root = document) {
             }
         });
 
+        // popunjavanje iz koda (izbor posla u formi zadatka): zamenjuje sve stavke
+        editor.ktSetItems = (texts) => {
+            list.innerHTML = '';
+            texts.forEach((text) => {
+                const row = add();
+                row.querySelector('[data-kt-checklist-input]').value = text;
+            });
+            refresh();
+        };
+        editor.ktHasItems = () => inputs().some((el) => el.value.trim() !== '');
+
         Sortable.create(list, { handle: '.kt-drag-handle', animation: 150, onEnd: refresh });
         refresh();
     });

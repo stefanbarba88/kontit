@@ -100,7 +100,7 @@
                             <div class="flex-fill min-w-0">
                                 <div class="kt-task-title text-truncate">{{ task.title }}</div>
                                 <div class="kt-task-meta text-truncate">{{ task.client ? task.client.shortName : 'Interni' }} · {{ ui.due_date(task) }}</div>
-                                <div class="mt-1 d-flex gap-1 flex-wrap">{{ ui.task_status(task.status) }} {{ ui.priority_badge(task.priority) }}</div>
+                                <div class="mt-1 d-flex gap-1 flex-wrap">{{ ui.task_status(task.status) }} {{ ui.priority_badge(task.priority) }}{% if task.takenOverFrom or substituting_for(task) %} <span class="badge kt-badge-info">PREUZETO</span>{% endif %}</div>
                             </div>
                             <span class="kt-swipe-more">{{ ux_icon('lucide:ellipsis', {class: 'kt-icon'}) }}</span>
                         </a>
@@ -122,7 +122,7 @@
                         <tr>
                             <td>
                                 <a href="{{ path('task_show', {id: task.id}) }}" class="fw-semibold">{{ task.title }}</a>
-                                {% if substituting_for(task) %}<span class="badge kt-badge-info ms-1" title="Zamenjuješ: {% for u in substituting_for(task) %}{{ u.fullName }}{% endfor %}">PREUZETO</span>{% endif %}
+                                {% if substituting_for(task) %}<span class="badge kt-badge-info ms-1" title="Zamenjuješ: {% for u in substituting_for(task) %}{{ u.fullName }}{% endfor %}">PREUZETO</span>{% elseif task.takenOverFrom %}<span class="badge kt-badge-info ms-1" title="Glavni radnik je bio odsutan: {{ task.takenOverFrom.fullName }}">PREUZETO</span>{% endif %}
                             </td>
                             <td>{% if task.client %}{{ task.client.shortName }}{% else %}<span class="text-muted">Interni</span>{% endif %}</td>
                             <td>

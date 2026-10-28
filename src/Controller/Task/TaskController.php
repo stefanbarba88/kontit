@@ -3,15 +3,18 @@
 namespace App\Controller\Task;
 
 use App\Entity\ActivityLog;
+use App\Entity\ChecklistItem;
 use App\Entity\Client;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Enum\TaskPriority;
 use App\Form\TaskType;
 use App\Repository\ActivityLogRepository;
+use App\Repository\ClientJobRepository;
 use App\Repository\ClientRepository;
 use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
+use App\Service\ClientPeople;
 use App\Service\TaskCompletionService;
 use App\Service\TaskService;
 use Knp\Component\Pager\PaginatorInterface;
@@ -29,6 +32,8 @@ class TaskController extends AbstractController
         private readonly TaskRepository $repository,
         private readonly UserRepository $users,
         private readonly ClientRepository $clients,
+        private readonly ClientJobRepository $jobs,
+        private readonly ClientPeople $clientPeople,
     ) {
     }
 
@@ -66,22 +71,55 @@ class TaskController extends AbstractController
         ]);
     }
 
+    /**
+     * Novi zadatak (SPEC 8i.2, 8i.3). Sa kartice klijenta (/clients/{id}/tasks/new) klijent je zaključan;
+     * ?job= (iz "Kreiraj zadatak sada") popunjava naslov, checklist, prioritet i procenu iz ugovorenog posla.
+     */
     #[Route('/tasks/new', name: 'task_new', methods: ['GET', 'POST'])]
+    #[Route('/clients/{clientId}/tasks/new', name: 'client_task_new', requirements: ['clientId' => '\d+'], methods: ['GET', 'POST'])]
     #[IsGranted('TASK_CREATE')]
-    public function new(Request $request): Response
+    public function new(Request $request, int $clientId = 0): Response
     {
         $me = $this->actor();
         $task = new Task();
-        $clientId = $request->query->getInt('client');
-        if ($clientId && ($client = $this->clients->find($clientId)) && $this->isGranted('CLIENT_VIEW', $client)) {
+        $locked = $clientId > 0;
+        $clientId = $clientId ?: $request->query->getInt('client');
+        if ($clientId) {
+            $client = $this->clients->find($clientId);
+            if (null === $client || !$this->isGranted('CLIENT_VIEW', $client)) {
+                throw $this->createNotFoundException();
+            }
             $task->setClient($client);
         }
+        $job = null;
+        if ($request->query->getInt('job') && null !== $task->getClient()) {
+            $job = $this->jobs->find($request->query->getInt('job'));
+            if (null === $job || $job->getClient() !== $task->getClient()) {
+                $job = null;
+            }
+        }
+        if (null !== $job && !$request->isMethod('POST')) {
+            $template = $job->getJobTemplate();
+            $task->setTitle(sprintf('%s — %s', $template->getName(), $task->getClient()->getShortName()))
+                ->setDescription($template->getDescription())
+                ->setPriority($template->getDefaultPriority())
+                ->setCompletionMode($template->getCompletionMode())
+                ->linkJob($job);
+        }
 
-        $form = $this->createTaskForm($task, $me, [$me]);
+        // podrazumevani učesnik: glavni radnik klijenta (ili zaduženi na poslu), ako sme da mu se dodeli; inače ja
+        $default = $job?->getAssigneeOverride() ?? $task->getClient()?->getPrimaryAccountant();
+        $form = $this->createTaskForm($task, $me, null !== $default && $this->tasks->canAssignTo($me, $default) ? [$default] : [$me], $locked);
+        if (null !== $job && !$request->isMethod('POST') && $form->has('checklist')) {
+            $form->get('checklist')->setData(array_map(static fn ($i) => ['text' => $i->getText(), 'position' => $i->getPosition()], $job->getJobTemplate()->getChecklistItems()->toArray()));
+        }
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
+                foreach (array_values((array) $form->get('checklist')->getData()) as $position => $row) {
+                    $task->addChecklistItem(new ChecklistItem($task, (string) $row['text'], $position));
+                }
                 $this->tasks->create($task, $this->submittedAssignees($form, $me), $me, $this->wantsEmail($form));
                 $this->addFlash('success', sprintf('Zadatak „%s“ je kreiran.', $task->getTitle()));
 
@@ -91,7 +129,12 @@ class TaskController extends AbstractController
             }
         }
 
-        return $this->render('task/form.html.twig', ['form' => $form, 'task' => $task]);
+        return $this->render('task/form.html.twig', [
+            'form' => $form,
+            'task' => $task,
+            'locked' => $locked,
+            'people' => null !== $task->getClient() ? $this->clientPeople->of($task->getClient()) : [],
+        ]);
     }
 
     #[Route('/tasks/{id}', name: 'task_show', requirements: ['id' => '\d+'], methods: ['GET'])]
@@ -123,7 +166,7 @@ class TaskController extends AbstractController
             }
         }
 
-        return $this->render('task/form.html.twig', ['form' => $form, 'task' => $task]);
+        return $this->render('task/form.html.twig', ['form' => $form, 'task' => $task, 'locked' => false, 'people' => null !== $task->getClient() ? $this->clientPeople->of($task->getClient()) : []]);
     }
 
     /**
@@ -219,7 +262,7 @@ class TaskController extends AbstractController
     /**
      * @param list<User> $defaultAssignees
      */
-    private function createTaskForm(Task $task, User $me, array $defaultAssignees): \Symfony\Component\Form\FormInterface
+    private function createTaskForm(Task $task, User $me, array $defaultAssignees, bool $lockClient = false): \Symfony\Component\Form\FormInterface
     {
         $admin = $this->tasks->isAdmin($me);
 
@@ -230,8 +273,13 @@ class TaskController extends AbstractController
                 ->andWhere('c.isActive = true OR c = :current')->setParameter('current', $task->getClient());
         }
 
+        // posao: ugovoreni poslovi klijenata koje korisnik vidi (JS ih filtrira po izabranom klijentu)
+        $clientIds = array_map('intval', array_column((clone $clientQb)->select('c.id')->resetDQLPart('orderBy')->getQuery()->getArrayResult(), 'id'));
+
         return $this->createForm(TaskType::class, $task, [
             'client_query_builder' => $clientQb,
+            'job_query_builder' => $this->jobs->createContractedQueryBuilder($clientIds, $task->getClientJob()),
+            'lock_client' => $lockClient,
             'assignee_query_builder' => $this->tasks->isLeader($me)
                 ? $this->users->createAssignableQueryBuilder($me, $admin, $task->getAssigneeUsers())
                 : null,

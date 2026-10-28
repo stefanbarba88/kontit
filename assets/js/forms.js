@@ -33,6 +33,8 @@ function initSelects(root) {
             maxOptions: null,
             plugins: multiple ? ['remove_button'] : [],
             hidePlaceholder: false,
+            // data-kt-search: pretraga i po dodatnom tekstu opcije (data-data='{"search": "pun naziv, PIB"}')
+            searchField: el.hasAttribute('data-kt-search') ? ['text', 'search'] : ['text'],
             render: {
                 no_results: () => '<div class="no-results">Nema rezultata</div>',
                 loading: () => '<div class="kt-ts-loading"><span class="kt-loader kt-loader--sm"><i></i><i></i><i></i><i></i></span></div>',

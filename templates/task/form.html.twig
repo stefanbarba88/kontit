@@ -1,66 +1,102 @@
 {% extends 'base.html.twig' %}
+{% import 'components/checklist_editor.html.twig' as ce %}
 
 {% set is_new = task.id is null %}
 
 {% block title %}{{ is_new ? 'Novi zadatak' : 'Izmena zadatka' }}{% endblock %}
 {% block page_title %}{{ is_new ? 'Novi zadatak' : 'Izmena: ' ~ task.title }}{% endblock %}
 {% block breadcrumbs %}
-    <a href="{{ path('task_index') }}" class="breadcrumb-item">Zadaci</a>
+    {% if locked %}
+        <a href="{{ path('client_show', {id: task.client.id}) }}" class="breadcrumb-item">{{ task.client.shortName }}</a>
+    {% else %}
+        <a href="{{ path('task_index') }}" class="breadcrumb-item">Zadaci</a>
+    {% endif %}
     {% if not is_new %}<a href="{{ path('task_show', {id: task.id}) }}" class="breadcrumb-item">{{ task.title }}</a>{% endif %}
-    <span class="breadcrumb-item active">{{ is_new ? 'Novi' : 'Izmena' }}</span>
+    <span class="breadcrumb-item active">{{ is_new ? 'Novi zadatak' : 'Izmena' }}</span>
 {% endblock %}
 
 {% block content %}
-    {{ form_start(form) }}
+    {{ form_start(form, {attr: {'data-kt-task-form': '', 'data-options-url': path('ajax_client_task_options', {id: 0}), 'data-locked': locked ? '1' : '0'}}) }}
     <div class="row">
         <div class="col-lg-7">
             <div class="card">
                 <div class="card-header"><h5 class="mb-0">Zadatak</h5></div>
                 <div class="card-body border-top">
+                    {% if locked %}
+                        {# ulaz sa kartice klijenta: klijent je zaključan #}
+                        <div class="kt-locked-client mb-3" data-kt-locked-client="{{ task.client.id }}">
+                            {{ ux_icon('lucide:building-2', {class: 'kt-icon'}) }}
+                            <div class="min-w-0"><div class="fw-semibold">{{ task.client.shortName }}</div><div class="kt-text-sm text-muted">{{ task.client.pib ? 'PIB ' ~ task.client.pib : task.client.name }}</div></div>
+                            {{ ux_icon('lucide:lock', {class: 'kt-icon ms-auto text-muted'}) }}
+                        </div>
+                        {% do form.client.setRendered %}
+                    {% else %}
+                        <div class="mb-3">
+                            <div class="kt-segmented" role="radiogroup" aria-label="Vrsta zadatka">
+                                {% for choice in form.scope %}
+                                    {{ form_widget(choice, {attr: {class: 'btn-check', 'data-kt-task-scope': ''}}) }}
+                                    <label class="btn" for="{{ choice.vars.id }}">{{ choice.vars.label }}</label>
+                                {% endfor %}
+                            </div>
+                            {% do form.scope.setRendered %}
+                        </div>
+                        <div data-kt-task-client-row>{{ form_row(form.client) }}</div>
+                    {% endif %}
+                    <div data-kt-task-job-row>
+                        {{ form_row(form.clientJob) }}
+                        <div class="kt-text-sm text-muted mb-3" data-kt-task-locked-note hidden>{{ ux_icon('lucide:lock', {class: 'kt-icon me-1'}) }}Prvo izaberi klijenta.</div>
+                    </div>
                     {{ form_row(form.title) }}
                     {{ form_row(form.description) }}
-                    {{ form_row(form.client) }}
                     <div class="row">
-                        <div class="col-md-4">{{ form_row(form.dueDate) }}</div>
+                        <div class="col-md-4">
+                            {{ form_row(form.dueDate) }}
+                            <div class="kt-text-sm text-warning mt-n2 mb-3" data-kt-due-warning hidden></div>
+                        </div>
                         <div class="col-md-4">{{ form_row(form.priority) }}</div>
                         <div class="col-md-4">{{ form_row(form.completionMode) }}</div>
                     </div>
                 </div>
             </div>
+            {% if form.checklist is defined %}
+                <div class="card">
+                    <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Checklista</h5></div>
+                    <div class="card-body border-top">{{ ce.editor(form.checklist) }}</div>
+                </div>
+            {% endif %}
         </div>
 
         <div class="col-lg-5">
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Učesnici</h5></div>
+                <div class="card-header"><h5 class="mb-0">Zaduženi</h5></div>
                 <div class="card-body border-top">
                     {% if form.assignees is defined %}
-                        <div class="overflow-auto" style="max-height: 320px;">{{ form_row(form.assignees) }}</div>
-                        <div class="text-muted kt-text-sm mt-2 mb-3">Izabrani učesnici dobijaju zadatak. Svaki ima svoj status.</div>
+                        <div class="kt-text-sm text-muted mb-2" data-kt-assignee-hint>{{ task.client ? 'Nude se samo ljudi raspoređeni na klijenta.' : '' }}</div>
+                        <div class="kt-assignees" data-kt-assignees>
+                            {% for child in form.assignees %}
+                                {% set uid = child.vars.value %}
+                                <div class="form-check" data-kt-assignee="{{ uid }}"{% if task.client and people[uid] is not defined %} hidden{% endif %}>
+                                    {{ form_widget(child) }}
+                                    <label class="form-check-label" for="{{ child.vars.id }}">{{ child.vars.label }} <span class="kt-text-xs text-muted" data-kt-assignee-role>{{ people[uid] is defined ? '(' ~ people[uid].role ~ ')' : '' }}</span></label>
+                                </div>
+                            {% endfor %}
+                            {% do form.assignees.setRendered %}
+                        </div>
+                        <div class="kt-text-sm text-muted" data-kt-assignees-empty hidden>{{ ux_icon('lucide:info', {class: 'kt-icon me-1'}) }}Na ovog klijenta nije raspoređen niko kome možeš da dodeliš zadatak.</div>
+                        {{ form_errors(form.assignees) }}
+                        <div class="text-muted kt-text-sm mt-2 mb-3">Svaki učesnik ima svoj status na zadatku.</div>
                         {{ form_row(form.notifyByEmail) }}
                     {% else %}
-                        <div class="text-muted">Zadatak se dodeljuje vama.</div>
+                        <div class="text-muted">Zadatak se dodeljuje tebi.</div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="d-flex justify-content-end gap-2">
-        <a href="{{ is_new ? path('task_index') : path('task_show', {id: task.id}) }}" class="btn btn-light">Otkaži</a>
+    <div class="kt-form-actions">
+        <a href="{{ is_new ? (locked ? path('client_show', {id: task.client.id}) : path('task_index')) : path('task_show', {id: task.id}) }}" class="btn btn-light">Otkaži</a>
         <button class="btn btn-primary">Sačuvaj{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
     </div>
     {{ form_end(form) }}
-
-    {% if form.notifyByEmail is defined %}
-        <script>
-            // hitan zadatak: mail je podrazumevano uključen
-            document.addEventListener('DOMContentLoaded', () => {
-                const priority = document.getElementById('task_priority');
-                const email = document.getElementById('task_notifyByEmail');
-                if (priority && email) {
-                    priority.addEventListener('change', () => { if (priority.value === 'HITAN') { email.checked = true; } });
-                }
-            });
-        </script>
-    {% endif %}
 {% endblock %}

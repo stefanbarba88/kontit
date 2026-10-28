@@ -550,13 +550,14 @@ ClientJob ─< Task
 - Uklanjanje paketa postavlja endDate na ClientPackage i njegove ClientJob-ove, uz SweetAlert pitanje šta sa otvorenim zadacima.
 - Zamenjuje stranicu `/clients/{id}/packages` (tab je `/clients/{id}?tab=usluge`). Drugačiji raspored se podešava preko "Izmeni", posle dodavanja posla.
 
-## 8i. Zadaci: automatski i ručni
+## 8i. Zadaci: automatski i ručni (implementirano u P5)
 
 ### 8i.1 Automatsko kreiranje
 - `app:tasks:generate` (cron 06:00) za svaki ugovoren ClientJob čiji raspored nije NONE: rok preko `ScheduleCalculator`-a; ako je danas >= rok − leadDays i zadatak za period ne postoji, kreira ga.
 - Jedinstven `(client_job_id, period_key)` (do sada `generation_key`) sprečava duplikate.
 - Zadatak: naslov `{posao} — {kraći naziv klijenta} — {period}`, checklist iz posla, prioritet, režim završetka, procena trajanja, zaduženi = override sa ClientJob-a, inače glavni radnik klijenta.
-- Ako je glavni radnik tog dana **na odobrenom odsustvu**, zadatak dobija **zamena** i označava se kao "PREUZETO".
+- Ako je glavni radnik tog dana **na odobrenom odsustvu**, zadatak dobija **zamena** i označava se kao "PREUZETO" (`Task.takenOverFrom`).
+- Rok koji je prošao pre najviše 31 dan se još pravi (npr. kad cron nije radio), stariji ne.
 - Isti posao iz dva paketa istog klijenta: jedan zadatak po periodu.
 - Admin: "Generiši sada" (SweetAlert sa brojem zadataka) i pregled narednih 30 dana (postoji).
 

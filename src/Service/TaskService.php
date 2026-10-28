@@ -24,6 +24,7 @@ class TaskService
         private readonly TaskCompletionService $completion,
         private readonly NotificationService $notifications,
         private readonly ReplacementResolver $replacements,
+        private readonly ClientPeople $clientPeople,
     ) {
     }
 
@@ -51,11 +52,14 @@ class TaskService
 
     /**
      * @param list<User> $assignees
+     * @param bool       $generated zadatak pravi sistem iz ugovorenog posla (zaduženi je već određen pravilima generisanja)
      */
-    public function create(Task $task, array $assignees, User $actor, bool $email = false): void
+    public function create(Task $task, array $assignees, User $actor, bool $email = false, bool $generated = false): void
     {
         $assignees = $this->uniqueUsers($assignees);
-        $this->validateAssignees($task, $assignees, $actor);
+        if (!$generated) {
+            $this->validateAssignees($task, $assignees, $actor);
+        }
         $this->validateClient($task);
 
         $this->em->wrapInTransaction(function () use ($task, $assignees, $actor): void {
@@ -316,6 +320,10 @@ class TaskService
             if (!$this->canAssignTo($actor, $user)) {
                 throw new \DomainException(sprintf('Ne možeš dodeliti zadatak korisniku %s.', $user->getFullName()));
             }
+            // zadatak klijenta dobijaju samo ljudi raspoređeni na tog klijenta (SPEC 8i.3)
+            if (null !== $task->getClient() && !$this->clientPeople->isAssigned($task->getClient(), $user)) {
+                throw new \DomainException(sprintf('%s nije raspoređen na klijenta %s (glavni, zamena ili zaduženi na nekom poslu).', $user->getFullName(), $task->getClient()->getShortName()));
+            }
         }
     }
 
@@ -324,6 +332,10 @@ class TaskService
         $client = $task->getClient();
         if (null !== $client && !$client->isActive() && null === $task->getId()) {
             throw new \DomainException('Klijent je deaktiviran.');
+        }
+        $job = $task->getClientJob();
+        if (null !== $job && $job->getClient() !== $client) {
+            throw new \DomainException('Izabrani posao nije ugovoren sa ovim klijentom.');
         }
     }
 

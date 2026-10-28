@@ -17,23 +17,24 @@
         <div class="card-header"><h5 class="mb-0">Pregled narednih 30 dana</h5></div>
         <div class="table-responsive">
             <table class="table align-middle">
-                <thead><tr><th>Posao</th><th>Klijent</th><th>Period</th><th>Rok</th><th>Nastaje</th><th>Status</th></tr></thead>
+                <thead><tr><th>Posao</th><th>Klijent</th><th>Period</th><th>Rok</th><th>Nastaje</th><th>Zadužen</th><th>Status</th></tr></thead>
                 <tbody>
                     {% for row in preview %}
                         <tr>
                             <td>{{ row.job.jobTemplate.name }}</td>
                             <td><a href="{{ path('client_show', {id: row.job.client.id}) }}" class="text-body">{{ row.job.client.shortName }}</a></td>
                             <td>{{ row.label }}</td>
-                            <td>{{ row.due|date('d.m.Y.') }}</td>
+                            <td class="text-nowrap">{{ row.due|date('d.m.Y.') }}{% if row.shifted %} <span title="Rok je pomeren zbog neradnog dana" data-bs-toggle="tooltip">{{ ux_icon('lucide:arrow-right-left', {class: 'kt-icon text-warning'}) }}</span>{% endif %}</td>
                             <td>{{ row.generateOn|date('d.m.Y.') }}</td>
+                            <td class="text-nowrap">{% if row.assignee %}{{ row.assignee.fullName }}{% if row.takenOverFrom %} <span class="badge kt-badge-info" title="{{ row.takenOverFrom.fullName }} je na odsustvu" data-bs-toggle="tooltip">PREUZETO</span>{% endif %}{% else %}<span class="text-danger">nema zaduženog</span>{% endif %}</td>
                             <td>
-                                {% if row.exists %}<span class="badge bg-success">Napravljen</span>
-                                {% elseif row.generateOn <= date('today') %}<span class="badge bg-warning">Za generisanje</span>
-                                {% else %}<span class="badge bg-light text-body border">Zakazan</span>{% endif %}
+                                {% if row.exists %}<span class="kt-badge kt-badge-success">Napravljen</span>
+                                {% elseif row.generateOn <= date('today') %}<span class="kt-badge kt-badge-warning">Za generisanje</span>
+                                {% else %}<span class="kt-badge kt-badge-outline">Zakazan</span>{% endif %}
                             </td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="6">{{ ui.empty_state('Nema zadataka za generisanje u narednih 30 dana.', 'refresh-cw') }}</td></tr>
+                        <tr><td colspan="7">{{ ui.empty_state('Nema zadataka za generisanje u narednih 30 dana.', 'refresh-cw') }}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

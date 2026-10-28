@@ -62,3 +62,8 @@
 .kt-svc-name { font-weight: 500; }
 .kt-svc-ended > summary { cursor: pointer; list-style: none; }
 .kt-svc-ended > summary::-webkit-details-marker { display: none; }
+
+/* Forma zadatka (SPEC 8i.3): zaključan klijent i zaključani zaduženi dok klijent nije izabran */
+.kt-locked-client { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--kt-border); border-radius: var(--kt-radius); background: var(--kt-surface-2); }
+.kt-assignees { max-height: 320px; overflow: auto; }
+.kt-assignees.kt-is-locked { opacity: .5; }

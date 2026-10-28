@@ -193,4 +193,30 @@ class TaskRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Periodi za koje zadaci već postoje, po poslu klijenta (jedan upit za ceo pregled generisanja).
+     *
+     * @param list<\App\Entity\ClientJob> $jobs
+     *
+     * @return array<int, array<string, true>> id posla => [ključ perioda => true]
+     */
+    public function findPeriodKeys(array $jobs): array
+    {
+        if ([] === $jobs) {
+            return [];
+        }
+        $rows = $this->createQueryBuilder('t')
+            ->select('IDENTITY(t.clientJob) job', 't.periodKey')
+            ->andWhere('t.clientJob IN (:jobs) AND t.periodKey IS NOT NULL')
+            ->setParameter('jobs', $jobs)
+            ->getQuery()
+            ->getArrayResult();
+        $out = [];
+        foreach ($rows as $row) {
+            $out[(int) $row['job']][$row['periodKey']] = true;
+        }
+
+        return $out;
+    }
 }
