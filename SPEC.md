@@ -61,7 +61,7 @@ Objektna prava rešavaju Voteri:
   (kolone se zovu startedAt/endedAt, jer su `from`/`to` rezervisane reči u SQL-u)
 
 ### Client (pravno lice ili preduzetnik)
-- name, legalForm (enum: DOO, AD, PREDUZETNIK, UDRUZENJE, OSTALO)
+- name (pun, zvaničan naziv), **shortName** (obavezan, do 40 karaktera; vidi 8f.2). Pravna forma (`legalForm`) je ukinuta (8f.3).
 - pib, maticniBroj, pdvObveznik (bool)
 - address, city, contactPerson, phone, email
 - startDate (od kada ga vodimo), isActive, note
@@ -113,6 +113,7 @@ Objektna prava rešavaju Voteri:
 ### UserAbsence (odsustvo)
 - user, startDate, endDate (kolone se ne zovu `from`/`to` jer su rezervisane u SQL-u), reason (enum: GODISNJI, BOLOVANJE, OSTALO), note, createdBy
 - status (enum: NA_CEKANJU, ODOBRENO, ODBIJENO, OTKAZANO), decidedBy, decidedAt
+- **Proširuje se u `Absence`** (vrste odsustva kao entitet, radni dani, rok za odobrenje, prilozi): vidi 8j.
 
 ### Notification
 - user (primalac), type (enum), title, message, link (URL ka zadatku ili klijentu)
@@ -322,6 +323,8 @@ Upisano i u CLAUDE.md: svaka nova radnja koja briše, deaktivira, otkazuje, menj
 
 ## 8b. Katalog: poslovi i paketi
 
+> **Zamenjeno sekcijama 8g i 8h** (UPDATE-POSLOVI-KALENDAR) gde se razlikuju: kategorija posla postaje entitet, raspored posla, source `AD_HOC` postaje `INDIVIDUAL`.
+
 ### 8b.1 Pojmovi
 - **Posao (JobTemplate)** je šablon nečega što se radi i od njega **nastaju zadaci**.
   Primeri: "Mesečna PDV prijava", "Obračun plata (PPP-PD)", "Knjiženje izvoda", "Završni račun", "Registracija firme".
@@ -380,6 +383,8 @@ Upisano i u CLAUDE.md: svaka nova radnja koja briše, deaktivira, otkazuje, menj
 ---
 
 ## 8c. Ponavljajući zadaci (Faza 3b)
+
+> **Zamenjeno sekcijom 8i** gde se razlikuju: `JobSchedule` prelazi u `ScheduleCalculator`, `Holiday` tabela u neradne dane (8k), zamena na odsustvu pri generisanju.
 
 ### 8c.1 Generisanje
 - Komanda `app:tasks:generate` ide na cron **svakog dana u 06:00**.
@@ -457,6 +462,179 @@ Kasnije se zamenjuje stvarnim vremenom iz agenta (Faza 8), pa analitiku treba pi
 
 ---
 
+## 8f-8n. DOPUNA (iz UPDATE-POSLOVI-KALENDAR.md)
+
+> Ima prednost nad 8b i 8c gde se razlikuju. Redosled ugradnje je u sekciji 10 (koraci P1-P11). Original je u `docs/archive/UPDATE-POSLOVI-KALENDAR.md`.
+
+## 8f. Sitne izmene
+
+### 8f.1 Aktivnosti (timeline): paginacija
+- Timeline na profilu korisnika, klijentu i zadatku prikazuje **20 poslednjih**, a dugme **"Učitaj još"** (AJAX) donosi sledećih 20.
+- Ruta `/ajax/users/{id}/activity?page=N` (i ekvivalent za klijenta i zadatak) vraća HTML fragment timeline-a i podatak da li ima još.
+- Iznad timeline-a filteri: **tip akcije** i **period** (flatpickr opseg). Promena filtera učitava od prve strane.
+- Upit sa `LIMIT/OFFSET` po indeksima `(entity_type, entity_id, created_at)` i `(user_id, created_at)` (oba već postoje).
+- Dok se učitava: skelet (DESIGN.md 7.13). Prazno stanje: "Još nema aktivnosti."
+
+### 8f.2 Klijent: kraći naziv
+- `Client.shortName` (obavezno, do 40 karaktera), npr. "Mlekara Ivanjica".
+- **Kraći naziv se koristi svuda**: liste, badge-ovi, Tom Select opcije, naslovi zadataka, kalendar, notifikacije, mailovi.
+- **Pun naziv** (`name`) samo na kartici klijenta, u PDF izveštajima i izvozima (posebna kolona).
+- Migracija: postojećim klijentima `shortName` = `name` skraćen na 40 karaktera (korisnik ih kasnije ručno ispravlja).
+- NBS: `name` = zvaničan naziv, a `shortName` se predlaže (bez pravne forme i dodataka "doo", "d.o.o.", "preduzetnik", "PR"), uz mogućnost izmene.
+- Pretraga (liste) traži po oba naziva i po PIB-u.
+
+### 8f.3 Klijent: bez pravne forme
+- `legalForm` se uklanja iz entiteta, forme, prikaza, izvoza i NBS uvoza, a enum `LegalForm` se briše. Nova migracija briše kolonu.
+
+## 8g. Katalog: kategorije, posao, raspored
+
+### 8g.1 Kategorije poslova
+- Entitet **`JobCategory`**: name, color (8 boja iz DESIGN.md 3.6), icon (Lucide naziv, opciono), position, isActive.
+- CRUD za admin+: lista sa drag & drop redosledom (SortableJS), dodavanje i izmena u modalu. Kategorija sa poslovima se ne briše, nego deaktivira (SweetAlert objašnjenje).
+- `JobTemplate.category` postaje veza na `JobCategory` (enum `JobCategory` se briše). Migracija pravi kategorije od postojećih vrednosti enuma (Knjiženje, PDV, Plate, Prijave, Završni račun, Savetovanje, Administrativno, Ostalo) i povezuje poslove.
+- Kategorija se prikazuje kao badge u boji svuda gde se pojavljuje posao.
+
+### 8g.2 Posao (JobTemplate)
+- name, category, description, checklist stavke (`JobTemplateChecklistItem`), raspored (8g.3), defaultPriority, completionMode, estimatedMinutes, priceUnit, isActive.
+- **defaultPrice**: vidi nedoumicu 9.
+
+### 8g.3 Raspored izvršavanja
+Ako je raspored **"Po potrebi" (NONE)**, sistem ne kreira zadatke, nego ih korisnik pravi ručno (npr. prijava/odjava radnika).
+
+| Tip | Podešavanja | Primer |
+|---|---|---|
+| NONE (Po potrebi) | nema | Prijava/odjava radnika |
+| DAILY | na svakih N dana; samo radni dani (da/ne) | Knjiženje izvoda |
+| WEEKLY | na svakih N nedelja; dan u nedelji | Svakog ponedeljka |
+| MONTHLY | na svakih N meseci; dan 1-31 ili "poslednji dan" | PDV prijava, 15. |
+| QUARTERLY | mesec posle kvartala (1-3); dan u mesecu | 20. dan posle kvartala |
+| YEARLY | mesec i dan | Završni račun, 30. jun |
+
+- Zajedničko: **leadDays** (koliko dana pre roka nastaje zadatak; DAILY obično 0) i **nonWorkingDayShift** (NEXT = prvi sledeći radni dan, podrazumevano; PREVIOUS = prethodni radni dan). DAILY sa "samo radni dani" preskače neradne dane. Dan 31 u kraćem mesecu = poslednji dan.
+- Polja na JobTemplate: `scheduleType`, `scheduleInterval`, `scheduleDayOfWeek`, `scheduleDayOfMonth`, `scheduleMonthOfQuarter`, `scheduleMonth`, `workingDaysOnly`, `leadDays`, `nonWorkingDayShift`. **Isti skup (nullable) je override na ClientJob**; prazan override = raspored posla. Zamenjuju stara polja `recurrence`, `dueDay`, `dueMonth`, `generateDaysBefore` (migracija prenosi vrednosti; ONE_TIME vidi nedoumicu 10).
+- **`ScheduleCalculator`** (jedino mesto za logiku rasporeda, unit testovi): `nextOccurrences(schedule, from, count)` (rokovi već pomereni zbog neradnih dana), `periodKey(schedule, date)` (`2026-11-03`, `2026-W45`, `2026-11`, `2026-Q4`, `2026`), `describe(schedule)` ("Mesečno, 15. u mesecu (ako je neradni dan, prvi sledeći radni dan)").
+- Testovi: 31. u februaru, prestupna godina, rok na vikend i praznik, kolektivni odmor preko kraja meseca, "poslednji dan", DAILY samo radnim danima, kvartal preko kraja godine.
+- UI: segmentirana dugmad za tip, pa samo polja tog tipa; ispod opis rečima i **pregled narednih 5 rokova** (AJAX pri svakoj promeni). Pomeren rok ima ikonicu i tooltip ("15. nov je nedelja, pomereno na 16. nov").
+
+### 8g.4 Checklist editor
+- Stavke posla su prava lista: ručka (SortableJS) · polje · dugme `x`; "+ Dodaj stavku"; Enter u poslednjem polju dodaje novu i fokusira je; Backspace u praznom polju briše stavku i vraća fokus na prethodnu; prazne stavke se ignorišu; brojač "5 stavki".
+- `CollectionType` (`allow_add`, `allow_delete`, `by_reference: false`, prototip), redosled u `position`.
+- Isti komponent (Twig makro + `assets/js/checklist-editor.js`) i za checklist zadatka pri ručnom kreiranju i izmeni.
+
+## 8h. Paketi i ugovorene usluge klijenta
+
+### 8h.1 Model
+```
+JobCategory ─< JobTemplate (posao, checklist, raspored)
+ServicePackage ─< ServicePackageItem >─ JobTemplate
+Client ─< ClientPackage >─ ServicePackage          (više paketa po klijentu)
+Client ─< ClientJob >─ JobTemplate                 (UGOVORENI posao: iz paketa ili pojedinačan)
+ClientJob ─< Task
+```
+- **ServicePackage**: name, description, isActive, items (sa redosledom). Cena u katalogu: vidi nedoumicu 9.
+- **ClientPackage**: client, package, **agreedPrice**, note, startDate, endDate, isActive; promene cene u `ClientPackagePriceLog`.
+- **ClientJob**: client, jobTemplate, **source** (PACKAGE / INDIVIDUAL; dosadašnji AD_HOC postaje INDIVIDUAL), clientPackage, **price** (samo pojedinačni), note, override rasporeda (8g.3), override zaduženog, startDate, endDate, isActive, isExcluded + excludedReason/By/At. Predlog radnika (`isApproved`) ostaje kao do sada.
+- **Ugovoreni poslovi** = aktivni, neisključeni ClientJob-ovi. Samo iz njih nastaju zadaci.
+
+### 8h.2 Job picker (forma paketa)
+- Levo: poslovi grupisani po kategoriji (boja, ikonica), grupe se skupljaju, pretraga u letu, "Izaberi sve u grupi", opis rasporeda u `--kt-text-2`. Desno (na telefonu ispod, sklopiv blok "Izabrano: 6"): izabrani poslovi sa prevlačenjem i ✕.
+- Jedan komponent: `templates/components/_job_picker.html.twig` + `assets/js/job-picker.js`, koristi se i u 8h.3.
+
+### 8h.3 Klijent: tab "Ugovorene usluge"
+- **Dodaj paket** (modal / bottom sheet): Tom Select paketa, odmah svi poslovi paketa štiklirani sa opisom rasporeda; odštikliran posao dobija opcioni razlog i čuva se kao ClientJob sa `isExcluded = true`. Dogovorena cena, napomena, datum početka. Upozorenje ako je posao već u drugom paketu klijenta.
+- **Dodaj pojedinačan posao** (modal): picker sa izborom jednog ili više poslova; za svaki cena, napomena, opciono drugačiji raspored i zaduženi. Čuva se kao source = INDIVIDUAL.
+- **Pregled**: Posao · Izvor · Raspored · Sledeći zadatak · Zadužen · Cena · ⋯. Grupisano po paketima, pa pojedinačni. Isključeni su prigušeni i precrtani, uz razlog, i mogu se ponovo uključiti. Meni ⋯: izmeni (cena, napomena, raspored, zaduženi), isključi/uključi, završi (endDate), "Kreiraj zadatak sada".
+- Dole **ukupna mesečna cena** (paketi + mesečni pojedinačni). **Cene vidi samo admin+.**
+- Uklanjanje paketa postavlja endDate na ClientPackage i njegove ClientJob-ove, uz SweetAlert pitanje šta sa otvorenim zadacima.
+- Zamenjuje stranicu `/clients/{id}/packages`.
+
+## 8i. Zadaci: automatski i ručni
+
+### 8i.1 Automatsko kreiranje
+- `app:tasks:generate` (cron 06:00) za svaki ugovoren ClientJob čiji raspored nije NONE: rok preko `ScheduleCalculator`-a; ako je danas >= rok − leadDays i zadatak za period ne postoji, kreira ga.
+- Jedinstven `(client_job_id, period_key)` (do sada `generation_key`) sprečava duplikate.
+- Zadatak: naslov `{posao} — {kraći naziv klijenta} — {period}`, checklist iz posla, prioritet, režim završetka, procena trajanja, zaduženi = override sa ClientJob-a, inače glavni radnik klijenta.
+- Ako je glavni radnik tog dana **na odobrenom odsustvu**, zadatak dobija **zamena** i označava se kao "PREUZETO".
+- Isti posao iz dva paketa istog klijenta: jedan zadatak po periodu.
+- Admin: "Generiši sada" (SweetAlert sa brojem zadataka) i pregled narednih 30 dana (postoji).
+
+### 8i.2 Ručno kreiranje
+- Zadatak iz ugovorenog posla sa rasporedom "Po potrebi" (checklist iz posla), dodatni zadatak iz posla sa rasporedom ("Kreiraj zadatak sada"), i potpuno samostalan zadatak (sa klijentom ili interni, bez klijenta).
+
+### 8i.3 Forma zadatka: klijent i zaduženi
+- Sa kartice klijenta (`/clients/{id}/tasks/new`): klijent zaključan (kartica: kraći naziv, PIB); "Posao" nudi samo ugovorene poslove klijenta (opciono); zaduženi samo ljudi raspoređeni na klijenta (glavni, zamena, override zaduženi sa njegovih ClientJob-ova), uz ulogu ("glavni", "zamena").
+- Iz zadataka (`/tasks/new`): prvo klijent (Tom Select po kraćem, punom nazivu i PIB-u) ili **"Interni zadatak (bez klijenta)"**; dok klijent nije izabran, "Posao" i "Zaduženi" su zaključani ("Prvo izaberi klijenta"). AJAX `/ajax/clients/{id}/task-options` puni poslove i zadužene; pri promeni klijenta uklanjaju se zaduženi koji nisu na novom klijentu (toast). Interni zadatak: pravila iz 4.4.
+- Uvek: pravila 4.4 važe; server ponovo proverava (Voter + da je zaduženi raspoređen na klijenta). Izbor posla popunjava checklist (editor 8g.4), prioritet i procenu. Rok preko flatpickr-a, neradni dani prigušeni, a izbor neradnog dana daje upozorenje (ne zabranu).
+
+## 8k. Neradni dani
+Zamenjuje `Holiday` tabelu. Admin+ upravlja na **Podešavanja → Neradni dani**.
+- `WeeklyNonWorkingRule` (dani u nedelji, jedno pravilo za firmu; podrazumevano subota i nedelja) i `NonWorkingDay` (type: HOLIDAY_RECURRING, HOLIDAY_ONCE, COLLECTIVE_LEAVE; name, dateFrom, dateTo, recurring, note). Postojeći praznici iz `Holiday` prelaze u HOLIDAY_ONCE.
+- "Učitaj praznike Srbije za godinu": zakonski praznici, uključujući pravoslavni Uskrs (julijanski kalendar) i Veliki petak; admin pregleda pre čuvanja. Praznik u nedelju: predlog da se ne radi narednog radnog dana, admin potvrđuje.
+- Pregled: godišnji kalendar (12 malih meseci) sa obojenim neradnim danima i lista ispod.
+- **`WorkingDayService`** (jedino mesto za "da li je radni dan"): `isWorkingDay`, `nextWorkingDay`, `previousWorkingDay`, `countWorkingDays`, `nonWorkingDaysBetween`. Keš po godini, briše se pri izmeni. Koriste ga `ScheduleCalculator`, odsustva, flatpickr (`/ajax/calendar/non-working?year=`) i kalendar.
+
+## 8j. Odsustva (zamenjuje UserAbsence iz sekcije 3 i dopunjuje sekciju 5)
+
+### 8j.1 Vrste odsustva (CRUD za admina)
+`AbsenceType`: name, color, icon, requiresApproval, countsAgainstLeave, requiresDocument, maxDaysPerYear (opciono), isActive.
+
+| Vrsta | Odobrenje | Troši godišnji | Dokument |
+|---|---|---|---|
+| Godišnji odmor | da | da | ne |
+| Slava | da | ne | ne |
+| Bolovanje | ne (evidencija) | ne | da, doznaka (može naknadno) |
+| Plaćeno odsustvo | da | ne | ne |
+| Neplaćeno odsustvo | da | ne | ne |
+| Ostalo | da | ne | ne |
+
+### 8j.2 Zahtev
+- `Absence` (proširuje `UserAbsence`): user, type, dateFrom, dateTo, halfDay (samo za jedan dan), **workingDays** (preko WorkingDayService-a), note, status, requestedBy, decidedBy, decidedAt, decisionNote, **approvalDeadline**, prilozi (8l).
+- Statusi: `NA_ODOBRENJU` → `ODOBRENO` / `ODBIJENO` / `AUTOMATSKI_ODOBRENO`, plus `OTKAZANO` (podnosilac dok je na odobrenju, admin uvek). Dosadašnji `NA_CEKANJU` postaje `NA_ODOBRENJU`.
+- Radnik podnosi za sebe. Šef i admin upisuju bilo kome koga vide, i tada je odobreno odmah.
+- **Odobrava** šef tima podnosioca; ako je podnosilac šef (vidi nedoumicu 11), nema tim ili mu je šef odsutan, odobrava admin.
+- Forma odmah pokazuje broj radnih dana, preostale dane godišnjeg posle zahteva i ko je još iz tima odsutan (upozorenje).
+- Preklapanje sa postojećim odsustvom istog korisnika nije dozvoljeno. Odobreno odsustvo pokreće zamenu iz sekcije 5.
+
+### 8j.3 Evidencija i pregled
+- `User.annualLeaveDays` i `LeaveBalance` (user, year, entitled, carriedOver, used; `used` iz odobrenih odsustava koja troše godišnji).
+- Profil: kartica "Odsustva" (preostalo / iskorišćeno / preneto, zahtevi po godini).
+- Stranica Odsustva (šef svoj tim, admin svi): tab **"Na odobrenju"** (brojač u meniju, Odobri / Odbij uz razlog), tab **"Pregled"** (radnik × dani u mesecu, boje po vrsti, neradni dani prigušeni, filter po timu), tab **"Evidencija"** (zbir po radniku i vrsti za godinu, izvoz Excel / PDF).
+- Telefon: "Na odobrenju" kao kartice sa prevlačenjem za Odobri / Odbij, pregled kao lista po danima.
+
+## 8m. Automatsko odobravanje posle roka
+- Ako odobravalac ne odgovori do roka, zahtev se smatra odobrenim.
+- `ApprovableInterface` (status, approvalDeadline, approve(), approveAutomatically()); implementira ga `Absence`.
+- Rok pri podnošenju: `min(podnošenje + X radnih sati, početak odsustva − 1 dan)`; X po vrsti zahteva u Podešavanjima (podrazumevano 48 h). Ako je odsustvo za sutra, odobravalac dobija hitnu notifikaciju.
+- `app:approvals:auto-approve` (cron na 15 min): `NA_ODOBRENJU` sa isteklim rokom → `AUTOMATSKI_ODOBRENO`, ActivityLog (sistem), notifikacije obojici. Podsetnik odobravaocu 24 h pre isteka.
+- UI: odbrojavanje ("Automatski se odobrava za 5 h"), poseban badge za automatski odobreno. Admin može da poništi automatsko odobrenje (razlog, notifikacija).
+- Primena: odsustva. Uključivanje po vrsti zahteva u Podešavanjima (nedoumica 1).
+
+## 8l. Dokumenti korisnika
+- `UserDocument`: user, category (`DocumentCategory`, CRUD: Ugovor, Rešenje, Potvrda, Izvod, Doznaka, Ostalo), title, file (PDF, JPG, PNG, do 20 MB), originalName, mimeType, size, validUntil, note, uploadedBy, createdAt, absence (opciono), deletedAt.
+- Upload preko FilePond-a, PDF preko PDF.js u modalu, slike u lightbox-u.
+- Fajlovi van `public/` (`var/storage/user-documents/{userId}/`, nasumično ime), servira ih kontroler uz Voter `USER_DOCUMENT_VIEW`. Nikad direktan link.
+- Vidi: korisnik svoje, admin+ sve, šef samo dokumente vezane za odsustva svog tima. Upload: admin+ za bilo koga, korisnik za sebe.
+- Profil: tab "Dokumenti" po kategorijama (ikonica tipa, naziv, datum, veličina, ko je dodao) sa filterom.
+- `validUntil`: notifikacija adminu 30 i 7 dana pre isteka. Brisanje je soft (SweetAlert); fajl se fizički briše tek trajnim brisanjem iz korpe (admin).
+
+## 8n. Kalendar
+- **FullCalendar v6** (MIT paketi: core, daygrid, timegrid, list, interaction) preko importmap-a, srpski latinični locale, nedelja od ponedeljka, tokeni iz DESIGN.md u obe teme. Premium paketi se ne koriste.
+- Prikazuje: zadatke po roku (boja statusa, ikonica prioriteta, kraći naziv klijenta; po Voterima), odsustva (boja vrste, avatar; svoja / šef tim / admin sve), neradne dane i kolektivni odmor (prigušena pozadina i naziv; svi).
+- Prikazi Mesec, Nedelja, Dan, Lista; na telefonu podrazumevano Lista, prevlačenje levo/desno za period. Filteri (čipovi): Moji / Moj tim / Svi, vrsta događaja, klijent, radnik.
+- Događaji AJAX-om za vidljiv opseg (`/ajax/calendar/events?start=&end=&filters=`).
+- Klik na prazan dan: "Novi zadatak za ovaj dan" ili "Zahtev za odsustvo od ovog dana". Klik na događaj: popover sa detaljima i linkom. Prevlačenje zadatka menja rok (samo uz `TASK_EDIT`), uz SweetAlert i upozorenje za neradni dan.
+- Kalendar je u glavnom meniju; mali pregled naredne nedelje na dashboardu.
+- **ICS link**: tajni `/calendar/ics/{token}.ics` (samo čitanje), uz poništavanje i novi link.
+- **Google Calendar** (aplikacija → Google): svaki korisnik sam povezuje nalog (OAuth 2.0, scope `calendar.app.created`), aplikacija pravi poseban kalendar "KontIT". Šalju se zadaci gde je korisnik učesnik (celodnevno na dan roka, link u opisu) i njegova odobrena odsustva; šef opciono i odsustva tima. Kreiranje, izmena roka, status (✓ u naslovu), otkazivanje i brisanje idu asinhrono preko Messenger-a, sa ponavljanjem; posle 5 neuspeha notifikacija korisniku. Entiteti `GoogleCalendarConnection` (refreshToken šifrovan) i `CalendarSyncLink`. Komanda `app:calendar:resync {user}`. Paketi `knpuniversity/oauth2-client-bundle`, `league/oauth2-google`, `google/apiclient` (samo Calendar servis). Uputstvo za Google Cloud konzolu u `docs/google-calendar-setup.md`; `GOOGLE_CLIENT_ID` i `GOOGLE_CLIENT_SECRET` samo u `.env.local`.
+
+### Podešavanja (admin) iz ove dopune
+Neradni dani, vrste odsustva i kategorije dokumenata, rokovi automatskog odobravanja po vrsti zahteva, podrazumevan broj dana godišnjeg odmora, Google kalendar (uključen za firmu, šefovi dobijaju odsustva tima).
+
+### Nove notifikacije
+ABSENCE_REQUESTED (postoji), ABSENCE_APPROVED, ABSENCE_REJECTED (zamenjuju ABSENCE_DECIDED), ABSENCE_AUTO_APPROVED, APPROVAL_DEADLINE_SOON, DOCUMENT_EXPIRING, DOCUMENT_ADDED, CALENDAR_SYNC_FAILED.
+
+---
+
 ## 9. Planirano za kasnije (NE implementirati sada, ali ne blokirati)
 - **Praćenje vremena**: neće biti start/stop tajmer, a način ćemo definisati kasnije.
   Za sada ne dodavati nikakva polja za vreme.
@@ -484,9 +662,23 @@ Kasnije se zamenjuje stvarnim vremenom iz agenta (Faza 8), pa analitiku treba pi
 - **Faza 2b (završena)**: Katalog poslova (JobTemplate i checklist šablon), paketi, povezivanje paketa sa klijentom, ClientJob (isključivanje, ad hoc), istorija cena. Tab "Paketi i poslovi" na kartici klijenta (8b). *(Opus 5.5)*
 - **Faza 3b (završena)**: Ponavljajući zadaci: polja na Task, `Holiday` tabela, komanda `app:tasks:generate`, "Generiši sada" (8c). *(Opus 5.5)*
 - **Faza 7b (završena)**: Finansijska analitika, samo admin+ (8d). Podešavanja praga cene sata i kapaciteta.
-- **Faza 8**: Praćenje vremena (agent), stvarno vreme zamenjuje procenjeno u analitici
-- **Faza 9** (kasnije): portal za klijente, eksport, ostalo
+- **UPDATE-DIZAJN (završen)**: sopstveni UI sistem, mobilni prikaz, izvoz (8e).
+- **Faza 8 (ODLOŽENO)**: Praćenje vremena (agent), stvarno vreme zamenjuje procenjeno u analitici. Ne raditi dok korisnik ne odluči.
+- **Faza 9** (kasnije): portal za klijente, ostalo
 (Ranije planirani "ponavljajući zadaci" iz Faze 8 su prebačeni u Fazu 3b.)
+
+**Dopuna (iz UPDATE-POSLOVI-KALENDAR.md), redosled:**
+- **P1**: Sitne izmene: paginacija aktivnosti, `shortName`, uklanjanje pravne forme (8f) *(Sonnet 5.5)*
+- **P2**: Neradni dani i `WorkingDayService` sa testovima (8k) *(Opus 5.5)*
+- **P3**: Kategorije poslova, checklist editor, raspored posla i `ScheduleCalculator` sa testovima (8g) *(Opus 5.5)*
+- **P4**: Paketi sa job picker-om, tab "Ugovorene usluge" (8h) *(Opus 5.5)*
+- **P5**: Generisanje po novom modelu i forma zadatka sa klijentom i zaduženima (8i) *(Opus 5.5)*
+- **P6**: Odsustva: vrste, zahtevi, odobravanje, evidencija i pregled (8j) *(Sonnet 5.5)*
+- **P7**: Automatsko odobravanje posle roka (8m) *(Opus 5.5)*
+- **P8**: Dokumenti korisnika (8l) *(Sonnet 5.5)*
+- **P9**: Kalendar u aplikaciji (FullCalendar) i ICS link (8n) *(Sonnet 5.5)*
+- **P10**: Google Calendar povezivanje i sinhronizacija (8n) *(Opus 5.5)*
+- **P11**: Pregled svih novih ekrana u obe teme, na 390 px i 1440 px *(Sonnet 5.5)*
 
 ---
 
@@ -494,7 +686,21 @@ Kasnije se zamenjuje stvarnim vremenom iz agenta (Faza 8), pa analitiku treba pi
 
 > Kad odlučiš, upiši odluku u odgovarajuću sekciju iznad i obriši stavku odavde.
 
-_Trenutno nema otvorenih nedoumica._
+**Iz UPDATE-POSLOVI-KALENDAR.md:**
+1. **Automatsko odobravanje važi i za potvrdu zadataka** (NA_PROVERI)? Predlog: da, ali sa dužim rokom (npr. 3 radna dana) i isključivo uz podešavanje, jer potvrda zadatka proverava kvalitet rada, a ne samo dozvolu.
+2. **Rok za automatsko odobravanje odsustva:** 48 h je predlog. Da li slava treba da ima kraći rok, jer se zna unapred? I šta su "radni sati": predlog je da se računaju sati samo u radnim danima (vikend i praznici se preskaču), bez radnog vremena od-do.
+3. **Google kalendar u oba smera?** Predlog: za sada samo aplikacija → Google.
+4. **Bolovanje:** da li šef treba da ga "vidi i potvrdi" ili je samo evidencija? Predlog: samo evidencija, a doznaka se prilaže u roku od 3 dana.
+5. **Prenos neiskorišćenih dana godišnjeg odmora** u sledeću godinu: da li i do kog datuma (po zakonu se deo koristi do 30. juna)?
+6. **Slava:** da li da se na profilu upiše slava (naziv i datum), pa da sistem sam predloži zahtev za odsustvo nekoliko nedelja ranije?
+7. **Šef vidi dokumente svog tima?** Predlog: samo one vezane za odsustva (doznake), a ugovore i rešenja samo admin.
+8. **Zadaci sa rasporedom "Dnevno"** mogu da naprave mnogo zadataka. Odluka po poslu pri unosu kataloga (možda "Nedeljno" sa checklistom po danima).
+
+**Uočeno pri prenosu (razlike prema ranijim odlukama):**
+9. **Cene u katalogu.** UPDATE-POSLOVI-KALENDAR vraća `ServicePackage.price` i `JobTemplate.defaultPrice` kao *predlog* cene, a 27.10. je odlučeno da katalog nema cene. Predlog: vratiti ih kao **opcionu predloženu cenu** (popunjava polje pri dodeli klijentu), a stvarna cena ostaje na klijentu (`agreedPrice`, `ClientJob.price`).
+10. **Jednokratni posao (ONE_TIME)** ne postoji u novom rasporedu. Predlog: postojeći ONE_TIME poslovi prelaze u "Po potrebi" (NONE), a jednokratan zadatak se pravi dugmetom "Kreiraj zadatak sada".
+11. **Šef koji traži odsustvo za sebe.** Do sada: odmah odobreno. Novo pravilo: odobrava admin. Predlog: važi novo pravilo (šefovo odsustvo ide adminu na odobrenje, uz automatsko odobravanje posle roka).
+12. **Popust na paketu** (`ClientPackage.discountPercent`) se ne pominje u novom modelu. Predlog: ostaje kako jeste.
 
 ### Rešeno (podrazumevane vrednosti iz predloga, implementirano u fazama 2b/3b/7b)
 1. **Šef i cene**: šef i radnik **ne vide** cene ni analitiku (`PRICE_VIEW` = admin+).

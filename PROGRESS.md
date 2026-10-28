@@ -4,10 +4,11 @@
 
 ## Trenutno stanje
 - Faza: **UPDATE-DIZAJN završen** (koraci 1-8): NBS popravka, sopstveni UI sistem bez template-a, sitnice, mobilni prikaz, avatar inicijali, izvoz. Uz faze 0-7, 2b, 3b, 7b.
-- Sledeći korak: **Faza 8** (praćenje vremena), pa Faza 9. Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
-- Otvorenih nedoumica: 0.
+- Sledeći korak: **UPDATE-POSLOVI-KALENDAR** (koraci P1-P11, SPEC 8f-8n), čeka potvrdu plana. Faza 8 je odložena. Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
+- Otvorenih nedoumica: 12 (SPEC sekcija 11).
 
 ## Urađeno
+- 2026-10-28: **UPDATE-POSLOVI-KALENDAR prenet u SPEC.md** (sekcije 8f-8n, koraci P1-P11 u sekciji 10, nedoumice 1-12 u sekciji 11). Faza 8 označena kao odložena. Ništa još nije implementirano.
 - 2026-10-27: **UPDATE-DIZAJN korak 8: pregled u pregledaču**
   - Headless Chrome (CDP skripta `review.php` u scratchpad-u): 18 strana × 1440/390 px × svetla/tamna = 72 prikaza. Nijedna JS greška u konzoli, nigde horizontalno skrolovanje.
   - Ispravljeno posle pregleda: dupla strelica i okvir Tom Select-a (omotač nasleđuje `form-select`), brojač aktivnih filtera na telefonu je brojao podrazumevane vrednosti, preostali oblici na "vi" (Napišite, Ponovite, Ostavite, Postavite, Prevucite, Obratite se).
