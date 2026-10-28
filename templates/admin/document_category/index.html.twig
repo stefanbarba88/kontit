@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}Kategorije dokumenata{% endblock %}
+{% block page_title %}Kategorije dokumenata{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item">Podešavanja</span><span class="breadcrumb-item active">Kategorije dokumenata</span>{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <ul class="list-group list-group-flush">
+                    {% for c in categories %}
+                        <li class="list-group-item">
+                            <form method="post" action="{{ path('admin_document_category_save') }}" class="d-flex flex-wrap align-items-center gap-2">
+                                <input type="hidden" name="_token" value="{{ csrf_token('document_categories') }}">
+                                <input type="hidden" name="id" value="{{ c.id }}">
+                                <input type="number" name="position" value="{{ c.position }}" class="form-control form-control-sm" style="width: 72px;" min="0" aria-label="Redosled">
+                                <input type="text" name="name" value="{{ c.name }}" class="form-control form-control-sm flex-grow-1" style="min-width: 160px;" maxlength="80" aria-label="Naziv">
+                                {{ ui.status_badge(c.active) }}
+                                <button class="btn btn-light btn-sm">Sačuvaj</button>
+                                <button class="btn btn-ghost btn-sm" name="toggle" value="1" {% if c.active %}{{ confirm_attrs('Deaktivirati kategoriju „' ~ c.name ~ '“?', 'Neće se nuditi za nove dokumente; postojeći je zadržavaju.', 'warning', 'Da, deaktiviraj') }}{% endif %}>{{ c.active ? 'Deaktiviraj' : 'Aktiviraj' }}</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                    <li class="list-group-item">
+                        <form method="post" action="{{ path('admin_document_category_save') }}" class="d-flex gap-2">
+                            <input type="hidden" name="_token" value="{{ csrf_token('document_categories') }}">
+                            <input type="text" name="name" class="form-control form-control-sm" placeholder="Nova kategorija" maxlength="80" required aria-label="Nova kategorija">
+                            <button class="btn btn-primary btn-sm text-nowrap">{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -41,3 +41,4 @@ import './js/job-picker.js';
 import './js/client-services.js';
 import './js/task-form.js';
 import './js/absence-form.js';
+import './js/documents.js';

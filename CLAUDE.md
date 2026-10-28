@@ -26,7 +26,7 @@ Ovaj fajl Claude Code čita automatski na početku svake sesije. Ovde su **trajn
 - Symfony Messenger (doctrine transport) za asinhrono slanje mailova
 - Paketi: `symfonycasts/reset-password-bundle`, `knplabs/knp-paginator-bundle`, `symfony/ux-icons`,
   `dompdf/dompdf` (PDF), `phpoffice/phpspreadsheet` (Excel), `league/csv` (CSV)
-- Avatar je samo inicijali (bez upload-a slike). `vich/uploader-bundle` i `liip/imagine-bundle` su uklonjeni; za priloge dokumenata (FilePond) odlučiti tada da li se Vich vraća.
+- Avatar je samo inicijali (bez upload-a slike). `vich/uploader-bundle` i `liip/imagine-bundle` su uklonjeni. Prilozi (FilePond) se čuvaju bez Vich-a: `UserDocumentService`, van `public/`, a fajl se servira samo kroz kontroler sa Voterom.
 
 ## Konvencije koda
 - **Kod, entiteti, kolone, rute na engleskom**, a **UI tekst na srpskom (latinica)**.

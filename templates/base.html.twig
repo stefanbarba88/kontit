@@ -71,6 +71,7 @@
 					{{ nav.link(path('admin_generation'), 'refresh-cw', 'Generisanje zadataka', route starts with 'admin_generation') }}
 					{{ nav.link(path('admin_non_working_index'), 'calendar-x', 'Neradni dani', route starts with 'admin_non_working') }}
 					{{ nav.link(path('admin_absence_type_index'), 'palmtree', 'Vrste odsustva', route starts with 'admin_absence') }}
+					{{ nav.link(path('admin_document_category_index'), 'folder', 'Kategorije dokumenata', route starts with 'admin_document') }}
 					{{ nav.link(path('admin_finance'), 'trending-up', 'Finansije', route starts with 'admin_finance') }}
 				{% endif %}
 				{% if is_granted('USER_MANAGE') %}

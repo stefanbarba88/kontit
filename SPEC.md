@@ -618,7 +618,7 @@ Zamenjuje `Holiday` tabelu. Admin+ upravlja na **Podešavanja → Neradni dani**
 - "X radnih sati" = sati koji padaju u radne dane (vikend, praznici i kolektivni odmor se preskaču), bez radnog vremena od-do. Podrazumevano 48 h za sve vrste odsustva, uključujući slavu (menja se u Podešavanjima).
 - Primena: odsustva (uključeno). **Potvrda zadataka (NA_PROVERI)**: mehanizam postoji, podrazumevano isključen; kad se uključi u Podešavanjima, rok je 3 radna dana. Uključivanje je po vrsti zahteva.
 
-## 8l. Dokumenti korisnika
+## 8l. Dokumenti korisnika (implementirano u P8)
 - `UserDocument`: user, category (`DocumentCategory`, CRUD: Ugovor, Rešenje, Potvrda, Izvod, Doznaka, Ostalo), title, file (PDF, JPG, PNG, do 20 MB), originalName, mimeType, size, validUntil, note, uploadedBy, createdAt, absence (opciono), deletedAt.
 - Upload preko FilePond-a, PDF preko PDF.js u modalu, slike u lightbox-u.
 - Fajlovi van `public/` (`var/storage/user-documents/{userId}/`, nasumično ime), servira ih kontroler uz Voter `USER_DOCUMENT_VIEW`. Nikad direktan link.

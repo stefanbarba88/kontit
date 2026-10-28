@@ -83,6 +83,10 @@ class UserAbsence implements ApprovableInterface
     #[ORM\Column(options: ['default' => false])]
     private bool $reminderSent = false;
 
+    /** Podsetnik da nedostaje dokument (doznaka) je poslat (SPEC 8j.3: rok 3 dana) */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $documentReminderSent = false;
+
     #[Assert\Callback]
     public function validateDates(ExecutionContextInterface $context): void
     {
@@ -260,6 +264,18 @@ class UserAbsence implements ApprovableInterface
     public function setApprovalDeadline(?\DateTimeImmutable $deadline): static
     {
         $this->approvalDeadline = $deadline;
+
+        return $this;
+    }
+
+    public function isDocumentReminderSent(): bool
+    {
+        return $this->documentReminderSent;
+    }
+
+    public function setDocumentReminderSent(bool $sent): static
+    {
+        $this->documentReminderSent = $sent;
 
         return $this;
     }

@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% set mine = person == app.user %}
+{% block title %}Dokumenti — {{ person.fullName }}{% endblock %}
+{% block page_title %}{{ trash ? 'Korpa: dokumenti' : 'Dokumenti' }}{% if not mine %}: {{ person.fullName }}{% endif %}{% endblock %}
+{% block breadcrumbs %}
+    {% if mine %}<a href="{{ path('app_profile') }}" class="breadcrumb-item">Profil</a>
+    {% elseif is_granted('USER_VIEW', person) %}<a href="{{ path('admin_user_show', {id: person.id}) }}" class="breadcrumb-item">{{ person.fullName }}</a>{% endif %}
+    <span class="breadcrumb-item active">Dokumenti</span>
+{% endblock %}
+
+{% block page_actions %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('user_documents', {id: person.id, trash: trash ? null : 1}) }}" class="btn btn-light">{{ ux_icon(trash ? 'lucide:arrow-right' : 'lucide:trash-2', {class: 'kt-icon me-2'}) }}{{ trash ? 'Nazad na dokumente' : 'Korpa' }}</a>
+    {% endif %}
+{% endblock %}
+
+{% macro size(bytes) %}{{ bytes >= 1048576 ? (bytes / 1048576)|number_format(1, ',', '.') ~ ' MB' : (bytes / 1024)|number_format(0, ',', '.') ~ ' KB' }}{% endmacro %}
+
+{% block content %}
+    <div class="row">
+        <div class="{{ canUpload and not trash ? 'col-xl-8' : 'col-12' }}">
+            {% if not trash %}
+                <div class="d-flex flex-wrap gap-2 mb-3" role="group" aria-label="Kategorije">
+                    <a href="{{ path('user_documents', {id: person.id}) }}" class="btn btn-sm {{ categoryId ? 'btn-light' : 'btn-primary' }}">Sve</a>
+                    {% for c in categories %}<a href="{{ path('user_documents', {id: person.id, category: c.id}) }}" class="btn btn-sm {{ categoryId == c.id ? 'btn-primary' : 'btn-light' }}">{{ c.name }}</a>{% endfor %}
+                </div>
+            {% endif %}
+            {% for group in groups %}
+                <div class="card">
+                    <div class="card-header"><h5 class="mb-0">{{ group.category.name }} <span class="text-muted kt-text-sm">({{ group.documents|length }})</span></h5></div>
+                    <ul class="list-group list-group-flush">
+                        {% for d in group.documents %}
+                            <li class="list-group-item d-flex flex-wrap align-items-center gap-3 kt-doc-row">
+                                <span class="kt-icon-circle kt-tone-{{ d.pdf ? 'danger' : 'info' }}">{{ ux_icon(d.pdf ? 'lucide:file-text' : 'lucide:image', {class: 'kt-icon'}) }}</span>
+                                <div class="flex-grow-1 min-w-0">
+                                    <div class="fw-semibold text-truncate">{{ d.title }}</div>
+                                    <div class="kt-text-sm text-muted">
+                                        {{ d.createdAt|date('d.m.Y.') }} · {{ _self.size(d.size) }} · dodao {{ d.uploadedBy.fullName }}
+                                        {% if d.absence %} · uz odsustvo {{ d.absence.startDate|date('d.m.') }}{% if d.absence.endDate != d.absence.startDate %}–{{ d.absence.endDate|date('d.m.Y.') }}{% endif %}{% endif %}
+                                        {% if d.note %} · {{ d.note }}{% endif %}
+                                    </div>
+                                </div>
+                                {% if d.validUntil %}
+                                    {% set days = ((d.validUntil|date('U') - 'today'|date('U')) / 86400)|round %}
+                                    <span class="badge kt-badge-{{ d.expired ? 'danger' : (days <= 30 ? 'warning' : 'secondary') }}">{{ d.expired ? 'istekao' : 'važi do' }} {{ d.validUntil|date('d.m.Y.') }}</span>
+                                {% endif %}
+                                <span class="text-nowrap">
+                                    {% if d.pdf or d.image %}<button type="button" class="btn kt-btn-icon btn-sm" title="Pregledaj" aria-label="Pregledaj" data-kt-doc-view="{{ path('user_document_file', {id: d.id}) }}" data-kind="{{ d.pdf ? 'pdf' : 'image' }}" data-title="{{ d.title }}">{{ ux_icon('lucide:eye', {class: 'kt-icon'}) }}</button>{% endif %}
+                                    <a href="{{ path('user_document_file', {id: d.id, download: 1}) }}" class="btn kt-btn-icon btn-sm" title="Preuzmi" aria-label="Preuzmi">{{ ux_icon('lucide:download', {class: 'kt-icon'}) }}</a>
+                                    {% if trash %}
+                                        {% if is_granted('USER_DOCUMENT_PURGE', d) %}
+                                            <form method="post" action="{{ path('user_document_action', {id: d.id, action: 'restore'}) }}" class="d-inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('document_' ~ d.id) }}">
+                                                <button class="btn kt-btn-icon btn-sm" title="Vrati iz korpe" aria-label="Vrati iz korpe">{{ ux_icon('lucide:undo-2', {class: 'kt-icon'}) }}</button>
+                                            </form>
+                                            <form method="post" action="{{ path('user_document_action', {id: d.id, action: 'purge'}) }}" class="d-inline" {{ confirm_attrs('Trajno obrisati „' ~ d.title ~ '“?', 'Fajl se briše sa diska i ne može da se vrati.', 'danger', 'Da, trajno obriši', false, 'obriši') }}>
+                                                <input type="hidden" name="_token" value="{{ csrf_token('document_' ~ d.id) }}">
+                                                <button class="btn kt-btn-icon btn-sm text-danger" title="Trajno obriši" aria-label="Trajno obriši">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}</button>
+                                            </form>
+                                        {% endif %}
+                                    {% elseif is_granted('USER_DOCUMENT_DELETE', d) %}
+                                        <form method="post" action="{{ path('user_document_action', {id: d.id, action: 'delete'}) }}" class="d-inline" {{ confirm_attrs('Obrisati „' ~ d.title ~ '“?', 'Dokument ide u korpu; administrator može da ga vrati.', 'danger', 'Da, obriši') }}>
+                                            <input type="hidden" name="_token" value="{{ csrf_token('document_' ~ d.id) }}">
+                                            <button class="btn kt-btn-icon btn-sm text-danger" title="Obriši" aria-label="Obriši">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}</button>
+                                        </form>
+                                    {% endif %}
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% else %}
+                <div class="card"><div class="card-body">{{ ui.empty_state(trash ? 'Korpa je prazna.' : 'Još nema dokumenata.', 'file-text') }}</div></div>
+            {% endfor %}
+        </div>
+
+        {% if canUpload and not trash %}
+            <div class="col-xl-4">
+                <div class="card">
+                    <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Dodaj dokument</h5></div>
+                    <form method="post" action="{{ path('user_documents_upload', {id: person.id}) }}" enctype="multipart/form-data" class="card-body border-top" data-kt-doc-upload>
+                        <input type="hidden" name="_token" value="{{ csrf_token('documents_' ~ person.id) }}">
+                        <div class="mb-3">
+                            <label class="form-label" for="doc-files">Fajl (PDF, JPG ili PNG, do 20 MB)</label>
+                            <input type="file" id="doc-files" name="files[]" multiple accept="application/pdf,image/jpeg,image/png" data-kt-filepond required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="doc-category">Kategorija</label>
+                            <select id="doc-category" name="category" class="form-select" required>
+                                <option value="">— izaberi —</option>
+                                {% for c in activeCategories %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3"><label class="form-label" for="doc-title">Naziv</label><input type="text" id="doc-title" name="title" class="form-control" maxlength="150" placeholder="Prazno = ime fajla"></div>
+                        <div class="mb-3"><label class="form-label" for="doc-valid">Važi do (opciono)</label><input type="date" id="doc-valid" name="validUntil" class="form-control"><div class="form-text">Npr. ugovor na određeno; admin dobija obaveštenje 30 i 7 dana pre isteka.</div></div>
+                        {% if absences is not empty %}
+                            <div class="mb-3">
+                                <label class="form-label" for="doc-absence">Uz odsustvo (npr. doznaka)</label>
+                                <select id="doc-absence" name="absence" class="form-select">
+                                    <option value="">— nije vezano —</option>
+                                    {% for a in absences %}<option value="{{ a.id }}" {{ preselectAbsence == a.id ? 'selected' }}>{{ a.summary }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
+                        <div class="mb-3"><label class="form-label" for="doc-note">Napomena</label><textarea id="doc-note" name="note" class="form-control" rows="2"></textarea></div>
+                        <button class="btn btn-primary w-100">{{ ux_icon('lucide:cloud-download', {class: 'kt-icon me-2'}) }}Otpremi</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    {# pregled: PDF preko PDF.js, slika u lightbox-u #}
+    <div class="modal fade" id="doc-viewer" tabindex="-1" aria-labelledby="doc-viewer-title" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-truncate" id="doc-viewer-title"></h5>
+                    <span class="ms-auto me-2 kt-text-sm text-muted" data-kt-doc-pages></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zatvori"></button>
+                </div>
+                <div class="modal-body kt-doc-viewer" data-kt-doc-body></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -14,3 +14,11 @@
 .kt-absence-info dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; }
 .kt-absence-info dt { font-weight: 500; color: var(--kt-text-2); }
 .kt-absence-info dd { margin: 0; }
+
+/* Dokumenti korisnika (SPEC 8l) */
+.kt-doc-viewer { background: var(--kt-surface-3); display: flex; flex-direction: column; align-items: center; gap: 12px; min-height: 300px; }
+.kt-doc-page { box-shadow: var(--kt-shadow-sm); background: #fff; max-width: 100%; }
+.kt-doc-image { max-width: 100%; height: auto; box-shadow: var(--kt-shadow-sm); }
+.filepond--root { font-family: inherit; margin-bottom: 0; }
+.filepond--panel-root { background: var(--kt-surface-2); border: 1px dashed var(--kt-border-strong); }
+.filepond--drop-label { color: var(--kt-text-2); }

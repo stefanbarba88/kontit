@@ -4,10 +4,20 @@
 
 ## Trenutno stanje
 - Faza: **UPDATE-DIZAJN završen** (koraci 1-8): NBS popravka, sopstveni UI sistem bez template-a, sitnice, mobilni prikaz, avatar inicijali, izvoz. Uz faze 0-7, 2b, 3b, 7b.
-- Sledeći korak: **UPDATE-POSLOVI-KALENDAR** (koraci P1-P11, SPEC 8f-8n): P1-P7 završeni, sledi **P8** (dokumenti korisnika). Faza 8 je odložena. Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
+- Sledeći korak: **UPDATE-POSLOVI-KALENDAR** (koraci P1-P11, SPEC 8f-8n): P1-P8 završeni, sledi **P9** (kalendar u aplikaciji i ICS link). Faza 8 je odložena. Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
 - Otvorenih nedoumica: 0 (svih 12 rešeno po predlozima, 2026-10-28).
 
 ## Urađeno
+- 2026-10-28: **P8: dokumenti korisnika (SPEC 8l)**
+  - `DocumentCategory` (6 početnih: Ugovor, Rešenje, Potvrda, Izvod, Doznaka, Ostalo; stranica **Podešavanja → Kategorije dokumenata**, dodavanje, preimenovanje, redosled, deaktivacija) i `UserDocument` (kategorija, naziv, nasumično ime na disku, originalno ime, tip, veličina, važi do, napomena, ko je dodao, opciono odsustvo, soft delete).
+  - `UserDocumentService`: fajlovi u `var/storage/user-documents/{userId}/` (van `public/`), samo PDF/JPG/PNG do 20 MB, tip se proverava po sadržaju (lažni PDF se odbija); korisnik dobija `DOCUMENT_ADDED` kad mu admin doda dokument. Trajno brisanje briše i fajl sa diska.
+  - `UserDocumentVoter`: vidi vlasnik i admin+; šef samo dokumente vezane za odsustvo člana svog tima (doznake); dodaje admin+ bilo kome, korisnik sebi; u korpu vlasnik ili admin, trajno i vraćanje iz korpe samo admin.
+  - Stranica `/users/{id}/documents` (link "Moji dokumenti" na profilu, "Dokumenti" na stranici korisnika): filter po kategoriji, grupisano po kategorijama (ikonica tipa, naziv, datum, veličina, ko je dodao, uz koje odsustvo, badge "važi do"/"istekao"), otpremanje preko **FilePond-a** (više fajlova, `storeAsFile`, provera tipa i veličine u pregledaču), veza sa odsustvom koje traži dokument, korpa za admina. Fajl samo kroz `/documents/{id}/file` (inline ili `?download=1`, `nosniff`, `no-store`). Pregled PDF-a preko **PDF.js** u modalu (strane na canvas-u), slike u lightbox-u.
+  - Komanda **`app:documents:check`** (dnevno, `--date`): adminima `DOCUMENT_EXPIRING` 30 i 7 dana pre isteka (svaki prag jednom); za odsustvo koje traži dokument, a posle 3 dana ga nema, podsetnik korisniku i adminima (jednom).
+  - Biblioteke (importmap): filepond 4.32.12 (+ CSS, validate-type 1.2.9, validate-size 2.2.8), pdfjs-dist 6.4.299 (+ worker). Učitavaju se dinamički, samo na stranici dokumenata. Ikonica `image`.
+  - Migracija `Version20261028134059`: `document_category` (sa 6 kategorija), `user_document`, `user_absence.document_reminder_sent`.
+  - Provereno: `p8test.sh` 33 provere (prava na stranicu i fajl za vlasnika, admina, šefa i kolegu; otpremanje admin/korisnik, notifikacija, fajl na disku van public-a, lažni PDF, veza sa bolovanjem, inline i preuzimanje, obaveštenja 30/7 dana bez ponavljanja, podsetnik za doznaku samo kad nedostaje, korpa, trajno brisanje i fajl sa diska). **FilePond i PDF.js nisu probani u pregledaču** (P11).
+  - **Cron**: `0 7 * * * php bin/console app:documents:check`.
 - 2026-10-28: **P7: automatsko odobravanje posle roka (SPEC 8m)**
   - `ApprovableInterface` (isPending, getApprovalDeadline, approve, approveAutomatically), implementira ga `UserAbsence`. `ApprovalService` + komanda **`app:approvals:auto-approve`** (cron na 15 minuta, `--now` za proveru): zahtev na odobrenju sa isteklim rokom postaje `AUTOMATSKI_ODOBRENO` (bez odobravaoca), pokreće zamenu, a podnosilac i odobravaoci dobijaju `ABSENCE_AUTO_APPROVED`; podsetnik `APPROVAL_DEADLINE_SOON` 24 h pre isteka, jednom po zahtevu (`reminderSent`).
   - Automatska potvrda zadataka na proveri: radi samo kad je uključena u Podešavanjima (Vrste odsustva → Podešavanja), posle N radnih dana od predaje (podrazumevano 3), u ime prvog aktivnog admina. Podrazumevano isključena.
@@ -252,7 +262,7 @@ mpp\htdocs\kontit_template_backup` (nije bio u git-u; obrisati ručno kad više 
 - SweetAlert dijalozi nisu proveravani u pregledaču (nema browsera u sesiji), samo serverska strana (CSRF, Voter, razlog).
 - Analitika po klijentu: broj vraćanja na doradu i prosečno trajanje čekanja klijenta nisu dostupni dok nema istorije statusa (dolazi uz Fazu 8). Sati su procena iz poslova, a `FinanceService::monthlyHours()` je jedino mesto koje Faza 8 menja.
 - Demo klijenti imaju izmišljene PIB-ove, pa `app:nbs:sync` za njih prijavljuje neuspeh. Očekivano.
-- Cron: `0 6 * * * php bin/console app:tasks:generate` i `*/15 * * * * php bin/console app:approvals:auto-approve` (nisu podešeni u dev okruženju). Rok propušten do 31 dan unazad se nadoknađuje.
+- Cron: `0 6 * * * php bin/console app:tasks:generate` , `*/15 * * * * php bin/console app:approvals:auto-approve` i `0 7 * * * php bin/console app:documents:check` (nisu podešeni u dev okruženju). Rok propušten do 31 dan unazad se nadoknađuje.
 - Deaktiviran korisnik ostaje u aktivnim članovima tima (badge "Neaktivan"), a `TeamMember` se ne zatvara. To je odluka iz Faze 2. Pravilo za zadatke (ne može da dobije zadatak, ne može da se deaktivira dok ima zadatak u radu) je uvedeno u Fazi 3.
 - U Twig šablonima ne imenovati promenljivu `pending` jer je `base.html.twig` prepisuje (broj zadataka za potvrdu). U `absence/index` se zove `pendingAbsences`.
 - `QueryBuilder::orderBy('x', 'ASC')` ispisuje deprecation u Doctrine ORM 3.x (string umesto `SortDirection`). Bezopasno, a čisti se kad se pređe na novu sintaksu.

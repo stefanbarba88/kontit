@@ -79,4 +79,23 @@ return [
     '@orchidjs/unicode-variants' => [
         'version' => '1.1.2',
     ],
+    'filepond' => [
+        'version' => '4.32.12',
+    ],
+    'filepond/dist/filepond.min.css' => [
+        'version' => '4.32.12',
+        'type' => 'css',
+    ],
+    'filepond-plugin-file-validate-type' => [
+        'version' => '1.2.9',
+    ],
+    'filepond-plugin-file-validate-size' => [
+        'version' => '2.2.8',
+    ],
+    'pdfjs-dist' => [
+        'version' => '6.4.299',
+    ],
+    'pdfjs-dist/build/pdf.worker.min.mjs' => [
+        'version' => '6.4.299',
+    ],
 ];
