@@ -1,28 +1,38 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dodela paketa — {{ client.shortName }}{% endblock %}
-{% block page_title %}Dodela paketa: {{ client.shortName }}{% endblock %}
+{% block title %}Dodaj paket — {{ client.shortName }}{% endblock %}
+{% block page_title %}Dodaj paket: {{ client.shortName }}{% endblock %}
 {% block breadcrumbs %}
     <a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.shortName }}</a>
-    <a href="{{ path('client_packages', {id: client.id}) }}" class="breadcrumb-item">Paketi i poslovi</a>
-    <span class="breadcrumb-item active">Dodela paketa</span>
+    <a href="{{ path('client_show', {id: client.id, tab: 'usluge'}) }}" class="breadcrumb-item">Ugovorene usluge</a>
+    <span class="breadcrumb-item active">Dodaj paket</span>
 {% endblock %}
 
 {% block content %}
+    {# isto kao modal na tabu "Ugovorene usluge"; ova strana se vidi kad forma ima grešku ili bez JS-a #}
+    {% set pkg_json = {} %}
+    {% for id, p in packagesData %}
+        {% set pkg_json = pkg_json|merge({('p' ~ id): {price: p.price ? p.price|number_format(2, ',', '.') : '', jobs: p.jobs|map(j => {id: j.id, name: j.name, describe: schedule_describe(j.schedule, true)})}}) %}
+    {% endfor %}
     <div class="row">
-        <div class="col-lg-6">
+        <div class="col-lg-8">
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Novi paket za klijenta</h5></div>
-                <div class="card-body border-top">
-                    {{ form_start(form, {attr: {'data-confirm': 'Dodeliti paket klijentu?', 'data-confirm-text': 'Svi poslovi iz paketa se odmah dodaju klijentu i počinju da generišu zadatke.', 'data-confirm-type': 'info', 'data-confirm-button': 'Da, dodeli'}}) }}
+                <div class="card-body">
+                    {{ form_start(form, {attr: {'data-kt-package-attach': '', 'data-packages': pkg_json|json_encode, 'data-existing': '[]'}}) }}
                         {{ form_row(form.package) }}
-                        {{ form_row(form.agreedPrice) }}
-                        {{ form_row(form.discountPercent) }}
-                        {{ form_row(form.startDate) }}
+                        <div class="kt-pkg-jobs mb-3" data-kt-package-jobs hidden>
+                            <span class="form-label">Poslovi iz paketa (odštikliraj ono što ne treba)</span>
+                            <ul class="list-group" data-kt-package-job-list></ul>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">{{ form_row(form.agreedPrice) }}</div>
+                            <div class="col-md-3">{{ form_row(form.discountPercent) }}</div>
+                            <div class="col-md-3">{{ form_row(form.startDate) }}</div>
+                        </div>
                         {{ form_row(form.note) }}
                         <div class="kt-form-actions">
-                            <a href="{{ path('client_packages', {id: client.id}) }}" class="btn btn-light me-2">Otkaži</a>
-                            <button class="btn btn-primary">Dodeli{{ ux_icon('lucide:check', {class: 'kt-icon ms-2'}) }}</button>
+                            <a href="{{ path('client_show', {id: client.id, tab: 'usluge'}) }}" class="btn btn-light me-2">Odustani</a>
+                            <button class="btn btn-primary">Dodaj paket</button>
                         </div>
                     {{ form_end(form) }}
                 </div>

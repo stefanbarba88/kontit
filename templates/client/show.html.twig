@@ -11,7 +11,6 @@
 
 {% block page_actions %}
     <a href="{{ path('task_new', {client: client.id}) }}" class="btn btn-outline-primary">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Novi zadatak</a>
-    <a href="{{ path('client_packages', {id: client.id}) }}" class="btn btn-outline-primary">{{ ux_icon('lucide:package', {class: 'kt-icon me-2'}) }}Paketi i poslovi</a>
     {% if is_granted('PRICE_VIEW') %}
         <a href="{{ path('admin_finance_client', {id: client.id}) }}" class="btn btn-outline-primary">{{ ux_icon('lucide:trending-up', {class: 'kt-icon me-2'}) }}Analitika</a>
     {% endif %}
@@ -28,7 +27,15 @@
 {% endblock %}
 
 {% block content %}
-    {% if client.pdvObveznik %}<div class="text-muted mb-3">PDV obveznik</div>{% endif %}
+    {% if client.pdvObveznik %}<div class="text-muted mb-2">PDV obveznik</div>{% endif %}
+    <ul class="nav kt-tabs mb-3">
+        <li class="nav-item"><a href="{{ path('client_show', {id: client.id}) }}" class="nav-link {{ tab == 'pregled' ? 'active' }}">Pregled</a></li>
+        <li class="nav-item"><a href="{{ path('client_show', {id: client.id, tab: 'usluge'}) }}" class="nav-link {{ tab == 'usluge' ? 'active' }}">{{ ux_icon('lucide:package', {class: 'kt-icon me-1'}) }}Ugovorene usluge</a></li>
+    </ul>
+
+    {% if tab == 'usluge' %}
+        {{ include('client/_services.html.twig') }}
+    {% else %}
 
     <div class="row">
         <div class="col-lg-8">
@@ -105,4 +112,5 @@
             </div>
         </div>
     </div>
+    {% endif %}
 {% endblock %}

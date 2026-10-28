@@ -8,6 +8,7 @@ use App\Repository\JobTemplateRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -17,22 +18,10 @@ class ServicePackageType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        /** @var ServicePackage $package */
-        $package = $options['data'];
-
         $builder
             ->add('name', TextType::class, ['label' => 'Naziv paketa'])
             ->add('description', TextareaType::class, ['label' => 'Opis', 'required' => false, 'attr' => ['rows' => 2]])
-            ->add('jobTemplates', EntityType::class, [
-                'label' => 'Poslovi u paketu',
-                'class' => JobTemplate::class,
-                'multiple' => true,
-                'expanded' => true,
-                'mapped' => false,
-                'data' => $package->getJobTemplates(),
-                'choice_label' => static fn (JobTemplate $j) => $j->getName().' ('.$j->getCategory()?->getName().')',
-                'query_builder' => static fn (JobTemplateRepository $r) => $r->createQueryBuilder('j')->andWhere('j.isActive = true')->join('j.category', 'c')->orderBy('c.position')->addOrderBy('j.name'),
-            ])
+            ->add('price', MoneyType::class, ['label' => 'Predložena mesečna cena', 'currency' => 'RSD', 'required' => false, 'help' => 'Samo predlog pri dodeli klijentu; dogovorena cena se upisuje kod svakog klijenta.'])
             ->add('active', CheckboxType::class, ['label' => 'Aktivan (može da se dodeli klijentima)', 'required' => false]);
     }
 

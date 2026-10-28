@@ -1,32 +1,43 @@
 {% extends 'base.html.twig' %}
+{% import 'components/_job_picker.html.twig' as jp %}
 
-{% block title %}{{ isAdmin ? 'Ad hoc posao' : 'Predlog posla' }} — {{ client.shortName }}{% endblock %}
-{% block page_title %}{{ isAdmin ? 'Ad hoc posao' : 'Predlog posla' }}: {{ client.shortName }}{% endblock %}
+{% block title %}{{ isAdmin ? 'Pojedinačan posao' : 'Predlog posla' }} — {{ client.shortName }}{% endblock %}
+{% block page_title %}{{ isAdmin ? 'Dodaj pojedinačan posao' : 'Predloži posao' }}: {{ client.shortName }}{% endblock %}
 {% block breadcrumbs %}
     <a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.shortName }}</a>
-    <a href="{{ path('client_packages', {id: client.id}) }}" class="breadcrumb-item">Paketi i poslovi</a>
-    <span class="breadcrumb-item active">{{ isAdmin ? 'Novi posao' : 'Predlog' }}</span>
+    <a href="{{ path('client_show', {id: client.id, tab: 'usluge'}) }}" class="breadcrumb-item">Ugovorene usluge</a>
+    <span class="breadcrumb-item active">{{ isAdmin ? 'Pojedinačan posao' : 'Predlog' }}</span>
 {% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-header"><h5 class="mb-0">{{ isAdmin ? 'Posao van paketa' : 'Predlog posla administratoru' }}</h5></div>
-                <div class="card-body border-top">
-                    {% if not isAdmin %}<div class="alert alert-info">Posao postaje aktivan tek kada ga administrator odobri i odredi cenu.</div>{% endif %}
-                    {{ form_start(form) }}
-                        {{ form_row(form.jobTemplate) }}
-                        {{ form_row(form.startDate) }}
-                        {{ form_row(form.endDate) }}
-                        {% if form.price is defined %}{{ form_row(form.price) }}{% endif %}
-                        <div class="kt-form-actions">
-                            <a href="{{ path('client_packages', {id: client.id}) }}" class="btn btn-light me-2">Otkaži</a>
-                            <button class="btn btn-primary">{{ isAdmin ? 'Sačuvaj' : 'Pošalji predlog' }}{{ ux_icon('lucide:check', {class: 'kt-icon ms-2'}) }}</button>
-                        </div>
-                    {{ form_end(form) }}
+    {# isto kao modal na tabu "Ugovorene usluge" #}
+    <template id="jp-extra-page">
+        <div class="kt-jp-extra">
+            {% if isAdmin %}
+                <input type="text" class="form-control form-control-sm" name="price[__ID__]" value="__PRICE__" placeholder="Cena (RSD)" data-kt-money aria-label="Cena">
+                <select class="form-select form-select-sm" name="assignee[__ID__]" data-native aria-label="Zaduženi">
+                    <option value="">Glavni radnik ({{ client.primaryAccountant.fullName }})</option>
+                    {% for u in assignees %}{% if u != client.primaryAccountant %}<option value="{{ u.id }}">{{ u.fullName }}</option>{% endif %}{% endfor %}
+                </select>
+            {% endif %}
+            <input type="text" class="form-control form-control-sm kt-jp-extra-wide" name="note[__ID__]" placeholder="Napomena (opciono)" maxlength="500" aria-label="Napomena">
+        </div>
+    </template>
+    <div class="card">
+        <form method="post" class="card-body">
+            <input type="hidden" name="_token" value="{{ csrf_token('client_jobs_new_' ~ client.id) }}">
+            {% if not isAdmin %}<div class="alert alert-info">Predlog ide administratoru, koji upisuje cenu i odobrava ga. Do odobrenja se zadaci ne prave.</div>{% endif %}
+            {{ jp.picker('jobs', [], 'jp-extra-page') }}
+            <div class="row mt-3">
+                <div class="col-sm-6 col-md-3">
+                    <label class="form-label" for="ind-start">Početak</label>
+                    <input type="date" class="form-control" id="ind-start" name="startDate" value="{{ 'now'|date('Y-m-d') }}">
                 </div>
             </div>
-        </div>
+            <div class="kt-form-actions">
+                <a href="{{ path('client_show', {id: client.id, tab: 'usluge'}) }}" class="btn btn-light me-2">Odustani</a>
+                <button class="btn btn-primary">{{ isAdmin ? 'Dodaj' : 'Pošalji predlog' }}</button>
+            </div>
+        </form>
     </div>
 {% endblock %}

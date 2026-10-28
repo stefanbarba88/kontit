@@ -22,3 +22,43 @@
     .kt-segmented { display: flex; }
     .kt-segmented .btn { flex: 1 1 30%; }
 }
+
+/* Job picker (SPEC 8h.2): levo grupe, desno izabrani; na telefonu jedna kolona */
+.kt-jp { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); gap: 16px; align-items: start; }
+.kt-jp-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.kt-jp-groups { border: 1px solid var(--kt-border); border-radius: var(--kt-radius); max-height: 420px; overflow: auto; }
+.kt-jp-group + .kt-jp-group { border-top: 1px solid var(--kt-border); }
+.kt-jp-group-head { display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 4px; position: sticky; top: 0; background: var(--kt-surface); z-index: 1; }
+.kt-jp-toggle { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; padding: 4px; color: inherit; }
+.kt-jp-chevron { transition: transform .15s; color: var(--kt-text-3); }
+.kt-jp-group.is-collapsed .kt-jp-chevron { transform: rotate(-90deg); }
+.kt-jp-group.is-collapsed .kt-jp-list { display: none; }
+.kt-jp-list { list-style: none; margin: 0; padding: 0 0 6px; }
+.kt-jp-option { display: flex; align-items: flex-start; gap: 10px; padding: 6px 12px 6px 34px; cursor: pointer; }
+.kt-jp-option:hover { background: var(--kt-surface-2); }
+.kt-jp-option .form-check-input { margin-top: 3px; flex-shrink: 0; }
+.kt-jp-name { display: block; }
+.kt-jp-desc { display: block; font-size: 12px; color: var(--kt-text-2); }
+.kt-jp-selected { border: 1px solid var(--kt-border); border-radius: var(--kt-radius); padding: 8px 10px; background: var(--kt-surface-2); }
+.kt-jp-selected-head { font-weight: 600; font-size: 13px; cursor: pointer; list-style: none; }
+.kt-jp-selected-head::-webkit-details-marker { display: none; }
+.kt-jp-chosen { list-style: none; margin: 8px 0 0; padding: 0; }
+.kt-jp-chosen-row { padding: 6px 4px; border-bottom: 1px solid var(--kt-border); background: var(--kt-surface-2); }
+.kt-jp-chosen-row:last-child { border-bottom: 0; }
+.kt-jp-chosen-row.sortable-ghost { opacity: .4; }
+.kt-jp-empty { padding: 8px 0 2px; }
+.kt-jp-extra { padding: 6px 0 2px 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.kt-jp-extra .form-control, .kt-jp-extra .form-select { font-size: 13px; }
+.kt-jp-extra .kt-jp-extra-wide { grid-column: 1 / -1; }
+@media (max-width: 767.98px) {
+    .kt-jp { grid-template-columns: 1fr; }
+    .kt-jp-groups { max-height: 360px; }
+}
+
+/* Ugovorene usluge (SPEC 8h.3): isključen posao je prigušen i precrtan */
+.kt-row-excluded { color: var(--kt-text-3); }
+.kt-row-excluded .kt-svc-name, li.kt-row-excluded label > span > span:first-child { text-decoration: line-through; }
+.kt-row-excluded .kt-cat-badge { opacity: .6; }
+.kt-svc-name { font-weight: 500; }
+.kt-svc-ended > summary { cursor: pointer; list-style: none; }
+.kt-svc-ended > summary::-webkit-details-marker { display: none; }

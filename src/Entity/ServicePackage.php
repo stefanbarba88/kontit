@@ -32,6 +32,11 @@ class ServicePackage
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    /** Predložena mesečna cena (popunjava dogovorenu cenu pri dodeli klijentu; važi samo cena na klijentu) */
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    #[Assert\PositiveOrZero]
+    private ?string $price = null;
+
     #[ORM\Column]
     private bool $isActive = true;
 
@@ -70,6 +75,18 @@ class ServicePackage
     public function setDescription(?string $description): static
     {
         $this->description = '' === $description ? null : $description;
+
+        return $this;
+    }
+
+    public function getPrice(): ?string
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?string $price): static
+    {
+        $this->price = $price;
 
         return $this;
     }
@@ -122,12 +139,16 @@ class ServicePackage
 
         $existing = [];
         foreach ($this->items as $item) {
-            $existing[$item->getJobTemplate()->getId()] = true;
+            $existing[$item->getJobTemplate()->getId()] = $item;
         }
+        $position = 0;
         foreach ($wanted as $id => $job) {
-            if (!isset($existing[$id])) {
-                $this->items->add(new ServicePackageItem($this, $job, $this->items->count()));
+            if (isset($existing[$id])) {
+                $existing[$id]->setPosition($position);
+            } else {
+                $this->items->add(new ServicePackageItem($this, $job, $position));
             }
+            ++$position;
         }
 
         return $this;

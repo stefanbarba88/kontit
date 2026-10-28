@@ -54,15 +54,15 @@ class CatalogController extends AbstractController
     }
 
     #[Route('/packages/new', name: 'admin_package_new', methods: ['GET', 'POST'])]
-    public function newPackage(Request $request): Response
+    public function newPackage(Request $request, JobTemplateRepository $jobs): Response
     {
-        return $this->packageForm($request, new ServicePackage());
+        return $this->packageForm($request, new ServicePackage(), $jobs);
     }
 
     #[Route('/packages/{id}/edit', name: 'admin_package_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    public function editPackage(Request $request, ServicePackage $package): Response
+    public function editPackage(Request $request, ServicePackage $package, JobTemplateRepository $jobs): Response
     {
-        return $this->packageForm($request, $package);
+        return $this->packageForm($request, $package, $jobs);
     }
 
     private function jobForm(Request $request, JobTemplate $job): Response
@@ -80,7 +80,7 @@ class CatalogController extends AbstractController
         return $this->render('admin/catalog/job_form.html.twig', ['form' => $form, 'job' => $job]);
     }
 
-    private function packageForm(Request $request, ServicePackage $package): Response
+    private function packageForm(Request $request, ServicePackage $package, JobTemplateRepository $jobs): Response
     {
         $isNew = null === $package->getId();
         $clients = $isNew ? 0 : $this->catalog->countActiveClients($package);
@@ -88,7 +88,13 @@ class CatalogController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $package->setJobTemplates($form->get('jobTemplates')->getData());
+            // job picker šalje jobs[] redom kako su poređani
+            $ids = array_values(array_unique(array_map('intval', $request->request->all('jobs'))));
+            $byId = [];
+            foreach ($jobs->findBy(['id' => $ids]) as $job) {
+                $byId[$job->getId()] = $job;
+            }
+            $package->setJobTemplates(array_values(array_filter(array_map(static fn (int $id) => $byId[$id] ?? null, $ids))));
             $apply = $request->request->getBoolean('apply_to_clients');
             $created = $this->catalog->savePackage($package, $apply, $this->getUser());
             $this->addFlash('success', sprintf('Paket „%s“ je sačuvan.', $package->getName()).($apply ? sprintf(' Dodato poslova klijentima: %d.', $created) : ''));
@@ -96,6 +102,11 @@ class CatalogController extends AbstractController
             return $this->redirectToRoute('admin_package_index');
         }
 
-        return $this->render('admin/catalog/package_form.html.twig', ['form' => $form, 'package' => $package, 'clients' => $clients]);
+        return $this->render('admin/catalog/package_form.html.twig', [
+            'form' => $form,
+            'package' => $package,
+            'clients' => $clients,
+            'selected' => $form->isSubmitted() ? array_map('intval', $request->request->all('jobs')) : array_map(static fn ($j) => $j->getId(), $package->getJobTemplates()),
+        ]);
     }
 }

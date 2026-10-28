@@ -57,7 +57,7 @@ class FinanceController extends AbstractController
         $response = new StreamedResponse(static function () use ($rows): void {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['Klijent', 'PIB', 'Paket', 'Ad hoc', 'Ukupno', 'Stavke'], ';');
+            fputcsv($out, ['Klijent', 'PIB', 'Paket', 'Pojedinačni', 'Ukupno', 'Stavke'], ';');
             foreach ($rows as $row) {
                 fputcsv($out, [
                     $row['client']->getName(),

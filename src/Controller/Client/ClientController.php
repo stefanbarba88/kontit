@@ -4,6 +4,10 @@ namespace App\Controller\Client;
 
 use App\Entity\ActivityLog;
 use App\Entity\Client;
+use App\Entity\ClientPackage;
+use App\Form\ClientPackageType;
+use App\Repository\ServicePackageRepository;
+use App\Service\ContractedServicesOverview;
 use App\Entity\User;
 use App\Form\ClientAssignmentType;
 use App\Form\ClientType;
@@ -144,13 +148,26 @@ class ClientController extends AbstractController
 
     #[Route('/clients/{id}', name: 'client_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[IsGranted('CLIENT_VIEW', 'client')]
-    public function show(Client $client, ClientAssignmentLogRepository $logs, ActivityLogRepository $activity): Response
+    public function show(Request $request, Client $client, ClientAssignmentLogRepository $logs, ActivityLogRepository $activity, ContractedServicesOverview $services, ServicePackageRepository $packages, UserRepository $users): Response
     {
-        return $this->render('client/show.html.twig', [
-            'client' => $client,
-            'history' => $logs->findByClient($client),
-            'activity' => $activity->findEntityPage(ActivityLog::CLIENT, $client->getId()),
-        ]);
+        // tab "Ugovorene usluge" (SPEC 8h.3) se učitava samo kad je otvoren
+        $tab = 'usluge' === $request->query->get('tab') ? 'usluge' : 'pregled';
+        $data = ['client' => $client, 'tab' => $tab];
+        if ('usluge' === $tab) {
+            $data['services'] = $services->build($client);
+            $data['assignees'] = $users->findBy(['isActive' => true], ['firstName' => 'ASC', 'lastName' => 'ASC']);
+            if ($this->isGranted('CATALOG_MANAGE')) {
+                $data['packageForm'] = $this->createForm(ClientPackageType::class, (new ClientPackage())->setStartDate(new \DateTimeImmutable('today')), [
+                    'action' => $this->generateUrl('client_package_attach', ['id' => $client->getId()]),
+                ])->createView();
+                $data['packagesData'] = ClientPackageController::packagesData($packages);
+            }
+        } else {
+            $data['history'] = $logs->findByClient($client);
+            $data['activity'] = $activity->findEntityPage(ActivityLog::CLIENT, $client->getId());
+        }
+
+        return $this->render('client/show.html.twig', $data);
     }
 
     #[Route('/clients/{id}/edit', name: 'client_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]

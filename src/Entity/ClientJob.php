@@ -35,7 +35,7 @@ class ClientJob
     private ?JobTemplate $jobTemplate = null;
 
     #[ORM\Column(length: 20, enumType: JobSource::class)]
-    private JobSource $source = JobSource::AD_HOC;
+    private JobSource $source = JobSource::INDIVIDUAL;
 
     #[ORM\ManyToOne]
     private ?ClientPackage $clientPackage = null;
@@ -65,10 +65,14 @@ class ClientJob
     #[ORM\ManyToOne]
     private ?User $assigneeOverride = null;
 
-    /** Cena ad hoc posla (za PACKAGE je prazna, jer je u ceni paketa) */
+    /** Cena pojedinačnog posla (za PACKAGE je prazna, jer je u ceni paketa) */
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
     #[Assert\PositiveOrZero]
     private ?string $price = null;
+
+    /** Napomena uz ugovoreni posao (npr. dogovor sa klijentom) */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $note = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     #[Assert\NotNull(message: 'Unesi početak.')]
@@ -80,7 +84,7 @@ class ClientJob
     #[ORM\Column]
     private bool $isActive = true;
 
-    /** Ad hoc posao koji je predložio radnik; generiše se tek posle odobrenja admina */
+    /** Pojedinačan posao koji je predložio radnik; generiše se tek posle odobrenja admina */
     #[ORM\ManyToOne]
     private ?User $proposedBy = null;
 
@@ -218,6 +222,18 @@ class ClientJob
     public function setAssigneeOverride(?User $user): static
     {
         $this->assigneeOverride = $user;
+
+        return $this;
+    }
+
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    public function setNote(?string $note): static
+    {
+        $this->note = null === $note || '' === trim($note) ? null : trim($note);
 
         return $this;
     }

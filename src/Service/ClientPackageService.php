@@ -7,6 +7,7 @@ use App\Entity\ClientJob;
 use App\Entity\ClientPackage;
 use App\Entity\ClientPackagePriceLog;
 use App\Entity\JobTemplate;
+use App\Entity\Schedule;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Enum\JobSource;
@@ -14,7 +15,7 @@ use App\Repository\ClientJobRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Paketi i poslovi klijenta (SPEC 8a/8b): dodela paketa, isključenje posla, cena, ad hoc poslovi.
+ * Ugovorene usluge klijenta (SPEC 8h): dodela paketa sa isključenim poslovima, isključenje, cena, pojedinačni poslovi.
  */
 class ClientPackageService
 {
@@ -26,11 +27,14 @@ class ClientPackageService
     }
 
     /**
-     * Dodeljuje paket klijentu i pravi poslove iz paketa.
+     * Dodeljuje paket klijentu i pravi poslove iz paketa. Poslovi iz $excluded (id posla => razlog, može prazan)
+     * čuvaju se kao isključeni, da se zna da su svesno izostavljeni (SPEC 8h.3).
+     *
+     * @param array<int, string> $excluded
      *
      * @return list<string> upozorenja (npr. posao koji klijent već ima)
      */
-    public function attach(ClientPackage $clientPackage, User $actor): array
+    public function attach(ClientPackage $clientPackage, User $actor, array $excluded = []): array
     {
         $this->em->wrapInTransaction(function () use ($clientPackage, $actor): void {
             $this->em->persist($clientPackage);
@@ -39,7 +43,7 @@ class ClientPackageService
         });
 
         $warnings = [];
-        $this->syncJobs($clientPackage, $warnings);
+        $this->syncJobs($clientPackage, $warnings, $excluded, $actor);
         $this->em->flush();
 
         return $warnings;
@@ -47,13 +51,14 @@ class ClientPackageService
 
     /**
      * Pravi poslove koji još ne postoje za klijentov paket. Posao koji klijent već ima (iz drugog paketa
-     * ili ad hoc) se ne dupla, nego se prijavljuje kao upozorenje.
+     * ili pojedinačno) se ne dupla, nego se prijavljuje kao upozorenje.
      *
-     * @param list<string> $warnings
+     * @param list<string>       $warnings
+     * @param array<int, string> $excluded id posla => razlog isključenja
      *
      * @return int broj novokreiranih poslova
      */
-    public function syncJobs(ClientPackage $clientPackage, array &$warnings = []): int
+    public function syncJobs(ClientPackage $clientPackage, array &$warnings = [], array $excluded = [], ?User $actor = null): int
     {
         $client = $clientPackage->getClient();
         $have = [];
@@ -65,7 +70,8 @@ class ClientPackageService
         foreach ($clientPackage->getPackage()->getJobTemplates() as $template) {
             if (isset($have[$template->getId()])) {
                 if ($have[$template->getId()]->getClientPackage() !== $clientPackage) {
-                    $warnings[] = sprintf('„%s“ klijent već ima (%s), pa nije dupliran.', $template->getName(), $have[$template->getId()]->getSource()->label());
+                    // isti posao iz dva paketa: jedan posao, pa jedan zadatak po periodu (SPEC 8i.1)
+                    $warnings[] = sprintf('„%s“ klijent već ima (%s), pa nije dupliran. Zadatak za taj posao nastaje jednom po periodu.', $template->getName(), $have[$template->getId()]->getClientPackage()?->getPackage()->getName() ?? $have[$template->getId()]->getSource()->label());
                 }
                 continue;
             }
@@ -75,6 +81,9 @@ class ClientPackageService
                 ->setSource(JobSource::PACKAGE)
                 ->setClientPackage($clientPackage)
                 ->setStartDate($clientPackage->getStartDate());
+            if (null !== $actor && \array_key_exists((int) $template->getId(), $excluded)) {
+                $job->exclude($excluded[$template->getId()] ?: 'Isključeno pri dodeli paketa', $actor);
+            }
             $this->em->persist($job);
             ++$created;
         }
@@ -156,16 +165,73 @@ class ClientPackageService
     }
 
     /**
-     * Ad hoc posao. Admin ga odmah odobrava; radnik/šef samo predlaže, pa admin odobrava i unosi cenu.
+     * Pojedinačni poslovi (SPEC 8h.3b). Admin ih odmah dodaje sa cenom; radnik/šef samo predlaže (bez cene), pa admin odobrava.
+     * Posao koji klijent već ima aktivan se ne dupla.
+     *
+     * @param list<array{template: JobTemplate, price: ?string, note: string, assignee: ?User}> $items
+     *
+     * @return list<string> upozorenja
      */
-    public function addAdHoc(ClientJob $job, Client $client, bool $isAdmin, User $actor): void
+    public function addIndividual(Client $client, array $items, \DateTimeImmutable $start, bool $isAdmin, User $actor): array
     {
-        $job->setClient($client)->setSource(JobSource::AD_HOC);
-        if (!$isAdmin) {
-            $job->setProposedBy($actor)->setApproved(false)->setPrice(null);
+        $have = [];
+        foreach ($this->jobs->findBy(['client' => $client, 'isActive' => true]) as $job) {
+            $have[$job->getJobTemplate()->getId()] = true;
         }
-        $this->em->persist($job);
+
+        $warnings = [];
+        foreach ($items as $item) {
+            $template = $item['template'];
+            if (isset($have[$template->getId()])) {
+                $warnings[] = sprintf('„%s“ klijent već ima, pa nije dodat ponovo.', $template->getName());
+                continue;
+            }
+            $job = (new ClientJob())
+                ->setClient($client)
+                ->setJobTemplate($template)
+                ->setSource(JobSource::INDIVIDUAL)
+                ->setStartDate($start)
+                ->setNote($item['note']);
+            if ($isAdmin) {
+                $job->setPrice($item['price'])->setAssigneeOverride($item['assignee']);
+            } else {
+                $job->setProposedBy($actor)->setApproved(false);
+            }
+            $this->em->persist($job);
+            $have[$template->getId()] = true;
+        }
         $this->em->flush();
+
+        return $warnings;
+    }
+
+    public function save(ClientJob $job): void
+    {
+        // "Kao u poslu": skrivena polja forme se ne čuvaju uz prazan override
+        if ($job->getScheduleOverride()->isEmpty()) {
+            $job->setScheduleOverride(new Schedule());
+        }
+        $this->em->flush();
+    }
+
+    /**
+     * Iznos iz polja ("1.234,56", "1234.56", "1234") u decimalni string, ili null ako nije ispravan.
+     */
+    public static function parseMoney(string $value): ?string
+    {
+        $value = str_replace([' ', "\u{a0}"], '', trim($value));
+        if ('' === $value) {
+            return null;
+        }
+        // "1.234,56" -> tačka je za hiljade; "1234.56" -> tačka je decimalna
+        if (str_contains($value, ',')) {
+            $value = str_replace(['.', ','], ['', '.'], $value);
+        }
+        if (!is_numeric($value) || (float) $value < 0) {
+            return null;
+        }
+
+        return number_format((float) $value, 2, '.', '');
     }
 
     public function approve(ClientJob $job, ?string $price): void

@@ -523,7 +523,7 @@ Ako je raspored **"Po potrebi" (NONE)**, sistem ne kreira zadatke, nego ih koris
 - `CollectionType` (`allow_add`, `allow_delete`, `by_reference: false`, prototip), redosled u `position`.
 - Isti komponent (Twig makro + `assets/js/checklist-editor.js`) i za checklist zadatka pri ručnom kreiranju i izmeni.
 
-## 8h. Paketi i ugovorene usluge klijenta
+## 8h. Paketi i ugovorene usluge klijenta (implementirano u P4)
 
 ### 8h.1 Model
 ```
@@ -548,7 +548,7 @@ ClientJob ─< Task
 - **Pregled**: Posao · Izvor · Raspored · Sledeći zadatak · Zadužen · Cena · ⋯. Grupisano po paketima, pa pojedinačni. Isključeni su prigušeni i precrtani, uz razlog, i mogu se ponovo uključiti. Meni ⋯: izmeni (cena, napomena, raspored, zaduženi), isključi/uključi, završi (endDate), "Kreiraj zadatak sada".
 - Dole **ukupna mesečna cena** (paketi + mesečni pojedinačni). **Cene vidi samo admin+.**
 - Uklanjanje paketa postavlja endDate na ClientPackage i njegove ClientJob-ove, uz SweetAlert pitanje šta sa otvorenim zadacima.
-- Zamenjuje stranicu `/clients/{id}/packages`.
+- Zamenjuje stranicu `/clients/{id}/packages` (tab je `/clients/{id}?tab=usluge`). Drugačiji raspored se podešava preko "Izmeni", posle dodavanja posla.
 
 ## 8i. Zadaci: automatski i ručni
 

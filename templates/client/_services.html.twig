@@ -1,0 +1,276 @@
+{#
+    Tab "Ugovorene usluge" (SPEC 8h.3): paketi sa poslovima, pojedinačni poslovi, predlozi i završene usluge.
+    Cene i izmene vidi samo admin+ (PRICE_VIEW / CATALOG_MANAGE). JS: assets/js/client-services.js.
+#}
+{% import 'components/ui.html.twig' as ui %}
+{% import 'components/_job_picker.html.twig' as jp %}
+{% set can_manage = is_granted('CATALOG_MANAGE') %}
+{% set can_price = is_granted('PRICE_VIEW') %}
+{% set months_short = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'avg', 'sep', 'okt', 'nov', 'dec'] %}
+
+{% macro job_rows(rows, client, can_manage, can_price, months_short) %}
+    {% import 'components/ui.html.twig' as ui %}
+    {% for row in rows %}
+        {% set job = row.job %}
+        <tr class="{{ job.excluded ? 'kt-row-excluded' }}">
+            <td>
+                <div class="kt-svc-name">{{ job.jobTemplate.name }}</div>
+                <div class="d-flex flex-wrap gap-1 align-items-center mt-1">
+                    {{ ui.category_badge(job.jobTemplate.category) }}
+                    {% if job.note %}<span class="kt-text-xs text-muted">{{ job.note }}</span>{% endif %}
+                </div>
+                {% if job.excluded %}<div class="kt-text-sm text-muted mt-1">{{ ux_icon('lucide:ban', {class: 'kt-icon me-1'}) }}isključeno: „{{ job.excludedReason }}“</div>{% endif %}
+            </td>
+            <td>{{ job.clientPackage ? job.clientPackage.package.name : 'Pojedinačno' }}</td>
+            <td>
+                {{ row.describe }}
+                {% if job.hasScheduleOverride %}<span class="kt-badge kt-badge-info ms-1" title="Drugačiji raspored nego u poslu" data-bs-toggle="tooltip">za klijenta</span>{% endif %}
+            </td>
+            <td class="text-nowrap">{% if row.next %}{{ row.next|date('j') }}. {{ months_short[row.next|date('n') - 1] }}{% if row.next|date('Y') != 'now'|date('Y') %} {{ row.next|date('Y') }}.{% endif %}{% else %}—{% endif %}</td>
+            <td class="text-nowrap">{% if row.assignee %}{{ ui.avatar(row.assignee, 24) }} <span class="ms-1">{{ row.assignee.fullName }}</span>{% if row.assigneeIsOverride %} <span class="kt-text-xs text-muted">(za ovaj posao)</span>{% endif %}{% endif %}</td>
+            {% if can_price %}
+                <td class="text-end text-nowrap">
+                    {% if job.clientPackage %}<span class="text-muted">u paketu</span>
+                    {% elseif job.price is not null %}{{ job.price|number_format(0, ',', '.') }} RSD <span class="kt-text-xs text-muted">/ {{ job.jobTemplate.priceUnit.label|lower }}</span>
+                    {% else %}—{% endif %}
+                </td>
+            {% endif %}
+            <td class="text-end">
+                {% if can_manage %}
+                    <div class="dropdown">
+                        <button type="button" class="btn kt-btn-icon btn-sm" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Radnje">{{ ux_icon('lucide:ellipsis', {class: 'kt-icon'}) }}</button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            {% if job.excluded %}
+                                <form method="post" action="{{ path('client_job_include', {id: job.id}) }}" {{ confirm_attrs('Ponovo uključiti „' ~ job.jobTemplate.name ~ '“?', 'Zadaci za ovaj posao će se ponovo praviti.', 'info', 'Da, uključi') }}>
+                                    <input type="hidden" name="_token" value="{{ csrf_token('client_job_' ~ job.id) }}">
+                                    <button class="dropdown-item">{{ ux_icon('lucide:circle-check', {class: 'kt-icon me-2'}) }}Uključi</button>
+                                </form>
+                            {% else %}
+                                <a class="dropdown-item" href="{{ path('client_job_edit', {id: job.id}) }}">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-2'}) }}Izmeni</a>
+                                <a class="dropdown-item" href="{{ path('task_new', {client: client.id, job: job.id}) }}">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Kreiraj zadatak sada</a>
+                                <div class="dropdown-divider"></div>
+                                {% if job.clientPackage %}
+                                    <form method="post" action="{{ path('client_job_exclude', {id: job.id}) }}" {{ confirm_attrs('Isključiti „' ~ job.jobTemplate.name ~ '“ za ovog klijenta?', 'Zadaci za ovaj posao se više neće praviti. Otvoreni zadaci se otkazuju.', 'warning', 'Da, isključi', true) }}>
+                                        <input type="hidden" name="_token" value="{{ csrf_token('client_job_' ~ job.id) }}">
+                                        <input type="hidden" name="cancel_tasks" value="1">
+                                        <button class="dropdown-item">{{ ux_icon('lucide:ban', {class: 'kt-icon me-2'}) }}Isključi</button>
+                                    </form>
+                                {% else %}
+                                    <form method="post" action="{{ path('client_job_end', {id: job.id}) }}" {{ confirm_attrs('Završiti „' ~ job.jobTemplate.name ~ '“?', 'Posao se završava danas i zadaci se više ne prave. Otvoreni zadaci ostaju.', 'warning', 'Da, završi', true) }}>
+                                        <input type="hidden" name="_token" value="{{ csrf_token('client_job_' ~ job.id) }}">
+                                        <button class="dropdown-item">{{ ux_icon('lucide:circle-x', {class: 'kt-icon me-2'}) }}Završi (zadaci ostaju)</button>
+                                    </form>
+                                    <form method="post" action="{{ path('client_job_end', {id: job.id}) }}" {{ confirm_attrs('Završiti „' ~ job.jobTemplate.name ~ '“ i otkazati otvorene zadatke?', 'Posao se završava danas, a otvoreni zadaci iz njega se otkazuju.', 'danger', 'Da, završi i otkaži', true) }}>
+                                        <input type="hidden" name="_token" value="{{ csrf_token('client_job_' ~ job.id) }}">
+                                        <input type="hidden" name="cancel_tasks" value="1">
+                                        <button class="dropdown-item text-danger">{{ ux_icon('lucide:trash-2', {class: 'kt-icon me-2'}) }}Završi i otkaži zadatke</button>
+                                    </form>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+{% endmacro %}
+
+{% set head %}<thead><tr><th>Posao</th><th>Izvor</th><th>Raspored</th><th>Sledeći zadatak</th><th>Zadužen</th>{% if can_price %}<th class="text-end">Cena</th>{% endif %}<th style="width: 1%;"></th></tr></thead>{% endset %}
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+    {% if can_manage %}
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#package-modal">{{ ux_icon('lucide:package', {class: 'kt-icon me-2'}) }}Dodaj paket</button>
+    {% endif %}
+    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#individual-modal">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}{{ can_manage ? 'Dodaj pojedinačan posao' : 'Predloži posao' }}</button>
+</div>
+
+{% for group in services.packages %}
+    {% set cp = group.package %}
+    <div class="card">
+        <div class="card-header d-flex flex-wrap align-items-center gap-2">
+            <h5 class="mb-0">{{ ux_icon('lucide:package', {class: 'kt-icon me-2'}) }}Paket {{ cp.package.name }}</h5>
+            <span class="text-muted kt-text-sm">od {{ cp.startDate|date('d.m.Y.') }}</span>
+            {% if can_price %}<span class="ms-auto fw-semibold text-nowrap">{{ cp.agreedPrice|number_format(0, ',', '.') }} RSD / mesečno{% if cp.discountPercent %} <span class="kt-badge kt-badge-success ms-1">-{{ cp.discountPercent|number_format(0) }}%</span>{% endif %}</span>{% endif %}
+            {% if can_manage %}
+                <div class="dropdown {{ can_price ? '' : 'ms-auto' }}">
+                    <button type="button" class="btn kt-btn-icon btn-sm" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Radnje sa paketom">{{ ux_icon('lucide:ellipsis', {class: 'kt-icon'}) }}</button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <button type="button" class="dropdown-item" data-bs-toggle="collapse" data-bs-target="#price-{{ cp.id }}">{{ ux_icon('lucide:circle-dollar-sign', {class: 'kt-icon me-2'}) }}Promeni cenu</button>
+                        <div class="dropdown-divider"></div>
+                        <form method="post" action="{{ path('client_package_remove', {id: cp.id}) }}" {{ confirm_attrs('Ukloniti paket „' ~ cp.package.name ~ '“?', 'Paket i njegovi poslovi se završavaju danas. Otvoreni zadaci ostaju.', 'danger', 'Da, ukloni', true) }}>
+                            <input type="hidden" name="_token" value="{{ csrf_token('client_package_remove_' ~ cp.id) }}">
+                            <button class="dropdown-item">{{ ux_icon('lucide:circle-x', {class: 'kt-icon me-2'}) }}Ukloni paket (zadaci ostaju)</button>
+                        </form>
+                        <form method="post" action="{{ path('client_package_remove', {id: cp.id}) }}" {{ confirm_attrs('Ukloniti paket i otkazati otvorene zadatke?', 'Paket i njegovi poslovi se završavaju danas, a otvoreni zadaci iz njih se otkazuju.', 'danger', 'Da, ukloni i otkaži', true) }}>
+                            <input type="hidden" name="_token" value="{{ csrf_token('client_package_remove_' ~ cp.id) }}">
+                            <input type="hidden" name="cancel_tasks" value="1">
+                            <button class="dropdown-item text-danger">{{ ux_icon('lucide:trash-2', {class: 'kt-icon me-2'}) }}Ukloni paket i otkaži zadatke</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        {% if cp.note %}<div class="card-body border-top py-2 kt-text-sm text-muted">{{ cp.note }}</div>{% endif %}
+        {% if can_manage %}
+            <div class="collapse" id="price-{{ cp.id }}">
+                <form method="post" action="{{ path('client_package_price', {id: cp.id}) }}" class="card-body border-top d-flex flex-wrap align-items-end gap-2" {{ confirm_attrs('Promeniti dogovorenu cenu?', 'Promena se beleži u istoriji cena.', 'warning', 'Da, promeni') }}>
+                    <input type="hidden" name="_token" value="{{ csrf_token('client_package_price_' ~ cp.id) }}">
+                    <div><label class="form-label kt-text-sm" for="np-{{ cp.id }}">Nova mesečna cena</label><input type="text" name="price" id="np-{{ cp.id }}" class="form-control form-control-sm" data-kt-money required></div>
+                    <div><label class="form-label kt-text-sm" for="nf-{{ cp.id }}">Važi od</label><input type="date" name="from" id="nf-{{ cp.id }}" class="form-control form-control-sm" value="{{ 'now'|date('Y-m-d') }}"></div>
+                    <button class="btn btn-primary btn-sm">Primeni</button>
+                </form>
+            </div>
+        {% endif %}
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                {{ head }}
+                <tbody>
+                    {{ _self.job_rows(group.rows, client, can_manage, can_price, months_short) }}
+                    {% if group.rows is empty %}<tr><td colspan="7" class="text-muted">Paket nema poslova.</td></tr>{% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endfor %}
+
+{% if services.individual is not empty %}
+    <div class="card">
+        <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Pojedinačni poslovi</h5></div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                {{ head }}
+                <tbody>{{ _self.job_rows(services.individual, client, can_manage, can_price, months_short) }}</tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+
+{% if services.packages is empty and services.individual is empty %}
+    <div class="card"><div class="card-body">{{ ui.empty_state('Klijent još nema ugovorenih usluga. Dodaj paket ili pojedinačan posao.', 'package') }}</div></div>
+{% endif %}
+
+{% if services.proposals is not empty %}
+    <div class="card border-warning">
+        <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:hourglass', {class: 'kt-icon me-2'}) }}Predlozi koji čekaju odobrenje</h5></div>
+        <ul class="list-group list-group-flush">
+            {% for row in services.proposals %}
+                <li class="list-group-item d-flex flex-wrap align-items-center gap-2">
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="fw-semibold">{{ row.job.jobTemplate.name }}</div>
+                        <div class="kt-text-sm text-muted">{{ row.describe }}{% if row.job.proposedBy %} · predložio {{ row.job.proposedBy.fullName }}{% endif %}{% if row.job.note %} · {{ row.job.note }}{% endif %}</div>
+                    </div>
+                    {% if can_manage %}
+                        <form method="post" action="{{ path('client_job_approve', {id: row.job.id}) }}" class="d-flex gap-1" {{ confirm_attrs('Odobriti predlog posla?', 'Posao postaje ugovoren i zadaci se prave po rasporedu.', 'info', 'Da, odobri') }}>
+                            <input type="hidden" name="_token" value="{{ csrf_token('client_job_' ~ row.job.id) }}">
+                            <input type="text" name="price" class="form-control form-control-sm" style="width: 110px;" placeholder="cena" data-kt-money aria-label="Cena">
+                            <button class="btn btn-success btn-sm">Odobri</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+{% if can_price and (services.packages is not empty or services.individual is not empty) %}
+    <div class="card">
+        <div class="card-body d-flex align-items-center">
+            <span class="text-muted">Ukupno mesečno (paketi + mesečni pojedinačni poslovi)</span>
+            <span class="ms-auto fs-5 fw-semibold text-nowrap">{{ services.monthlyTotal|number_format(0, ',', '.') }} RSD</span>
+        </div>
+    </div>
+{% endif %}
+
+{% if services.ended is not empty or services.endedPackages is not empty %}
+    <details class="card kt-svc-ended">
+        <summary class="card-header">{{ ux_icon('lucide:history', {class: 'kt-icon me-2'}) }}Završene usluge ({{ services.ended|length + services.endedPackages|length }})</summary>
+        <ul class="list-group list-group-flush">
+            {% for cp in services.endedPackages %}
+                <li class="list-group-item text-muted">Paket {{ cp.package.name }} · {{ cp.startDate|date('d.m.Y.') }} – {{ cp.endDate ? cp.endDate|date('d.m.Y.') : '…' }}</li>
+            {% endfor %}
+            {% for row in services.ended %}
+                <li class="list-group-item text-muted">{{ row.job.jobTemplate.name }} · {{ row.job.clientPackage ? row.job.clientPackage.package.name : 'pojedinačno' }} · {{ row.job.startDate|date('d.m.Y.') }} – {{ row.job.endDate ? row.job.endDate|date('d.m.Y.') : '…' }}</li>
+            {% endfor %}
+        </ul>
+    </details>
+{% endif %}
+
+{# --- modal: Dodaj paket --- #}
+{% if can_manage %}
+    {% set pkg_json = {} %}
+    {% for id, p in packagesData %}
+        {% set pkg_json = pkg_json|merge({('p' ~ id): {price: p.price ? p.price|number_format(2, ',', '.') : '', jobs: p.jobs|map(j => {id: j.id, name: j.name, describe: schedule_describe(j.schedule, true)})}}) %}
+    {% endfor %}
+    <div class="modal fade" id="package-modal" tabindex="-1" aria-labelledby="package-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                {{ form_start(packageForm, {attr: {'data-kt-package-attach': '', 'data-packages': pkg_json|json_encode, 'data-existing': services.templateIds|json_encode}}) }}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="package-modal-title">Dodaj paket</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zatvori"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ form_row(packageForm.package) }}
+                        <div class="kt-pkg-jobs mb-3" data-kt-package-jobs hidden>
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="form-label mb-0">Poslovi iz paketa</span>
+                                <span class="ms-auto kt-text-sm text-muted">Odštikliraj ono što ne treba ovom klijentu</span>
+                            </div>
+                            <ul class="list-group" data-kt-package-job-list></ul>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">{{ form_row(packageForm.agreedPrice) }}</div>
+                            <div class="col-md-3">{{ form_row(packageForm.discountPercent) }}</div>
+                            <div class="col-md-3">{{ form_row(packageForm.startDate) }}</div>
+                        </div>
+                        {{ form_row(packageForm.note) }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Odustani</button>
+                        <button class="btn btn-primary">Dodaj paket</button>
+                    </div>
+                {{ form_end(packageForm) }}
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{# --- modal: pojedinačan posao (više poslova odjednom, sa cenom, napomenom i zaduženim po poslu) --- #}
+<template id="jp-extra-{{ client.id }}">
+    <div class="kt-jp-extra">
+        {% if can_manage %}
+            <input type="text" class="form-control form-control-sm" name="price[__ID__]" value="__PRICE__" placeholder="Cena (RSD)" data-kt-money aria-label="Cena">
+            <select class="form-select form-select-sm" name="assignee[__ID__]" data-native aria-label="Zaduženi">
+                <option value="">Glavni radnik ({{ client.primaryAccountant.fullName }})</option>
+                {% for u in assignees %}{% if u != client.primaryAccountant %}<option value="{{ u.id }}">{{ u.fullName }}{{ u == client.backupAccountant ? ' (zamena)' }}</option>{% endif %}{% endfor %}
+            </select>
+        {% endif %}
+        <input type="text" class="form-control form-control-sm kt-jp-extra-wide" name="note[__ID__]" placeholder="Napomena (opciono)" maxlength="500" aria-label="Napomena">
+    </div>
+</template>
+<div class="modal fade" id="individual-modal" tabindex="-1" aria-labelledby="individual-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <form method="post" action="{{ path('client_job_new', {id: client.id}) }}" class="modal-content">
+            <input type="hidden" name="_token" value="{{ csrf_token('client_jobs_new_' ~ client.id) }}">
+            <div class="modal-header">
+                <h5 class="modal-title" id="individual-modal-title">{{ can_manage ? 'Dodaj pojedinačan posao' : 'Predloži posao' }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zatvori"></button>
+            </div>
+            <div class="modal-body">
+                {% if not can_manage %}<p class="kt-text-sm text-muted">Predlog ide administratoru, koji upisuje cenu i odobrava ga. Do odobrenja se zadaci ne prave.</p>{% endif %}
+                {{ jp.picker('jobs', [], 'jp-extra-' ~ client.id, 'individual-picker') }}
+                <div class="row mt-3">
+                    <div class="col-sm-6 col-md-4">
+                        <label class="form-label" for="ind-start">Početak</label>
+                        <input type="date" class="form-control" id="ind-start" name="startDate" value="{{ 'now'|date('Y-m-d') }}">
+                    </div>
+                </div>
+                {% if can_manage %}<p class="kt-text-sm text-muted mt-2 mb-0">Drugačiji raspored za ovog klijenta podešavaš posle dodavanja, preko „Izmeni“.</p>{% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Odustani</button>
+                <button class="btn btn-primary">{{ can_manage ? 'Dodaj' : 'Pošalji predlog' }}</button>
+            </div>
+        </form>
+    </div>
+</div>

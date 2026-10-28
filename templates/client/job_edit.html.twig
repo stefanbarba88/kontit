@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+{% import 'components/schedule_form.html.twig' as sf %}
+
+{% block title %}{{ job.jobTemplate.name }} — {{ client.shortName }}{% endblock %}
+{% block page_title %}{{ job.jobTemplate.name }}{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.shortName }}</a>
+    <a href="{{ path('client_show', {id: client.id, tab: 'usluge'}) }}" class="breadcrumb-item">Ugovorene usluge</a>
+    <span class="breadcrumb-item active">Izmena</span>
+{% endblock %}
+
+{% block content %}
+    {{ form_start(form) }}
+    <div class="row">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <h5 class="mb-0">{{ ux_icon('lucide:calendar-clock', {class: 'kt-icon me-2'}) }}Raspored za ovog klijenta</h5>
+                </div>
+                <div class="card-body border-top">
+                    <p class="kt-text-sm text-muted">Raspored posla: <strong class="text-body">{{ schedule_describe(job.jobTemplate.schedule) }}</strong>. Izaberi „Kao u poslu“ da važi taj raspored, ili drugi tip da ovaj klijent ima drugačiji rok.</p>
+                    {{ sf.fields(form.scheduleOverride, job.startDate) }}
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Ugovoreni posao</h5></div>
+                <div class="card-body border-top">
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        {{ ui.category_badge(job.jobTemplate.category) }}
+                        <span class="kt-badge kt-badge-secondary">{{ job.clientPackage ? 'Paket ' ~ job.clientPackage.package.name : 'Pojedinačno' }}</span>
+                    </div>
+                    {% if form.price is defined %}{{ form_row(form.price) }}{% endif %}
+                    {{ form_row(form.assigneeOverride) }}
+                    {{ form_row(form.estimatedMinutesOverride) }}
+                    {{ form_row(form.note) }}
+                    <div class="row">
+                        <div class="col-6">{{ form_row(form.startDate) }}</div>
+                        <div class="col-6">{{ form_row(form.endDate) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kt-form-actions">
+        <a href="{{ path('client_show', {id: client.id, tab: 'usluge'}) }}" class="btn btn-light me-2">Odustani</a>
+        <button class="btn btn-primary">Sačuvaj{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
+    </div>
+    {{ form_end(form) }}
+{% endblock %}

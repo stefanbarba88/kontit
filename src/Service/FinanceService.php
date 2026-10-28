@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Client;
 use App\Entity\ClientJob;
 use App\Entity\Task;
+use App\Enum\JobSource;
 use App\Enum\PriceUnit;
 use App\Enum\ScheduleType;
 use App\Enum\TaskStatus;
@@ -72,7 +73,7 @@ class FinanceService
     }
 
     /**
-     * Mesečni prihod klijenta: aktivni paketi + ponavljajući ad hoc poslovi sa cenom.
+     * Mesečni prihod klijenta: aktivni paketi + ponavljajući pojedinačni poslovi sa cenom.
      */
     public function clientMrr(Client $client): float
     {
@@ -80,8 +81,8 @@ class FinanceService
         foreach ($this->clientPackages->findBy(['client' => $client, 'isActive' => true]) as $cp) {
             $sum += (float) $cp->getAgreedPrice();
         }
-        foreach ($this->jobs->findBy(['client' => $client, 'isActive' => true, 'isApproved' => true, 'source' => 'AD_HOC']) as $job) {
-            $sum += $this->adHocMonthly($job);
+        foreach ($this->jobs->findBy(['client' => $client, 'isActive' => true, 'isApproved' => true, 'source' => JobSource::INDIVIDUAL]) as $job) {
+            $sum += $this->jobMonthly($job);
         }
 
         return $sum;
@@ -107,7 +108,7 @@ class FinanceService
     {
         $sum = 0.0;
         $year = (int) date('Y');
-        foreach ($this->jobs->findBy(['client' => $client, 'isApproved' => true, 'source' => 'AD_HOC']) as $job) {
+        foreach ($this->jobs->findBy(['client' => $client, 'isApproved' => true, 'source' => JobSource::INDIVIDUAL]) as $job) {
             if (ScheduleType::NONE === $job->getSchedule()->getType() && null !== $job->getPrice() && (int) $job->getStartDate()->format('Y') === $year) {
                 $sum += (float) $job->getPrice();
             }
@@ -261,7 +262,7 @@ class FinanceService
     }
 
     /**
-     * Prihod od ad hoc poslova po mesecu početka.
+     * Prihod od pojedinačnih poslova po mesecu početka.
      *
      * @return list<array{label: string, revenue: float}>
      */
@@ -272,7 +273,7 @@ class FinanceService
             $d = new \DateTimeImmutable('first day of -'.$i.' months');
             $out[$d->format('Y-m')] = ['label' => $d->format('m/Y'), 'revenue' => 0.0];
         }
-        foreach ($this->jobs->findBy(['source' => 'AD_HOC', 'isApproved' => true]) as $job) {
+        foreach ($this->jobs->findBy(['source' => JobSource::INDIVIDUAL, 'isApproved' => true]) as $job) {
             $key = $job->getStartDate()?->format('Y-m');
             if (null !== $key && null !== $job->getPrice() && isset($out[$key])) {
                 $out[$key]['revenue'] += (float) $job->getPrice();
@@ -322,7 +323,7 @@ class FinanceService
     }
 
     /**
-     * Za naplatu u mesecu: paket klijenta + ad hoc poslovi sa cenom koji počinju u tom mesecu.
+     * Za naplatu u mesecu: paket klijenta + pojedinačni poslovi sa cenom koji počinju u tom mesecu.
      *
      * @return list<array{client: Client, package: float, adHoc: float, total: float, items: list<string>}>
      */
@@ -341,7 +342,7 @@ class FinanceService
             $rows[$id]['package'] += (float) $cp->getAgreedPrice();
             $rows[$id]['items'][] = $cp->getPackage()->getName();
         }
-        foreach ($this->jobs->findBy(['source' => 'AD_HOC', 'isApproved' => true]) as $job) {
+        foreach ($this->jobs->findBy(['source' => JobSource::INDIVIDUAL, 'isApproved' => true]) as $job) {
             if (null === $job->getPrice() || $job->getStartDate() < $start || $job->getStartDate() > $end) {
                 continue;
             }
@@ -359,7 +360,10 @@ class FinanceService
         return $rows;
     }
 
-    private function adHocMonthly(ClientJob $job): float
+    /**
+     * Mesečna vrednost pojedinačnog posla po jedinici cene (mesečno, godišnje, po izvršenju x učestalost).
+     */
+    public function jobMonthly(ClientJob $job): float
     {
         if (null === $job->getPrice()) {
             return 0.0;

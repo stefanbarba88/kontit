@@ -230,3 +230,5 @@ export function initForms(root = document) {
 }
 
 initForms();
+// sadržaj dodat kasnije (npr. red u job picker-u) javlja se događajem kt:content
+document.addEventListener('kt:content', (e) => initForms(e.target));

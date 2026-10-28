@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% import 'components/_job_picker.html.twig' as jp %}
 
 {% set is_new = package.id is null %}
 
@@ -11,7 +12,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-lg-7">
+        <div class="col-xl-10">
             <div class="card">
                 <div class="card-header"><h5 class="mb-0">Podaci o paketu</h5></div>
                 <div class="card-body border-top">
@@ -20,9 +21,15 @@
                         {% set attrs = {'data-confirm': 'Sačuvati izmene paketa?', 'data-confirm-text': 'Paket koristi ' ~ clients ~ ' klijenata. Ako je označeno „primeni na klijente“, novi poslovi se odmah dodaju svima. Ukinuti poslovi ostaju kod klijenata.', 'data-confirm-type': 'warning', 'data-confirm-button': 'Da, sačuvaj'} %}
                     {% endif %}
                     {{ form_start(form, {attr: attrs}) }}
-                        {{ form_row(form.name) }}
+                        <div class="row">
+                            <div class="col-md-8">{{ form_row(form.name) }}</div>
+                            <div class="col-md-4">{{ form_row(form.price) }}</div>
+                        </div>
                         {{ form_row(form.description) }}
-                        {{ form_row(form.jobTemplates) }}
+                        <div class="mb-3">
+                            <span class="form-label d-block">Poslovi u paketu</span>
+                            {{ jp.picker('jobs', selected) }}
+                        </div>
                         {% if not is_new and clients > 0 %}
                             <div class="form-check mb-3">
                                 <input type="checkbox" class="form-check-input" id="apply_to_clients" name="apply_to_clients" value="1">

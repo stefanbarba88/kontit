@@ -47,6 +47,13 @@ class ServicePackageItem
         return $this->jobTemplate;
     }
 
+    public function setPosition(int $position): static
+    {
+        $this->position = $position;
+
+        return $this;
+    }
+
     public function getPosition(): int
     {
         return $this->position;

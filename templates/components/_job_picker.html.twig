@@ -1,0 +1,59 @@
+{#
+    Job picker (SPEC 8h.2): poslovi grupisani po kategoriji, pretraga u letu, "Izaberi sve u grupi", opis rasporeda,
+    a desno (na telefonu ispod, sklopivo) izabrani poslovi sa prevlačenjem za redosled i ✕. JS: assets/js/job-picker.js.
+
+    Upotreba: {% import 'components/_job_picker.html.twig' as jp %}
+              {{ jp.picker('jobs', selectedIds) }}
+    Šalje se name[] = id posla, redom kako su izabrani poslovi poređani.
+    extra: id <template> elementa sa dodatnim poljima po izabranom poslu (__ID__ i __PRICE__ se zamenjuju).
+#}
+{% macro picker(name, selected = [], extra = null, id = 'job-picker') %}
+    {% import 'components/ui.html.twig' as ui %}
+    {% set groups = catalog_groups(selected) %}
+    <div class="kt-jp" data-kt-job-picker data-name="{{ name }}[]" data-selected="{{ selected|json_encode }}"{% if extra %} data-extra="{{ extra }}"{% endif %} id="{{ id }}">
+        <div class="kt-jp-main">
+            <div class="kt-jp-toolbar">
+                <div class="kt-input-icon flex-grow-1">
+                    <input type="search" class="form-control" placeholder="Pretraži poslove…" data-kt-jp-search aria-label="Pretraži poslove">
+                    <div class="kt-input-icon-start">{{ ux_icon('lucide:search', {class: 'kt-icon'}) }}</div>
+                </div>
+                <span class="kt-text-sm text-muted text-nowrap">Izabrano: <strong class="text-body" data-kt-jp-count>0</strong></span>
+            </div>
+            <div class="kt-jp-groups">
+                {% for group in groups %}
+                    <section class="kt-jp-group" data-kt-jp-group>
+                        <header class="kt-jp-group-head">
+                            <button type="button" class="kt-jp-toggle" data-kt-jp-toggle aria-expanded="true">
+                                {{ ux_icon('lucide:chevron-down', {class: 'kt-icon kt-jp-chevron'}) }}
+                                {{ ui.category_badge(group.category) }}
+                                <span class="kt-text-xs text-muted" data-kt-jp-group-count></span>
+                            </button>
+                            <button type="button" class="btn btn-ghost btn-sm ms-auto" data-kt-jp-all>Izaberi sve u grupi</button>
+                        </header>
+                        <ul class="kt-jp-list">
+                            {% for job in group.jobs %}
+                                <li data-kt-jp-item data-search="{{ (job.name ~ ' ' ~ group.category.name)|lower }}">
+                                    <label class="kt-jp-option">
+                                        <input type="checkbox" class="form-check-input" value="{{ job.id }}" data-name="{{ job.name }}" data-describe="{{ schedule_describe(job.schedule, true) }}" data-price="{{ job.defaultPrice ? job.defaultPrice|number_format(2, ',', '.') : '' }}">
+                                        <span class="min-w-0">
+                                            <span class="kt-jp-name">{{ job.name }}{% if not job.active %} <span class="kt-text-xs text-muted">(neaktivan)</span>{% endif %}</span>
+                                            <span class="kt-jp-desc">{{ schedule_describe(job.schedule, true) }}</span>
+                                        </span>
+                                    </label>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                {% else %}
+                    {{ ui.empty_state('Katalog poslova je prazan.', 'list-checks') }}
+                {% endfor %}
+                <div class="kt-jp-none text-muted kt-text-sm p-3" data-kt-jp-none hidden>Nema poslova za tu pretragu.</div>
+            </div>
+        </div>
+        <details class="kt-jp-selected" open>
+            <summary class="kt-jp-selected-head">Izabrano (redosled) <span class="kt-text-sm text-muted ms-1" data-kt-jp-count-2></span></summary>
+            <ul class="kt-jp-chosen" data-kt-jp-chosen></ul>
+            <div class="kt-jp-empty text-muted kt-text-sm" data-kt-jp-empty>Još nije izabran nijedan posao.</div>
+        </details>
+    </div>
+{% endmacro %}
