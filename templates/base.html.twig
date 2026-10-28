@@ -52,6 +52,7 @@
 			{{ nav.link(path('client_mine'), 'briefcase', 'Moji klijenti', route == 'client_mine') }}
 			{{ nav.link(path('absence_index'), 'plane', 'Odsustva', route starts with 'absence_', pending_absence_count()) }}
 			{{ nav.link(path('task_index'), 'list-checks', 'Zadaci', route starts with 'task_', awaiting_approval_count()) }}
+			{{ nav.link(path('calendar_index'), 'calendar-days', 'Kalendar', route starts with 'calendar_') }}
 
 			{% if is_granted('ROLE_SEF') %}
 				{{ nav.group('Klijenti') }}

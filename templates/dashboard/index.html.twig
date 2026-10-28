@@ -8,6 +8,24 @@
 {% macro pct(value) %}{{ value is null ? '—' : value ~ '%' }}{% endmacro %}
 
 {% block content %}
+    {# mali pregled naredne nedelje (SPEC 8n) #}
+    <div class="card mb-4">
+        <div class="card-header d-flex align-items-center"><h5 class="mb-0">{{ ux_icon('lucide:calendar-days', {class: 'kt-icon me-2'}) }}Naredna nedelja</h5><a href="{{ path('calendar_index') }}" class="btn btn-ghost btn-sm ms-auto">Kalendar{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</a></div>
+        <div class="card-body border-top">
+            <div class="kt-week">
+                {% for day in week %}
+                    <div class="kt-week-day{{ day.off ? ' is-off' }}{{ day.date|date('Y-m-d') == 'now'|date('Y-m-d') ? ' is-today' }}">
+                        <div class="kt-week-date">{{ ['', 'pon', 'uto', 'sre', 'čet', 'pet', 'sub', 'ned'][day.date|date('N')] }} {{ day.date|date('j.n.') }}{% if day.off and day.off not in ['Subota', 'Nedelja'] %} <span class="text-danger">· {{ day.off }}</span>{% endif %}</div>
+                        {% for item in day.items|slice(0, 4) %}
+                            {% if item.url %}<a href="{{ item.url }}" class="kt-week-item" style="--kt-cat: {{ item.color }};" title="{{ item.title }} · {{ item.meta }}">{{ item.title }}</a>
+                            {% else %}<span class="kt-week-item" style="--kt-cat: {{ item.color }};" title="{{ item.meta }}">{{ item.title }}</span>{% endif %}
+                        {% endfor %}
+                        {% if day.items|length > 4 %}<div class="kt-text-xs text-muted">+ još {{ day.items|length - 4 }}</div>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
     <h5 class="mb-3">{{ ux_icon('lucide:circle-user', {class: 'kt-icon me-2'}) }}Moj pregled</h5>
     <div class="row mb-4">
         <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('list-checks', me.open, 'Otvoreni zadaci', 'primary') }}</div>

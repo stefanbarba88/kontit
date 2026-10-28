@@ -36,6 +36,8 @@ security:
     access_control:
         - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/reset-password, roles: PUBLIC_ACCESS }
+        # ICS pretplata radi bez prijave; zaštita je tajni token u adresi (SPEC 8n)
+        - { path: '^/calendar/ics/[a-f0-9]{40}.ics$', roles: PUBLIC_ACCESS }
         - { path: ^/, roles: ROLE_RADNIK }
 
 when@test:

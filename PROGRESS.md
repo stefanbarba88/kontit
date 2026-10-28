@@ -4,10 +4,18 @@
 
 ## Trenutno stanje
 - Faza: **UPDATE-DIZAJN završen** (koraci 1-8): NBS popravka, sopstveni UI sistem bez template-a, sitnice, mobilni prikaz, avatar inicijali, izvoz. Uz faze 0-7, 2b, 3b, 7b.
-- Sledeći korak: **UPDATE-POSLOVI-KALENDAR** (koraci P1-P11, SPEC 8f-8n): P1-P8 završeni, sledi **P9** (kalendar u aplikaciji i ICS link). Faza 8 je odložena. Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
+- Sledeći korak: **UPDATE-POSLOVI-KALENDAR** (koraci P1-P11, SPEC 8f-8n): P1-P9 završeni, sledi **P10** (Google Calendar). Faza 8 je odložena. Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
 - Otvorenih nedoumica: 0 (svih 12 rešeno po predlozima, 2026-10-28).
 
 ## Urađeno
+- 2026-10-28: **P9: kalendar u aplikaciji i ICS link (SPEC 8n.1, 8n.2)**
+  - **FullCalendar 6.1.22** (MIT: core, daygrid, timegrid, list, interaction; preact 10.12.1) preko importmap-a, učitava se dinamički samo na `/calendar`. Core je pri dodavanju stigao kao 7.x, pa je ručno vraćen na 6.1.22 (spec traži v6). Latinični srpski locale u kodu, nedelja od ponedeljka, boje iz tokena (`components/calendar.css`), obe teme.
+  - `CalendarService`: zadaci po roku (isti upit kao lista zadataka + `TASK_VIEW` po zadatku; boja statusa, "!" za hitan, kraći naziv klijenta u naslovu generisanog zadatka), odsustva (svoja / šef tim / admin svi; boja vrste, inicijali, šrafirano na odobrenju), praznici i kolektivni odmor kao pozadina; neradni dani u nedelji prigušeni po pravilu iz Podešavanja. `GET /ajax/calendar/events` samo za vidljivi opseg (najviše 100 dana).
+  - Stranica **Kalendar** (meni): prikazi Mesec, Nedelja, Dan, Lista; na telefonu podrazumevano Lista i prevlačenje levo/desno; filteri Moji / Moj tim / Svi (po roli), vrsta događaja, klijent, radnik. Klik na prazan dan: "Novi zadatak za ovaj dan" (`/tasks/new?due=`) ili "Zahtev za odsustvo od ovog dana" (`/absences/new?from=`). Klik na događaj: popover sa detaljima i linkom. Prevlačenje zadatka menja rok (`POST /ajax/tasks/{id}/due`, samo uz `TASK_EDIT`), uz SweetAlert i upozorenje za neradni dan; promena ide u istoriju zadatka.
+  - Dashboard: **Naredna nedelja** (7 dana, zadaci i odsustva, praznici označeni).
+  - **ICS**: `User.icsToken` (40 hex), `/calendar/ics/{token}.ics` radi bez prijave (izuzetak u `access_control`), zadaci u kojima je korisnik učesnik (celodnevno, ✓ kad je završen, link u opisu) i njegova odobrena odsustva, od 30 dana unazad do godinu dana unapred (RFC 5545, prelamanje dugih linija). Profil: kartica "Kalendar u drugoj aplikaciji" (napravi, kopiraj, nov link, poništi, uz SweetAlert).
+  - Migracija `Version20261028134856`: `app_user.ics_token` (unique).
+  - Provereno: `p9test.sh` 34 provere (vidljivost događaja po roli, hitan, link, pozadina praznika, isključiv kraj odsustva, filteri, predug opseg, prevlačenje roka i prava, upozorenje za subotu, istorija, ?due, ICS bez prijave, sadržaj, pogrešan i zamenjen token, poništavanje). **Prikaz FullCalendar-a, popover i prevlačenje nisu probani u pregledaču** (P11).
 - 2026-10-28: **P8: dokumenti korisnika (SPEC 8l)**
   - `DocumentCategory` (6 početnih: Ugovor, Rešenje, Potvrda, Izvod, Doznaka, Ostalo; stranica **Podešavanja → Kategorije dokumenata**, dodavanje, preimenovanje, redosled, deaktivacija) i `UserDocument` (kategorija, naziv, nasumično ime na disku, originalno ime, tip, veličina, važi do, napomena, ko je dodao, opciono odsustvo, soft delete).
   - `UserDocumentService`: fajlovi u `var/storage/user-documents/{userId}/` (van `public/`), samo PDF/JPG/PNG do 20 MB, tip se proverava po sadržaju (lažni PDF se odbija); korisnik dobija `DOCUMENT_ADDED` kad mu admin doda dokument. Trajno brisanje briše i fajl sa diska.

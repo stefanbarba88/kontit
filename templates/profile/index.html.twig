@@ -73,6 +73,35 @@
                 </div>
             </div>
 
+            {# ICS pretplata (SPEC 8n): tajni link, samo čitanje #}
+            <div class="card" id="ics">
+                <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:calendar-check', {class: 'kt-icon me-2'}) }}Kalendar u drugoj aplikaciji</h5></div>
+                <div class="card-body border-top">
+                    <p class="kt-text-sm text-muted">Tajni link za pretplatu (Google, Outlook, iPhone): tvoji zadaci po roku i odobrena odsustva. Samo čitanje. Ko ima link, vidi te događaje, pa ga ne deli.</p>
+                    {% if app.user.icsToken %}
+                        {% set ics = url('calendar_ics', {token: app.user.icsToken}) %}
+                        <div class="input-group input-group-sm mb-2">
+                            <input type="text" class="form-control kt-mono" value="{{ ics }}" readonly id="ics-url" aria-label="ICS link">
+                            <button type="button" class="btn btn-light" onclick="navigator.clipboard.writeText(document.getElementById('ics-url').value).then(() => window.ktToast('Link je kopiran.'))">{{ ux_icon('lucide:clipboard-list', {class: 'kt-icon me-1'}) }}Kopiraj</button>
+                        </div>
+                        <form method="post" action="{{ path('profile_ics') }}" class="d-inline" {{ confirm_attrs('Napraviti nov link?', 'Stari link prestaje da radi; u kalendaru ga zameni novim.', 'warning', 'Da, nov link') }}>
+                            <input type="hidden" name="_token" value="{{ csrf_token('profile_ics') }}">
+                            <button class="btn btn-light btn-sm">Nov link</button>
+                        </form>
+                        <form method="post" action="{{ path('profile_ics') }}" class="d-inline" {{ confirm_attrs('Poništiti link?', 'Kalendar koji koristi ovaj link više neće dobijati događaje.', 'danger', 'Da, poništi') }}>
+                            <input type="hidden" name="_token" value="{{ csrf_token('profile_ics') }}">
+                            <input type="hidden" name="action" value="revoke">
+                            <button class="btn btn-ghost btn-sm text-danger">Poništi</button>
+                        </form>
+                    {% else %}
+                        <form method="post" action="{{ path('profile_ics') }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('profile_ics') }}">
+                            <button class="btn btn-primary btn-sm">Napravi link</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">Promena lozinke</h5>

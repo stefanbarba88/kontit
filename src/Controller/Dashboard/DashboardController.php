@@ -4,6 +4,7 @@ namespace App\Controller\Dashboard;
 
 use App\Entity\User;
 use App\Service\StatisticsService;
+use App\Service\CalendarService;
 use App\Service\TaskService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,6 +15,7 @@ class DashboardController extends AbstractController
     public function __construct(
         private readonly StatisticsService $stats,
         private readonly TaskService $tasks,
+        private readonly CalendarService $calendar,
     ) {
     }
 
@@ -29,6 +31,7 @@ class DashboardController extends AbstractController
 
         return $this->render('dashboard/index.html.twig', [
             'me' => $this->stats->forWorker($me),
+            'week' => $this->calendar->week($me),
             'showTeam' => $showTeam,
             'team' => $showTeam ? $this->stats->forTeams($teamIds) : null,
             'admin' => $admin,

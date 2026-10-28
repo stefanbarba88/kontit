@@ -626,7 +626,7 @@ Zamenjuje `Holiday` tabelu. Admin+ upravlja na **Podešavanja → Neradni dani**
 - Profil: tab "Dokumenti" po kategorijama (ikonica tipa, naziv, datum, veličina, ko je dodao) sa filterom.
 - `validUntil`: notifikacija adminu 30 i 7 dana pre isteka. Brisanje je soft (SweetAlert); fajl se fizički briše tek trajnim brisanjem iz korpe (admin).
 
-## 8n. Kalendar
+## 8n. Kalendar (8n.1, 8n.2 i ICS implementirani u P9)
 - **FullCalendar v6** (MIT paketi: core, daygrid, timegrid, list, interaction) preko importmap-a, srpski latinični locale, nedelja od ponedeljka, tokeni iz DESIGN.md u obe teme. Premium paketi se ne koriste.
 - Prikazuje: zadatke po roku (boja statusa, ikonica prioriteta, kraći naziv klijenta; po Voterima), odsustva (boja vrste, avatar; svoja / šef tim / admin sve), neradne dane i kolektivni odmor (prigušena pozadina i naziv; svi).
 - Prikazi Mesec, Nedelja, Dan, Lista; na telefonu podrazumevano Lista, prevlačenje levo/desno za period. Filteri (čipovi): Moji / Moj tim / Svi, vrsta događaja, klijent, radnik.

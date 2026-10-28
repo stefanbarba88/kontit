@@ -79,6 +79,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $internalNote = null;
 
+    /** Tajni token za ICS pretplatu na kalendar (SPEC 8n); null = nema linka */
+    #[ORM\Column(length: 40, nullable: true, unique: true)]
+    private ?string $icsToken = null;
+
     /** Broj dana godišnjeg odmora po godini (prazno = podrazumevano iz podešavanja, SPEC 8j.3) */
     #[ORM\Column(nullable: true)]
     #[Assert\Range(min: 0, max: 60)]
@@ -293,6 +297,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     public function setEmployedAt(?\DateTimeImmutable $employedAt): static
     {
         $this->employedAt = $employedAt;
+
+        return $this;
+    }
+
+    public function getIcsToken(): ?string
+    {
+        return $this->icsToken;
+    }
+
+    public function setIcsToken(?string $token): static
+    {
+        $this->icsToken = $token;
 
         return $this;
     }

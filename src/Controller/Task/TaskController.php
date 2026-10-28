@@ -91,6 +91,10 @@ class TaskController extends AbstractController
             }
             $task->setClient($client);
         }
+        // klik na prazan dan u kalendaru: ?due=YYYY-MM-DD
+        if (!$request->isMethod('POST') && false !== ($due = \DateTimeImmutable::createFromFormat('!Y-m-d', (string) $request->query->get('due')))) {
+            $task->setDueDate($due);
+        }
         $job = null;
         if ($request->query->getInt('job') && null !== $task->getClient()) {
             $job = $this->jobs->find($request->query->getInt('job'));

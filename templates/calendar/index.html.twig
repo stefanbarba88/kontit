@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Kalendar{% endblock %}
+{% block page_title %}Kalendar{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item active">Kalendar</span>{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('app_profile') }}#ics" class="btn btn-light">{{ ux_icon('lucide:calendar-check', {class: 'kt-icon me-2'}) }}Pretplata (ICS)</a>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-body pb-2">
+            <div class="kt-cal-filters" data-kt-cal-filters>
+                {% if scopes|length > 1 %}
+                    <div class="kt-segmented" role="radiogroup" aria-label="Opseg">
+                        {% for s in scopes %}
+                            <input type="radio" class="btn-check" name="scope" id="cal-scope-{{ s }}" value="{{ s }}" {{ loop.first ? 'checked' }}>
+                            <label class="btn" for="cal-scope-{{ s }}">{{ {mine: 'Moji', team: 'Moj tim', all: 'Svi'}[s] }}</label>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="d-flex flex-wrap gap-1" role="group" aria-label="Vrste događaja">
+                    {% for key, label in {tasks: 'Zadaci', absences: 'Odsustva', holidays: 'Neradni dani'} %}
+                        <input type="checkbox" class="btn-check" id="cal-type-{{ key }}" name="types" value="{{ key }}" checked autocomplete="off">
+                        <label class="btn btn-sm btn-outline-secondary kt-chip" for="cal-type-{{ key }}">{{ label }}</label>
+                    {% endfor %}
+                </div>
+                <select name="client" class="form-select form-select-sm" data-native aria-label="Klijent">
+                    <option value="">Svi klijenti</option>
+                    {% for c in clients %}<option value="{{ c.id }}">{{ c.shortName }}</option>{% endfor %}
+                </select>
+                {% if people is not empty %}
+                    <select name="user" class="form-select form-select-sm" data-native aria-label="Radnik">
+                        <option value="">Svi radnici</option>
+                        {% for u in people %}<option value="{{ u.id }}">{{ u.fullName }}</option>{% endfor %}
+                    </select>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body pt-2">
+            <div id="kt-calendar" class="kt-calendar"
+                 data-events-url="{{ path('ajax_calendar_events') }}"
+                 data-task-new-url="{{ path('task_new') }}"
+                 data-absence-new-url="{{ path('absence_new') }}"></div>
+        </div>
+    </div>
+{% endblock %}
