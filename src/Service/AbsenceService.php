@@ -190,7 +190,7 @@ class AbsenceService
     public function approve(UserAbsence $absence, User $actor): void
     {
         $this->assertPending($absence);
-        $absence->decide(AbsenceStatus::ODOBRENO, $actor);
+        $absence->approve($actor);
         $this->em->flush();
 
         $this->activate($absence, $actor);
@@ -229,6 +229,28 @@ class AbsenceService
         }
         if ($actor !== $absence->getUser()) {
             $this->notifications->notify($absence->getUser(), NotificationType::ABSENCE_REJECTED, 'Odsustvo je otkazano', sprintf('%s je otkazao tvoje odsustvo: %s.', $actor->getFullName(), $absence->summary()), ['absence_index'], $actor);
+        }
+    }
+
+    /**
+     * Admin poništava automatsko odobrenje (SPEC 8m): obavezan razlog, zahtev postaje odbijen, zamena se završava.
+     */
+    public function revokeAutoApproval(UserAbsence $absence, User $actor, string $reason): void
+    {
+        if (AbsenceStatus::AUTOMATSKI_ODOBRENO !== $absence->getStatus()) {
+            throw new \DomainException('Poništiti se može samo automatsko odobrenje.');
+        }
+        if ('' === trim($reason)) {
+            throw new \DomainException('Unesi razlog poništavanja.');
+        }
+        $absence->decide(AbsenceStatus::ODBIJENO, $actor, $reason);
+        $this->em->flush();
+
+        $this->notifications->notify($absence->getUser(), NotificationType::ABSENCE_REJECTED, 'Automatsko odobrenje je poništeno', sprintf('%s je poništio automatsko odobrenje tvog odsustva (%s). Razlog: %s', $actor->getFullName(), $absence->summary(), trim($reason)), ['absence_index'], $actor);
+        if (!$absence->hasEnded()) {
+            foreach ($this->backupsFor($absence->getUser()) as $backup) {
+                $this->notifications->notify($backup, NotificationType::BACKUP_ACTIVATED, 'Zamena je otkazana', sprintf('Odsustvo za %s (%s) više ne važi. Ne preuzimaš njegove klijente.', $absence->getUser()->getFullName(), $absence->summary()), ['client_mine'], $actor);
+            }
         }
     }
 

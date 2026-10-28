@@ -609,7 +609,7 @@ Zamenjuje `Holiday` tabelu. Admin+ upravlja na **Podešavanja → Neradni dani**
 - Stranica Odsustva (šef svoj tim, admin svi): tab **"Na odobrenju"** (brojač u meniju, Odobri / Odbij uz razlog), tab **"Pregled"** (radnik × dani u mesecu, boje po vrsti, neradni dani prigušeni, filter po timu), tab **"Evidencija"** (zbir po radniku i vrsti za godinu, izvoz Excel / PDF).
 - Telefon: "Na odobrenju" kao kartice sa prevlačenjem za Odobri / Odbij, pregled kao lista po danima.
 
-## 8m. Automatsko odobravanje posle roka
+## 8m. Automatsko odobravanje posle roka (implementirano u P7)
 - Ako odobravalac ne odgovori do roka, zahtev se smatra odobrenim.
 - `ApprovableInterface` (status, approvalDeadline, approve(), approveAutomatically()); implementira ga `Absence`.
 - Rok pri podnošenju: `min(podnošenje + X radnih sati, početak odsustva − 1 dan)`; X po vrsti zahteva u Podešavanjima (podrazumevano 48 h). Ako je odsustvo za sutra, odobravalac dobija hitnu notifikaciju.

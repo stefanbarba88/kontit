@@ -4,10 +4,19 @@
 
 ## Trenutno stanje
 - Faza: **UPDATE-DIZAJN završen** (koraci 1-8): NBS popravka, sopstveni UI sistem bez template-a, sitnice, mobilni prikaz, avatar inicijali, izvoz. Uz faze 0-7, 2b, 3b, 7b.
-- Sledeći korak: **UPDATE-POSLOVI-KALENDAR** (koraci P1-P11, SPEC 8f-8n): P1-P6 završeni, sledi **P7** (automatsko odobravanje posle roka). Faza 8 je odložena. Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
+- Sledeći korak: **UPDATE-POSLOVI-KALENDAR** (koraci P1-P11, SPEC 8f-8n): P1-P7 završeni, sledi **P8** (dokumenti korisnika). Faza 8 je odložena. Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
 - Otvorenih nedoumica: 0 (svih 12 rešeno po predlozima, 2026-10-28).
 
 ## Urađeno
+- 2026-10-28: **P7: automatsko odobravanje posle roka (SPEC 8m)**
+  - `ApprovableInterface` (isPending, getApprovalDeadline, approve, approveAutomatically), implementira ga `UserAbsence`. `ApprovalService` + komanda **`app:approvals:auto-approve`** (cron na 15 minuta, `--now` za proveru): zahtev na odobrenju sa isteklim rokom postaje `AUTOMATSKI_ODOBRENO` (bez odobravaoca), pokreće zamenu, a podnosilac i odobravaoci dobijaju `ABSENCE_AUTO_APPROVED`; podsetnik `APPROVAL_DEADLINE_SOON` 24 h pre isteka, jednom po zahtevu (`reminderSent`).
+  - Automatska potvrda zadataka na proveri: radi samo kad je uključena u Podešavanjima (Vrste odsustva → Podešavanja), posle N radnih dana od predaje (podrazumevano 3), u ime prvog aktivnog admina. Podrazumevano isključena.
+  - Admin poništava automatsko odobrenje (`ABSENCE_REVOKE`, dugme "Poništi" uz obavezan razlog): zahtev postaje odbijen sa razlogom, podnosilac i zamena dobijaju obaveštenje.
+  - Istorija: `ActivityLogListener` sada beleži i odsustva na timeline-u korisnika (podnošenje, odobrenje, odbijanje, otkazivanje); automatsko odobrenje nema korisnika, pa se prikazuje kao "Sistem".
+  - UI: odbrojavanje "Automatski se odobrava za 5 h" na zahtevima (P6), poseban badge "Automatski odobreno".
+  - Testovi: `ApprovalDeadlineCalculatorTest` (vikend, praznik, podnošenje vikendom, rok dan pre početka i hitnost), ukupno 40 PHPUnit testova; `p7test.sh` 18 provera (podsetnik jednom, pre roka bez promene, istek roka, notifikacije, istorija "Sistem", troši godišnji, poništavanje uz razlog, automatska potvrda zadatka uključena/isključena).
+  - **Cron**: `*/15 * * * * php bin/console app:approvals:auto-approve` (nije podešen u dev okruženju).
+  - Bez novih migracija (polja su dodata u P6).
 - 2026-10-28: **P6: odsustva — vrste, zahtevi, odobravanje, evidencija i pregled (SPEC 8j)**
   - `AbsenceType` (naziv, boja, ikonica, traži odobrenje, troši godišnji, traži dokument, najviše dana godišnje, redosled, aktivna) umesto enuma `AbsenceReason`; 6 početnih vrsta (Godišnji odmor, Slava, Bolovanje kao evidencija sa doznakom, Plaćeno, Neplaćeno, Ostalo). Stranica **Podešavanja → Vrste odsustva** (`/admin/absence-types`) sa podešavanjima: podrazumevan godišnji odmor, rok za automatsko odobravanje (radni sati), automatska potvrda zadataka (isključena, rok u radnim danima).
   - Entitet ostaje `UserAbsence` (SPEC "Absence"): nova polja `type`, `halfDay`, `workingDays` (preko `WorkingDayService`, pola dana = 0,5), `decisionNote`, `approvalDeadline`, `reminderSent`. Statusi `NA_ODOBRENJU` (bio NA_CEKANJU), `ODOBRENO`, `AUTOMATSKI_ODOBRENO`, `ODBIJENO`, `OTKAZANO`; "odobreno" svuda znači oba odobrena statusa (zamena, generisanje, pregled).
@@ -243,7 +252,7 @@ mpp\htdocs\kontit_template_backup` (nije bio u git-u; obrisati ručno kad više 
 - SweetAlert dijalozi nisu proveravani u pregledaču (nema browsera u sesiji), samo serverska strana (CSRF, Voter, razlog).
 - Analitika po klijentu: broj vraćanja na doradu i prosečno trajanje čekanja klijenta nisu dostupni dok nema istorije statusa (dolazi uz Fazu 8). Sati su procena iz poslova, a `FinanceService::monthlyHours()` je jedino mesto koje Faza 8 menja.
 - Demo klijenti imaju izmišljene PIB-ove, pa `app:nbs:sync` za njih prijavljuje neuspeh. Očekivano.
-- Cron: `0 6 * * * php bin/console app:tasks:generate` (nije podešen u dev okruženju). Rok propušten do 31 dan unazad se nadoknađuje.
+- Cron: `0 6 * * * php bin/console app:tasks:generate` i `*/15 * * * * php bin/console app:approvals:auto-approve` (nisu podešeni u dev okruženju). Rok propušten do 31 dan unazad se nadoknađuje.
 - Deaktiviran korisnik ostaje u aktivnim članovima tima (badge "Neaktivan"), a `TeamMember` se ne zatvara. To je odluka iz Faze 2. Pravilo za zadatke (ne može da dobije zadatak, ne može da se deaktivira dok ima zadatak u radu) je uvedeno u Fazi 3.
 - U Twig šablonima ne imenovati promenljivu `pending` jer je `base.html.twig` prepisuje (broj zadataka za potvrdu). U `absence/index` se zove `pendingAbsences`.
 - `QueryBuilder::orderBy('x', 'ASC')` ispisuje deprecation u Doctrine ORM 3.x (string umesto `SortDirection`). Bezopasno, a čisti se kad se pređe na novu sintaksu.

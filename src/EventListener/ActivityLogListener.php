@@ -10,6 +10,7 @@ use App\Entity\TaskAssignee;
 use App\Entity\TaskComment;
 use App\Entity\TeamMember;
 use App\Entity\User;
+use App\Entity\UserAbsence;
 use App\Enum\ActivityAction;
 use App\Enum\AssigneeStatus;
 use App\Enum\CommentType;
@@ -141,6 +142,8 @@ class ActivityLogListener
                 $user,
             ),
             $entity instanceof Client => $this->add($entity, ActivityAction::CREATED, ['Naziv' => [null, $entity->getName()]], $user),
+            // odsustvo se beleži na timeline-u korisnika (SPEC 8j, 8m)
+            $entity instanceof UserAbsence => $this->add($entity->getUser(), ActivityAction::CREATED, ['Odsustvo' => [null, $entity->summary().' · '.$entity->getStatus()->label()]], $user),
             $entity instanceof TeamMember => $this->add($entity->getUser(), ActivityAction::TEAM_CHANGED, ['Tim' => [null, $entity->getTeam()?->getName()]], $user),
             $entity instanceof User => $this->add($entity, ActivityAction::CREATED, ['Korisnik' => [null, $entity->getFullName()]], $user),
             default => null,
@@ -170,6 +173,9 @@ class ActivityLogListener
             }
         } elseif ($entity instanceof User) {
             $this->userUpdated($entity, $cs, $user);
+        } elseif ($entity instanceof UserAbsence && isset($cs['status'])) {
+            // bez prijavljenog korisnika (komanda za automatsko odobravanje) zapis je "Sistem"
+            $this->add($entity->getUser(), $entity->getStatus()->isApproved() ? ActivityAction::APPROVED : ActivityAction::STATUS_CHANGED, ['Odsustvo '.$entity->summary() => [($cs['status'][0] instanceof \App\Enum\AbsenceStatus ? $cs['status'][0] : \App\Enum\AbsenceStatus::tryFrom((string) $cs['status'][0]))?->label(), $entity->getStatus()->label()]], $user);
         }
     }
 

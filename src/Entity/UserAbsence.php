@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Index(name: 'IDX_ABSENCE_USER_DATES', fields: ['user', 'startDate', 'endDate'])]
 #[ORM\Index(name: 'IDX_ABSENCE_STATUS_DEADLINE', fields: ['status', 'approvalDeadline'])]
-class UserAbsence
+class UserAbsence implements ApprovableInterface
 {
     use TimestampableTrait;
 
@@ -240,6 +240,16 @@ class UserAbsence
         $this->decisionNote = null === $note || '' === trim($note) ? null : trim($note);
 
         return $this;
+    }
+
+    public function approve(User $by): void
+    {
+        $this->decide(AbsenceStatus::ODOBRENO, $by);
+    }
+
+    public function approveAutomatically(): void
+    {
+        $this->decide(AbsenceStatus::AUTOMATSKI_ODOBRENO, null);
     }
 
     public function getApprovalDeadline(): ?\DateTimeImmutable

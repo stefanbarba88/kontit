@@ -140,10 +140,10 @@ class AbsenceController extends AbstractController
         return new JsonResponse(['success' => true, 'data' => $preview, 'message' => '']);
     }
 
-    #[Route('/absences/{id}/{action}', name: 'absence_action', requirements: ['id' => '\d+', 'action' => 'approve|reject|cancel'], methods: ['POST'])]
+    #[Route('/absences/{id}/{action}', name: 'absence_action', requirements: ['id' => '\d+', 'action' => 'approve|reject|cancel|revoke'], methods: ['POST'])]
     public function action(Request $request, UserAbsence $absence, string $action): Response
     {
-        $this->denyAccessUnlessGranted('cancel' === $action ? 'ABSENCE_CANCEL' : 'ABSENCE_DECIDE', $absence);
+        $this->denyAccessUnlessGranted(match ($action) { 'cancel' => 'ABSENCE_CANCEL', 'revoke' => 'ABSENCE_REVOKE', default => 'ABSENCE_DECIDE' }, $absence);
 
         if (!$this->isCsrfTokenValid('absence_'.$absence->getId(), $request->request->getString('_token'))) {
             $this->addFlash('danger', 'Neispravan bezbednosni token. Pokušaj ponovo.');
@@ -154,11 +154,13 @@ class AbsenceController extends AbstractController
                     'approve' => $this->service->approve($absence, $me),
                     'reject' => $this->service->reject($absence, $me, $request->request->getString('reason')),
                     'cancel' => $this->service->cancel($absence, $me),
+                    'revoke' => $this->service->revokeAutoApproval($absence, $me, $request->request->getString('reason')),
                 };
                 $this->addFlash('success', match ($action) {
                     'approve' => 'Odsustvo je odobreno.',
                     'reject' => 'Odsustvo je odbijeno.',
                     'cancel' => 'Odsustvo je otkazano.',
+                    'revoke' => 'Automatsko odobrenje je poništeno.',
                 });
             } catch (\DomainException $e) {
                 $this->addFlash('danger', $e->getMessage());

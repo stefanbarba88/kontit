@@ -16,6 +16,7 @@
     <form method="post" action="{{ path('absence_action', {id: absence.id, action: action}) }}" class="d-inline"
           {% if action == 'approve' %}{{ confirm_attrs('Odobriti odsustvo?', absence.user.fullName ~ ': ' ~ absence.summary, 'info', 'Da, odobri') }}
           {% elseif action == 'reject' %}{{ confirm_attrs('Odbiti odsustvo?', absence.user.fullName ~ ': ' ~ absence.summary ~ '. Razlog dobija podnosilac.', 'warning', 'Da, odbij', true) }}
+          {% elseif action == 'revoke' %}{{ confirm_attrs('Poništiti automatsko odobrenje?', absence.user.fullName ~ ': ' ~ absence.summary ~ '. Zahtev postaje odbijen, a podnosilac dobija razlog.', 'danger', 'Da, poništi', true) }}
           {% else %}{{ confirm_attrs('Otkazati odsustvo?', absence.summary ~ '. Zamena više neće preuzimati klijente za ovaj period.', 'danger', 'Da, otkaži') }}{% endif %}>
         <input type="hidden" name="_token" value="{{ csrf_token('absence_' ~ absence.id) }}">
         {% if back %}<input type="hidden" name="back" value="{{ back }}">{% endif %}
@@ -74,6 +75,7 @@
                                         {{ _self.action_form(a, 'approve', 'Odobri', 'btn-success', 'check') }}
                                         {{ _self.action_form(a, 'reject', 'Odbij', 'btn-outline-danger', 'x') }}
                                     {% endif %}
+                                    {% if is_granted('ABSENCE_REVOKE', a) %}{{ _self.action_form(a, 'revoke', 'Poništi', 'btn-outline-danger', 'undo-2') }}{% endif %}
                                     {% if is_granted('ABSENCE_CANCEL', a) %}{{ _self.action_form(a, 'cancel', 'Otkaži', 'btn-light', 'ban') }}{% endif %}
                                 </td>
                             </tr>

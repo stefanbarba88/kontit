@@ -20,6 +20,8 @@ class AbsenceVoter extends Voter
     public const CREATE = 'ABSENCE_CREATE';
     public const DECIDE = 'ABSENCE_DECIDE';
     public const CANCEL = 'ABSENCE_CANCEL';
+    /** Admin poništava automatsko odobrenje (SPEC 8m) */
+    public const REVOKE = 'ABSENCE_REVOKE';
 
     public function __construct(private readonly AbsenceService $service)
     {
@@ -29,7 +31,7 @@ class AbsenceVoter extends Voter
     {
         return match ($attribute) {
             self::CREATE => null === $subject,
-            self::DECIDE, self::CANCEL => $subject instanceof UserAbsence,
+            self::DECIDE, self::CANCEL, self::REVOKE => $subject instanceof UserAbsence,
             default => false,
         };
     }
@@ -53,6 +55,8 @@ class AbsenceVoter extends Voter
             self::CANCEL => \in_array($status, AbsenceStatus::blocking(), true)
                 && ((AbsenceStatus::NA_ODOBRENJU === $status && ($subject->getUser() === $user || $subject->getCreatedBy() === $user))
                     || \in_array('ROLE_ADMIN', $token->getRoleNames(), true) || \in_array('ROLE_SUPERADMIN', $token->getRoleNames(), true)),
+            self::REVOKE => AbsenceStatus::AUTOMATSKI_ODOBRENO === $status
+                && (\in_array('ROLE_ADMIN', $token->getRoleNames(), true) || \in_array('ROLE_SUPERADMIN', $token->getRoleNames(), true)),
             default => false,
         };
     }
