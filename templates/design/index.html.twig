@@ -3,6 +3,7 @@
 {% import 'components/timeline.html.twig' as tl %}
 {% import 'components/schedule_form.html.twig' as sf %}
 {% import 'components/checklist_editor.html.twig' as ce %}
+{% import 'components/_job_picker.html.twig' as jp %}
 
 {% block title %}Dizajn vodič{% endblock %}
 {% block page_title %}Dizajn vodič{% endblock %}
@@ -183,6 +184,57 @@
                     <div class="kt-overline mb-2">Checklist editor</div>
                     {{ ce.editor(jobForm.checklistItems) }}
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h5>Job picker (paketi, pojedinačni poslovi)</h5></div>
+        <div class="card-body">{{ jp.picker('demo_jobs', [], null, 'design-picker') }}</div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h5>Odsustva: stanje godišnjeg, zahtev na odobrenju, mesečni pregled</h5></div>
+        <div class="card-body">
+            <div class="kt-leave-strip mb-3">
+                <div><span class="kt-overline">Godišnji odmor 2026.</span><strong class="fs-5">14</strong> <span class="text-muted">dana preostalo</span></div>
+                <div class="kt-text-sm text-muted">pravo 20 · preneto 3 (do 30.6.) · iskorišćeno 9 · na odobrenju 2</div>
+            </div>
+            <div class="card kt-approval mb-3">
+                <div class="card-body d-flex flex-wrap align-items-center gap-3">
+                    {{ ui.avatar(app.user, 36) }}
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="fw-semibold">10.11.2026. – 13.11.2026. · 3 rad. dana</div>
+                        <div class="mt-1"><span class="kt-cat-badge" style="--kt-cat: #0089FF;">{{ ux_icon('lucide:palmtree', {class: 'kt-icon'}) }}Godišnji odmor</span></div>
+                    </div>
+                    <div class="text-end"><div class="kt-text-sm text-warning">Automatski se odobrava za 1 d 6 h</div>
+                        <div class="d-flex gap-1 justify-content-end mt-1"><button class="btn btn-sm btn-success">{{ ux_icon('lucide:check', {class: 'kt-icon me-1'}) }}Odobri</button><button class="btn btn-sm btn-outline-danger">{{ ux_icon('lucide:x', {class: 'kt-icon me-1'}) }}Odbij</button></div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm kt-absence-grid mb-0">
+                    <thead><tr><th class="kt-ag-name">Radnik</th>{% for d in 9..15 %}<th class="{{ d in [14, 15] ? 'is-off' }}">{{ d }}<span>{{ ['p', 'u', 's', 'č', 'p', 's', 'n'][d - 9] }}</span></th>{% endfor %}</tr></thead>
+                    <tbody>
+                        <tr><td class="kt-ag-name">{{ ui.avatar(app.user, 22) }} Primer odobreno</td>{% for d in 9..15 %}<td class="{{ d in [14, 15] ? 'is-off' }}">{% if d in [10, 11, 12] %}<span class="kt-ag-cell" style="--kt-cat: #0089FF;"></span>{% endif %}</td>{% endfor %}</tr>
+                        <tr><td class="kt-ag-name">{{ ui.avatar(app.user, 22) }} Primer na odobrenju</td>{% for d in 9..15 %}<td class="{{ d in [14, 15] ? 'is-off' }}">{% if d in [12, 13] %}<span class="kt-ag-cell is-pending" style="--kt-cat: #8B5CF6;"></span>{% endif %}</td>{% endfor %}</tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h5>Kalendar: naredna nedelja (dashboard)</h5></div>
+        <div class="card-body">
+            <div class="kt-week">
+                {% for i in 0..6 %}
+                    <div class="kt-week-day{{ i in [5, 6] ? ' is-off' }}{{ i == 0 ? ' is-today' }}">
+                        <div class="kt-week-date">{{ ['pon', 'uto', 'sre', 'čet', 'pet', 'sub', 'ned'][i] }} {{ 9 + i }}.11.</div>
+                        {% if i == 1 %}<span class="kt-week-item" style="--kt-cat: var(--kt-primary);">PDV prijava — Mlekara</span>{% endif %}
+                        {% if i in [2, 3] %}<span class="kt-week-item" style="--kt-cat: #8B5CF6;">Marko · Slava</span>{% endif %}
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </div>

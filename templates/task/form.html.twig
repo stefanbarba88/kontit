@@ -34,8 +34,9 @@
                         <div class="mb-3">
                             <div class="kt-segmented" role="radiogroup" aria-label="Vrsta zadatka">
                                 {% for choice in form.scope %}
-                                    {{ form_widget(choice, {attr: {class: 'btn-check', 'data-kt-task-scope': ''}}) }}
+                                    <input type="radio" class="btn-check" id="{{ choice.vars.id }}" name="{{ choice.vars.full_name }}" value="{{ choice.vars.value }}" data-kt-task-scope {{ choice.vars.checked ? 'checked' }} autocomplete="off">
                                     <label class="btn" for="{{ choice.vars.id }}">{{ choice.vars.label }}</label>
+                                    {% do choice.setRendered %}
                                 {% endfor %}
                             </div>
                             {% do form.scope.setRendered %}

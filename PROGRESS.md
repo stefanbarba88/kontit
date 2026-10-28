@@ -3,11 +3,21 @@
 > Claude ažurira ovaj fajl na kraju svakog zadatka. Najnovije ide na vrh.
 
 ## Trenutno stanje
-- Faza: **UPDATE-DIZAJN završen** (koraci 1-8): NBS popravka, sopstveni UI sistem bez template-a, sitnice, mobilni prikaz, avatar inicijali, izvoz. Uz faze 0-7, 2b, 3b, 7b.
-- Sledeći korak: **UPDATE-POSLOVI-KALENDAR** (koraci P1-P11, SPEC 8f-8n): P1-P10 završeni, sledi **P11** (pregled svih novih ekrana u pregledaču). Faza 8 je odložena. Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
-- Otvorenih nedoumica: 0 (svih 12 rešeno po predlozima, 2026-10-28).
+- Faza: **UPDATE-POSLOVI-KALENDAR završen** (P1-P11, SPEC 8f-8n): kraći naziv i aktivnosti, neradni dani, kategorije i raspored posla, ugovorene usluge, generisanje sa zamenom, odsustva sa automatskim odobravanjem, dokumenti, kalendar, Google kalendar. Uz faze 0-7, 2b, 3b, 7b i UPDATE-DIZAJN.
+- Sledeće: po dogovoru. **Faza 8 (praćenje vremena) je odložena.** Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
+- Za pravi Google kalendar treba uraditi korake iz `docs/google-calendar-setup.md` (Client ID i Secret u `.env.local`).
+- Otvorenih nedoumica: 0.
 
 ## Urađeno
+- 2026-10-28: **P11: pregled svih novih ekrana u pregledaču**
+  - Headless Chrome (CDP skripte `review.php` i `interact.php` u scratchpad-u): 22 nove ili izmenjene strane × 1440/390 px × svetla/tamna. Posle ispravki nijedna JS greška u konzoli i nigde horizontalno skrolovanje. Interakcije: job picker (izbor, brojač, pretraga, ✕), modal "Dodaj paket" (poslovi štiklirani, razlog za odštikliran), forma odsustva u letu (4 radna dana sa Božićem), checklist editor (Enter, Backspace, brojač), raspored (samo polja tipa), kalendar (klik na prazan dan i na događaj pravim klikom miša), FilePond.
+  - Ispravljeno posle pregleda:
+    - **FullCalendar je pucao** ("Class constructor ... cannot be invoked without 'new'"): jsDelivr `+esm` pakuje svaki `@fullcalendar/*` ulaz posebno, pa plugin-ovi dobijaju drugu kopiju jezgra. Paketi su uklonjeni iz importmap-a; koristi se neizmenjen standardni paket **FullCalendar 6.1.22** (MIT) iz `assets/lib/fullcalendar-6.1.22/` (README objašnjava), učitan samo na stranici kalendara.
+    - **AJAX pri učitavanju strane je dobijao 403**: ES moduli se izvršavaju pre tela `app.js`, pa `$.ajaxSetup` sa CSRF header-om još nije postojao (pregled rasporeda na formi posla). `ajax()` sada sam šalje `X-CSRF-Token`.
+    - Segmentirana dugmad su prikazivala svaku opciju dva puta (Symfony tema dodaje svoju labelu radio dugmeta): radio se iscrtava ručno (raspored, forma zadatka). Sakrivena polja rasporeda su ostavljala prazne kolone: sakriva se cela kolona.
+    - Kalendar: naslov događaja je izlazio iz obojenog bloka (sada "…"), "Moj tim" se lomio u dva reda na telefonu, izabrani filteri su sada meki čipovi, dugme "Pretplata (ICS)" se ne prikazuje na telefonu.
+  - `/_design`: dodati job picker, odsustva (traka, kartica na odobrenju, mesečni pregled) i naredna nedelja; DESIGN.md sekcija 18 opisuje nove komponente.
+  - `UPDATE-POSLOVI-KALENDAR.md` premešten u `docs/archive/`.
 - 2026-10-28: **P10: Google Calendar povezivanje i sinhronizacija (SPEC 8n.3)**
   - Paketi: `knpuniversity/oauth2-client-bundle` 2.20, `league/oauth2-google` 5, `google/apiclient` 2.20 sa samo **Calendar** servisom (`extra.google/apiclient-services` + `Google\Task\Composer::cleanup`). Bundle registrovan ručno (recept je preskočen), `config/packages/knpu_oauth2_client.yaml`, `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` prazni u `.env` (prave vrednosti samo u `.env.local`).
   - Svaki korisnik sam povezuje nalog: Profil → **Google kalendar** (`/connect/google`, scope `calendar.app.created` + `email`, `prompt=consent` zbog refresh tokena) → aplikacija pravi kalendar **„KontIT“** i šalje sve buduće događaje; odvezivanje jednim klikom (opoziv pristupa, brisanje veze i mapiranja; kalendar ostaje korisniku).

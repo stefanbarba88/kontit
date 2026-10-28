@@ -465,7 +465,7 @@ Kasnije se zamenjuje stvarnim vremenom iz agenta (Faza 8), pa analitiku treba pi
 
 ## 8f-8n. DOPUNA (iz UPDATE-POSLOVI-KALENDAR.md)
 
-> Ima prednost nad 8b i 8c gde se razlikuju. Redosled ugradnje je u sekciji 10 (koraci P1-P11). Original je u `docs/archive/UPDATE-POSLOVI-KALENDAR.md`.
+> Ima prednost nad 8b i 8c gde se razlikuju. Redosled ugradnje je u sekciji 10 (koraci P1-P11, svi završeni). Original je u `docs/archive/UPDATE-POSLOVI-KALENDAR.md`.
 
 ## 8f. Sitne izmene (implementirano u P1)
 
@@ -676,7 +676,7 @@ ABSENCE_REQUESTED (postoji), ABSENCE_APPROVED, ABSENCE_REJECTED (zamenjuju ABSEN
 - **Faza 9** (kasnije): portal za klijente, ostalo
 (Ranije planirani "ponavljajući zadaci" iz Faze 8 su prebačeni u Fazu 3b.)
 
-**Dopuna (iz UPDATE-POSLOVI-KALENDAR.md), redosled:**
+**Dopuna (iz UPDATE-POSLOVI-KALENDAR.md), redosled (P1-P11 završeni 2026-10-28):**
 - **P1**: Sitne izmene: paginacija aktivnosti, `shortName`, uklanjanje pravne forme (8f) *(Sonnet 5.5)*
 - **P2**: Neradni dani i `WorkingDayService` sa testovima (8k) *(Opus 5.5)*
 - **P3**: Kategorije poslova, checklist editor, raspored posla i `ScheduleCalculator` sa testovima (8g) *(Opus 5.5)*

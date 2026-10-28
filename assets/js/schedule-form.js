@@ -28,7 +28,12 @@ document.querySelectorAll('[data-kt-schedule]').forEach((box) => {
     const toggle = () => {
         const current = type();
         box.querySelectorAll('[data-kt-schedule-for]').forEach((el) => {
-            el.hidden = !el.dataset.ktScheduleFor.split(' ').includes(current);
+            const hide = !el.dataset.ktScheduleFor.split(' ').includes(current);
+            el.hidden = hide;
+            const col = el.parentElement?.matches('[class*="col-"]') ? el.parentElement : null;
+            if (col) {
+                col.hidden = hide;
+            }
         });
         // prazan tip ("Kao u poslu") ili Po potrebi: nema polja; mreža se sakriva cela da ne ostane prazan prostor
         const grid = box.querySelector('.kt-schedule-fields');

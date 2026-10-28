@@ -10,6 +10,8 @@ export function ajax(method, url, payload = {}) {
         $.ajax({
             url,
             method,
+            // header i ovde, ne samo u $.ajaxSetup (app.js): moduli se izvršavaju pre tela app.js, pa poziv pri učitavanju ne bi imao token
+            headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || '' },
             contentType: 'application/json',
             data: method === 'GET' || method === 'DELETE' ? undefined : JSON.stringify(payload),
             dataType: 'json',

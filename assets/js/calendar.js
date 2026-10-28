@@ -1,4 +1,4 @@
-// Kalendar (SPEC 8n): FullCalendar v6 (MIT paketi), latinični srpski, nedelja od ponedeljka, tokeni iz DESIGN.md.
+// Kalendar (SPEC 8n): FullCalendar v6 standardni paket (MIT, window.FullCalendar), latinični srpski, nedelja od ponedeljka, tokeni iz DESIGN.md.
 // Događaji AJAX-om za vidljivi opseg; prevlačenje zadatka menja rok (SweetAlert, upozorenje za neradni dan);
 // klik na prazan dan nudi novi zadatak ili zahtev za odsustvo; klik na događaj otvara popover sa detaljima.
 import { Popover } from 'bootstrap';
@@ -7,16 +7,10 @@ import { confirmDialog, toast } from './confirm.js';
 import { info, remember, cache } from './non-working.js';
 
 const el = document.getElementById('kt-calendar');
-if (el) {
+if (el && window.FullCalendar) {
     const year = new Date().getFullYear();
-    Promise.all([
-        Promise.all([year - 1, year, year + 1].map(remember)),
-        import('@fullcalendar/core'),
-        import('@fullcalendar/daygrid'),
-        import('@fullcalendar/timegrid'),
-        import('@fullcalendar/list'),
-        import('@fullcalendar/interaction'),
-    ]).then(([, { Calendar }, { default: dayGrid }, { default: timeGrid }, { default: list }, { default: interaction }]) => {
+    Promise.all([year - 1, year, year + 1].map(remember)).then(() => {
+        const { Calendar } = window.FullCalendar;
         const filters = document.querySelector('[data-kt-cal-filters]');
         const phone = window.matchMedia('(max-width: 575.98px)').matches;
         const escape = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -53,7 +47,6 @@ if (el) {
         };
 
         const calendar = new Calendar(el, {
-            plugins: [dayGrid, timeGrid, list, interaction],
             locale: srLatn,
             firstDay: 1,
             height: 'auto',

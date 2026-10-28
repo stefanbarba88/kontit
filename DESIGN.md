@@ -497,3 +497,15 @@ Sve se stilizuje tokenima, u obe teme, i prikazuje na `/_design` vodiču.
 - **Tooltip**: tamna pozadina u obe teme, mali radius, pojavljuje se posle 300 ms.
 - **Prelazi između strana**: View Transitions API (`@view-transition { navigation: auto; }`), bez JS-a. Isključen za `prefers-reduced-motion`.
 - **Prazno polje u prikazu**: crtica `—`, nikad prazno.
+
+---
+
+## 18. Komponente iz UPDATE-POSLOVI-KALENDAR (sve su na `/_design`)
+- **Badge kategorije / vrste** (`ui.category_badge`, `.kt-cat-badge`): meka pozadina u boji iz baze (`--kt-cat`), opciona Lucide ikonica.
+- **Segmentirana dugmad** (`.kt-segmented`): izbor jedne opcije (raspored posla, za klijenta / interni, opseg kalendara). Radio se iscrtava ručno (`btn-check` + `label.btn`), bez labele iz Symfony teme. Na telefonu se ne lome u dva reda.
+- **Raspored posla** (`components/schedule_form.html.twig`): prikazuju se samo polja izabranog tipa (sakriva se cela kolona), ispod opis rečima i narednih 5 rokova; pomeren rok je u boji upozorenja, sa ikonicom i tooltip-om.
+- **Checklist editor** (`components/checklist_editor.html.twig`): ručka, polje, ✕; Enter dodaje, Backspace u praznom briše; brojač "3 stavke".
+- **Job picker** (`components/_job_picker.html.twig`): grupe po kategoriji, pretraga bez kvačica, desno izabrani sa redosledom; na telefonu jedna kolona i sklopljena lista izabranih.
+- **Godišnji kalendar** (`.kt-year`): 12 malih meseci; praznik crveno, kolektivni odmor plavo, vikend prigušen.
+- **Odsustva**: traka stanja godišnjeg (`.kt-leave-strip`), kartica na odobrenju sa odbrojavanjem (na telefonu prevlačenje za Odobri / Odbij), mesečni pregled radnik × dani (`.kt-absence-grid`, šrafirano = na odobrenju).
+- **Kalendar** (`components/calendar.css`): FullCalendar u tokenima (`--fc-*` promenljive), zadatak u boji statusa sa "!" za hitan, odsustvo u boji vrste sa inicijalima, praznici kao pozadina; filteri kao čipovi (`.kt-chip`); popover u Bootstrap-u. Mali pregled naredne nedelje (`.kt-week`) na dashboardu.
