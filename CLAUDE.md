@@ -22,10 +22,11 @@ Ovaj fajl Claude Code čita automatski na početku svake sesije. Ovde su **trajn
 - AssetMapper (bez Node/Webpacka, osim ako ne odlučimo drugačije)
 - jQuery za AJAX i interakcije (preko AssetMapper importmap-a)
 - Frontend biblioteke (importmap): ApexCharts (grafikoni), SortableJS (drag & drop), SweetAlert2 (potvrde i toast), Tom Select,
-  flatpickr (sr locale), IMask, CountUp.js, FilePond, PDF.js (`pdfjs-dist`), autosize
+  flatpickr (sr locale), IMask, CountUp.js, FilePond, PDF.js (`pdfjs-dist`), autosize, FullCalendar 6 (MIT paketi)
 - Symfony Messenger (doctrine transport) za asinhrono slanje mailova
 - Paketi: `symfonycasts/reset-password-bundle`, `knplabs/knp-paginator-bundle`, `symfony/ux-icons`,
-  `dompdf/dompdf` (PDF), `phpoffice/phpspreadsheet` (Excel), `league/csv` (CSV)
+  `dompdf/dompdf` (PDF), `phpoffice/phpspreadsheet` (Excel), `league/csv` (CSV),
+  `knpuniversity/oauth2-client-bundle` + `league/oauth2-google` + `google/apiclient` (samo Calendar servis) za Google kalendar
 - Avatar je samo inicijali (bez upload-a slike). `vich/uploader-bundle` i `liip/imagine-bundle` su uklonjeni. Prilozi (FilePond) se čuvaju bez Vich-a: `UserDocumentService`, van `public/`, a fajl se servira samo kroz kontroler sa Voterom.
 
 ## Konvencije koda

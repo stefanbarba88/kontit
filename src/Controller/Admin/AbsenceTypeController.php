@@ -26,7 +26,7 @@ class AbsenceTypeController extends AbstractController
     }
 
     #[Route('', name: 'admin_absence_type_index', methods: ['GET'])]
-    public function index(AbsenceTypeRepository $types): Response
+    public function index(AbsenceTypeRepository $types, \App\Google\CalendarGatewayInterface $google): Response
     {
         return $this->render('admin/absence_type/index.html.twig', [
             'types' => $types->findOrdered(),
@@ -34,6 +34,9 @@ class AbsenceTypeController extends AbstractController
             'approvalHours' => $this->settings->get(SettingsService::ABSENCE_APPROVAL_HOURS),
             'taskAuto' => '1' === $this->settings->get(SettingsService::TASK_AUTO_APPROVE),
             'taskAutoDays' => $this->settings->get(SettingsService::TASK_AUTO_APPROVE_DAYS),
+            'googleEnabled' => '1' === $this->settings->get(SettingsService::GOOGLE_ENABLED),
+            'googleLeaderTeam' => '1' === $this->settings->get(SettingsService::GOOGLE_LEADER_TEAM),
+            'googleConfigured' => $google->isConfigured(),
         ]);
     }
 
@@ -66,6 +69,8 @@ class AbsenceTypeController extends AbstractController
         $this->settings->set(SettingsService::ABSENCE_APPROVAL_HOURS, $int($request->request->getString('approvalHours'), 1, 720));
         $this->settings->set(SettingsService::TASK_AUTO_APPROVE, $request->request->getBoolean('taskAuto') ? '1' : '0');
         $this->settings->set(SettingsService::TASK_AUTO_APPROVE_DAYS, $int($request->request->getString('taskAutoDays'), 1, 30));
+        $this->settings->set(SettingsService::GOOGLE_ENABLED, $request->request->getBoolean('googleEnabled') ? '1' : '0');
+        $this->settings->set(SettingsService::GOOGLE_LEADER_TEAM, $request->request->getBoolean('googleLeaderTeam') ? '1' : '0');
         $this->addFlash('success', 'Podešavanja su sačuvana.');
 
         return $this->redirectToRoute('admin_absence_type_index');

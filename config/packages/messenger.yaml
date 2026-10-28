@@ -9,6 +9,13 @@ framework:
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
+            # Google kalendar (SPEC 8n.3): do 5 ponavljanja sa pauzom 1, 2, 4, 8, 16 min; posle toga ide u failed
+            calendar:
+                dsn: 'doctrine://default?queue_name=calendar'
+                retry_strategy:
+                    max_retries: 5
+                    delay: 60000
+                    multiplier: 2
             failed: 'doctrine://default?queue_name=failed'
             # sync: 'sync://'
 
@@ -22,6 +29,8 @@ framework:
             Symfony\Component\Notifier\Message\ChatMessage: async
             Symfony\Component\Notifier\Message\SmsMessage: async
             App\Message\GenerateExport: async
+            App\Message\SyncCalendarEntity: calendar
+            App\Message\SyncUserCalendar: calendar
 
             # Route your messages to the transports
             # 'App\Message\YourMessage': async

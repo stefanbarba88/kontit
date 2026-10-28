@@ -20,6 +20,9 @@ class SettingsService
     /** Automatsko odobravanje potvrde zadatka (NA_PROVERI): podrazumevano isključeno, rok u radnim danima */
     public const TASK_AUTO_APPROVE = 'task_auto_approve';
     public const TASK_AUTO_APPROVE_DAYS = 'task_auto_approve_days';
+    /** Google kalendar uključen za firmu i da li šefovi dobijaju odsustva svog tima (SPEC 8n.3) */
+    public const GOOGLE_ENABLED = 'google_enabled';
+    public const GOOGLE_LEADER_TEAM = 'google_leader_team';
 
     private const DEFAULTS = [
         self::MIN_HOURLY_RATE => '2500',
@@ -28,6 +31,8 @@ class SettingsService
         self::ABSENCE_APPROVAL_HOURS => '48',
         self::TASK_AUTO_APPROVE => '0',
         self::TASK_AUTO_APPROVE_DAYS => '3',
+        self::GOOGLE_ENABLED => '1',
+        self::GOOGLE_LEADER_TEAM => '0',
     ];
 
     public function __construct(

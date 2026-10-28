@@ -12,8 +12,11 @@
         "doctrine/orm": "^3.7",
         "dompdf/dompdf": "^3.1",
         "econea/nusoap": "^0.10.0",
+        "google/apiclient": "^2.20",
         "knplabs/knp-paginator-bundle": "^6.11",
+        "knpuniversity/oauth2-client-bundle": "^2.20",
         "league/csv": "^9.28",
+        "league/oauth2-google": "^5.0",
         "phpdocumentor/reflection-docblock": "^6.0",
         "phpoffice/phpspreadsheet": "^5.10",
         "phpstan/phpdoc-parser": "^2.3",
@@ -91,7 +94,8 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "pre-autoload-dump": "Google\\Task\\Composer::cleanup"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -100,7 +104,10 @@
         "symfony": {
             "allow-contrib": false,
             "require": "7.4.*"
-        }
+        },
+        "google/apiclient-services": [
+            "Calendar"
+        ]
     },
     "require-dev": {
         "phpunit/phpunit": "^11.5",

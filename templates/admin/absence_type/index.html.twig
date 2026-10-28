@@ -2,7 +2,7 @@
 {% import 'components/ui.html.twig' as ui %}
 
 {% block title %}Vrste odsustva{% endblock %}
-{% block page_title %}Vrste odsustva{% endblock %}
+{% block page_title %}Vrste odsustva i podešavanja{% endblock %}
 {% block breadcrumbs %}<span class="breadcrumb-item">Podešavanja</span><span class="breadcrumb-item active">Vrste odsustva</span>{% endblock %}
 
 {% block page_actions %}
@@ -45,6 +45,11 @@
                     <div class="mb-3"><label class="form-label" for="s-hours">Rok za automatsko odobravanje odsustva (radnih sati)</label><input type="number" min="1" max="720" class="form-control" id="s-hours" name="approvalHours" value="{{ approvalHours }}"><div class="form-text">Računaju se samo sati u radnim danima. Rok je najkasnije dan pre početka odsustva.</div></div>
                     <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" role="switch" id="s-task" name="taskAuto" value="1" {{ taskAuto ? 'checked' }}><label class="form-check-label" for="s-task">Automatski potvrdi zadatke na proveri</label></div>
                     <div class="mb-3"><label class="form-label" for="s-task-days">posle (radnih dana)</label><input type="number" min="1" max="30" class="form-control" id="s-task-days" name="taskAutoDays" value="{{ taskAutoDays }}"></div>
+                    <hr>
+                    <div class="kt-overline mb-2">Google kalendar</div>
+                    <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" role="switch" id="s-google" name="googleEnabled" value="1" {{ googleEnabled ? 'checked' }}><label class="form-check-label" for="s-google">Uključen za firmu</label></div>
+                    <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" role="switch" id="s-google-team" name="googleLeaderTeam" value="1" {{ googleLeaderTeam ? 'checked' }}><label class="form-check-label" for="s-google-team">Šefovi dobijaju i odsustva svog tima</label></div>
+                    {% if not googleConfigured %}<p class="kt-text-xs text-warning">GOOGLE_CLIENT_ID i GOOGLE_CLIENT_SECRET nisu podešeni u .env.local (uputstvo: docs/google-calendar-setup.md).</p>{% endif %}
                     <button class="btn btn-primary">Sačuvaj</button>
                 </form>
             </div>

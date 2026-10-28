@@ -73,6 +73,28 @@
                 </div>
             </div>
 
+            {# Google kalendar (SPEC 8n.3): aplikacija -> Google, poseban kalendar "KontIT" #}
+            {% set gc = google_connection(app.user) %}
+            <div class="card" id="google">
+                <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:calendar-days', {class: 'kt-icon me-2'}) }}Google kalendar</h5></div>
+                <div class="card-body border-top">
+                    {% if gc %}
+                        <p class="mb-1">Povezano: <strong>{{ gc.googleEmail ?? 'Google nalog' }}</strong>, kalendar „KontIT“.</p>
+                        <p class="kt-text-sm text-muted mb-2">Povezano {{ gc.connectedAt|date('d.m.Y.') }}{% if gc.lastSyncAt %} · poslednje osvežavanje {{ gc.lastSyncAt|date('d.m.Y. H:i') }}{% endif %}</p>
+                        {% if gc.lastError %}<div class="kt-text-sm text-danger mb-2">{{ ux_icon('lucide:circle-alert', {class: 'kt-icon me-1'}) }}{{ gc.lastError }}</div>{% endif %}
+                        <form method="post" action="{{ path('profile_google_disconnect') }}" {{ confirm_attrs('Odvezati Google kalendar?', 'Novi događaji se više neće upisivati. Kalendar „KontIT“ ostaje u tvom Google nalogu.', 'warning', 'Da, odveži') }}>
+                            <input type="hidden" name="_token" value="{{ csrf_token('google_disconnect') }}">
+                            <button class="btn btn-light btn-sm">Odveži</button>
+                        </form>
+                    {% elseif google_calendar_active() %}
+                        <p class="kt-text-sm text-muted">Tvoji zadaci (na dan roka) i odobrena odsustva se upisuju u poseban kalendar „KontIT“ u tvom Google nalogu. Lični kalendar ostaje netaknut. Izmene u Google-u se ne vraćaju u aplikaciju.</p>
+                        <a href="{{ path('connect_google') }}" class="btn btn-primary btn-sm">Poveži Google kalendar</a>
+                    {% else %}
+                        <p class="kt-text-sm text-muted mb-0">Povezivanje još nije uključeno: administrator treba da podesi Google pristup. Do tada možeš da koristiš ICS link ispod.</p>
+                    {% endif %}
+                </div>
+            </div>
+
             {# ICS pretplata (SPEC 8n): tajni link, samo čitanje #}
             <div class="card" id="ics">
                 <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:calendar-check', {class: 'kt-icon me-2'}) }}Kalendar u drugoj aplikaciji</h5></div>
