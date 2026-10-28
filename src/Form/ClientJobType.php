@@ -24,8 +24,8 @@ class ClientJobType extends AbstractType
                 'label' => 'Posao',
                 'class' => JobTemplate::class,
                 'placeholder' => '— izaberi posao —',
-                'choice_label' => static fn (JobTemplate $j) => $j->getName().' ('.$j->getRecurrence()->label().')',
-                'query_builder' => static fn (JobTemplateRepository $r) => $r->createQueryBuilder('j')->andWhere('j.isActive = true')->orderBy('j.category')->addOrderBy('j.name'),
+                'choice_label' => static fn (JobTemplate $j) => $j->getName().' ('.$j->getCategory()?->getName().')',
+                'query_builder' => static fn (JobTemplateRepository $r) => $r->createQueryBuilder('j')->andWhere('j.isActive = true')->join('j.category', 'c')->orderBy('c.position')->addOrderBy('j.name'),
             ])
             ->add('startDate', DateType::class, ['label' => 'Početak', 'widget' => 'single_text', 'input' => 'datetime_immutable'])
             ->add('endDate', DateType::class, ['label' => 'Kraj', 'required' => false, 'widget' => 'single_text', 'input' => 'datetime_immutable']);

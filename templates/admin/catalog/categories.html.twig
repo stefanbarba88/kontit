@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}Kategorije poslova{% endblock %}
+{% block page_title %}Kategorije poslova{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('admin_job_index') }}" class="breadcrumb-item">Katalog poslova</a>
+    <span class="breadcrumb-item active">Kategorije</span>
+{% endblock %}
+
+{% block page_actions %}
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#category-modal" data-kt-category-new>{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Nova kategorija</button>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-body border-bottom kt-text-sm text-muted">{{ ux_icon('lucide:grip-vertical', {class: 'kt-icon me-1'}) }}Prevuci red da promeniš redosled. Isti redosled važi u katalogu i u izboru poslova.</div>
+        <ul class="list-group list-group-flush kt-category-list" data-kt-sortable-url="{{ path('ajax_category_reorder') }}">
+            {% for category in categories %}
+                {% set jobs = counts[category.id] ?? 0 %}
+                <li class="list-group-item d-flex align-items-center gap-3" data-id="{{ category.id }}">
+                    <span class="kt-drag-handle text-muted" title="Prevuci" aria-label="Prevuci">{{ ux_icon('lucide:grip-vertical', {class: 'kt-icon'}) }}</span>
+                    <span class="min-w-0 flex-grow-1">{{ ui.category_badge(category) }}</span>
+                    <span class="text-muted kt-text-sm text-nowrap">{{ jobs }} {{ jobs % 10 == 1 and jobs % 100 != 11 ? 'posao' : (jobs % 10 in [2, 3, 4] and jobs % 100 not in [12, 13, 14] ? 'posla' : 'poslova') }}</span>
+                    {{ ui.status_badge(category.active) }}
+                    <span class="text-nowrap">
+                        <button type="button" class="btn kt-btn-icon btn-sm" title="Izmeni" data-bs-toggle="modal" data-bs-target="#category-modal"
+                                data-kt-category-edit="{{ path('admin_category_edit', {id: category.id}) }}" data-name="{{ category.name }}" data-color="{{ category.color }}" data-icon="{{ category.icon }}">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button>
+                        {% if jobs == 0 %}
+                            <form method="post" action="{{ path('admin_category_delete', {id: category.id}) }}" class="d-inline" {{ confirm_attrs('Obrisati kategoriju „' ~ category.name ~ '“?', 'Kategorija nema poslove, pa se briše trajno.', 'danger', 'Da, obriši') }}>
+                                <input type="hidden" name="_token" value="{{ csrf_token('category_delete_' ~ category.id) }}">
+                                <button class="btn kt-btn-icon btn-sm text-danger" title="Obriši">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}</button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{{ path('admin_category_toggle', {id: category.id}) }}" class="d-inline"
+                                {% if category.active %}{{ confirm_attrs('Deaktivirati kategoriju „' ~ category.name ~ '“?', 'Kategorija ima ' ~ jobs ~ ' poslova, pa ne može da se obriše. Posle deaktivacije se više ne nudi za nove poslove, a postojeći poslovi je zadržavaju.', 'warning', 'Da, deaktiviraj') }}{% endif %}>
+                                <input type="hidden" name="_token" value="{{ csrf_token('category_toggle_' ~ category.id) }}">
+                                <button class="btn kt-btn-icon btn-sm" title="{{ category.active ? 'Deaktiviraj' : 'Aktiviraj' }}">{{ ux_icon(category.active ? 'lucide:eye-off' : 'lucide:eye', {class: 'kt-icon'}) }}</button>
+                            </form>
+                        {% endif %}
+                    </span>
+                </li>
+            {% else %}
+                <li class="list-group-item">{{ ui.empty_state('Još nema kategorija.', 'tag') }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="modal fade" id="category-modal" tabindex="-1" aria-labelledby="category-modal-title" aria-hidden="true" {% if form.vars.submitted %}data-kt-open{% endif %}>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                {{ form_start(form, {attr: {'data-kt-category-form': '', 'data-new-action': path('admin_category_new')}}) }}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="category-modal-title" data-new="Nova kategorija" data-edit="Izmena kategorije">{{ editing and editing.id ? 'Izmena kategorije' : 'Nova kategorija' }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zatvori"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ form_row(form.name) }}
+                        {{ form_row(form.color) }}
+                        {{ form_row(form.icon) }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Odustani</button>
+                        <button class="btn btn-primary">Sačuvaj</button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

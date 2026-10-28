@@ -39,3 +39,10 @@
 .kt-tone-danger { background: var(--kt-danger-soft); color: var(--kt-danger); }
 .kt-tone-purple { background: var(--kt-purple-soft); color: var(--kt-purple); }
 .kt-tone-secondary { background: var(--kt-neutral-soft); color: var(--kt-text-2); }
+
+/* Kategorija posla (SPEC 8g.1): boja iz baze kroz --kt-cat */
+.kt-cat-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; line-height: 18px; white-space: nowrap;
+    color: color-mix(in srgb, var(--kt-cat) 82%, var(--kt-text-1)); background: color-mix(in srgb, var(--kt-cat) 14%, transparent); }
+.kt-cat-badge .kt-icon { width: 13px; height: 13px; }
+.kt-cat-badge.is-inactive { opacity: .55; }
+[data-bs-theme="dark"] .kt-cat-badge { color: color-mix(in srgb, var(--kt-cat) 70%, #fff); background: color-mix(in srgb, var(--kt-cat) 22%, transparent); }

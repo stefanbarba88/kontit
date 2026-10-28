@@ -2,16 +2,18 @@
 
 namespace App\Form;
 
+use App\Entity\JobCategory;
 use App\Entity\JobTemplate;
 use App\Enum\CompletionMode;
-use App\Enum\JobCategory;
 use App\Enum\PriceUnit;
-use App\Enum\Recurrence;
 use App\Enum\TaskPriority;
+use App\Repository\JobCategoryRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -23,28 +25,29 @@ class JobTemplateType extends AbstractType
     {
         /** @var JobTemplate $job */
         $job = $options['data'];
-        $lines = implode("\n", array_map(static fn ($i) => $i->getText(), $job->getChecklistItems()->toArray()));
+        $current = $job->getCategory();
 
         $builder
             ->add('name', TextType::class, ['label' => 'Naziv posla'])
-            ->add('category', EnumType::class, ['label' => 'Kategorija', 'class' => JobCategory::class, 'choice_label' => static fn (JobCategory $c) => $c->label()])
+            ->add('category', EntityType::class, [
+                'label' => 'Kategorija',
+                'class' => JobCategory::class,
+                'placeholder' => '— izaberi —',
+                'choice_label' => 'name',
+                // aktivne kategorije, plus trenutna i kad je deaktivirana
+                'query_builder' => static fn (JobCategoryRepository $r) => $r->createQueryBuilder('c')
+                    ->andWhere('c.isActive = true OR c.id = :current')
+                    ->setParameter('current', $current?->getId() ?? 0)
+                    ->orderBy('c.position', 'ASC'),
+            ])
             ->add('description', TextareaType::class, ['label' => 'Opis', 'required' => false, 'attr' => ['rows' => 2]])
-            ->add('recurrence', EnumType::class, ['label' => 'Ponavljanje', 'class' => Recurrence::class, 'choice_label' => static fn (Recurrence $r) => $r->label()])
-            ->add('dueDay', IntegerType::class, ['label' => 'Dan roka', 'required' => false, 'help' => 'Dan u mesecu (nedeljno: dan u nedelji, 1 = ponedeljak). Kvartalno: dan u mesecu posle kvartala.', 'attr' => ['min' => 1, 'max' => 31]])
-            ->add('dueMonth', IntegerType::class, ['label' => 'Mesec roka', 'required' => false, 'help' => 'Samo za godišnje poslove (1–12).', 'attr' => ['min' => 1, 'max' => 12]])
-            ->add('generateDaysBefore', IntegerType::class, ['label' => 'Zadatak nastaje dana pre roka', 'attr' => ['min' => 0, 'max' => 120]])
+            ->add('schedule', ScheduleFormType::class)
+            ->add('checklistItems', ChecklistCollectionType::class, ['help' => 'Kopira se u svaki zadatak koji nastane iz ovog posla.'])
             ->add('defaultPriority', EnumType::class, ['label' => 'Podrazumevani prioritet', 'class' => TaskPriority::class, 'choice_label' => static fn (TaskPriority $p) => $p->label()])
             ->add('completionMode', EnumType::class, ['label' => 'Režim završetka', 'class' => CompletionMode::class, 'choice_label' => static fn (CompletionMode $m) => $m->label()])
             ->add('estimatedMinutes', IntegerType::class, ['label' => 'Procenjeno trajanje (min)', 'attr' => ['min' => 0]])
-            ->add('priceUnit', EnumType::class, ['label' => 'Jedinica cene', 'help' => 'Cenu upisuješ tek kad posao dodaš klijentu.', 'class' => PriceUnit::class, 'choice_label' => static fn (PriceUnit $u) => $u->label()])
-            ->add('checklist', TextareaType::class, [
-                'label' => 'Checklista',
-                'mapped' => false,
-                'required' => false,
-                'data' => $lines,
-                'attr' => ['rows' => 6],
-                'help' => 'Jedna stavka po redu. Kopira se u svaki generisani zadatak.',
-            ])
+            ->add('priceUnit', EnumType::class, ['label' => 'Jedinica cene', 'class' => PriceUnit::class, 'choice_label' => static fn (PriceUnit $u) => $u->label()])
+            ->add('defaultPrice', MoneyType::class, ['label' => 'Predložena cena', 'currency' => 'RSD', 'required' => false, 'help' => 'Samo predlog kad se posao ugovara pojedinačno; prava cena se upisuje na klijentu.'])
             ->add('active', CheckboxType::class, ['label' => 'Aktivan', 'required' => false]);
     }
 

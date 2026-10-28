@@ -22,28 +22,14 @@ class CatalogService
     }
 
     /**
-     * Čuva posao i usklađuje checklistu sa tekstom (jedna stavka po redu).
+     * Čuva posao. Stavke checkliste dolaze iz editora (ChecklistCollectionType), pa se samo ponovo numerišu redom.
      */
-    public function saveJob(JobTemplate $job, string $checklistText): void
+    public function saveJob(JobTemplate $job): void
     {
-        $lines = array_values(array_unique(array_filter(array_map('trim', preg_split('/\R/', $checklistText) ?: []), static fn (string $l) => '' !== $l)));
-
-        $existing = [];
-        foreach ($job->getChecklistItems()->toArray() as $item) {
-            if (!\in_array($item->getText(), $lines, true)) {
-                $job->removeChecklistItem($item);
-            } else {
-                $existing[$item->getText()] = $item;
-            }
-        }
-        foreach ($lines as $position => $text) {
-            if (isset($existing[$text])) {
-                $existing[$text]->setPosition($position);
-            } else {
-                $new = (new JobTemplateChecklistItem())->setText(mb_substr($text, 0, 255));
-                $job->addChecklistItem($new);
-                $new->setPosition($position);
-            }
+        $items = $job->getChecklistItems()->toArray();
+        usort($items, static fn (JobTemplateChecklistItem $a, JobTemplateChecklistItem $b) => $a->getPosition() <=> $b->getPosition());
+        foreach ($items as $position => $item) {
+            $item->setPosition($position);
         }
 
         $this->em->persist($job);

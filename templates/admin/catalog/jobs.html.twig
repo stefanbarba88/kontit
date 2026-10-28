@@ -6,6 +6,7 @@
 {% block breadcrumbs %}<span class="breadcrumb-item active">Katalog poslova</span>{% endblock %}
 
 {% block page_actions %}
+    <a href="{{ path('admin_category_index') }}" class="btn btn-light me-2">{{ ux_icon('lucide:tag', {class: 'kt-icon me-2'}) }}Kategorije</a>
     <a href="{{ path('admin_package_index') }}" class="btn btn-light me-2">{{ ux_icon('lucide:package', {class: 'kt-icon me-2'}) }}Paketi</a>
     <a href="{{ path('admin_job_new') }}" class="btn btn-primary">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Novi posao</a>
 {% endblock %}
@@ -15,15 +16,15 @@
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead>
-                    <tr><th>Posao</th><th>Kategorija</th><th>Ponavljanje</th><th>Rok</th><th>Trajanje</th><th>Jedinica cene</th><th>Status</th><th style="width: 1%;"></th></tr>
+                    <tr><th>Posao</th><th>Kategorija</th><th>Raspored</th><th>Zadatak nastaje</th><th>Trajanje</th><th>Jedinica cene</th><th>Status</th><th style="width: 1%;"></th></tr>
                 </thead>
                 <tbody>
                     {% for job in jobs %}
                         <tr>
                             <td>{{ job.name }}{% if job.checklistItems|length %}<div class="text-muted kt-text-sm">{{ job.checklistItems|length }} stavki checkliste</div>{% endif %}</td>
-                            <td><span class="badge bg-light text-body border">{{ job.category.label }}</span></td>
-                            <td>{{ job.recurrence.label }}</td>
-                            <td>{{ job.dueDay ?? '—' }}{% if job.dueMonth %}.{{ job.dueMonth }}.{% endif %}</td>
+                            <td>{{ ui.category_badge(job.category) }}</td>
+                            <td>{{ schedule_describe(job.schedule, true) }}</td>
+                            <td>{{ job.schedule.automatic ? (job.schedule.leadDays ?? 0) ~ ' dana pre roka' : '—' }}</td>
                             <td>{{ job.estimatedMinutes }} min</td>
                             <td>{{ job.priceUnit.label }}</td>
                             <td>{{ ui.status_badge(job.active) }}</td>

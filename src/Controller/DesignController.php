@@ -2,7 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\JobTemplate;
+use App\Entity\JobTemplateChecklistItem;
 use App\Entity\User;
+use App\Form\JobTemplateType;
+use App\Repository\JobCategoryRepository;
 use App\Repository\ActivityLogRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -22,7 +26,7 @@ class DesignController extends AbstractController
     }
 
     #[Route('/_design', name: 'app_design', methods: ['GET'])]
-    public function index(ActivityLogRepository $activity): Response
+    public function index(ActivityLogRepository $activity, JobCategoryRepository $categories): Response
     {
         if ('dev' !== $this->environment) {
             throw $this->createNotFoundException();
@@ -31,6 +35,16 @@ class DesignController extends AbstractController
         $user = $this->getUser();
         \assert($user instanceof User);
 
-        return $this->render('design/index.html.twig', ['activity' => $activity->findUserPage($user)]);
+        // primer forme posla (raspored i checklist editor), ne čuva se
+        $job = new JobTemplate();
+        foreach (['Preuzmi izvode iz banke', 'Proknjiži izvode', 'Uskladi saldo'] as $i => $text) {
+            $job->addChecklistItem((new JobTemplateChecklistItem())->setText($text)->setPosition($i));
+        }
+
+        return $this->render('design/index.html.twig', [
+            'activity' => $activity->findUserPage($user),
+            'categories' => $categories->findOrdered(),
+            'jobForm' => $this->createForm(JobTemplateType::class, $job)->createView(),
+        ]);
     }
 }

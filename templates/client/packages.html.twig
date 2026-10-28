@@ -77,7 +77,7 @@
                                 {% if not job.approved %}<div class="kt-text-sm text-warning">Čeka odobrenje{% if job.proposedBy %} ({{ job.proposedBy.fullName }}){% endif %}</div>{% endif %}
                             </td>
                             <td>{{ job.source.label }}</td>
-                            <td>{{ job.recurrence.label }}</td>
+                            <td>{{ schedule_describe(job.schedule, true) }}</td>
                             <td>{{ job.startDate|date('d.m.Y.') }} – {{ job.endDate ? job.endDate|date('d.m.Y.') : '…' }}</td>
                             {% if is_granted('PRICE_VIEW') %}<td>{{ job.price is not null ? job.price|number_format(2, ',', '.') ~ ' RSD' : '—' }}</td>{% endif %}
                             <td>

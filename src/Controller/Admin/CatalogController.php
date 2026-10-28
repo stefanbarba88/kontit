@@ -26,7 +26,7 @@ class CatalogController extends AbstractController
     #[Route('/jobs', name: 'admin_job_index', methods: ['GET'])]
     public function jobs(JobTemplateRepository $repository): Response
     {
-        return $this->render('admin/catalog/jobs.html.twig', ['jobs' => $repository->findBy([], ['category' => 'ASC', 'name' => 'ASC'])]);
+        return $this->render('admin/catalog/jobs.html.twig', ['jobs' => $repository->findForCatalog()]);
     }
 
     #[Route('/jobs/new', name: 'admin_job_new', methods: ['GET', 'POST'])]
@@ -71,7 +71,7 @@ class CatalogController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->catalog->saveJob($job, (string) $form->get('checklist')->getData());
+            $this->catalog->saveJob($job);
             $this->addFlash('success', sprintf('Posao „%s“ je sačuvan.', $job->getName()));
 
             return $this->redirectToRoute('admin_job_index');

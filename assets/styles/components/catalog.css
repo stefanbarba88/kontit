@@ -1,0 +1,24 @@
+/* Katalog (SPEC 8g): segmentirana dugmad, raspored sa pregledom rokova, checklist editor, lista kategorija */
+.kt-segmented { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border-radius: var(--kt-radius); background: var(--kt-surface-3); }
+.kt-segmented .btn { border: 0; border-radius: calc(var(--kt-radius) - 3px); padding: 6px 12px; font-size: 13px; font-weight: 500; color: var(--kt-text-2); background: transparent; }
+.kt-segmented .btn:hover { color: var(--kt-text-1); }
+.kt-segmented .btn-check:checked + .btn { background: var(--kt-surface); color: var(--kt-text-1); box-shadow: var(--kt-shadow-sm, 0 1px 2px rgba(0, 0, 0, .08)); }
+.kt-segmented .btn-check:focus-visible + .btn { outline: 2px solid var(--kt-primary); outline-offset: 1px; }
+
+.kt-schedule-preview { padding: 12px 14px; border-radius: var(--kt-radius); background: var(--kt-surface-2); border: 1px solid var(--kt-border); font-size: 13px; margin-bottom: 16px; }
+.kt-schedule-dates { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; color: var(--kt-text-2); font-variant-numeric: tabular-nums; }
+.kt-schedule-date.is-shifted { color: var(--kt-warning); display: inline-flex; align-items: center; gap: 3px; cursor: help; }
+.kt-schedule-date .kt-icon { width: 13px; height: 13px; }
+.kt-schedule-sep { color: var(--kt-text-3); }
+
+.kt-drag-handle { cursor: grab; color: var(--kt-text-3); display: inline-flex; touch-action: none; }
+.kt-drag-handle:active { cursor: grabbing; }
+.kt-cle-list { list-style: none; margin: 0 0 6px; padding: 0; }
+.kt-cle-row { display: flex; align-items: flex-start; gap: 6px; padding: 3px 0; }
+.kt-cle-row .kt-drag-handle { padding-top: 7px; }
+.kt-cle-row .sortable-ghost, .kt-cle-row.sortable-ghost { opacity: .4; }
+.kt-category-list .sortable-ghost { opacity: .4; background: var(--kt-surface-2); }
+@media (max-width: 575.98px) {
+    .kt-segmented { display: flex; }
+    .kt-segmented .btn { flex: 1 1 30%; }
+}

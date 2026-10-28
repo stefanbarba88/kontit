@@ -1,0 +1,36 @@
+{#
+    Raspored posla (SPEC 8g.3): tip kao segmentirana dugmad, ispod samo polja tog tipa, opis rečima i narednih 5 rokova (AJAX).
+    Upotreba: {% import 'components/schedule_form.html.twig' as sf %}{{ sf.fields(form.schedule) }}
+    anchor: datum od kog raspored važi (početak posla klijenta), za "na svakih N".
+#}
+{% macro fields(schedule, anchor = null) %}
+    <div class="kt-schedule" data-kt-schedule data-preview-url="{{ path('ajax_schedule_preview') }}"{% if anchor %} data-anchor="{{ anchor|date('Y-m-d') }}"{% endif %}>
+        <div class="mb-3">
+            <span class="form-label d-block">{{ schedule.type.vars.label }}</span>
+            <div class="kt-segmented" role="radiogroup" aria-label="{{ schedule.type.vars.label }}">
+                {% for choice in schedule.type %}
+                    {{ form_widget(choice, {attr: {class: 'btn-check', 'data-kt-schedule-type': ''}}) }}
+                    <label class="btn" for="{{ choice.vars.id }}">{{ choice.vars.label }}</label>
+                {% endfor %}
+            </div>
+            {{ form_errors(schedule.type) }}
+            {% do schedule.type.setRendered %}
+        </div>
+        <div class="row kt-schedule-fields">
+            <div class="col-sm-6 col-lg-4">{{ form_row(schedule.interval) }}</div>
+            <div class="col-sm-6 col-lg-4">{{ form_row(schedule.dayOfWeek) }}</div>
+            <div class="col-sm-6 col-lg-4">{{ form_row(schedule.monthOfQuarter) }}</div>
+            <div class="col-sm-6 col-lg-4">{{ form_row(schedule.month) }}</div>
+            <div class="col-sm-6 col-lg-4">{{ form_row(schedule.dayOfMonth) }}</div>
+            <div class="col-sm-6 col-lg-4">{{ form_row(schedule.leadDays) }}</div>
+            <div class="col-sm-6 col-lg-4">{{ form_row(schedule.nonWorkingDayShift) }}</div>
+            <div class="col-12">{{ form_row(schedule.workingDaysOnly) }}</div>
+        </div>
+        <div class="kt-schedule-hint kt-text-sm text-muted mb-2" data-kt-schedule-for="DAILY">{{ ux_icon('lucide:info', {class: 'kt-icon me-1'}) }}Dnevni posao pravi po jedan zadatak za svaki dan. Za knjiženje izvoda razmisli o nedeljnom poslu sa checklistom po danima.</div>
+        <div class="kt-schedule-hint kt-text-sm text-muted mb-2" data-kt-schedule-for="NONE">{{ ux_icon('lucide:info', {class: 'kt-icon me-1'}) }}Sistem ne pravi zadatke sam: zadatak se pravi ručno kad zatreba (npr. prijava ili odjava radnika).</div>
+        <div class="kt-schedule-preview" aria-live="polite" hidden>
+            <div class="fw-semibold mb-1" data-kt-schedule-describe></div>
+            <div class="kt-schedule-dates" data-kt-schedule-dates></div>
+        </div>
+    </div>
+{% endmacro %}

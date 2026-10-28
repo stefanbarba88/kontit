@@ -12,7 +12,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Pravi zadatke iz poslova klijenata (SPEC 8c). Zadatak nastaje generateDaysBefore dana pre roka;
+ * Pravi zadatke iz poslova klijenata (SPEC 8i). Zadatak nastaje leadDays dana pre roka (ScheduleCalculator);
  * jedinstveni ključ "idPosla:period" sprečava duplikate pri ponovnom pokretanju.
  */
 class TaskGenerationService
@@ -21,7 +21,7 @@ class TaskGenerationService
         private readonly ClientJobRepository $jobs,
         private readonly TaskRepository $tasks,
         private readonly UserRepository $users,
-        private readonly JobSchedule $schedule,
+        private readonly ScheduleCalculator $schedule,
         private readonly TaskService $taskService,
         private readonly EntityManagerInterface $em,
     ) {
@@ -37,9 +37,12 @@ class TaskGenerationService
         $today ??= new \DateTimeImmutable('today');
         $rows = [];
         foreach ($this->jobs->findGeneratable() as $job) {
-            $lead = $job->getJobTemplate()->getGenerateDaysBefore();
+            if (!$job->getSchedule()->isAutomatic()) {
+                continue; // "po potrebi": zadatak se pravi ručno
+            }
+            $lead = $job->getSchedule()->getLeadDays() ?? 0;
             $to = $today->modify('+'.($horizonDays + $lead).' days');
-            foreach ($this->schedule->occurrences($job, $today->modify('-'.$lead.' days'), $to) as $occ) {
+            foreach ($this->schedule->forClientJob($job, $today->modify('-'.$lead.' days'), $to) as $occ) {
                 $generateOn = $occ['due']->modify('-'.$lead.' days');
                 if ($generateOn > $today->modify('+'.$horizonDays.' days') || !$job->isGeneratable($occ['due'])) {
                     continue;

@@ -19,6 +19,11 @@
     <span class="badge badge-team" style="background-color: {{ team.color }};">{{ team.name }}</span>
 {% endmacro %}
 
+{# Badge kategorije posla (SPEC 8g.1): meka pozadina u boji kategorije, opciona ikonica #}
+{% macro category_badge(category) %}
+    {% if category %}<span class="kt-cat-badge{{ category.active ? '' : ' is-inactive' }}" style="--kt-cat: {{ category.color }};">{% if category.icon %}{{ ux_icon('lucide:' ~ category.icon, {class: 'kt-icon'}) }}{% endif %}{{ category.name }}</span>{% endif %}
+{% endmacro %}
+
 {% macro role_badge(role) %}
     {% set cls = {
         'ROLE_SUPERADMIN': 'danger',

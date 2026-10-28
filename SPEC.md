@@ -487,7 +487,7 @@ Kasnije se zamenjuje stvarnim vremenom iz agenta (Faza 8), pa analitiku treba pi
 ### 8f.3 Klijent: bez pravne forme
 - `legalForm` se uklanja iz entiteta, forme, prikaza, izvoza i NBS uvoza, a enum `LegalForm` se briše. Nova migracija briše kolonu.
 
-## 8g. Katalog: kategorije, posao, raspored
+## 8g. Katalog: kategorije, posao, raspored (implementirano u P3)
 
 ### 8g.1 Kategorije poslova
 - Entitet **`JobCategory`**: name, color (8 boja iz DESIGN.md 3.6), icon (Lucide naziv, opciono), position, isActive.
@@ -497,6 +497,7 @@ Kasnije se zamenjuje stvarnim vremenom iz agenta (Faza 8), pa analitiku treba pi
 
 ### 8g.2 Posao (JobTemplate)
 - name, category, description, checklist stavke (`JobTemplateChecklistItem`), raspored (8g.3), defaultPriority, completionMode, estimatedMinutes, priceUnit, isActive.
+- Raspored je ugrađen objekat `Schedule` (isti na poslu i kao override na ClientJob-u; override važi ceo). Dnevni posao se ne pomera zbog neradnih dana; ključ perioda je od nominalnog roka; "na svakih N" se računa od početka posla klijenta.
 - **defaultPrice** (opciona *predložena* cena; popunjava polje cene pri dodavanju pojedinačnog posla klijentu, a stvarna cena je `ClientJob.price`).
 
 ### 8g.3 Raspored izvršavanja

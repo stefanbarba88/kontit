@@ -1,0 +1,36 @@
+{#
+    Checklist editor (SPEC 8g.4): prava lista umesto textarea. Ručka za prevlačenje · polje · brisanje, "+ Dodaj stavku",
+    Enter u poslednjem polju dodaje novu, Backspace u praznom polju briše stavku. JS: assets/js/checklist-editor.js.
+    Upotreba: {% import 'components/checklist_editor.html.twig' as ce %}{{ ce.editor(form.checklistItems) }}
+    Polje forme je ChecklistCollectionType (prazne stavke se ignorišu, redosled je redosled u listi).
+#}
+
+{% macro row(item) %}
+    <li class="kt-cle-row">
+        <span class="kt-drag-handle" title="Prevuci" aria-hidden="true">{{ ux_icon('lucide:grip-vertical', {class: 'kt-icon'}) }}</span>
+        <div class="flex-grow-1 min-w-0">
+            {{ form_widget(item.text, {attr: {class: 'form-control form-control-sm'}}) }}
+            {{ form_errors(item.text) }}
+        </div>
+        {{ form_widget(item.position) }}
+        <button type="button" class="btn kt-btn-icon btn-sm text-muted" data-kt-checklist-remove title="Ukloni stavku" aria-label="Ukloni stavku">{{ ux_icon('lucide:x', {class: 'kt-icon'}) }}</button>
+    </li>
+{% endmacro %}
+
+{% macro editor(collection) %}
+    {% import _self as ce %}
+    <div class="kt-cle mb-3" data-kt-checklist-editor>
+        <div class="d-flex align-items-center mb-2">
+            <span class="form-label mb-0">{{ collection.vars.label }}</span>
+            <span class="ms-auto text-muted kt-text-sm" data-kt-checklist-count></span>
+        </div>
+        <ul class="kt-cle-list">
+            {% for item in collection %}{{ ce.row(item) }}{% endfor %}
+        </ul>
+        <template data-kt-checklist-prototype>{{ ce.row(collection.vars.prototype) }}</template>
+        <button type="button" class="btn btn-ghost btn-sm" data-kt-checklist-add>{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj stavku</button>
+        {% if collection.vars.help %}<div class="form-text">{{ collection.vars.help }}</div>{% endif %}
+        {{ form_errors(collection) }}
+    </div>
+    {% do collection.setRendered %}
+{% endmacro %}

@@ -30,8 +30,8 @@ class ServicePackageType extends AbstractType
                 'expanded' => true,
                 'mapped' => false,
                 'data' => $package->getJobTemplates(),
-                'choice_label' => static fn (JobTemplate $j) => $j->getName().' ('.$j->getRecurrence()->label().')',
-                'query_builder' => static fn (JobTemplateRepository $r) => $r->createQueryBuilder('j')->andWhere('j.isActive = true')->orderBy('j.category')->addOrderBy('j.name'),
+                'choice_label' => static fn (JobTemplate $j) => $j->getName().' ('.$j->getCategory()?->getName().')',
+                'query_builder' => static fn (JobTemplateRepository $r) => $r->createQueryBuilder('j')->andWhere('j.isActive = true')->join('j.category', 'c')->orderBy('c.position')->addOrderBy('j.name'),
             ])
             ->add('active', CheckboxType::class, ['label' => 'Aktivan (može da se dodeli klijentima)', 'required' => false]);
     }

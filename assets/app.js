@@ -34,3 +34,6 @@ import './js/theme.js';
 import './js/countup.js';
 import './js/mobile.js';
 import './js/activity.js';
+import './js/checklist-editor.js';
+import './js/schedule-form.js';
+import './js/catalog.js';

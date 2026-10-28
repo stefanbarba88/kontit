@@ -1,4 +1,6 @@
 {% extends 'base.html.twig' %}
+{% import 'components/schedule_form.html.twig' as sf %}
+{% import 'components/checklist_editor.html.twig' as ce %}
 
 {% set is_new = job.id is null %}
 
@@ -10,40 +12,48 @@
 {% endblock %}
 
 {% block content %}
+    {{ form_start(form) }}
     <div class="row">
-        <div class="col-lg-8">
+        <div class="col-xl-8">
             <div class="card">
                 <div class="card-header"><h5 class="mb-0">Podaci o poslu</h5></div>
                 <div class="card-body border-top">
-                    {{ form_start(form) }}
-                        {{ form_row(form.name) }}
-                        <div class="row">
-                            <div class="col-md-6">{{ form_row(form.category) }}</div>
-                            <div class="col-md-6">{{ form_row(form.recurrence) }}</div>
-                        </div>
-                        {{ form_row(form.description) }}
-                        <div class="row">
-                            <div class="col-md-4">{{ form_row(form.dueDay) }}</div>
-                            <div class="col-md-4">{{ form_row(form.dueMonth) }}</div>
-                            <div class="col-md-4">{{ form_row(form.generateDaysBefore) }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">{{ form_row(form.defaultPriority) }}</div>
-                            <div class="col-md-4">{{ form_row(form.completionMode) }}</div>
-                            <div class="col-md-4">{{ form_row(form.estimatedMinutes) }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">{{ form_row(form.priceUnit) }}</div>
-                        </div>
-                        {{ form_row(form.checklist) }}
-                        {{ form_row(form.active) }}
-                        <div class="kt-form-actions">
-                            <a href="{{ path('admin_job_index') }}" class="btn btn-light me-2">Otkaži</a>
-                            <button class="btn btn-primary">Sačuvaj{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
-                        </div>
-                    {{ form_end(form) }}
+                    <div class="row">
+                        <div class="col-md-7">{{ form_row(form.name) }}</div>
+                        <div class="col-md-5">{{ form_row(form.category) }}</div>
+                    </div>
+                    {{ form_row(form.description) }}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:calendar-clock', {class: 'kt-icon me-2'}) }}Raspored izvršavanja</h5></div>
+                <div class="card-body border-top">{{ sf.fields(form.schedule) }}</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Checklista</h5></div>
+                <div class="card-body border-top">{{ ce.editor(form.checklistItems) }}</div>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Zadatak i cena</h5></div>
+                <div class="card-body border-top">
+                    {{ form_row(form.defaultPriority) }}
+                    {{ form_row(form.completionMode) }}
+                    {{ form_row(form.estimatedMinutes) }}
+                    {{ form_row(form.priceUnit) }}
+                    {{ form_row(form.defaultPrice) }}
+                    {{ form_row(form.active) }}
                 </div>
             </div>
         </div>
     </div>
+    <div class="kt-form-actions">
+        <a href="{{ path('admin_job_index') }}" class="btn btn-light me-2">Otkaži</a>
+        <button class="btn btn-primary">Sačuvaj{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
+    </div>
+    {{ form_end(form) }}
 {% endblock %}

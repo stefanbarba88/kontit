@@ -4,9 +4,7 @@ namespace App\Entity;
 
 use App\Entity\Trait\TimestampableTrait;
 use App\Enum\CompletionMode;
-use App\Enum\JobCategory;
 use App\Enum\PriceUnit;
-use App\Enum\Recurrence;
 use App\Enum\TaskPriority;
 use App\Repository\JobTemplateRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -17,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
- * Posao (šablon): od njega nastaju zadaci (SPEC 8b). Cenu vidi samo admin+.
+ * Posao (šablon): od njega nastaju zadaci (SPEC 8g). Raspored je ugrađen Schedule. Cenu vidi samo admin+.
  */
 #[ORM\Entity(repositoryClass: JobTemplateRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -38,25 +36,20 @@ class JobTemplate
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(length: 30, enumType: JobCategory::class)]
-    private JobCategory $category = JobCategory::OSTALO;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'Izaberi kategoriju.')]
+    private ?JobCategory $category = null;
 
-    #[ORM\Column(length: 20, enumType: Recurrence::class)]
-    private Recurrence $recurrence = Recurrence::MONTHLY;
+    /** Raspored izvršavanja (SPEC 8g.3); "Po potrebi" (NONE) = sistem ne pravi zadatke sam */
+    #[ORM\Embedded(class: Schedule::class)]
+    #[Assert\Valid]
+    private Schedule $schedule;
 
-    /** Dan u mesecu (MONTHLY, QUARTERLY: poslednji mesec kvartala; YEARLY: dan u dueMonth) */
-    #[ORM\Column(nullable: true)]
-    #[Assert\Range(min: 1, max: 31)]
-    private ?int $dueDay = 15;
-
-    #[ORM\Column(nullable: true)]
-    #[Assert\Range(min: 1, max: 12)]
-    private ?int $dueMonth = null;
-
-    /** Koliko dana pre roka se kreira zadatak */
-    #[ORM\Column]
-    #[Assert\Range(min: 0, max: 120)]
-    private int $generateDaysBefore = 10;
+    /** Predložena cena kad se posao ugovara pojedinačno (stvarna cena je ClientJob.price) */
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    #[Assert\PositiveOrZero]
+    private ?string $defaultPrice = null;
 
     #[ORM\Column(length: 20, enumType: TaskPriority::class)]
     private TaskPriority $defaultPriority = TaskPriority::NORMALAN;
@@ -82,16 +75,14 @@ class JobTemplate
     public function __construct()
     {
         $this->checklistItems = new ArrayCollection();
+        $this->schedule = Schedule::monthly();
     }
 
     #[Assert\Callback]
-    public function validateRecurrence(ExecutionContextInterface $context): void
+    public function validateSchedule(ExecutionContextInterface $context): void
     {
-        if (in_array($this->recurrence, [Recurrence::MONTHLY, Recurrence::QUARTERLY, Recurrence::YEARLY], true) && null === $this->dueDay) {
-            $context->buildViolation('Unesi dan roka.')->atPath('dueDay')->addViolation();
-        }
-        if (Recurrence::YEARLY === $this->recurrence && null === $this->dueMonth) {
-            $context->buildViolation('Unesi mesec roka.')->atPath('dueMonth')->addViolation();
+        if ($this->schedule->isEmpty()) {
+            $context->buildViolation('Izaberi raspored.')->atPath('schedule.type')->addViolation();
         }
     }
 
@@ -124,62 +115,38 @@ class JobTemplate
         return $this;
     }
 
-    public function getCategory(): JobCategory
+    public function getCategory(): ?JobCategory
     {
         return $this->category;
     }
 
-    public function setCategory(JobCategory $category): static
+    public function setCategory(?JobCategory $category): static
     {
         $this->category = $category;
 
         return $this;
     }
 
-    public function getRecurrence(): Recurrence
+    public function getSchedule(): Schedule
     {
-        return $this->recurrence;
+        return $this->schedule;
     }
 
-    public function setRecurrence(Recurrence $recurrence): static
+    public function setSchedule(Schedule $schedule): static
     {
-        $this->recurrence = $recurrence;
+        $this->schedule = $schedule;
 
         return $this;
     }
 
-    public function getDueDay(): ?int
+    public function getDefaultPrice(): ?string
     {
-        return $this->dueDay;
+        return $this->defaultPrice;
     }
 
-    public function setDueDay(?int $dueDay): static
+    public function setDefaultPrice(?string $defaultPrice): static
     {
-        $this->dueDay = $dueDay;
-
-        return $this;
-    }
-
-    public function getDueMonth(): ?int
-    {
-        return $this->dueMonth;
-    }
-
-    public function setDueMonth(?int $dueMonth): static
-    {
-        $this->dueMonth = $dueMonth;
-
-        return $this;
-    }
-
-    public function getGenerateDaysBefore(): int
-    {
-        return $this->generateDaysBefore;
-    }
-
-    public function setGenerateDaysBefore(int $days): static
-    {
-        $this->generateDaysBefore = $days;
+        $this->defaultPrice = $defaultPrice;
 
         return $this;
     }
@@ -255,8 +222,8 @@ class JobTemplate
     public function addChecklistItem(JobTemplateChecklistItem $item): static
     {
         if (!$this->checklistItems->contains($item)) {
+            // pozicija dolazi iz checklist editora; CatalogService::saveJob ponovo numeriše
             $item->setJobTemplate($this);
-            $item->setPosition($this->checklistItems->count());
             $this->checklistItems->add($item);
         }
 

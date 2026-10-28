@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Entity\Trait\TimestampableTrait;
 use App\Enum\JobSource;
-use App\Enum\Recurrence;
 use App\Repository\ClientJobRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,7 +11,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Konkretan posao koji se radi za klijenta; iz ovoga nastaju zadaci (SPEC 8b, 8c).
- * Vrednosti "override" (recurrence, dueDay, estimatedMinutes, assignee) važe umesto onih iz šablona kad nisu prazne.
+ * Override vrednosti (raspored, estimatedMinutes, zaduženi) važe umesto onih iz posla kad nisu prazne.
+ * Prazan override rasporeda (type = null) znači "kao u poslu" (SPEC 8g.3).
  */
 #[ORM\Entity(repositoryClass: ClientJobRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -53,12 +53,10 @@ class ClientJob
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $excludedAt = null;
 
-    #[ORM\Column(length: 20, nullable: true, enumType: Recurrence::class)]
-    private ?Recurrence $recurrenceOverride = null;
-
-    #[ORM\Column(nullable: true)]
-    #[Assert\Range(min: 1, max: 31)]
-    private ?int $dueDayOverride = null;
+    /** Drugačiji raspored za ovog klijenta; prazan = raspored posla */
+    #[ORM\Embedded(class: Schedule::class)]
+    #[Assert\Valid]
+    private Schedule $scheduleOverride;
 
     #[ORM\Column(nullable: true)]
     #[Assert\PositiveOrZero]
@@ -88,6 +86,11 @@ class ClientJob
 
     #[ORM\Column]
     private bool $isApproved = true;
+
+    public function __construct()
+    {
+        $this->scheduleOverride = new Schedule();
+    }
 
     public function getId(): ?int
     {
@@ -182,26 +185,15 @@ class ClientJob
         return $this->excludedAt;
     }
 
-    public function getRecurrenceOverride(): ?Recurrence
+    public function getScheduleOverride(): Schedule
     {
-        return $this->recurrenceOverride;
+        // Doctrine ne pravi ugrađen objekat za stare redove bez kolona; prazan = kao u poslu
+        return $this->scheduleOverride ??= new Schedule();
     }
 
-    public function setRecurrenceOverride(?Recurrence $recurrence): static
+    public function setScheduleOverride(?Schedule $schedule): static
     {
-        $this->recurrenceOverride = $recurrence;
-
-        return $this;
-    }
-
-    public function getDueDayOverride(): ?int
-    {
-        return $this->dueDayOverride;
-    }
-
-    public function setDueDayOverride(?int $day): static
-    {
-        $this->dueDayOverride = $day;
+        $this->scheduleOverride = $schedule ?? new Schedule();
 
         return $this;
     }
@@ -304,14 +296,17 @@ class ClientJob
 
     // --- efektivne vrednosti (override ili šablon) ---
 
-    public function getRecurrence(): Recurrence
+    /**
+     * Raspored koji važi: override ako je zadat, inače raspored posla.
+     */
+    public function getSchedule(): Schedule
     {
-        return $this->recurrenceOverride ?? $this->jobTemplate->getRecurrence();
+        return $this->getScheduleOverride()->isEmpty() ? $this->jobTemplate->getSchedule() : $this->scheduleOverride;
     }
 
-    public function getDueDay(): ?int
+    public function hasScheduleOverride(): bool
     {
-        return $this->dueDayOverride ?? $this->jobTemplate->getDueDay();
+        return !$this->getScheduleOverride()->isEmpty();
     }
 
     public function getEstimatedMinutes(): int
