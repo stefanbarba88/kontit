@@ -202,7 +202,7 @@ class AbsenceService
             $backup = $client->getBackupAccountant();
             if (null !== $backup) {
                 $byBackup[$backup->getId()]['user'] = $backup;
-                $byBackup[$backup->getId()]['clients'][] = $client->getName();
+                $byBackup[$backup->getId()]['clients'][] = $client->getShortName();
             }
         }
 

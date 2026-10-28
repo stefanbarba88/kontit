@@ -23,7 +23,7 @@ class ActivityLogger
             $value instanceof \DateTimeInterface => '00:00' === $value->format('H:i') ? $value->format('d.m.Y.') : $value->format('d.m.Y. H:i'),
             \is_bool($value) => $value ? 'Da' : 'Ne',
             $value instanceof User => $value->getFullName(),
-            $value instanceof Client => (string) $value->getName(),
+            $value instanceof Client => (string) $value->getShortName(),
             \is_string($value) => $this->excerpt($value),
             \is_scalar($value) => (string) $value,
             default => null,

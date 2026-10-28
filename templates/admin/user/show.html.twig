@@ -68,13 +68,13 @@
                             <div class="col-md-6">
                                 <h6>Glavni zadužen</h6>
                                 <ul class="list-unstyled mb-0">
-                                    {% for c in primaryClients %}<li><a href="{{ path('client_show', {id: c.id}) }}">{{ c.name }}</a></li>{% else %}<li class="text-muted">—</li>{% endfor %}
+                                    {% for c in primaryClients %}<li><a href="{{ path('client_show', {id: c.id}) }}">{{ c.shortName }}</a></li>{% else %}<li class="text-muted">—</li>{% endfor %}
                                 </ul>
                             </div>
                             <div class="col-md-6">
                                 <h6>Backup (zamena)</h6>
                                 <ul class="list-unstyled mb-0">
-                                    {% for c in backupClients %}<li><a href="{{ path('client_show', {id: c.id}) }}">{{ c.name }}</a></li>{% else %}<li class="text-muted">—</li>{% endfor %}
+                                    {% for c in backupClients %}<li><a href="{{ path('client_show', {id: c.id}) }}">{{ c.shortName }}</a></li>{% else %}<li class="text-muted">—</li>{% endfor %}
                                 </ul>
                             </div>
                         </div>
@@ -129,6 +129,6 @@
     </div>
     <div class="card">
         <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:history', {class: 'kt-icon me-2'}) }}Aktivnost</h5></div>
-        <div class="card-body border-top">{{ tl.timeline(activity, true) }}</div>
+        <div class="card-body border-top">{{ tl.feed(path('ajax_user_activity', {id: user.id}), activity, true) }}</div>
     </div>
 {% endblock %}

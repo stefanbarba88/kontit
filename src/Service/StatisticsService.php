@@ -142,7 +142,7 @@ class StatisticsService
             ['teams' => ArrayParameterType::INTEGER],
         );
         $waiting = $this->db->fetchAllAssociative(
-            'SELECT DISTINCT t.id, t.title, t.updated_at, c.name client FROM task t JOIN task_assignee a ON a.task_id = t.id '
+            'SELECT DISTINCT t.id, t.title, t.updated_at, c.short_name client FROM task t JOIN task_assignee a ON a.task_id = t.id '
             .'JOIN team_member tm ON tm.user_id = a.user_id AND tm.left_at IS NULL AND tm.team_id IN (:teams) '
             .'LEFT JOIN client c ON c.id = t.client_id '
             .'WHERE t.status = \'CEKA_KLIJENTA\' AND t.updated_at < :limit ORDER BY t.updated_at ASC',
@@ -206,12 +206,12 @@ class StatisticsService
     public function forCompany(): array
     {
         $noBackup = $this->db->fetchAllAssociative(
-            'SELECT c.id, c.name, CONCAT(u.first_name, \' \', u.last_name) worker FROM client c JOIN app_user u ON u.id = c.primary_accountant_id '
-            .'WHERE c.is_active = 1 AND c.backup_accountant_id IS NULL ORDER BY c.name'
+            'SELECT c.id, c.short_name name, CONCAT(u.first_name, \' \', u.last_name) worker FROM client c JOIN app_user u ON u.id = c.primary_accountant_id '
+            .'WHERE c.is_active = 1 AND c.backup_accountant_id IS NULL ORDER BY c.short_name'
         );
         $idle = $this->db->fetchAllAssociative(
-            'SELECT c.id, c.name, CONCAT(u.first_name, \' \', u.last_name) worker FROM client c JOIN app_user u ON u.id = c.primary_accountant_id '
-            .'WHERE c.is_active = 1 AND NOT EXISTS (SELECT 1 FROM task t WHERE t.client_id = c.id AND t.created_at >= :since) ORDER BY c.name',
+            'SELECT c.id, c.short_name name, CONCAT(u.first_name, \' \', u.last_name) worker FROM client c JOIN app_user u ON u.id = c.primary_accountant_id '
+            .'WHERE c.is_active = 1 AND NOT EXISTS (SELECT 1 FROM task t WHERE t.client_id = c.id AND t.created_at >= :since) ORDER BY c.short_name',
             ['since' => (new \DateTimeImmutable('-30 days'))->format('Y-m-d H:i:s')],
         );
         $perTeam = $this->db->fetchAllAssociative(

@@ -22,7 +22,7 @@ class NbsController extends AbstractAjaxController
         $pib = trim($request->query->getString('pib'));
         $existing = preg_match('/^\d{9}$/', $pib) ? $clients->findOneBy(['pib' => $pib]) : null;
         if (null !== $existing && $existing->getId() !== $request->query->getInt('exclude_id')) {
-            return $this->fail('Klijent sa tim PIB-om već postoji: '.$existing->getName().'.', 409);
+            return $this->fail('Klijent sa tim PIB-om već postoji: '.$existing->getShortName().'.', 409);
         }
 
         try {

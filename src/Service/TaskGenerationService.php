@@ -75,7 +75,7 @@ class TaskGenerationService
                 $this->createTask($row['job'], $row['key'], $row['label'], $row['due'], $actor);
                 ++$result['created'];
             } catch (\DomainException $e) {
-                $result['errors'][] = sprintf('%s — %s: %s', $row['job']->getClient()->getName(), $row['job']->getJobTemplate()->getName(), $e->getMessage());
+                $result['errors'][] = sprintf('%s — %s: %s', $row['job']->getClient()->getShortName(), $row['job']->getJobTemplate()->getName(), $e->getMessage());
             }
         }
 
@@ -93,8 +93,8 @@ class TaskGenerationService
         }
 
         $title = 'ONCE' === $key
-            ? sprintf('%s — %s', $template->getName(), $client->getName())
-            : sprintf('%s — %s — %s', $template->getName(), $client->getName(), $label);
+            ? sprintf('%s — %s', $template->getName(), $client->getShortName())
+            : sprintf('%s — %s — %s', $template->getName(), $client->getShortName(), $label);
 
         $task = (new Task())
             ->setTitle($title)

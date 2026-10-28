@@ -128,7 +128,7 @@
 
             <div class="card">
                 <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:history', {class: 'kt-icon me-2'}) }}Istorija</h5></div>
-                <div class="card-body border-top">{{ tl.timeline(activity) }}</div>
+                <div class="card-body border-top">{{ tl.feed(path('ajax_task_activity', {id: task.id}), activity) }}</div>
             </div>
         </div>
 
@@ -138,7 +138,7 @@
                 <div class="card-body border-top">
                     <dl class="row mb-0">
                         <dt class="col-5">Klijent</dt>
-                        <dd class="col-7">{% if task.client %}{% if is_granted('CLIENT_VIEW', task.client) %}<a href="{{ path('client_show', {id: task.client.id}) }}">{{ task.client.name }}</a>{% else %}{{ task.client.name }}{% endif %}{% else %}<span class="text-muted">Interni</span>{% endif %}</dd>
+                        <dd class="col-7">{% if task.client %}{% if is_granted('CLIENT_VIEW', task.client) %}<a href="{{ path('client_show', {id: task.client.id}) }}">{{ task.client.shortName }}</a>{% else %}{{ task.client.shortName }}{% endif %}{% else %}<span class="text-muted">Interni</span>{% endif %}</dd>
                         <dt class="col-5">Rok</dt><dd class="col-7">{{ ui.due_date(task) }}</dd>
                         <dt class="col-5">Prioritet</dt><dd class="col-7">{{ ui.priority_badge(task.priority) }}</dd>
                         <dt class="col-5">Završetak</dt><dd class="col-7">{{ task.completionMode.value == 'ALL' ? 'Svi učesnici' : 'Dovoljan jedan' }}</dd>

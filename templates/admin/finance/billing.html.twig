@@ -29,7 +29,7 @@
                     {% for row in rows %}
                         {% set total = total + row.total %}
                         <tr>
-                            <td><a href="{{ path('client_show', {id: row.client.id}) }}" class="text-body">{{ row.client.name }}</a></td>
+                            <td><a href="{{ path('client_show', {id: row.client.id}) }}" class="text-body">{{ row.client.shortName }}</a></td>
                             <td class="text-muted kt-text-sm">{{ row.items|join(', ') }}</td>
                             <td class="text-end">{{ row.package|number_format(2, ',', '.') }}</td>
                             <td class="text-end">{{ row.adHoc|number_format(2, ',', '.') }}</td>

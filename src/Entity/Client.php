@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Entity\Trait\TimestampableTrait;
-use App\Enum\LegalForm;
 use App\Repository\ClientRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,9 +28,11 @@ class Client
     #[Assert\Length(max: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 20, enumType: LegalForm::class)]
-    #[Assert\NotNull(message: 'Izaberi pravnu formu.')]
-    private ?LegalForm $legalForm = null;
+    /** Kraći naziv: koristi se svuda osim na kartici klijenta, PDF izveštajima i izvozima (SPEC 8f.2) */
+    #[ORM\Column(length: 40)]
+    #[Assert\NotBlank(message: 'Unesi kraći naziv klijenta.')]
+    #[Assert\Length(max: 40, maxMessage: 'Kraći naziv može imati najviše {{ limit }} karaktera.')]
+    private ?string $shortName = null;
 
     #[ORM\Column(length: 9, nullable: true)]
     #[Assert\Regex(pattern: '/^\d{9}$/', message: 'PIB mora imati tačno 9 cifara.')]
@@ -57,10 +58,6 @@ class Client
     #[ORM\Column(length: 10, nullable: true)]
     #[Assert\Length(max: 10)]
     private ?string $postalCode = null;
-
-    #[ORM\Column(length: 150, nullable: true)]
-    #[Assert\Length(max: 150)]
-    private ?string $shortName = null;
 
     // --- podaci iz NBS-a (NbsCompanyLookupService), osim naziva ostalo se ne unosi ručno ---
     #[ORM\Column(length: 100, nullable: true)]
@@ -130,18 +127,6 @@ class Client
     public function setName(string $name): static
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    public function getLegalForm(): ?LegalForm
-    {
-        return $this->legalForm;
-    }
-
-    public function setLegalForm(?LegalForm $legalForm): static
-    {
-        $this->legalForm = $legalForm;
 
         return $this;
     }
@@ -321,7 +306,7 @@ class Client
 
     public function setShortName(?string $shortName): static
     {
-        $this->shortName = '' === $shortName ? null : $shortName;
+        $this->shortName = null === $shortName ? null : trim($shortName);
 
         return $this;
     }
@@ -375,7 +360,8 @@ class Client
     public function applyNbs(array $data): static
     {
         $this->name = $data['name'] ?: $this->name;
-        $this->shortName = $data['shortName'] ?: $this->shortName;
+        // kraći naziv se samo predlaže, a ručno upisan se ne prepisuje
+        $this->shortName = $this->shortName ?: ($data['shortName'] ?: null);
         $this->pib = $data['pib'] ?: $this->pib;
         $this->maticniBroj = $data['maticniBroj'] ?: $this->maticniBroj;
         $this->address = $data['address'] ?: $this->address;

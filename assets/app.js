@@ -33,3 +33,4 @@ import './js/forms.js';
 import './js/theme.js';
 import './js/countup.js';
 import './js/mobile.js';
+import './js/activity.js';

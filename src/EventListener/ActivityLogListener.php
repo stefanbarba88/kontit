@@ -14,7 +14,6 @@ use App\Enum\ActivityAction;
 use App\Enum\AssigneeStatus;
 use App\Enum\CommentType;
 use App\Enum\CompletionMode;
-use App\Enum\LegalForm;
 use App\Enum\TaskPriority;
 use App\Enum\TaskStatus;
 use App\Service\ActivityLogger;
@@ -46,10 +45,9 @@ class ActivityLogListener
     ];
 
     private const CLIENT_FIELDS = [
-        'name' => 'Naziv',
-        'shortName' => 'Skraćeni naziv',
+        'name' => 'Pun naziv',
+        'shortName' => 'Kraći naziv',
         'postalCode' => 'Poštanski broj',
-        'legalForm' => 'Pravna forma',
         'pib' => 'PIB',
         'maticniBroj' => 'Matični broj',
         'pdvObveznik' => 'PDV obveznik',
@@ -233,7 +231,7 @@ class ActivityLogListener
      */
     private function clientUpdated(Client $client, array $cs, ?User $user): void
     {
-        if ([] !== ($changes = $this->logger->diff($cs, self::CLIENT_FIELDS, ['legalForm' => LegalForm::class]))) {
+        if ([] !== ($changes = $this->logger->diff($cs, self::CLIENT_FIELDS))) {
             $this->add($client, ActivityAction::UPDATED, $changes, $user);
         }
         if ([] !== ($changes = $this->logger->diff($cs, ['primaryAccountant' => 'Glavni zaduženi', 'backupAccountant' => 'Backup']))) {
@@ -294,7 +292,7 @@ class ActivityLogListener
     {
         return match (true) {
             $subject instanceof Task => [$subject->getId(), $subject->getTitle()],
-            $subject instanceof Client => [$subject->getId(), $subject->getName()],
+            $subject instanceof Client => [$subject->getId(), $subject->getShortName()],
             $subject instanceof User => [$subject->getId(), $subject->getFullName()],
             default => [null, null],
         };

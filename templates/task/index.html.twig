@@ -41,7 +41,7 @@
                         <select name="client" class="form-select">
                             <option value="">Svi klijenti</option>
                             {% for client in clients %}
-                                <option value="{{ client.id }}" {{ filters.client == client.id ? 'selected' : '' }}>{{ client.name }}</option>
+                                <option value="{{ client.id }}" {{ filters.client == client.id ? 'selected' : '' }}>{{ client.shortName }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -99,7 +99,7 @@
                         <a href="{{ path('task_show', {id: task.id}) }}" class="kt-swipe-content">
                             <div class="flex-fill min-w-0">
                                 <div class="kt-task-title text-truncate">{{ task.title }}</div>
-                                <div class="kt-task-meta text-truncate">{{ task.client ? task.client.name : 'Interni' }} · {{ ui.due_date(task) }}</div>
+                                <div class="kt-task-meta text-truncate">{{ task.client ? task.client.shortName : 'Interni' }} · {{ ui.due_date(task) }}</div>
                                 <div class="mt-1 d-flex gap-1 flex-wrap">{{ ui.task_status(task.status) }} {{ ui.priority_badge(task.priority) }}</div>
                             </div>
                             <span class="kt-swipe-more">{{ ux_icon('lucide:ellipsis', {class: 'kt-icon'}) }}</span>
@@ -124,7 +124,7 @@
                                 <a href="{{ path('task_show', {id: task.id}) }}" class="fw-semibold">{{ task.title }}</a>
                                 {% if substituting_for(task) %}<span class="badge kt-badge-info ms-1" title="Zamenjuješ: {% for u in substituting_for(task) %}{{ u.fullName }}{% endfor %}">PREUZETO</span>{% endif %}
                             </td>
-                            <td>{% if task.client %}{{ task.client.name }}{% else %}<span class="text-muted">Interni</span>{% endif %}</td>
+                            <td>{% if task.client %}{{ task.client.shortName }}{% else %}<span class="text-muted">Interni</span>{% endif %}</td>
                             <td>
                                 <div class="d-flex">
                                     {% for a in task.assignees %}{{ ui.avatar(a.user, 24, 'me-1') }}{% endfor %}

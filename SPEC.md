@@ -467,13 +467,13 @@ Kasnije se zamenjuje stvarnim vremenom iz agenta (Faza 8), pa analitiku treba pi
 
 > Ima prednost nad 8b i 8c gde se razlikuju. Redosled ugradnje je u sekciji 10 (koraci P1-P11). Original je u `docs/archive/UPDATE-POSLOVI-KALENDAR.md`.
 
-## 8f. Sitne izmene
+## 8f. Sitne izmene (implementirano u P1)
 
 ### 8f.1 Aktivnosti (timeline): paginacija
 - Timeline na profilu korisnika, klijentu i zadatku prikazuje **20 poslednjih**, a dugme **"Učitaj još"** (AJAX) donosi sledećih 20.
 - Ruta `/ajax/users/{id}/activity?page=N` (i ekvivalent za klijenta i zadatak) vraća HTML fragment timeline-a i podatak da li ima još.
 - Iznad timeline-a filteri: **tip akcije** i **period** (flatpickr opseg). Promena filtera učitava od prve strane.
-- Upit sa `LIMIT/OFFSET` po indeksima `(entity_type, entity_id, created_at)` i `(user_id, created_at)` (oba već postoje).
+- Upit sa `LIMIT/OFFSET` po indeksima `(entity_type, entity_id, created_at)` i `(user_id, created_at)` (oba već postoje). Rute: `/ajax/users/{id}/activity`, `/ajax/clients/{id}/activity`, `/ajax/tasks/{id}/activity`; svoj timeline vidi svako, tuđi uz `USER_VIEW`.
 - Dok se učitava: skelet (DESIGN.md 7.13). Prazno stanje: "Još nema aktivnosti."
 
 ### 8f.2 Klijent: kraći naziv

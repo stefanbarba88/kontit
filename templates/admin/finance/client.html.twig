@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
 {% import 'components/ui.html.twig' as ui %}
 
-{% block title %}Analitika — {{ client.name }}{% endblock %}
-{% block page_title %}Analitika: {{ client.name }}{% endblock %}
+{% block title %}Analitika — {{ client.shortName }}{% endblock %}
+{% block page_title %}Analitika: {{ client.shortName }}{% endblock %}
 {% block breadcrumbs %}
-    <a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.name }}</a>
+    <a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.shortName }}</a>
     <span class="breadcrumb-item active">Analitika</span>
 {% endblock %}
 

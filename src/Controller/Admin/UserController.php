@@ -79,7 +79,7 @@ class UserController extends AbstractController
     {
         return $this->render('admin/user/show.html.twig', [
             'user' => $user,
-            'activity' => $activity->findForUser($user),
+            'activity' => $activity->findUserPage($user),
             'primaryClients' => $clients->findActivePrimaryFor($user),
             'backupClients' => $clients->findActiveBackupFor($user),
             'currentMembership' => $members->findActiveByUser($user),

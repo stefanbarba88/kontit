@@ -1,7 +1,8 @@
 {#
     Timeline istorije izmena (ActivityLog), DESIGN.md 7.11: tanka vertikalna linija, mali krugovi u boji tipa akcije,
     rečenica sa korisnikom, relativno vreme (tačno u tooltipu) i izmene kao "staro → novo".
-    Upotreba: {% import 'components/timeline.html.twig' as tl %}{{ tl.timeline(entries) }}
+    Upotreba: {% import 'components/timeline.html.twig' as tl %}{{ tl.feed(path('ajax_task_activity', {id: task.id}), activity) }}
+    feed: prva strana (20) se iscrta na serveru, "Učitaj još" i filteri (tip akcije, period) idu preko AJAX-a (SPEC 8f.1, assets/js/activity.js).
     show_target = true prikazuje i na šta se zapis odnosi (za timeline korisnika).
 #}
 
@@ -29,34 +30,54 @@
     {% endif %}
 {% endmacro %}
 
-{% macro timeline(entries, show_target = false) %}
+{# Stavke jedne strane. Dan ima data-day, da JS ne ponovi zaglavlje dana kad se strana nastavlja isti dan. #}
+{% macro items(entries, show_target = false) %}
     {% import _self as tl %}
     {% import 'components/ui.html.twig' as ui %}
-    {% if entries is empty %}
-        {{ ui.empty_state('Još nema zabeleženih izmena.', 'history') }}
-    {% else %}
-        <ol class="kt-timeline">
-            {% set day = null %}
-            {% for entry in entries %}
-                {% set entry_day = entry.createdAt|date('Y-m-d') %}
-                {% if entry_day != day %}
-                    {% set day = entry_day %}
-                    <li class="kt-tl-day">{{ entry.createdAt|date('d.m.Y.') }}</li>
-                {% endif %}
-                <li class="kt-tl-item">
-                    <span class="kt-tl-dot kt-tl-dot--{{ entry.action.color }}">{{ ux_icon('lucide:' ~ entry.action.icon, {class: 'kt-icon'}) }}</span>
-                    <div class="kt-tl-body">
-                        <div class="kt-tl-head">
-                            {% if entry.user %}{{ ui.avatar(entry.user, 24) }}{% endif %}
-                            <span><strong>{{ entry.user ? entry.user.fullName : 'Sistem' }}</strong> · {{ entry.action.label|lower }}{% if show_target %} · {{ tl.target(entry) }}{% endif %}</span>
-                            <time class="kt-tl-time" datetime="{{ entry.createdAt|date('c') }}" title="{{ entry.createdAt|date('d.m.Y. H:i') }}">{{ entry.createdAt|date('H:i') }}</time>
-                        </div>
-                        {% for field, change in entry.changes %}
-                            {{ tl.change(field, change) }}
-                        {% endfor %}
-                    </div>
-                </li>
+    {% set day = null %}
+    {% for entry in entries %}
+        {% set entry_day = entry.createdAt|date('Y-m-d') %}
+        {% if entry_day != day %}
+            {% set day = entry_day %}
+            <li class="kt-tl-day" data-day="{{ entry_day }}">{{ entry.createdAt|date('d.m.Y.') }}</li>
+        {% endif %}
+        <li class="kt-tl-item">
+            <span class="kt-tl-dot kt-tl-dot--{{ entry.action.color }}">{{ ux_icon('lucide:' ~ entry.action.icon, {class: 'kt-icon'}) }}</span>
+            <div class="kt-tl-body">
+                <div class="kt-tl-head">
+                    {% if entry.user %}{{ ui.avatar(entry.user, 24) }}{% endif %}
+                    <span><strong>{{ entry.user ? entry.user.fullName : 'Sistem' }}</strong> · {{ entry.action.label|lower }}{% if show_target %} · {{ tl.target(entry) }}{% endif %}</span>
+                    <time class="kt-tl-time" datetime="{{ entry.createdAt|date('c') }}" title="{{ entry.createdAt|date('d.m.Y. H:i') }}">{{ entry.createdAt|date('H:i') }}</time>
+                </div>
+                {% for field, change in entry.changes %}
+                    {{ tl.change(field, change) }}
+                {% endfor %}
+            </div>
+        </li>
+    {% endfor %}
+{% endmacro %}
+
+{# Timeline sa filterima i "Učitaj još". page = {entries, hasMore} iz ActivityLogRepository #}
+{% macro feed(url, page, show_target = false) %}
+    {% import _self as tl %}
+    {% import 'components/ui.html.twig' as ui %}
+    <div class="kt-tl-feed" data-kt-activity="{{ url }}">
+        <div class="kt-tl-filters">
+            <select class="form-select form-select-sm" data-kt-activity-action aria-label="Tip akcije">
+                <option value="">Sve akcije</option>
+                {% for action in enum_cases('App\\Enum\\ActivityAction') %}
+                    <option value="{{ action.value }}">{{ action.label }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" class="form-control form-control-sm" data-kt-period data-kt-activity-period placeholder="Period" aria-label="Period">
+        </div>
+        <div class="kt-tl-empty"{% if page.entries is not empty %} hidden{% endif %}>{{ ui.empty_state('Još nema aktivnosti.', 'history') }}</div>
+        <ol class="kt-timeline">{{ tl.items(page.entries, show_target) }}</ol>
+        <div class="kt-tl-skeleton" hidden aria-hidden="true">
+            {% for i in 1..3 %}
+                <div class="d-flex gap-2 mb-3"><div class="kt-skeleton rounded-circle flex-shrink-0" style="width: 24px; height: 24px;"></div><div class="flex-grow-1"><div class="kt-skeleton mb-2" style="width: 55%;"></div><div class="kt-skeleton" style="width: 80%;"></div></div></div>
             {% endfor %}
-        </ol>
-    {% endif %}
+        </div>
+        <button type="button" class="btn btn-light w-100 kt-tl-more" data-kt-activity-more{% if not page.hasMore %} hidden{% endif %}>Učitaj još</button>
+    </div>
 {% endmacro %}

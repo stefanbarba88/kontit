@@ -111,7 +111,7 @@ class ClientService
             $user,
             NotificationType::CLIENT_ASSIGNED,
             'Dodeljen ti je klijent',
-            sprintf('Dodeljen ti je klijent „%s“, uloga: %s.', $client->getName(), AssignmentType::PRIMARY === $type ? 'glavni zaduženi' : 'backup (zamena)'),
+            sprintf('Dodeljen ti je klijent „%s“, uloga: %s.', $client->getShortName(), AssignmentType::PRIMARY === $type ? 'glavni zaduženi' : 'backup (zamena)'),
             ['client_show', ['id' => $client->getId()]],
             $actor,
         );

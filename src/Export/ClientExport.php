@@ -40,8 +40,8 @@ final class ClientExport implements ExportListInterface
     public function getColumns(): array
     {
         return [
-            ['label' => 'Naziv', 'type' => 'text', 'width' => 40],
-            ['label' => 'Pravna forma', 'type' => 'text', 'width' => 14],
+            ['label' => 'Klijent', 'type' => 'text', 'width' => 26],
+            ['label' => 'Pun naziv', 'type' => 'text', 'width' => 44],
             ['label' => 'PIB', 'type' => 'text', 'width' => 12],
             ['label' => 'Matični broj', 'type' => 'text', 'width' => 12],
             ['label' => 'PDV', 'type' => 'text', 'width' => 6],
@@ -64,8 +64,8 @@ final class ClientExport implements ExportListInterface
                 continue;
             }
             yield [
+                $client->getShortName(),
                 $client->getName(),
-                $client->getLegalForm()?->label(),
                 $client->getPib(),
                 $client->getMaticniBroj(),
                 $client->isPdvObveznik() ? 'da' : 'ne',

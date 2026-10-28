@@ -21,3 +21,10 @@
 .kt-tl-change .kt-icon { color: var(--kt-text-3); margin: 0 2px; }
 .kt-tl-field { color: var(--kt-text-3); }
 .kt-tl-change del { color: var(--kt-text-3); }
+
+/* Filteri i "Učitaj još" (SPEC 8f.1) */
+.kt-tl-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.kt-tl-filters > * { flex: 1 1 180px; max-width: 260px; }
+.kt-tl-more { margin-top: 8px; }
+.kt-tl-skeleton { padding-left: 8px; }
+@media (max-width: 575.98px) { .kt-tl-filters > * { max-width: none; } }

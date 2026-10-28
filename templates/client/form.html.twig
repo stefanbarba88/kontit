@@ -3,10 +3,10 @@
 {% set is_new = client.id is null %}
 
 {% block title %}{{ is_new ? 'Novi klijent' : 'Izmena klijenta' }}{% endblock %}
-{% block page_title %}{{ is_new ? 'Novi klijent' : 'Izmena: ' ~ client.name }}{% endblock %}
+{% block page_title %}{{ is_new ? 'Novi klijent' : 'Izmena: ' ~ client.shortName }}{% endblock %}
 {% block breadcrumbs %}
     <a href="{{ path('client_index') }}" class="breadcrumb-item">Klijenti</a>
-    {% if not is_new %}<a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.name }}</a>{% endif %}
+    {% if not is_new %}<a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.shortName }}</a>{% endif %}
     <span class="breadcrumb-item active">{{ is_new ? 'Novi' : 'Izmena' }}</span>
 {% endblock %}
 
@@ -18,9 +18,8 @@
                 <div class="card-header"><h5 class="mb-0">Podaci o klijentu</h5></div>
                 <div class="card-body border-top">
                     {{ form_row(form.name) }}
-                    {{ form_row(form.shortName) }}
                     <div class="row">
-                        <div class="col-md-6">{{ form_row(form.legalForm) }}</div>
+                        <div class="col-md-6">{{ form_row(form.shortName) }}</div>
                         <div class="col-md-6">{{ form_row(form.startDate) }}</div>
                     </div>
                     <div class="row">

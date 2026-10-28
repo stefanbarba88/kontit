@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Repository\ActivityLogRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,12 +22,15 @@ class DesignController extends AbstractController
     }
 
     #[Route('/_design', name: 'app_design', methods: ['GET'])]
-    public function index(): Response
+    public function index(ActivityLogRepository $activity): Response
     {
         if ('dev' !== $this->environment) {
             throw $this->createNotFoundException();
         }
 
-        return $this->render('design/index.html.twig');
+        $user = $this->getUser();
+        \assert($user instanceof User);
+
+        return $this->render('design/index.html.twig', ['activity' => $activity->findUserPage($user)]);
     }
 }

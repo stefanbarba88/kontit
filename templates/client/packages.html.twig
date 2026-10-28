@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
 {% import 'components/ui.html.twig' as ui %}
 
-{% block title %}Paketi i poslovi — {{ client.name }}{% endblock %}
-{% block page_title %}Paketi i poslovi: {{ client.name }}{% endblock %}
+{% block title %}Paketi i poslovi — {{ client.shortName }}{% endblock %}
+{% block page_title %}Paketi i poslovi: {{ client.shortName }}{% endblock %}
 {% block breadcrumbs %}
-    <a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.name }}</a>
+    <a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.shortName }}</a>
     <span class="breadcrumb-item active">Paketi i poslovi</span>
 {% endblock %}
 

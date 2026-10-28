@@ -288,7 +288,7 @@ class TaskService
             $recipients,
             NotificationType::TASK_ASSIGNED,
             $urgent ? 'Novi HITAN zadatak' : 'Novi zadatak',
-            sprintf('Dodeljen ti je zadatak „%s“%s%s. Dodelio: %s.', $task->getTitle(), null !== $task->getClient() ? ' ('.$task->getClient()->getName().')' : '', null !== $task->getDueDate() ? ', rok '.$task->getDueDate()->format('d.m.Y.') : '', $actor->getFullName()),
+            sprintf('Dodeljen ti je zadatak „%s“%s%s. Dodelio: %s.', $task->getTitle(), null !== $task->getClient() ? ' ('.$task->getClient()->getShortName().')' : '', null !== $task->getDueDate() ? ', rok '.$task->getDueDate()->format('d.m.Y.') : '', $actor->getFullName()),
             ['task_show', ['id' => $task->getId()]],
             $actor,
             $email,

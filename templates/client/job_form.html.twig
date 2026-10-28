@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ isAdmin ? 'Ad hoc posao' : 'Predlog posla' }} — {{ client.name }}{% endblock %}
-{% block page_title %}{{ isAdmin ? 'Ad hoc posao' : 'Predlog posla' }}: {{ client.name }}{% endblock %}
+{% block title %}{{ isAdmin ? 'Ad hoc posao' : 'Predlog posla' }} — {{ client.shortName }}{% endblock %}
+{% block page_title %}{{ isAdmin ? 'Ad hoc posao' : 'Predlog posla' }}: {{ client.shortName }}{% endblock %}
 {% block breadcrumbs %}
-    <a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.name }}</a>
+    <a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.shortName }}</a>
     <a href="{{ path('client_packages', {id: client.id}) }}" class="breadcrumb-item">Paketi i poslovi</a>
     <span class="breadcrumb-item active">{{ isAdmin ? 'Novi posao' : 'Predlog' }}</span>
 {% endblock %}

@@ -63,7 +63,7 @@ class ProfileController extends AbstractController
             'prefsForm' => $prefsForm,
             'membership' => $members->findActiveByUser($user),
             'ledTeam' => $teams->findActiveLedBy($user),
-            'activity' => $activity->findForUser($user),
+            'activity' => $activity->findUserPage($user),
         ]);
     }
 }

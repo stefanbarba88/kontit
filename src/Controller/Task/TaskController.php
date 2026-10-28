@@ -100,7 +100,7 @@ class TaskController extends AbstractController
     {
         return $this->render('task/show.html.twig', [
             'task' => $task,
-            'activity' => $activity->findForEntity(ActivityLog::TASK, $task->getId()),
+            'activity' => $activity->findEntityPage(ActivityLog::TASK, $task->getId()),
         ]);
     }
 

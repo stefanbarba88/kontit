@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Dodela klijenta{% endblock %}
-{% block page_title %}Dodela: {{ client.name }}{% endblock %}
+{% block page_title %}Dodela: {{ client.shortName }}{% endblock %}
 {% block breadcrumbs %}
     <a href="{{ path('client_index') }}" class="breadcrumb-item">Klijenti</a>
-    <a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.name }}</a>
+    <a href="{{ path('client_show', {id: client.id}) }}" class="breadcrumb-item">{{ client.shortName }}</a>
     <span class="breadcrumb-item active">Dodela</span>
 {% endblock %}
 

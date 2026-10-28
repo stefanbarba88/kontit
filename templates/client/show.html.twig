@@ -2,11 +2,11 @@
 {% import 'components/ui.html.twig' as ui %}
 {% import 'components/timeline.html.twig' as tl %}
 
-{% block title %}{{ client.name }}{% endblock %}
-{% block page_title %}{{ client.name }} {{ ui.status_badge(client.active) }}{% endblock %}
+{% block title %}{{ client.shortName }}{% endblock %}
+{% block page_title %}{{ client.shortName }} {{ ui.status_badge(client.active) }}{% endblock %}
 {% block breadcrumbs %}
     <a href="{{ path('client_index') }}" class="breadcrumb-item">Klijenti</a>
-    <span class="breadcrumb-item active">{{ client.name }}</span>
+    <span class="breadcrumb-item active">{{ client.shortName }}</span>
 {% endblock %}
 
 {% block page_actions %}
@@ -20,7 +20,7 @@
     {% endif %}
     {% if is_granted('CLIENT_EDIT', client) %}
         <a href="{{ path('client_edit', {id: client.id}) }}" class="btn btn-primary">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-2'}) }}Izmeni</a>
-        <form method="post" action="{{ path('client_toggle', {id: client.id}) }}" {% if client.active %}{{ confirm_attrs('Deaktivirati klijenta?', 'Klijent se više neće nuditi za nove zadatke. Istorija ostaje.', 'danger', 'Da, deaktiviraj', false, client.name) }}{% else %}{{ confirm_attrs('Aktivirati klijenta?', null, 'info', 'Da, aktiviraj') }}{% endif %}>
+        <form method="post" action="{{ path('client_toggle', {id: client.id}) }}" {% if client.active %}{{ confirm_attrs('Deaktivirati klijenta?', 'Klijent se više neće nuditi za nove zadatke. Istorija ostaje.', 'danger', 'Da, deaktiviraj', false, client.shortName) }}{% else %}{{ confirm_attrs('Aktivirati klijenta?', null, 'info', 'Da, aktiviraj') }}{% endif %}>
             <input type="hidden" name="_token" value="{{ csrf_token('client_toggle_' ~ client.id) }}">
             <button class="btn {{ client.active ? 'btn-outline-danger' : 'btn-outline-success' }}">{{ client.active ? 'Deaktiviraj' : 'Aktiviraj' }}</button>
         </form>
@@ -28,7 +28,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="text-muted mb-3">{{ client.legalForm.label }}{% if client.pdvObveznik %} · PDV obveznik{% endif %}</div>
+    {% if client.pdvObveznik %}<div class="text-muted mb-3">PDV obveznik</div>{% endif %}
 
     <div class="row">
         <div class="col-lg-8">
@@ -36,9 +36,9 @@
                 <div class="card-header"><h5 class="mb-0">Podaci</h5></div>
                 <div class="card-body border-top">
                     <dl class="row mb-0">
+                        <dt class="col-sm-4">Pun naziv</dt><dd class="col-sm-8">{{ client.name }}</dd>
                         <dt class="col-sm-4">PIB</dt><dd class="col-sm-8">{{ client.pib ?? '—' }}</dd>
                         <dt class="col-sm-4">Matični broj</dt><dd class="col-sm-8">{{ client.maticniBroj ?? '—' }}</dd>
-                        {% if client.shortName %}<dt class="col-sm-4">Skraćeni naziv</dt><dd class="col-sm-8">{{ client.shortName }}</dd>{% endif %}
                         <dt class="col-sm-4">Adresa</dt><dd class="col-sm-8">{{ [client.address, [client.postalCode, client.city]|filter(v => v)|join(' ')]|filter(v => v)|join(', ') ?: '—' }}</dd>
                         {% if client.municipality or client.region %}<dt class="col-sm-4">Opština / okrug</dt><dd class="col-sm-8">{{ [client.municipality, client.region]|filter(v => v)|join(' / ') }}</dd>{% endif %}
                         {% if client.activityName %}<dt class="col-sm-4">Delatnost</dt><dd class="col-sm-8">{{ client.activityName }}</dd>{% endif %}
@@ -84,7 +84,7 @@
 
             <div class="card">
                 <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:history', {class: 'kt-icon me-2'}) }}Istorija izmena</h5></div>
-                <div class="card-body border-top">{{ tl.timeline(activity) }}</div>
+                <div class="card-body border-top">{{ tl.feed(path('ajax_client_activity', {id: client.id}), activity) }}</div>
             </div>
         </div>
 

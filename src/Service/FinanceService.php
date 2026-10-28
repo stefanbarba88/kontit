@@ -124,7 +124,7 @@ class FinanceService
     public function overview(): array
     {
         $minRate = $this->settings->getFloat(SettingsService::MIN_HOURLY_RATE);
-        $clients = $this->clients->findBy(['isActive' => true], ['name' => 'ASC']);
+        $clients = $this->clients->findBy(['isActive' => true], ['shortName' => 'ASC']);
 
         $rows = [];
         $mrrTotal = 0.0;
@@ -354,7 +354,7 @@ class FinanceService
             $row['total'] = $row['package'] + $row['adHoc'];
         }
         unset($row);
-        usort($rows, static fn (array $a, array $b) => strcmp((string) $a['client']->getName(), (string) $b['client']->getName()));
+        usort($rows, static fn (array $a, array $b) => strcmp((string) $a['client']->getShortName(), (string) $b['client']->getShortName()));
 
         return $rows;
     }

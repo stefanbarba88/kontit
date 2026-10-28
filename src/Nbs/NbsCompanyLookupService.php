@@ -3,7 +3,6 @@
 namespace App\Nbs;
 
 use App\Entity\Client;
-use App\Enum\LegalForm;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Psr\Cache\CacheItemPoolInterface;
@@ -59,7 +58,7 @@ class NbsCompanyLookupService
         if ($item->isHit()) {
             $cached = $item->get();
 
-            return $cached + ['legalForm' => $this->guessLegalForm($cached['name'])->value];
+            return $this->withShortName($cached);
         }
 
         if (null !== $rateKey && !$this->nbsLookupLimiter->create($rateKey)->consume()->isAccepted()) {
@@ -76,7 +75,7 @@ class NbsCompanyLookupService
 
         $this->cache->save($item->set($data)->expiresAfter(self::CACHE_TTL));
 
-        return $data + ['legalForm' => $this->guessLegalForm($data['name'])->value];
+        return $this->withShortName($data);
     }
 
     /**
@@ -91,19 +90,15 @@ class NbsCompanyLookupService
     }
 
     /**
-     * NBS ne vraća pravnu formu kao tekst, pa se pravi pretpostavka po nazivu (može se ispraviti ručno).
+     * shortName je predlog kraćeg naziva (bez pravne forme), a ne kratak naziv iz registra.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
      */
-    public function guessLegalForm(string $name): LegalForm
+    private function withShortName(array $data): array
     {
-        $n = mb_strtoupper($name);
-
-        return match (true) {
-            str_contains($n, 'AKCIONARSKO') || (bool) preg_match('/\bA\.?D\.?\b/u', $n) => LegalForm::AD,
-            str_contains($n, 'OGRANIČENOM') || (bool) preg_match('/\bD\.?O\.?O\.?\b/u', $n) => LegalForm::DOO,
-            str_contains($n, 'PREDUZETNIK') || str_contains($n, 'RADNJA') || (bool) preg_match('/\bPR\b/u', $n) => LegalForm::PREDUZETNIK,
-            str_contains($n, 'UDRUŽENJE') || str_contains($n, 'UDRUZENJE') => LegalForm::UDRUZENJE,
-            default => LegalForm::OSTALO,
-        };
+        return ['shortName' => ShortNameSuggester::suggest($data['name'], $data['shortName'] ?? null)] + $data;
     }
 
     private function provider(): ?CompanyLookupProviderInterface

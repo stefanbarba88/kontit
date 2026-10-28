@@ -83,7 +83,7 @@ class ClientController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $this->clients->create($client, $form->get('primary')->getData(), $form->get('backup')->getData(), $this->actor());
-                $this->addFlash('success', sprintf('Klijent „%s“ je kreiran.', $client->getName()));
+                $this->addFlash('success', sprintf('Klijent „%s“ je kreiran.', $client->getShortName()));
 
                 return $this->redirectToRoute('client_show', ['id' => $client->getId()]);
             } catch (\DomainException $e) {
@@ -149,7 +149,7 @@ class ClientController extends AbstractController
         return $this->render('client/show.html.twig', [
             'client' => $client,
             'history' => $logs->findByClient($client),
-            'activity' => $activity->findForEntity(ActivityLog::CLIENT, $client->getId()),
+            'activity' => $activity->findEntityPage(ActivityLog::CLIENT, $client->getId()),
         ]);
     }
 

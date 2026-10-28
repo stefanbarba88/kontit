@@ -133,7 +133,7 @@
                         <tbody>
                             {% for row in data.rows|slice(0, 15) %}
                                 <tr>
-                                    <td><a href="{{ path('admin_finance_client', {id: row.client.id}) }}" class="text-body">{{ row.client.name }}</a></td>
+                                    <td><a href="{{ path('admin_finance_client', {id: row.client.id}) }}" class="text-body">{{ row.client.shortName }}</a></td>
                                     <td>{{ row.mrr|number_format(0, ',', '.') }}</td>
                                     <td>{{ row.hours|number_format(1, ',') }}</td>
                                     <td>{% if row.rate is null %}—{% else %}<span class="{{ row.underpriced ? 'text-danger fw-semibold' : '' }}">{{ row.rate|number_format(0, ',', '.') }} RSD</span>{% if row.underpriced %} {{ ux_icon('lucide:triangle-alert', {class: 'kt-icon text-danger'}) }}{% endif %}{% endif %}</td>

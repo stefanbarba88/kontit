@@ -38,7 +38,7 @@ class NbsSyncCommand extends Command
         }
 
         $done = $failed = 0;
-        foreach ($this->clients->findBy(['isActive' => true], ['name' => 'ASC']) as $client) {
+        foreach ($this->clients->findBy(['isActive' => true], ['shortName' => 'ASC']) as $client) {
             if (null === $client->getPib() || ($input->getOption('only-missing') && null !== $client->getNbsSyncedAt())) {
                 continue;
             }
@@ -48,7 +48,7 @@ class NbsSyncCommand extends Command
                 ++$done;
             } catch (\DomainException $e) {
                 ++$failed;
-                $io->warning(sprintf('%s (%s): %s', $client->getName(), $client->getPib(), $e->getMessage()));
+                $io->warning(sprintf('%s (%s): %s', $client->getShortName(), $client->getPib(), $e->getMessage()));
             }
         }
         $io->success(sprintf('Osveženo: %d, neuspešno: %d.', $done, $failed));

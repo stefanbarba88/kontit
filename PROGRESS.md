@@ -4,10 +4,17 @@
 
 ## Trenutno stanje
 - Faza: **UPDATE-DIZAJN završen** (koraci 1-8): NBS popravka, sopstveni UI sistem bez template-a, sitnice, mobilni prikaz, avatar inicijali, izvoz. Uz faze 0-7, 2b, 3b, 7b.
-- Sledeći korak: **UPDATE-POSLOVI-KALENDAR** (koraci P1-P11, SPEC 8f-8n), plan potvrđen, radi se P1. Faza 8 je odložena. Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
+- Sledeći korak: **UPDATE-POSLOVI-KALENDAR** (koraci P1-P11, SPEC 8f-8n): P1 završen, sledi **P2** (neradni dani i `WorkingDayService`). Faza 8 je odložena. Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
 - Otvorenih nedoumica: 0 (svih 12 rešeno po predlozima, 2026-10-28).
 
 ## Urađeno
+- 2026-10-28: **P1: paginacija aktivnosti, kraći naziv klijenta, bez pravne forme (SPEC 8f)**
+  - Timeline (profil, stranica korisnika, klijent, zadatak, `/_design`): prvih 20 sa servera, "Učitaj još" i filteri tip akcije + period preko `/ajax/{users|clients|tasks}/{id}/activity?page=&action=&period=` (HTML fragment + `hasMore`). `ActivityFilter`, `ActivityLogRepository::findEntityPage/findUserPage` (LIMIT/OFFSET, red viška za `hasMore`; indeksi već postoje), makroi `tl.items` i `tl.feed`, `assets/js/activity.js` (skelet dok učitava, zaglavlje dana se ne ponavlja između strana, "Još nema aktivnosti."). Prava: svoj timeline svako, tuđi `USER_VIEW`, klijent `CLIENT_VIEW`, zadatak `TASK_VIEW`.
+  - `Client.shortName` obavezan, do 40 karaktera, koristi se svuda (liste, kartice, Tom Select, naslovi generisanih zadataka, notifikacije, dashboard, finansije, timeline). Pun naziv: kartica klijenta (red "Pun naziv") i izvozi (klijenti: kolone "Klijent" + "Pun naziv"; zadaci: "Klijent (pun naziv)"). Pretraga klijenata po oba naziva, PIB-u, MB-u i mestu.
+  - NBS: `shortName` je predlog (`App\Nbs\ShortNameSuggester`: bez pravne forme, "radnja", vlasnika, sedišta; velika slova u naslovni oblik), na formi se može menjati; osvežavanje iz NBS-a ne prepisuje ručno upisan kraći naziv. Testovi `tests/Nbs/ShortNameSuggesterTest.php`.
+  - Pravna forma uklonjena (entitet, forma, prikazi, izvoz, NBS, uvoz, ActivityLog), enum `LegalForm` obrisan.
+  - Migracija `Version20261028084138`: `short_name` popunjen iz `name` (skraćeno na 40) i NOT NULL, kolona `legal_form` obrisana. **Za ručnu ispravku**: postojećih 12 klijenata imaju kraći naziv = prvih 40 slova punog naziva (npr. "SAMOSTALNA UGOSTITELJSKA RADNJA ORION RA").
+  - Provereno: skripta `p1test.sh` (30 provera: strane 200, AJAX strane i filteri, prava, izvozi), 18 PHPUnit testova. **"Učitaj još" i filteri nisu kliknuti u pregledaču** (to ide u P11).
 - 2026-10-28: **UPDATE-POSLOVI-KALENDAR prenet u SPEC.md** (sekcije 8f-8n, koraci P1-P11 u sekciji 10, nedoumice 1-12 u sekciji 11). Faza 8 označena kao odložena. Ništa još nije implementirano.
 - 2026-10-27: **UPDATE-DIZAJN korak 8: pregled u pregledaču**
   - Headless Chrome (CDP skripta `review.php` u scratchpad-u): 18 strana × 1440/390 px × svetla/tamna = 72 prikaza. Nijedna JS greška u konzoli, nigde horizontalno skrolovanje.

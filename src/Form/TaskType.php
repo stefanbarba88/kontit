@@ -35,7 +35,7 @@ class TaskType extends AbstractType
                 'label' => 'Klijent',
                 'class' => Client::class,
                 'query_builder' => $options['client_query_builder'],
-                'choice_label' => 'name',
+                'choice_label' => 'shortName',
                 'required' => false,
                 'placeholder' => 'Interni zadatak (bez klijenta)',
             ])

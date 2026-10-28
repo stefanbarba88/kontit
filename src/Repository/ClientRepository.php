@@ -28,7 +28,7 @@ class ClientRepository extends ServiceEntityRepository
             ->addSelect('p', 'b')
             ->join('c.primaryAccountant', 'p')
             ->leftJoin('c.backupAccountant', 'b')
-            ->orderBy('c.name', 'ASC');
+            ->orderBy('c.shortName', 'ASC');
 
         if (!$all) {
             $qb->andWhere('c.primaryAccountant = :me OR c.backupAccountant = :me OR EXISTS ('
@@ -39,7 +39,7 @@ class ClientRepository extends ServiceEntityRepository
         }
 
         if (null !== $search && '' !== trim($search)) {
-            $qb->andWhere('c.name LIKE :q OR c.pib LIKE :q OR c.maticniBroj LIKE :q OR c.city LIKE :q')
+            $qb->andWhere('c.shortName LIKE :q OR c.name LIKE :q OR c.pib LIKE :q OR c.maticniBroj LIKE :q OR c.city LIKE :q')
                 ->setParameter('q', '%'.trim($search).'%');
         }
 
@@ -91,6 +91,6 @@ class ClientRepository extends ServiceEntityRepository
             ->andWhere('c.isActive = true')
             ->andWhere('c.'.$field.' = :u')
             ->setParameter('u', $user)
-            ->orderBy('c.name', 'ASC');
+            ->orderBy('c.shortName', 'ASC');
     }
 }

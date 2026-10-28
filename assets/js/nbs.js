@@ -21,7 +21,7 @@ export function isValidPib(pib) {
     return (11 - product) % 10 === Number(pib[8]);
 }
 
-const fields = ['name', 'shortName', 'maticniBroj', 'address', 'postalCode', 'city', 'phone', 'email', 'legalForm'];
+const fields = ['name', 'shortName', 'maticniBroj', 'address', 'postalCode', 'city', 'phone', 'email'];
 // telefon i email iz NBS-a su često prazni ili zastareli, pa ručno uneti ostaju
 const keepIfFilled = ['phone', 'email'];
 
@@ -51,7 +51,7 @@ const fill = (data) => {
         if ($field.val() !== data[key]) {
             const el = $field[0];
             if (el.tomselect) {
-                // pravna forma je Tom Select: vrednost mora kroz njegov API
+                // Tom Select: vrednost mora kroz njegov API
                 el.tomselect.setValue(data[key], true);
                 glow($(el.tomselect.control));
             } else {

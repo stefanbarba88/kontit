@@ -4,7 +4,6 @@ namespace App\Form;
 
 use App\Entity\Client;
 use App\Entity\User;
-use App\Enum\LegalForm;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -27,14 +26,8 @@ class ClientType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class, ['label' => 'Naziv'])
-            ->add('shortName', TextType::class, ['label' => 'Skraćeni naziv', 'required' => false])
-            ->add('legalForm', EnumType::class, [
-                'label' => 'Pravna forma',
-                'class' => LegalForm::class,
-                'choice_label' => static fn (LegalForm $f) => $f->label(),
-                'placeholder' => '— izaberi —',
-            ])
+            ->add('name', TextType::class, ['label' => 'Pun naziv', 'help' => 'Zvaničan naziv iz registra. Prikazuje se samo na kartici klijenta, u izveštajima i izvozima.'])
+            ->add('shortName', TextType::class, ['label' => 'Kraći naziv', 'help' => 'Koristi se svuda u aplikaciji, npr. „Mlekara Ivanjica“.', 'attr' => ['maxlength' => 40]])
             ->add('pib', TextType::class, ['label' => 'PIB', 'required' => false, 'attr' => ['maxlength' => 9, 'inputmode' => 'numeric']])
             ->add('maticniBroj', TextType::class, ['label' => 'Matični broj', 'required' => false, 'attr' => ['maxlength' => 8, 'inputmode' => 'numeric']])
             ->add('pdvObveznik', CheckboxType::class, ['label' => 'PDV obveznik', 'required' => false])

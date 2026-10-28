@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 {% import 'components/ui.html.twig' as ui %}
+{% import 'components/timeline.html.twig' as tl %}
 
 {% block title %}Dizajn vodič{% endblock %}
 {% block page_title %}Dizajn vodič{% endblock %}
@@ -140,6 +141,11 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h5>Timeline sa filterima i „Učitaj još“</h5></div>
+        <div class="card-body">{{ tl.feed(path('ajax_user_activity', {id: app.user.id}), activity, true) }}</div>
     </div>
 
     <div class="card">

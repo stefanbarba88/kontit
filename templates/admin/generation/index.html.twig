@@ -22,7 +22,7 @@
                     {% for row in preview %}
                         <tr>
                             <td>{{ row.job.jobTemplate.name }}</td>
-                            <td><a href="{{ path('client_show', {id: row.job.client.id}) }}" class="text-body">{{ row.job.client.name }}</a></td>
+                            <td><a href="{{ path('client_show', {id: row.job.client.id}) }}" class="text-body">{{ row.job.client.shortName }}</a></td>
                             <td>{{ row.label }}</td>
                             <td>{{ row.due|date('d.m.Y.') }}</td>
                             <td>{{ row.generateOn|date('d.m.Y.') }}</td>

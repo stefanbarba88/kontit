@@ -48,6 +48,7 @@ final class TaskExport implements ExportListInterface
         return [
             ['label' => 'Zadatak', 'type' => 'text', 'width' => 44],
             ['label' => 'Klijent', 'type' => 'text', 'width' => 28],
+            ['label' => 'Klijent (pun naziv)', 'type' => 'text', 'width' => 40],
             ['label' => 'Rok', 'type' => 'date', 'width' => 12],
             ['label' => 'Prioritet', 'type' => 'text', 'width' => 11],
             ['label' => 'Status', 'type' => 'text', 'width' => 14],
@@ -72,7 +73,8 @@ final class TaskExport implements ExportListInterface
             }
             yield [
                 $task->getTitle(),
-                $task->getClient()?->getName() ?? 'Interni',
+                $task->getClient()?->getShortName() ?? 'Interni',
+                $task->getClient()?->getName(),
                 $task->getDueDate(),
                 $task->getPriority()->label(),
                 $task->getStatus()->label(),
@@ -95,7 +97,7 @@ final class TaskExport implements ExportListInterface
             $parts[] = 'Prioritet: '.$priority->label();
         }
         if (($id = (int) ($query['client'] ?? 0)) && $client = $this->clients->find($id)) {
-            $parts[] = 'Klijent: '.$client->getName();
+            $parts[] = 'Klijent: '.$client->getShortName();
         }
 
         return implode(' · ', $parts);

@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Entity\Client;
 use App\Entity\User;
-use App\Enum\LegalForm;
 use App\Nbs\NbsCompanyLookupService;
 use App\Repository\ClientRepository;
 
@@ -65,19 +64,18 @@ class ClientImportService
     {
         $existing = $this->repository->findOneBy(['pib' => $pib]);
         if (null !== $existing) {
-            return ['pib' => $pib, 'status' => self::EXISTS, 'message' => 'Već postoji: '.$existing->getName(), 'client' => $existing];
+            return ['pib' => $pib, 'status' => self::EXISTS, 'message' => 'Već postoji: '.$existing->getShortName(), 'client' => $existing];
         }
 
         try {
             $data = $this->nbs->lookup($pib);
             $client = (new Client())
                 ->setName($data['name'])
-                ->setLegalForm(LegalForm::from($data['legalForm']))
                 ->setStartDate(new \DateTimeImmutable('today'))
                 ->applyNbs($data);
             $this->clients->create($client, $primary, $backup, $actor);
 
-            return ['pib' => $pib, 'status' => self::CREATED, 'message' => $client->getName(), 'client' => $client];
+            return ['pib' => $pib, 'status' => self::CREATED, 'message' => $client->getShortName(), 'client' => $client];
         } catch (\DomainException $e) {
             return ['pib' => $pib, 'status' => self::FAILED, 'message' => $e->getMessage(), 'client' => null];
         }

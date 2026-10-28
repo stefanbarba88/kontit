@@ -48,8 +48,8 @@
                     {% for client in pagination %}
                         <tr>
                             <td>
-                                <a href="{{ path('client_show', {id: client.id}) }}" class="fw-semibold">{{ client.name }}</a>
-                                <div class="text-muted kt-text-sm">{{ client.legalForm.label }}{% if client.city %} · {{ client.city }}{% endif %}</div>
+                                <a href="{{ path('client_show', {id: client.id}) }}" class="fw-semibold">{{ client.shortName }}</a>
+                                <div class="text-muted kt-text-sm">{{ [client.pib ? 'PIB ' ~ client.pib : null, client.city]|filter(v => v)|join(' · ') }}</div>
                             </td>
                             <td>{{ client.pib ?? '—' }}</td>
                             <td>{{ ui.user_chip(client.primaryAccountant, 24) }}</td>

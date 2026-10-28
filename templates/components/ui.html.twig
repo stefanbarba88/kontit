@@ -43,11 +43,11 @@
     <div data-kt-client-card class="card h-100 mb-0 {{ mode == 'backup' ? (absence ? 'border-info' : 'border-dashed border-secondary bg-light') : '' }}">
         <div class="card-body">
             <div class="d-flex align-items-start mb-2">
-                <h6 class="mb-0"><a href="{{ path('client_show', {id: client.id}) }}" class="text-body fw-semibold stretched-link">{{ client.name }}</a></h6>
+                <h6 class="mb-0"><a href="{{ path('client_show', {id: client.id}) }}" class="text-body fw-semibold stretched-link">{{ client.shortName }}</a></h6>
                 {% if mode == 'backup' %}<span class="badge {{ absence ? 'bg-info' : 'bg-secondary' }} ms-auto">{{ absence ? 'AKTIVNA ZAMENA' : 'ZAMENA' }}</span>{% endif %}
             </div>
             <div class="text-muted mb-2">
-                {{ client.legalForm.label }}{% if client.pib %} · PIB {{ client.pib }}{% endif %}{% if client.pdvObveznik %} · PDV{% endif %}
+                {% if client.pib %}PIB {{ client.pib }}{% endif %}{% if client.pdvObveznik %}{{ client.pib ? ' · ' }}PDV{% endif %}
             </div>
             {% if mode == 'backup' %}
                 <div class="kt-text-sm">{{ ux_icon('lucide:circle-user', {class: 'kt-icon me-1'}) }}Glavni zaduženi: <span class="fw-semibold">{{ client.primaryAccountant.fullName }}</span></div>
