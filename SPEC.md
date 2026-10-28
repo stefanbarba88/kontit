@@ -196,6 +196,7 @@ OTKAZANO (iz bilo kog statusa, radi kreator / šef / admin)
   - vidi otvorene zadatke glavnog radnika za te klijente, označene kao **"PREUZETO"**
   - može da ih štiklira i završava (ActivityLog beleži da je to uradio kao zamena)
 - Odsustvo upisuje admin (za bilo koga), šef (za sebe i svoj tim) ili radnik sam sebi.
+- **Od koraka P6 važi 8j** (šefovo sopstveno odsustvo odobrava admin, vrste odsustva, automatsko odobravanje). Dosadašnje pravilo:
 - **Odobravanje (odluka)**: "šef odobrava tuđe, svoje ne". Odsustvo koje radnik sam sebi upiše je `NA_CEKANJU` dok ga ne odobri šef njegovog tima (ili admin; ako radnik nema šefa, obaveštavaju se admini). Odsustvo koje upiše šef ili admin (i šef sam sebi) je odmah `ODOBRENO`. Šef ne odobrava sopstveno odsustvo, ali ga ne mora ni da odobrava jer je odmah na snazi.
 - Backup preuzima klijente **samo dok je odsustvo ODOBRENO i danas traje** (od početka do kraja, uključujući oba dana). Čekanje, odbijeno i otkazano ne aktiviraju zamenu. Otkazati može radnik, onaj ko je odsustvo upisao, šef tima i admin, dok period nije prošao.
 - Preklapanje sa drugim odsustvom koje čeka ili je odobreno (istog radnika) se odbija.
@@ -496,7 +497,7 @@ Kasnije se zamenjuje stvarnim vremenom iz agenta (Faza 8), pa analitiku treba pi
 
 ### 8g.2 Posao (JobTemplate)
 - name, category, description, checklist stavke (`JobTemplateChecklistItem`), raspored (8g.3), defaultPriority, completionMode, estimatedMinutes, priceUnit, isActive.
-- **defaultPrice**: vidi nedoumicu 9.
+- **defaultPrice** (opciona *predložena* cena; popunjava polje cene pri dodavanju pojedinačnog posla klijentu, a stvarna cena je `ClientJob.price`).
 
 ### 8g.3 Raspored izvršavanja
 Ako je raspored **"Po potrebi" (NONE)**, sistem ne kreira zadatke, nego ih korisnik pravi ručno (npr. prijava/odjava radnika).
@@ -504,14 +505,14 @@ Ako je raspored **"Po potrebi" (NONE)**, sistem ne kreira zadatke, nego ih koris
 | Tip | Podešavanja | Primer |
 |---|---|---|
 | NONE (Po potrebi) | nema | Prijava/odjava radnika |
-| DAILY | na svakih N dana; samo radni dani (da/ne) | Knjiženje izvoda |
+| DAILY | na svakih N dana; samo radni dani (da/ne) | Knjiženje izvoda (pri unosu kataloga razmisliti da li je bolje "Nedeljno" sa checklistom po danima, jer DAILY pravi mnogo zadataka; forma posla to napominje) |
 | WEEKLY | na svakih N nedelja; dan u nedelji | Svakog ponedeljka |
 | MONTHLY | na svakih N meseci; dan 1-31 ili "poslednji dan" | PDV prijava, 15. |
 | QUARTERLY | mesec posle kvartala (1-3); dan u mesecu | 20. dan posle kvartala |
 | YEARLY | mesec i dan | Završni račun, 30. jun |
 
 - Zajedničko: **leadDays** (koliko dana pre roka nastaje zadatak; DAILY obično 0) i **nonWorkingDayShift** (NEXT = prvi sledeći radni dan, podrazumevano; PREVIOUS = prethodni radni dan). DAILY sa "samo radni dani" preskače neradne dane. Dan 31 u kraćem mesecu = poslednji dan.
-- Polja na JobTemplate: `scheduleType`, `scheduleInterval`, `scheduleDayOfWeek`, `scheduleDayOfMonth`, `scheduleMonthOfQuarter`, `scheduleMonth`, `workingDaysOnly`, `leadDays`, `nonWorkingDayShift`. **Isti skup (nullable) je override na ClientJob**; prazan override = raspored posla. Zamenjuju stara polja `recurrence`, `dueDay`, `dueMonth`, `generateDaysBefore` (migracija prenosi vrednosti; ONE_TIME vidi nedoumicu 10).
+- Polja na JobTemplate: `scheduleType`, `scheduleInterval`, `scheduleDayOfWeek`, `scheduleDayOfMonth`, `scheduleMonthOfQuarter`, `scheduleMonth`, `workingDaysOnly`, `leadDays`, `nonWorkingDayShift`. **Isti skup (nullable) je override na ClientJob**; prazan override = raspored posla. Zamenjuju stara polja `recurrence`, `dueDay`, `dueMonth`, `generateDaysBefore` (migracija prenosi vrednosti; dosadašnji ONE_TIME poslovi postaju NONE, a jednokratan zadatak se pravi dugmetom "Kreiraj zadatak sada").
 - **`ScheduleCalculator`** (jedino mesto za logiku rasporeda, unit testovi): `nextOccurrences(schedule, from, count)` (rokovi već pomereni zbog neradnih dana), `periodKey(schedule, date)` (`2026-11-03`, `2026-W45`, `2026-11`, `2026-Q4`, `2026`), `describe(schedule)` ("Mesečno, 15. u mesecu (ako je neradni dan, prvi sledeći radni dan)").
 - Testovi: 31. u februaru, prestupna godina, rok na vikend i praznik, kolektivni odmor preko kraja meseca, "poslednji dan", DAILY samo radnim danima, kvartal preko kraja godine.
 - UI: segmentirana dugmad za tip, pa samo polja tog tipa; ispod opis rečima i **pregled narednih 5 rokova** (AJAX pri svakoj promeni). Pomeren rok ima ikonicu i tooltip ("15. nov je nedelja, pomereno na 16. nov").
@@ -531,8 +532,8 @@ Client ─< ClientPackage >─ ServicePackage          (više paketa po klijentu
 Client ─< ClientJob >─ JobTemplate                 (UGOVORENI posao: iz paketa ili pojedinačan)
 ClientJob ─< Task
 ```
-- **ServicePackage**: name, description, isActive, items (sa redosledom). Cena u katalogu: vidi nedoumicu 9.
-- **ClientPackage**: client, package, **agreedPrice**, note, startDate, endDate, isActive; promene cene u `ClientPackagePriceLog`.
+- **ServicePackage**: name, description, isActive, items (sa redosledom). **price** (opciona *predložena* mesečna cena; popunjava `agreedPrice` pri dodeli klijentu, a važi samo cena na klijentu).
+- **ClientPackage**: client, package, **agreedPrice**, discountPercent (ostaje kao do sada), note, startDate, endDate, isActive; promene cene u `ClientPackagePriceLog`.
 - **ClientJob**: client, jobTemplate, **source** (PACKAGE / INDIVIDUAL; dosadašnji AD_HOC postaje INDIVIDUAL), clientPackage, **price** (samo pojedinačni), note, override rasporeda (8g.3), override zaduženog, startDate, endDate, isActive, isExcluded + excludedReason/By/At. Predlog radnika (`isApproved`) ostaje kao do sada.
 - **Ugovoreni poslovi** = aktivni, neisključeni ClientJob-ovi. Samo iz njih nastaju zadaci.
 
@@ -591,12 +592,15 @@ Zamenjuje `Holiday` tabelu. Admin+ upravlja na **Podešavanja → Neradni dani**
 - `Absence` (proširuje `UserAbsence`): user, type, dateFrom, dateTo, halfDay (samo za jedan dan), **workingDays** (preko WorkingDayService-a), note, status, requestedBy, decidedBy, decidedAt, decisionNote, **approvalDeadline**, prilozi (8l).
 - Statusi: `NA_ODOBRENJU` → `ODOBRENO` / `ODBIJENO` / `AUTOMATSKI_ODOBRENO`, plus `OTKAZANO` (podnosilac dok je na odobrenju, admin uvek). Dosadašnji `NA_CEKANJU` postaje `NA_ODOBRENJU`.
 - Radnik podnosi za sebe. Šef i admin upisuju bilo kome koga vide, i tada je odobreno odmah.
-- **Odobrava** šef tima podnosioca; ako je podnosilac šef (vidi nedoumicu 11), nema tim ili mu je šef odsutan, odobrava admin.
+- **Odobrava** šef tima podnosioca; ako je podnosilac šef (i za sopstveno odsustvo), nema tim ili mu je šef odsutan, odobrava admin.
 - Forma odmah pokazuje broj radnih dana, preostale dane godišnjeg posle zahteva i ko je još iz tima odsutan (upozorenje).
 - Preklapanje sa postojećim odsustvom istog korisnika nije dozvoljeno. Odobreno odsustvo pokreće zamenu iz sekcije 5.
 
 ### 8j.3 Evidencija i pregled
 - `User.annualLeaveDays` i `LeaveBalance` (user, year, entitled, carriedOver, used; `used` iz odobrenih odsustava koja troše godišnji).
+- **Prenos**: neiskorišćeni dani se prenose u sledeću godinu (`carriedOver`) i mogu se koristiti **do 30. juna**; posle toga preneti dani propadaju. Godišnji odmor prvo troši prenete dane.
+- **Bolovanje** je samo evidencija (bez odobravanja, `requiresApproval = false`, odmah ODOBRENO i pokreće zamenu); doznaka se prilaže u roku od 3 dana, a posle toga korisnik i admin dobijaju podsetnik.
+- **Slava** se za sada ne upisuje na profil i nema automatskog predloga zahteva (može kasnije).
 - Profil: kartica "Odsustva" (preostalo / iskorišćeno / preneto, zahtevi po godini).
 - Stranica Odsustva (šef svoj tim, admin svi): tab **"Na odobrenju"** (brojač u meniju, Odobri / Odbij uz razlog), tab **"Pregled"** (radnik × dani u mesecu, boje po vrsti, neradni dani prigušeni, filter po timu), tab **"Evidencija"** (zbir po radniku i vrsti za godinu, izvoz Excel / PDF).
 - Telefon: "Na odobrenju" kao kartice sa prevlačenjem za Odobri / Odbij, pregled kao lista po danima.
@@ -607,7 +611,8 @@ Zamenjuje `Holiday` tabelu. Admin+ upravlja na **Podešavanja → Neradni dani**
 - Rok pri podnošenju: `min(podnošenje + X radnih sati, početak odsustva − 1 dan)`; X po vrsti zahteva u Podešavanjima (podrazumevano 48 h). Ako je odsustvo za sutra, odobravalac dobija hitnu notifikaciju.
 - `app:approvals:auto-approve` (cron na 15 min): `NA_ODOBRENJU` sa isteklim rokom → `AUTOMATSKI_ODOBRENO`, ActivityLog (sistem), notifikacije obojici. Podsetnik odobravaocu 24 h pre isteka.
 - UI: odbrojavanje ("Automatski se odobrava za 5 h"), poseban badge za automatski odobreno. Admin može da poništi automatsko odobrenje (razlog, notifikacija).
-- Primena: odsustva. Uključivanje po vrsti zahteva u Podešavanjima (nedoumica 1).
+- "X radnih sati" = sati koji padaju u radne dane (vikend, praznici i kolektivni odmor se preskaču), bez radnog vremena od-do. Podrazumevano 48 h za sve vrste odsustva, uključujući slavu (menja se u Podešavanjima).
+- Primena: odsustva (uključeno). **Potvrda zadataka (NA_PROVERI)**: mehanizam postoji, podrazumevano isključen; kad se uključi u Podešavanjima, rok je 3 radna dana. Uključivanje je po vrsti zahteva.
 
 ## 8l. Dokumenti korisnika
 - `UserDocument`: user, category (`DocumentCategory`, CRUD: Ugovor, Rešenje, Potvrda, Izvod, Doznaka, Ostalo), title, file (PDF, JPG, PNG, do 20 MB), originalName, mimeType, size, validUntil, note, uploadedBy, createdAt, absence (opciono), deletedAt.
@@ -625,7 +630,7 @@ Zamenjuje `Holiday` tabelu. Admin+ upravlja na **Podešavanja → Neradni dani**
 - Klik na prazan dan: "Novi zadatak za ovaj dan" ili "Zahtev za odsustvo od ovog dana". Klik na događaj: popover sa detaljima i linkom. Prevlačenje zadatka menja rok (samo uz `TASK_EDIT`), uz SweetAlert i upozorenje za neradni dan.
 - Kalendar je u glavnom meniju; mali pregled naredne nedelje na dashboardu.
 - **ICS link**: tajni `/calendar/ics/{token}.ics` (samo čitanje), uz poništavanje i novi link.
-- **Google Calendar** (aplikacija → Google): svaki korisnik sam povezuje nalog (OAuth 2.0, scope `calendar.app.created`), aplikacija pravi poseban kalendar "KontIT". Šalju se zadaci gde je korisnik učesnik (celodnevno na dan roka, link u opisu) i njegova odobrena odsustva; šef opciono i odsustva tima. Kreiranje, izmena roka, status (✓ u naslovu), otkazivanje i brisanje idu asinhrono preko Messenger-a, sa ponavljanjem; posle 5 neuspeha notifikacija korisniku. Entiteti `GoogleCalendarConnection` (refreshToken šifrovan) i `CalendarSyncLink`. Komanda `app:calendar:resync {user}`. Paketi `knpuniversity/oauth2-client-bundle`, `league/oauth2-google`, `google/apiclient` (samo Calendar servis). Uputstvo za Google Cloud konzolu u `docs/google-calendar-setup.md`; `GOOGLE_CLIENT_ID` i `GOOGLE_CLIENT_SECRET` samo u `.env.local`.
+- **Google Calendar** (samo jedan smer, aplikacija → Google; izmene u Google-u se ne vraćaju u aplikaciju): svaki korisnik sam povezuje nalog (OAuth 2.0, scope `calendar.app.created`), aplikacija pravi poseban kalendar "KontIT". Šalju se zadaci gde je korisnik učesnik (celodnevno na dan roka, link u opisu) i njegova odobrena odsustva; šef opciono i odsustva tima. Kreiranje, izmena roka, status (✓ u naslovu), otkazivanje i brisanje idu asinhrono preko Messenger-a, sa ponavljanjem; posle 5 neuspeha notifikacija korisniku. Entiteti `GoogleCalendarConnection` (refreshToken šifrovan) i `CalendarSyncLink`. Komanda `app:calendar:resync {user}`. Paketi `knpuniversity/oauth2-client-bundle`, `league/oauth2-google`, `google/apiclient` (samo Calendar servis). Uputstvo za Google Cloud konzolu u `docs/google-calendar-setup.md`; `GOOGLE_CLIENT_ID` i `GOOGLE_CLIENT_SECRET` samo u `.env.local`.
 
 ### Podešavanja (admin) iz ove dopune
 Neradni dani, vrste odsustva i kategorije dokumenata, rokovi automatskog odobravanja po vrsti zahteva, podrazumevan broj dana godišnjeg odmora, Google kalendar (uključen za firmu, šefovi dobijaju odsustva tima).
@@ -686,21 +691,10 @@ ABSENCE_REQUESTED (postoji), ABSENCE_APPROVED, ABSENCE_REJECTED (zamenjuju ABSEN
 
 > Kad odlučiš, upiši odluku u odgovarajuću sekciju iznad i obriši stavku odavde.
 
-**Iz UPDATE-POSLOVI-KALENDAR.md:**
-1. **Automatsko odobravanje važi i za potvrdu zadataka** (NA_PROVERI)? Predlog: da, ali sa dužim rokom (npr. 3 radna dana) i isključivo uz podešavanje, jer potvrda zadatka proverava kvalitet rada, a ne samo dozvolu.
-2. **Rok za automatsko odobravanje odsustva:** 48 h je predlog. Da li slava treba da ima kraći rok, jer se zna unapred? I šta su "radni sati": predlog je da se računaju sati samo u radnim danima (vikend i praznici se preskaču), bez radnog vremena od-do.
-3. **Google kalendar u oba smera?** Predlog: za sada samo aplikacija → Google.
-4. **Bolovanje:** da li šef treba da ga "vidi i potvrdi" ili je samo evidencija? Predlog: samo evidencija, a doznaka se prilaže u roku od 3 dana.
-5. **Prenos neiskorišćenih dana godišnjeg odmora** u sledeću godinu: da li i do kog datuma (po zakonu se deo koristi do 30. juna)?
-6. **Slava:** da li da se na profilu upiše slava (naziv i datum), pa da sistem sam predloži zahtev za odsustvo nekoliko nedelja ranije?
-7. **Šef vidi dokumente svog tima?** Predlog: samo one vezane za odsustva (doznake), a ugovore i rešenja samo admin.
-8. **Zadaci sa rasporedom "Dnevno"** mogu da naprave mnogo zadataka. Odluka po poslu pri unosu kataloga (možda "Nedeljno" sa checklistom po danima).
+_Trenutno nema otvorenih nedoumica._
 
-**Uočeno pri prenosu (razlike prema ranijim odlukama):**
-9. **Cene u katalogu.** UPDATE-POSLOVI-KALENDAR vraća `ServicePackage.price` i `JobTemplate.defaultPrice` kao *predlog* cene, a 27.10. je odlučeno da katalog nema cene. Predlog: vratiti ih kao **opcionu predloženu cenu** (popunjava polje pri dodeli klijentu), a stvarna cena ostaje na klijentu (`agreedPrice`, `ClientJob.price`).
-10. **Jednokratni posao (ONE_TIME)** ne postoji u novom rasporedu. Predlog: postojeći ONE_TIME poslovi prelaze u "Po potrebi" (NONE), a jednokratan zadatak se pravi dugmetom "Kreiraj zadatak sada".
-11. **Šef koji traži odsustvo za sebe.** Do sada: odmah odobreno. Novo pravilo: odobrava admin. Predlog: važi novo pravilo (šefovo odsustvo ide adminu na odobrenje, uz automatsko odobravanje posle roka).
-12. **Popust na paketu** (`ClientPackage.discountPercent`) se ne pominje u novom modelu. Predlog: ostaje kako jeste.
+### Rešeno 2026-10-28 (UPDATE-POSLOVI-KALENDAR, prihvaćeni predlozi)
+Automatsko odobravanje potvrde zadataka postoji, ali je isključeno (rok 3 radna dana kad se uključi); rok odsustva 48 h u radnim danima za sve vrste; Google samo u jednom smeru; bolovanje samo evidencija; prenos godišnjeg do 30. juna; slava se ne upisuje; šef vidi samo dokumente vezane za odsustva tima; DAILY je odluka po poslu; predložene cene u katalogu (opcione); ONE_TIME postaje NONE; šefovo odsustvo odobrava admin; popust na paketu ostaje. Odluke su upisane u 8g-8n.
 
 ### Rešeno (podrazumevane vrednosti iz predloga, implementirano u fazama 2b/3b/7b)
 1. **Šef i cene**: šef i radnik **ne vide** cene ni analitiku (`PRICE_VIEW` = admin+).

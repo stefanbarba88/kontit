@@ -4,8 +4,8 @@
 
 ## Trenutno stanje
 - Faza: **UPDATE-DIZAJN završen** (koraci 1-8): NBS popravka, sopstveni UI sistem bez template-a, sitnice, mobilni prikaz, avatar inicijali, izvoz. Uz faze 0-7, 2b, 3b, 7b.
-- Sledeći korak: **UPDATE-POSLOVI-KALENDAR** (koraci P1-P11, SPEC 8f-8n), čeka potvrdu plana. Faza 8 je odložena. Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
-- Otvorenih nedoumica: 12 (SPEC sekcija 11).
+- Sledeći korak: **UPDATE-POSLOVI-KALENDAR** (koraci P1-P11, SPEC 8f-8n), plan potvrđen, radi se P1. Faza 8 je odložena. Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
+- Otvorenih nedoumica: 0 (svih 12 rešeno po predlozima, 2026-10-28).
 
 ## Urađeno
 - 2026-10-28: **UPDATE-POSLOVI-KALENDAR prenet u SPEC.md** (sekcije 8f-8n, koraci P1-P11 u sekciji 10, nedoumice 1-12 u sekciji 11). Faza 8 označena kao odložena. Ništa još nije implementirano.
