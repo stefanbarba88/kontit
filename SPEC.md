@@ -567,8 +567,8 @@ ClientJob ─< Task
 - Iz zadataka (`/tasks/new`): prvo klijent (Tom Select po kraćem, punom nazivu i PIB-u) ili **"Interni zadatak (bez klijenta)"**; dok klijent nije izabran, "Posao" i "Zaduženi" su zaključani ("Prvo izaberi klijenta"). AJAX `/ajax/clients/{id}/task-options` puni poslove i zadužene; pri promeni klijenta uklanjaju se zaduženi koji nisu na novom klijentu (toast). Interni zadatak: pravila iz 4.4.
 - Uvek: pravila 4.4 važe; server ponovo proverava (Voter + da je zaduženi raspoređen na klijenta). Izbor posla popunjava checklist (editor 8g.4), prioritet i procenu. Rok preko flatpickr-a, neradni dani prigušeni, a izbor neradnog dana daje upozorenje (ne zabranu).
 
-## 8k. Neradni dani
-Zamenjuje `Holiday` tabelu. Admin+ upravlja na **Podešavanja → Neradni dani**.
+## 8k. Neradni dani (implementirano u P2)
+Zamenjuje `Holiday` tabelu. Admin+ upravlja na **Podešavanja → Neradni dani** (`/admin/non-working-days`). `nextWorkingDay` i `previousWorkingDay` vraćaju sam dan ako je radni.
 - `WeeklyNonWorkingRule` (dani u nedelji, jedno pravilo za firmu; podrazumevano subota i nedelja) i `NonWorkingDay` (type: HOLIDAY_RECURRING, HOLIDAY_ONCE, COLLECTIVE_LEAVE; name, dateFrom, dateTo, recurring, note). Postojeći praznici iz `Holiday` prelaze u HOLIDAY_ONCE.
 - "Učitaj praznike Srbije za godinu": zakonski praznici, uključujući pravoslavni Uskrs (julijanski kalendar) i Veliki petak; admin pregleda pre čuvanja. Praznik u nedelju: predlog da se ne radi narednog radnog dana, admin potvrđuje.
 - Pregled: godišnji kalendar (12 malih meseci) sa obojenim neradnim danima i lista ispod.

@@ -180,7 +180,7 @@ const back = document.querySelector('[data-kt-back]');
 if (back) {
     const crumbs = [...document.querySelectorAll('.kt-breadcrumb a.breadcrumb-item')];
     const topLevel = ['app_dashboard', 'task_index', 'client_index', 'client_mine', 'absence_index', 'notification_index', 'app_profile',
-        'admin_user_index', 'admin_team_index', 'admin_job_index', 'admin_package_index', 'admin_finance', 'admin_generation', 'admin_holiday_index'];
+        'admin_user_index', 'admin_team_index', 'admin_job_index', 'admin_package_index', 'admin_finance', 'admin_generation', 'admin_non_working_index'];
     if (topLevel.includes(document.body.dataset.route)) {
         back.hidden = true;
     }

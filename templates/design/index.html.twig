@@ -117,11 +117,11 @@
                     <tr><td><div class="d-flex align-items-center gap-2"><span class="kt-avatar" data-tone="1" style="width: 32px; height: 32px; font-size: 12px;">PZ</span><div><div class="fw-medium">Pekara Zlatni klas</div><div class="kt-text-sm text-muted kt-mono">101000001</div></div></div></td>
                         <td><span class="kt-avatar-stack"><span class="kt-avatar" data-tone="0" style="width: 28px; height: 28px; font-size: 11px;">MP</span><span class="kt-avatar" data-tone="3" style="width: 28px; height: 28px; font-size: 11px;">JK</span></span></td>
                         <td><span class="badge kt-badge-primary">U radu</span></td><td class="text-end">16.000,00 RSD</td>
-                        <td><button class="btn kt-kt-btn-icon btn-sm">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button></td></tr>
+                        <td><button class="btn kt-btn-icon btn-sm">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button></td></tr>
                     <tr><td><div class="d-flex align-items-center gap-2"><span class="kt-avatar" data-tone="5" style="width: 32px; height: 32px; font-size: 12px;">AB</span><div><div class="fw-medium">Auto-servis Brzi</div><div class="kt-text-sm text-muted kt-mono">101000002</div></div></div></td>
                         <td><span class="kt-empty-value">—</span></td>
                         <td><span class="badge kt-badge-danger">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon'}) }} Kasni</span></td><td class="text-end">9.500,00 RSD</td>
-                        <td><button class="btn kt-kt-btn-icon btn-sm">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button></td></tr>
+                        <td><button class="btn kt-btn-icon btn-sm">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button></td></tr>
                 </tbody>
             </table>
         </div>
@@ -146,6 +146,25 @@
     <div class="card">
         <div class="card-header"><h5>Timeline sa filterima i „Učitaj još“</h5></div>
         <div class="card-body">{{ tl.feed(path('ajax_user_activity', {id: app.user.id}), activity, true) }}</div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h5>Godišnji kalendar neradnih dana</h5></div>
+        <div class="card-body">
+            <div class="kt-year" style="max-width: 220px;">
+                <div class="kt-year-month">
+                    <div class="kt-year-title">April 2026.</div>
+                    <div class="kt-year-grid">
+                        {% for n in ["P", "U", "S", "Č", "P", "S", "N"] %}<span class="kt-year-dow">{{ n }}</span>{% endfor %}
+                        <span></span><span></span>
+                        {% for d in 1..30 %}
+                            {% set dow = (d + 1) % 7 + 1 %}
+                            <span class="kt-year-day{% if d in [10, 11, 12, 13] %} is-holiday{% elseif dow >= 6 %} is-weekend{% endif %}{% if d == 22 %} is-today{% endif %}"{% if d in [10, 11, 12, 13] %} title="Uskršnji praznici" data-bs-toggle="tooltip"{% endif %}>{{ d }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="card">

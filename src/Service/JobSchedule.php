@@ -21,10 +21,7 @@ class JobSchedule
 {
     private const MONTHS = ['januar', 'februar', 'mart', 'april', 'maj', 'jun', 'jul', 'avgust', 'septembar', 'oktobar', 'novembar', 'decembar'];
 
-    /** @var array<string, true>|null */
-    private ?array $holidays = null;
-
-    public function __construct(private readonly HolidayRepository $holidayRepository)
+    public function __construct(private readonly WorkingDayService $workingDays)
     {
     }
 
@@ -52,12 +49,7 @@ class JobSchedule
      */
     public function nextWorkday(\DateTimeImmutable $date): \DateTimeImmutable
     {
-        $holidays = $this->holidays();
-        while ((int) $date->format('N') >= 6 || isset($holidays[$date->format('Y-m-d')])) {
-            $date = $date->modify('+1 day');
-        }
-
-        return $date;
+        return $this->workingDays->nextWorkingDay($date);
     }
 
     /**
@@ -117,20 +109,5 @@ class JobSchedule
         $last = (int) $monthStart->format('t');
 
         return $monthStart->setDate((int) $monthStart->format('Y'), (int) $monthStart->format('n'), min($day, $last));
-    }
-
-    /**
-     * @return array<string, true>
-     */
-    private function holidays(): array
-    {
-        if (null === $this->holidays) {
-            $this->holidays = [];
-            foreach ($this->holidayRepository->findAll() as $holiday) {
-                $this->holidays[$holiday->getDate()->format('Y-m-d')] = true;
-            }
-        }
-
-        return $this->holidays;
     }
 }

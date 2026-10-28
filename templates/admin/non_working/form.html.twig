@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ is_new ? 'Nov neradni dan' : 'Izmena neradnog dana' }}{% endblock %}
+{% block page_title %}{{ is_new ? 'Nov neradni dan' : 'Izmena: ' ~ day.name }}{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('admin_non_working_index') }}" class="breadcrumb-item">Neradni dani</a>
+    <span class="breadcrumb-item active">{{ is_new ? 'Nov' : 'Izmena' }}</span>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        {{ form_row(form.type) }}
+                        {{ form_row(form.name) }}
+                        <div class="row">
+                            <div class="col-md-6">{{ form_row(form.dateFrom) }}</div>
+                            <div class="col-md-6">{{ form_row(form.dateTo) }}</div>
+                        </div>
+                        {{ form_row(form.note) }}
+                        <div class="kt-form-actions">
+                            <a href="{{ path('admin_non_working_index') }}" class="btn btn-light">Odustani</a>
+                            <button class="btn btn-primary">Sačuvaj</button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-body kt-text-sm text-muted">
+                    <p><strong class="text-body">Praznik, svake godine</strong>: isti dan i mesec svake godine (Nova godina, Dan državnosti).</p>
+                    <p><strong class="text-body">Praznik, ove godine</strong>: tačan datum ili opseg samo za tu godinu (Uskrs, pomeren praznik).</p>
+                    <p class="mb-0"><strong class="text-body">Kolektivni odmor</strong>: opseg datuma kada firma ne radi; može preko kraja godine.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

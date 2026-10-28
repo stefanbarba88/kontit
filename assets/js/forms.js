@@ -6,9 +6,8 @@ import { Serbian } from 'flatpickr/dist/l10n/sr.js';
 import IMask from 'imask';
 import autosize from 'autosize';
 import { Tooltip } from 'bootstrap';
+import { info, remember, cache } from './non-working.js';
 
-const holidays = new Set((document.querySelector('meta[name="kt-holidays"]')?.content || '').split(',').filter(Boolean));
-const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 // Latinični srpski za flatpickr (paket ima samo ćirilicu pod 'sr'), nedelja počinje ponedeljkom
 const srLatn = {
@@ -64,6 +63,15 @@ function addShortcuts(fp) {
     fp.calendarContainer.appendChild(bar);
 }
 
+// učitava neradne dane prikazane godine (i susedne, zbog dana iz susednih meseci), pa ponovo crta kalendar
+function showYear(fp) {
+    const year = fp.currentYear;
+    const missing = [year - 1, year, year + 1].filter((y) => !(y in cache));
+    if (missing.length) {
+        Promise.all(missing.map(remember)).then(() => fp.redraw());
+    }
+}
+
 function initDates(root) {
     root.querySelectorAll('input[type="date"]:not(.flatpickr-input), input[data-kt-period]:not(.flatpickr-input)').forEach((el) => {
         const range = el.hasAttribute('data-kt-period');
@@ -77,18 +85,21 @@ function initDates(root) {
             mode: range ? 'range' : 'single',
             onReady: (_, __, fp) => {
                 fp.altInput.classList.add('kt-date');
+                showYear(fp);
                 if (range || el.hasAttribute('data-kt-shortcuts')) {
                     addShortcuts(fp);
                 }
             },
+            onYearChange: (_, __, fp) => showYear(fp),
+            onMonthChange: (_, __, fp) => showYear(fp),
+            onOpen: (_, __, fp) => showYear(fp),
+            // neradni dani su prigušeni: dan u nedelji (vikend), praznik i kolektivni odmor sa nazivom u tooltip-u
             onDayCreate: (_, __, ___, dayElem) => {
                 const date = dayElem.dateObj;
-                if (date.getDay() === 0 || date.getDay() === 6) {
-                    dayElem.classList.add('kt-weekend');
-                }
-                if (holidays.has(iso(date))) {
-                    dayElem.classList.add('kt-holiday');
-                    dayElem.title = 'Praznik';
+                const day = info(date, cache[date.getFullYear()] || {});
+                if (day) {
+                    dayElem.classList.add(day.type === 'WEEKLY' ? 'kt-weekend' : 'kt-holiday');
+                    dayElem.title = day.name;
                 }
             },
         });

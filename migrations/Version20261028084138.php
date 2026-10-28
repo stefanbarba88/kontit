@@ -27,6 +27,6 @@ final class Version20261028084138 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE client ADD legal_form VARCHAR(20) DEFAULT 'OSTALO' NOT NULL, CHANGE short_name short_name VARCHAR(150) DEFAULT NULL');
+        $this->addSql('ALTER TABLE client ADD legal_form VARCHAR(20) DEFAULT "OSTALO" NOT NULL, CHANGE short_name short_name VARCHAR(150) DEFAULT NULL');
     }
 }

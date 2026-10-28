@@ -6,7 +6,7 @@
 	<meta name="theme-color" content="#F5F6F8" media="(prefers-color-scheme: light)">
 	<meta name="theme-color" content="#0B0F14" media="(prefers-color-scheme: dark)">
 	{% if app.user %}<meta name="csrf-token" content="{{ csrf_token('ajax') }}">
-	<meta name="kt-holidays" content="{{ holiday_dates()|join(',') }}">{% endif %}
+	<meta name="kt-non-working-url" content="{{ path('ajax_calendar_non_working') }}">{% endif %}
 	<title>{% block title %}Početna{% endblock %} · KontIT app</title>
 	{{ include('_head_theme.html.twig') }}
 	{{ include('_favicons.html.twig') }}
@@ -69,7 +69,7 @@
 					{{ nav.link(path('admin_job_index'), 'list-checks', 'Katalog poslova', route starts with 'admin_job') }}
 					{{ nav.link(path('admin_package_index'), 'package', 'Paketi usluga', route starts with 'admin_package') }}
 					{{ nav.link(path('admin_generation'), 'refresh-cw', 'Generisanje zadataka', route starts with 'admin_generation') }}
-					{{ nav.link(path('admin_holiday_index'), 'calendar-x', 'Praznici', route starts with 'admin_holiday') }}
+					{{ nav.link(path('admin_non_working_index'), 'calendar-x', 'Neradni dani', route starts with 'admin_non_working') }}
 					{{ nav.link(path('admin_finance'), 'trending-up', 'Finansije', route starts with 'admin_finance') }}
 				{% endif %}
 				{% if is_granted('USER_MANAGE') %}

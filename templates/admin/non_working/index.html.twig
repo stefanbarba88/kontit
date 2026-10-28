@@ -1,0 +1,106 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}Neradni dani {{ year }}{% endblock %}
+{% block page_title %}Neradni dani{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item">Podešavanja</span><span class="breadcrumb-item active">Neradni dani</span>{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('admin_non_working_load', {year: year}) }}" class="btn btn-light me-2">{{ ux_icon('lucide:download', {class: 'kt-icon me-2'}) }}Učitaj praznike Srbije za {{ year }}.</a>
+    <a href="{{ path('admin_non_working_new') }}" class="btn btn-primary">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Dodaj</a>
+{% endblock %}
+
+{% block content %}
+    {% set day_names = ['Pon', 'Uto', 'Sre', 'Čet', 'Pet', 'Sub', 'Ned'] %}
+    <div class="row">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <h5 class="mb-0 me-auto">Kalendar {{ year }}.</h5>
+                    <a href="{{ path('admin_non_working_index', {year: year - 1}) }}" class="btn btn-ghost kt-btn-icon btn-sm" title="Prethodna godina" aria-label="Prethodna godina">{{ ux_icon('lucide:chevron-left', {class: 'kt-icon'}) }}</a>
+                    <a href="{{ path('admin_non_working_index', {year: year + 1}) }}" class="btn btn-ghost kt-btn-icon btn-sm" title="Sledeća godina" aria-label="Sledeća godina">{{ ux_icon('lucide:chevron-right', {class: 'kt-icon'}) }}</a>
+                </div>
+                <div class="card-body border-top">
+                    <div class="kt-year">
+                        {% for m in 1..12 %}
+                            {% set first = date(year ~ '-' ~ '%02d'|format(m) ~ '-01') %}
+                            <div class="kt-year-month">
+                                <div class="kt-year-title">{{ ['Januar', 'Februar', 'Mart', 'April', 'Maj', 'Jun', 'Jul', 'Avgust', 'Septembar', 'Oktobar', 'Novembar', 'Decembar'][m - 1] }}</div>
+                                <div class="kt-year-grid">
+                                    {% for n in day_names %}<span class="kt-year-dow">{{ n|first }}</span>{% endfor %}
+                                    {% for i in 1..(first|date('N') - 1) %}{% if first|date('N') > 1 %}<span></span>{% endif %}{% endfor %}
+                                    {% for d in 1..first|date('t') %}
+                                        {% set key = year ~ '-' ~ '%02d'|format(m) ~ '-' ~ '%02d'|format(d) %}
+                                        {% set dow = date(key)|date('N') %}
+                                        {% set info = special[key] ?? null %}
+                                        <span class="kt-year-day{% if info %} is-{{ info.type == 'COLLECTIVE_LEAVE' ? 'leave' : 'holiday' }}{% elseif dow in weekly %} is-weekend{% endif %}{% if key == 'now'|date('Y-m-d') %} is-today{% endif %}"{% if info %} title="{{ info.name }}" data-bs-toggle="tooltip"{% endif %}>{{ d }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="d-flex flex-wrap gap-3 mt-3 kt-text-sm text-muted">
+                        <span><span class="kt-year-key is-holiday"></span>Praznik</span>
+                        <span><span class="kt-year-key is-leave"></span>Kolektivni odmor</span>
+                        <span><span class="kt-year-key is-weekend"></span>Neradni dan u nedelji</span>
+                        <span class="ms-auto">Radnih dana u {{ year }}.: <strong class="text-body">{{ workingCount }}</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Praznici i kolektivni odmor u {{ year }}.</h5></div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr><th>Datum</th><th>Naziv</th><th>Vrsta</th><th style="width: 1%;"></th></tr></thead>
+                        <tbody>
+                            {% for entry in entries %}
+                                {% set dates = entry.datesInYear(year) %}
+                                <tr>
+                                    <td class="text-nowrap">{% if dates is empty %}—{% else %}{{ dates|first|date('d.m.') }}{% if dates|length > 1 %} – {{ dates|last|date('d.m.') }}{% endif %}{% if not entry.recurring %}{{ year }}.{% endif %}{% endif %}</td>
+                                    <td>{{ entry.name }}{% if entry.note %}<div class="text-muted kt-text-sm">{{ entry.note }}</div>{% endif %}</td>
+                                    <td><span class="kt-badge kt-badge-{{ entry.type.color }}">{{ ux_icon('lucide:' ~ entry.type.icon, {class: 'kt-icon me-1'}) }}{{ entry.type.label }}</span></td>
+                                    <td class="text-nowrap">
+                                        <a href="{{ path('admin_non_working_edit', {id: entry.id}) }}" class="btn kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a>
+                                        <form method="post" action="{{ path('admin_non_working_delete', {id: entry.id}) }}" class="d-inline" {{ confirm_attrs('Obrisati „' ~ entry.name ~ '“?', entry.recurring ? 'Praznik se briše za sve godine. Rokovi se više neće pomerati zbog ovih datuma.' : 'Rokovi se više neće pomerati zbog ovih datuma.', 'danger', 'Da, obriši') }}>
+                                            <input type="hidden" name="_token" value="{{ csrf_token('non_working_delete_' ~ entry.id) }}">
+                                            <button class="btn kt-btn-icon btn-sm text-danger" title="Obriši">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="4">{{ ui.empty_state('Za ovu godinu nema praznika. Učitaj zakonske praznike Srbije.', 'calendar-x', 'Učitaj praznike', path('admin_non_working_load', {year: year})) }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Neradni dani u nedelji</h5></div>
+                <div class="card-body border-top">
+                    <p class="text-muted kt-text-sm">Važi za celu firmu, svake nedelje.</p>
+                    <form method="post" action="{{ path('admin_non_working_weekly') }}" {{ confirm_attrs('Promeniti neradne dane u nedelji?', 'Menjaju se rokovi budućih zadataka i broj radnih dana u odsustvima.', 'warning', 'Da, sačuvaj') }}>
+                        <input type="hidden" name="_token" value="{{ csrf_token('non_working_weekly') }}">
+                        <input type="hidden" name="year" value="{{ year }}">
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            {% for n in ['Ponedeljak', 'Utorak', 'Sreda', 'Četvrtak', 'Petak', 'Subota', 'Nedelja'] %}
+                                <input type="checkbox" class="btn-check" name="days[]" value="{{ loop.index }}" id="nwd-{{ loop.index }}" autocomplete="off" {{ loop.index in weekly ? 'checked' }}>
+                                <label class="btn btn-outline-secondary btn-sm" for="nwd-{{ loop.index }}" title="{{ n }}">{{ n|slice(0, 3) }}</label>
+                            {% endfor %}
+                        </div>
+                        <button class="btn btn-primary">Sačuvaj</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body kt-text-sm text-muted">
+                    <p class="mb-2">{{ ux_icon('lucide:info', {class: 'kt-icon me-1'}) }}Rok koji padne na neradni dan pomera se na prvi sledeći radni dan (ili prethodni, ako je tako podešeno na poslu).</p>
+                    <p class="mb-0">Neradni dani se ne računaju u broj dana odsustva i u kalendaru su prigušeni.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

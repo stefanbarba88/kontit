@@ -26,7 +26,7 @@
                             <td>{{ ui.user_chip(team.leader) }}</td>
                             <td>{{ team.activeMembers|length }}</td>
                             <td class="text-center">
-                                <a href="{{ path('admin_team_edit', {id: team.id}) }}" class="btn kt-kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a>
+                                <a href="{{ path('admin_team_edit', {id: team.id}) }}" class="btn kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a>
                             </td>
                         </tr>
                     {% else %}
