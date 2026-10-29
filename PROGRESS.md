@@ -9,6 +9,11 @@
 - Otvorenih nedoumica: 0.
 
 ## Urađeno
+- 2026-10-29: **Čišćenje baze (probni podaci obrisani, po dogovoru)**
+  - Backup pre brisanja: `C:\xampp\backups\kontit\kontit_2026-10-29_09-11-07.sql` (van htdocs; provereno vraćanjem u privremenu bazu, broj redova se poklopio u svih 34 tabele).
+  - Ostalo: superadmin id 1 (admin@kontit.local), `doctrine_migration_versions`, `app_setting`, šifarnici (`absence_type`, `document_category`, `job_category`), neradni dani (`non_working_day`, `weekly_non_working_rule`) i katalog (`job_template`, `job_template_checklist_item`, `service_package`, `service_package_item`).
+  - Obrisano sve ostalo (korisnici osim id 1, timovi, klijenti i usluge, zadaci, odsustva, dokumenti, istorija izmena, obaveštenja, red poruka, Google veze); brojači ID-jeva vraćeni na 1 (`app_user` na 2). Fajlovi na disku nisu dirani (`var/exports/1/…xlsx`, avatar u `public/uploads/avatars/`).
+  - Provereno: 51 strani ključ bez siročadi, `doctrine:schema:validate` OK, prijava kao superadmin i 35 glavnih ekrana bez greške (server log, JS konzola, horizontalni skrol).
 - 2026-10-29: **Uputstvo za korisnike u aplikaciji (SPEC 8o)**
   - Meni **Pomoć → Uputstvo** (`/uputstvo`, `/uputstvo/{admin|sef|radnik}`; na telefonu u „Više“). `HelpGuide` enum, `HelpVoter` (`HELP_VIEW` preko role_hierarchy: radnik svoje, šef šef + radnik, admin i superadmin sva), `HelpController`, `HelpRenderer` (CommonMark + GFM, id-jevi naslova, sadržaj h2/h3, poglavlja u `<section>`, keš po vremenu izmene fajla).
   - Sadržaj: `docs/uputstvo/radnik.md`, `sef.md`, `admin.md` (sa poglavljem „Samo za superadmina“), `README.md` (kako se menja i kako se ubacuju slike). Placeholderi `[SLIKA: …]` za slike koje dolaze kasnije; slike u `docs/uputstvo/slike/` servira kontroler samo prijavljenima.
