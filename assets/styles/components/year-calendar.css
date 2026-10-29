@@ -3,7 +3,7 @@
 .kt-year-title { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
 .kt-year-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 12px; font-variant-numeric: tabular-nums; }
 .kt-year-dow { color: var(--kt-text-3); font-size: 10px; font-weight: 600; padding-bottom: 2px; }
-.kt-year-day { border-radius: 6px; line-height: 24px; color: var(--kt-text-1); }
+.kt-year-day { border-radius: 6px; line-height: 24px; color: var(--kt-text); }
 .kt-year-day.is-weekend { color: var(--kt-text-3); background: var(--kt-surface-3); }
 .kt-year-day.is-holiday { background: var(--kt-danger-soft); color: var(--kt-danger); font-weight: 600; cursor: help; }
 .kt-year-day.is-leave { background: color-mix(in srgb, var(--kt-info) 16%, transparent); color: var(--kt-info); font-weight: 600; cursor: help; }

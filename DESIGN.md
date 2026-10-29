@@ -296,7 +296,9 @@ jedna rečenica objašnjenja i **jedno dugme** za akciju ("Dodaj prvog klijenta"
 - Pozadina iza modala: tamna providna + **blur 4px**. Modal: `--kt-radius-xl`, `shadow-lg`, ulazi sa blagim scale (0,98 → 1) i fade, 180 ms.
 - **SweetAlert2** dobija isti izgled preko `customClass`: font, radius, dugmad iz sekcije 7.7, ikonice u mekom krugu boje tipa (info/warning/danger),
   i radi u obe teme.
-- **Toast** dole desno (ne preklapa zvonce): površina, ivica, traka u boji tipa levo, ikonica, tekst i tanka traka koja odbrojava do zatvaranja.
+- **Toast** gore desno, odmah ispod gornje trake (ne preklapa zvonce; na telefonu pune širine ispod trake): površina, ivica, traka u boji tipa levo, ikonica, tekst, ✕ i tanka traka koja odbrojava do zatvaranja. Uspeh 3 s, greška i upozorenje 6 s, prelazak mišem zaustavlja odbrojavanje. Kontejner toasta nema zatamnjenje ni blur (to je samo za dijalog).
+- **Povratna informacija posle akcije je uvek toast, nikad alert u strani.** Flash poruke iz kontrolera (`addFlash`) `base.html.twig` predaje kao JSON, a `confirm.js` ih prikazuje kao toast, jednu za drugom (bez JS-a ostaju kao alert u `<noscript>`). Alert u strani je samo za stalno stanje ekrana (npr. greška prijave, upozorenje u formi).
+- **Filteri**: `kt-segmented kt-segmented-sm` (32px, ikonica + tekst) za izbor jednog opsega i `kt-chip` sa `kt-chip-dot` (boja preko `--kt-chip-dot`) kao prekidač za uključi/isključi vrstu; sve kontrole u redu filtera su iste visine kao `form-select-sm`. Na telefonu segmentirano i čipovi idu punom širinom u jednakim delovima, a selecti u dve kolone.
 
 ### 7.15 Komandna paleta (Ctrl + K)
 Prozor na sredini ekrana sa poljem za pretragu: **brza pretraga** klijenata (po nazivu i PIB-u), zadataka i korisnika, plus **akcije**

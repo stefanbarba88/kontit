@@ -9,6 +9,19 @@
 - Otvorenih nedoumica: 0.
 
 ## Urađeno
+- 2026-10-29: **Toast gore desno, flash kao toast, filteri kalendara**
+  - **Toast je zamućivao i zatamnjivao desnu traku ekrana** (360px): pravilo za pozadinu SweetAlert dijaloga (`swal.css`) hvatalo je i kontejner toasta. Sada važi samo za dijalog.
+  - Toast je **gore desno**, ispod gornje trake (na telefonu pune širine ispod trake), sa ✕. Uspeh traje 3 s, greška i upozorenje 6 s, a prelazak mišem zaustavlja odbrojavanje.
+  - **Flash poruke posle akcija više nisu alert u strani, nego toast**: `base.html.twig` ih predaje kao JSON, a `confirm.js` ih prikazuje jednu za drugom. Bez JS-a ostaju alert u `<noscript>`. Alert ostaje samo za grešku prijave i reseta lozinke.
+  - Kalendar, red filtera:
+    - opseg je mala segmentirana dugmad sa ikonicom (`kt-segmented-sm`);
+    - vrste događaja su čipovi-prekidači sa tačkom u boji: zadaci plavo, odsustva ljubičasto, neradni dani crveno;
+    - klijent i radnik su desno;
+    - sve je visine 32px, a ispod reda je linija.
+  - Kalendar na telefonu: opseg i čipovi su pune širine u jednakim delovima (ranije se „Svi“ lomio u drugi red), selecti u dve kolone (ranije su izlazili van ekrana).
+  - Ispravljen nepostojeći token `--kt-text-1` → `--kt-text` (7 mesta u CSS-u).
+  - `/_design`: dodati filteri i toast greške. DESIGN.md 7.14 ažuriran.
+  - Provereno u headless Chrome-u (1440 i 390, obe teme): toast na 76px od vrha i bez blur-a, flash sa `/my-team` stiže kao toast (0 alerta u strani), nema horizontalnog skrolovanja, 0 JS grešaka.
 - 2026-10-28: **P11: pregled svih novih ekrana u pregledaču**
   - Headless Chrome (CDP skripte `review.php` i `interact.php` u scratchpad-u): 22 nove ili izmenjene strane × 1440/390 px × svetla/tamna. Posle ispravki nijedna JS greška u konzoli i nigde horizontalno skrolovanje. Interakcije: job picker (izbor, brojač, pretraga, ✕), modal "Dodaj paket" (poslovi štiklirani, razlog za odštikliran), forma odsustva u letu (4 radna dana sa Božićem), checklist editor (Enter, Backspace, brojač), raspored (samo polja tipa), kalendar (klik na prazan dan i na događaj pravim klikom miša), FilePond.
   - Ispravljeno posle pregleda:

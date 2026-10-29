@@ -155,17 +155,17 @@
 		</div>
 
 		<main class="kt-content">
-			{% set flash_icons = {success: 'circle-check', danger: 'circle-x', warning: 'triangle-alert', info: 'info'} %}
+			{# flash poruke posle akcije: toast gore desno (assets/js/confirm.js); bez JS-a ostaju kao alert #}
+			{% set flash_list = [] %}
 			{% for type, messages in app.flashes %}
-				{% set level = type == 'error' ? 'danger' : type %}
-				{% for message in messages %}
-					<div class="alert alert-{{ level }} kt-alert alert-dismissible fade show" role="alert">
-						{{ ux_icon('lucide:' ~ flash_icons[level]|default('info'), {class: 'kt-icon kt-alert-icon'}) }}
-						<div>{{ message }}</div>
-						<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zatvori"></button>
-					</div>
-				{% endfor %}
+				{% for message in messages %}{% set flash_list = flash_list|merge([[type == 'error' ? 'danger' : type, message]]) %}{% endfor %}
 			{% endfor %}
+			{% if flash_list is not empty %}
+				<script type="application/json" data-kt-flashes>{{ flash_list|json_encode|raw }}</script>
+				<noscript>
+					{% for f in flash_list %}<div class="alert alert-{{ f[0] }} kt-alert" role="alert"><div>{{ f[1] }}</div></div>{% endfor %}
+				</noscript>
+			{% endif %}
 
 			{% block content %}{% endblock %}
 		</main>

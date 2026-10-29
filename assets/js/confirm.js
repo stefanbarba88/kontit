@@ -28,19 +28,33 @@ const swal = Swal.mixin({
 
 const toaster = Swal.mixin({
     toast: true,
-    position: 'bottom-end',
+    position: 'top-end',
     showConfirmButton: false,
-    timer: 3000,
+    showCloseButton: true,
+    closeButtonAriaLabel: 'Zatvori',
     timerProgressBar: true,
     customClass: { popup: 'kt-toast' },
+    // prelazak mišem zaustavlja odbrojavanje, da duža poruka može da se pročita
+    didOpen: (popup) => {
+        popup.addEventListener('mouseenter', Swal.stopTimer);
+        popup.addEventListener('mouseleave', Swal.resumeTimer);
+    },
 });
 
 /**
- * Toast gore desno, 3 s. type: success | danger | warning | info
+ * Toast gore desno, ispod gornje trake. Uspeh traje 3 s, greška i upozorenje 6 s.
+ * type: success | danger | error | warning | info. Vraća Promise koji se rešava kad se toast zatvori.
  */
 export function toast(message, type = 'success') {
-    const icon = { success: 'success', danger: 'error', warning: 'warning', info: 'info' }[type] || 'info';
-    toaster.fire({ icon, title: message });
+    const icon = { success: 'success', danger: 'error', error: 'error', warning: 'warning', info: 'info' }[type] || 'info';
+
+    return toaster.fire({ icon, title: message, timer: 'success' === icon ? 3000 : 6000 });
+}
+
+// Flash poruke posle akcije (base.html.twig) prikazuju se kao toast, jedna za drugom
+const flashes = document.querySelector('script[data-kt-flashes]');
+if (flashes) {
+    JSON.parse(flashes.textContent).reduce((queue, [type, message]) => queue.then(() => toast(message, type)), Promise.resolve());
 }
 
 /**

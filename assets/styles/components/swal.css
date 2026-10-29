@@ -1,5 +1,6 @@
 /* SweetAlert2 (7.14): isti izgled preko customClass, radi u obe teme. */
-.swal2-container.swal2-backdrop-show { background: rgba(11, 15, 20, .55) !important; backdrop-filter: blur(4px); }
+/* zatamnjenje samo iza dijaloga; kontejner toasta ostaje providan (inače zamuti traku ekrana ispod sebe) */
+.swal2-container.swal2-backdrop-show:not(:has(> .swal2-toast)) { background: rgba(11, 15, 20, .55) !important; backdrop-filter: blur(4px); }
 .swal2-popup.kt-swal {
     font-family: var(--kt-font-ui);
     background: var(--kt-surface); color: var(--kt-text);

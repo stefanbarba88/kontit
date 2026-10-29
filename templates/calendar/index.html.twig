@@ -12,35 +12,38 @@
     {# FullCalendar standardni paket (assets/lib/fullcalendar-6.1.22/README.md) #}
     <script src="{{ asset('lib/fullcalendar-6.1.22/index.global.min.js') }}"></script>
     <div class="card">
-        <div class="card-body pb-2">
+        <div class="card-body pb-0">
             <div class="kt-cal-filters" data-kt-cal-filters>
                 {% if scopes|length > 1 %}
-                    <div class="kt-segmented" role="radiogroup" aria-label="Opseg">
+                    <div class="kt-segmented kt-segmented-sm kt-cal-scope" role="radiogroup" aria-label="Čiji događaji">
                         {% for s in scopes %}
-                            <input type="radio" class="btn-check" name="scope" id="cal-scope-{{ s }}" value="{{ s }}" {{ loop.first ? 'checked' }}>
-                            <label class="btn" for="cal-scope-{{ s }}">{{ {mine: 'Moji', team: 'Moj tim', all: 'Svi'}[s] }}</label>
+                            {% set scope_icon = {mine: 'user', team: 'users', all: 'building-2'}[s] %}
+                            <input type="radio" class="btn-check" name="scope" id="cal-scope-{{ s }}" value="{{ s }}" {{ loop.first ? 'checked' }} autocomplete="off">
+                            <label class="btn" for="cal-scope-{{ s }}">{{ ux_icon('lucide:' ~ scope_icon, {class: 'kt-icon'}) }}{{ {mine: 'Moji', team: 'Moj tim', all: 'Svi'}[s] }}</label>
                         {% endfor %}
                     </div>
                 {% endif %}
-                <div class="d-flex flex-wrap gap-1" role="group" aria-label="Vrste događaja">
-                    {% for key, label in {tasks: 'Zadaci', absences: 'Odsustva', holidays: 'Neradni dani'} %}
+                <div class="kt-cal-types" role="group" aria-label="Vrste događaja">
+                    {% for key, item in {tasks: ['Zadaci', 'primary'], absences: ['Odsustva', 'purple'], holidays: ['Neradni dani', 'danger']} %}
                         <input type="checkbox" class="btn-check" id="cal-type-{{ key }}" name="types" value="{{ key }}" checked autocomplete="off">
-                        <label class="btn btn-sm kt-chip" for="cal-type-{{ key }}">{{ label }}</label>
+                        <label class="kt-chip" for="cal-type-{{ key }}" style="--kt-chip-dot: var(--kt-{{ item[1] }})"><span class="kt-chip-dot" aria-hidden="true"></span>{{ item[0] }}</label>
                     {% endfor %}
                 </div>
-                <select name="client" class="form-select form-select-sm" data-native aria-label="Klijent">
-                    <option value="">Svi klijenti</option>
-                    {% for c in clients %}<option value="{{ c.id }}">{{ c.shortName }}</option>{% endfor %}
-                </select>
-                {% if people is not empty %}
-                    <select name="user" class="form-select form-select-sm" data-native aria-label="Radnik">
-                        <option value="">Svi radnici</option>
-                        {% for u in people %}<option value="{{ u.id }}">{{ u.fullName }}</option>{% endfor %}
+                <div class="kt-cal-selects">
+                    <select name="client" class="form-select form-select-sm" data-native aria-label="Klijent">
+                        <option value="">Svi klijenti</option>
+                        {% for c in clients %}<option value="{{ c.id }}">{{ c.shortName }}</option>{% endfor %}
                     </select>
-                {% endif %}
+                    {% if people is not empty %}
+                        <select name="user" class="form-select form-select-sm" data-native aria-label="Radnik">
+                            <option value="">Svi radnici</option>
+                            {% for u in people %}<option value="{{ u.id }}">{{ u.fullName }}</option>{% endfor %}
+                        </select>
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="card-body pt-2">
+        <div class="card-body pt-3">
             <div id="kt-calendar" class="kt-calendar"
                  data-events-url="{{ path('ajax_calendar_events') }}"
                  data-task-new-url="{{ path('task_new') }}"

@@ -185,6 +185,21 @@
                     {{ ce.editor(jobForm.checklistItems) }}
                 </div>
             </div>
+            <div class="kt-overline mt-4 mb-2">Filteri (mala segmentirana dugmad, čipovi-prekidači sa tačkom u boji)</div>
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <div class="kt-segmented kt-segmented-sm" role="radiogroup" aria-label="Primer opsega">
+                    {% for key, item in {a: ['Moji', 'user'], b: ['Moj tim', 'users'], c: ['Svi', 'building-2']} %}
+                        <input type="radio" class="btn-check" name="design-scope" id="design-scope-{{ key }}" {{ loop.first ? 'checked' }} autocomplete="off">
+                        <label class="btn" for="design-scope-{{ key }}">{{ ux_icon('lucide:' ~ item[1], {class: 'kt-icon'}) }}{{ item[0] }}</label>
+                    {% endfor %}
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for key, item in {t: ['Zadaci', 'primary', true], o: ['Odsustva', 'purple', true], n: ['Neradni dani', 'danger', false]} %}
+                        <input type="checkbox" class="btn-check" id="design-chip-{{ key }}" {{ item[2] ? 'checked' }} autocomplete="off">
+                        <label class="kt-chip" for="design-chip-{{ key }}" style="--kt-chip-dot: var(--kt-{{ item[1] }})"><span class="kt-chip-dot" aria-hidden="true"></span>{{ item[0] }}</label>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
 
@@ -252,6 +267,7 @@
             <form onsubmit="return false;" class="d-inline" {{ confirm_attrs('Primer potvrde', 'Ovako izgleda SweetAlert u aplikaciji.', 'warning', 'Da, nastavi') }}><button class="btn btn-light">SweetAlert (upozorenje)</button></form>
             <form onsubmit="return false;" class="d-inline" {{ confirm_attrs('Primer opasne radnje', 'Crveno dugme samo kad je radnja glavna.', 'danger', 'Da, obriši', true) }}><button class="btn btn-outline-danger">SweetAlert (opasno + razlog)</button></form>
             <button class="btn btn-light" onclick="window.ktToast('Izmene su sačuvane.', 'success')">Toast</button>
+            <button class="btn btn-light" onclick="window.ktToast('Klijent nije sačuvan: PIB već postoji.', 'danger')">Toast (greška)</button>
         </div>
     </div>
 {% endblock %}

@@ -1,4 +1,6 @@
-/* Toast (7.14): dole desno, traka u boji tipa levo i traka koja odbrojava. */
+/* Toast (7.14): gore desno ispod gornje trake (ne preklapa zvonce), traka u boji tipa levo i traka koja odbrojava. */
+/* !important: SweetAlert ubacuje svoj CSS posle našeg, sa istom specifičnošću (inset: 0 0 auto auto) */
+body.swal2-toast-shown .swal2-container.swal2-top-end { top: 64px !important; padding: 12px 16px !important; background: transparent !important; backdrop-filter: none; }
 .swal2-popup.kt-toast {
     font-family: var(--kt-font-ui); background: var(--kt-surface); color: var(--kt-text);
     border: 1px solid var(--kt-border); border-left: 3px solid var(--kt-primary); border-radius: var(--kt-radius-md);
@@ -7,8 +9,12 @@
 .kt-toast.swal2-icon-success { border-left-color: var(--kt-success); }
 .kt-toast.swal2-icon-error { border-left-color: var(--kt-danger); }
 .kt-toast.swal2-icon-warning { border-left-color: var(--kt-warning); }
+.kt-toast.swal2-icon-warning .swal2-timer-progress-bar { background: var(--kt-warning); }
 .kt-toast .swal2-title { font-size: 14px; font-weight: 500; margin: 0 8px; color: var(--kt-text); }
 .kt-toast .swal2-icon { margin: 0; border: 0; transform: scale(.7); }
+.kt-toast .swal2-close { position: static; align-self: flex-start; width: 24px; height: 24px; font-size: 20px; color: var(--kt-text-3); box-shadow: none; }
+.kt-toast .swal2-close:hover { color: var(--kt-text); }
+.kt-toast .swal2-close:focus-visible { box-shadow: 0 0 0 3px var(--kt-focus); }
 .kt-toast .swal2-timer-progress-bar { background: var(--kt-brand-500); height: 2px; }
 .kt-toast.swal2-icon-success .swal2-timer-progress-bar { background: var(--kt-success); }
 .kt-toast.swal2-icon-error .swal2-timer-progress-bar { background: var(--kt-danger); }

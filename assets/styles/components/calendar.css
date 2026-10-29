@@ -2,7 +2,7 @@
 .kt-calendar { --fc-border-color: var(--kt-border); --fc-page-bg-color: var(--kt-surface); --fc-neutral-bg-color: var(--kt-surface-2);
     --fc-today-bg-color: color-mix(in srgb, var(--kt-primary) 7%, transparent); --fc-event-bg-color: var(--kt-primary); --fc-event-border-color: var(--kt-primary);
     --fc-list-event-hover-bg-color: var(--kt-surface-2); --fc-button-bg-color: var(--kt-surface); --fc-button-border-color: var(--kt-border-strong);
-    --fc-button-text-color: var(--kt-text-1); --fc-button-hover-bg-color: var(--kt-surface-2); --fc-button-hover-border-color: var(--kt-border-strong);
+    --fc-button-text-color: var(--kt-text); --fc-button-hover-bg-color: var(--kt-surface-2); --fc-button-hover-border-color: var(--kt-border-strong);
     --fc-button-active-bg-color: var(--kt-primary); --fc-button-active-border-color: var(--kt-primary); --fc-bg-event-opacity: 1; font-size: 13px; }
 .kt-calendar .fc-button { font-size: 13px; font-weight: 500; border-radius: var(--kt-radius-sm); box-shadow: none !important; text-transform: none; }
 .kt-calendar .fc-button-primary:not(:disabled).fc-button-active { color: #fff; }
@@ -29,13 +29,21 @@
 .kt-fc-initials { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 16px; margin-right: 4px; padding: 0 3px; border-radius: 8px; background: rgba(255, 255, 255, .3); font-size: 9px; font-weight: 700; }
 .kt-calendar .fc-event { display: flex; align-items: center; cursor: pointer; }
 .kt-fc-popover { max-width: 300px; }
-.kt-cal-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.kt-cal-filters .form-select { width: auto; min-width: 160px; }
-.kt-chip { border-radius: 999px; }
+/* filteri: opseg (segmentirano) | vrste događaja (čipovi sa tačkom u boji) | klijent i radnik desno; sve visine 32px */
+.kt-cal-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding-bottom: 12px; border-bottom: 1px solid var(--kt-border); }
+.kt-cal-types { display: flex; flex-wrap: wrap; gap: 6px; }
+.kt-cal-selects { display: flex; gap: 8px; margin-left: auto; }
+.kt-cal-selects .form-select { width: 180px; height: 32px; }
+/* uže od desktopa: klijent i radnik u svom redu, jednake kolone (grid, da select ne raširi red preko ekrana) */
+@media (max-width: 991.98px) { .kt-cal-selects { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); margin-left: 0; flex: 1 1 100%; min-width: 0; } .kt-cal-selects .form-select { width: 100%; } }
 @media (max-width: 575.98px) {
     .kt-calendar .fc-toolbar { flex-wrap: wrap; gap: 8px; }
     .kt-calendar .fc-toolbar-title { font-size: 16px; }
-    .kt-cal-filters .form-select { flex: 1 1 45%; min-width: 0; }
+    .kt-cal-scope { flex: 1 1 100%; flex-wrap: nowrap; }
+    .kt-cal-scope.kt-segmented-sm .btn { flex: 1 1 0; min-width: 0; height: 36px; }
+    .kt-cal-types { flex: 1 1 100%; }
+    .kt-cal-types .kt-chip { flex: 1 1 0; justify-content: center; height: 36px; padding-inline: 8px; }
+    .kt-cal-selects .form-select { height: 40px; }
 }
 /* mini pregled nedelje na dashboardu */
 .kt-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
@@ -43,10 +51,14 @@
 .kt-week-day.is-off { background: var(--kt-surface-3); }
 .kt-week-day.is-today { box-shadow: inset 0 0 0 1.5px var(--kt-primary); }
 .kt-week-date { font-size: 11px; font-weight: 600; color: var(--kt-text-2); margin-bottom: 4px; }
-.kt-week-item { display: block; font-size: 11px; line-height: 1.3; padding: 2px 4px; margin-bottom: 2px; border-radius: 4px; border-left: 3px solid var(--kt-cat); background: color-mix(in srgb, var(--kt-cat) 10%, transparent); color: var(--kt-text-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: none; }
+.kt-week-item { display: block; font-size: 11px; line-height: 1.3; padding: 2px 4px; margin-bottom: 2px; border-radius: 4px; border-left: 3px solid var(--kt-cat); background: color-mix(in srgb, var(--kt-cat) 10%, transparent); color: var(--kt-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: none; }
 @media (max-width: 767.98px) { .kt-week { grid-template-columns: 1fr; } .kt-week-day { min-height: 0; } }
-.kt-chip { border: 1px solid var(--kt-border-strong); background: var(--kt-surface); color: var(--kt-text-2); }
-.btn-check:checked + .kt-chip { background: var(--kt-primary-soft); border-color: color-mix(in srgb, var(--kt-primary) 40%, transparent); color: var(--kt-primary); }
+/* čip-prekidač (checkbox): uključen = puna tačka u boji vrste i jači tekst, isključen = prazna tačka i prigušen tekst */
+.kt-chip { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; border: 1px solid var(--kt-border); border-radius: 999px; background: transparent; color: var(--kt-text-3); font-size: 13px; font-weight: 500; cursor: pointer; user-select: none; white-space: nowrap; transition: background-color .15s, border-color .15s, color .15s; }
+.kt-chip:hover { border-color: var(--kt-border-strong); color: var(--kt-text-2); }
+.kt-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 1.5px var(--kt-chip-dot, var(--kt-primary)); }
+.btn-check:checked + .kt-chip { background: var(--kt-surface-2); border-color: var(--kt-border-strong); color: var(--kt-text); }
+.btn-check:checked + .kt-chip .kt-chip-dot { background: var(--kt-chip-dot, var(--kt-primary)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--kt-chip-dot, var(--kt-primary)) 18%, transparent); }
 .btn-check:focus-visible + .kt-chip { outline: 2px solid var(--kt-primary); outline-offset: 1px; }
 /* naslov događaja ostaje u obojenom bloku (skraćuje se sa …) */
 .kt-calendar .fc-daygrid-event { overflow: hidden; max-width: 100%; }
