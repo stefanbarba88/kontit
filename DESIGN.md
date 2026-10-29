@@ -511,3 +511,11 @@ Sve se stilizuje tokenima, u obe teme, i prikazuje na `/_design` vodiču.
 - **Godišnji kalendar** (`.kt-year`): 12 malih meseci; praznik crveno, kolektivni odmor plavo, vikend prigušen.
 - **Odsustva**: traka stanja godišnjeg (`.kt-leave-strip`), kartica na odobrenju sa odbrojavanjem (na telefonu prevlačenje za Odobri / Odbij), mesečni pregled radnik × dani (`.kt-absence-grid`, šrafirano = na odobrenju).
 - **Kalendar** (`components/calendar.css`): FullCalendar u tokenima (`--fc-*` promenljive), zadatak u boji statusa sa "!" za hitan, odsustvo u boji vrste sa inicijalima, praznici kao pozadina; filteri kao čipovi (`.kt-chip`); popover u Bootstrap-u. Mali pregled naredne nedelje (`.kt-week`) na dashboardu.
+
+## 19. Uputstvo (`/uputstvo`, `components/help.css`, na `/_design`)
+- Raspored: kartica **Sadržaj** (pretraga + numerisana poglavlja sa potpoglavljima) i kartica sa tekstom. Na desktopu (≥ 992px) sadržaj je kolona od 280px, lepljiva dok se čita; na telefonu je na vrhu, može da se skupi i prikazuje samo poglavlja.
+- Tekst (`.kt-help`): najviše 780px širine, 15px / 1,65, naslovi u display fontu, h2 numerisani u boji brenda, poglavlja odvojena linijom, `scroll-margin-top` ispod gornje trake.
+- Okviri: `blockquote.is-tip` (zeleno, „Savet“) i `blockquote.is-warn` (narandžasto, „Pažnja“ / „Važno“), sa trakom levo i mekom pozadinom.
+- Mesto za sliku (`.kt-help-shot.is-placeholder`): isprekidan okvir, oznaka „Slika“ i opis. Prava slika dobija ivicu, radius i blagu senku.
+- Tabele u `table-responsive` sa ivicom; `kbd` i `code` u mono fontu.
+- Dugme „nazad na sadržaj“: okruglo 44px dole desno (na telefonu iznad donje trake), pojavljuje se kad sadržaj izađe iz ekrana.

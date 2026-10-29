@@ -43,3 +43,4 @@ import './js/task-form.js';
 import './js/absence-form.js';
 import './js/documents.js';
 import './js/calendar.js';
+import './js/help.js';

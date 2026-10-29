@@ -1,0 +1,60 @@
+/* Uputstvo (SPEC 8o, DESIGN.md 19): sadržaj sa pretragom (na širokom ekranu lepljiv sa strane) i tekst prijatan za čitanje. */
+.kt-help-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 24px; align-items: start; }
+@media (min-width: 992px) {
+    .kt-help-layout { grid-template-columns: 280px minmax(0, 1fr); }
+    .kt-help-toc { position: sticky; top: 80px; max-height: calc(100vh - 100px); display: flex; flex-direction: column; }
+    .kt-help-toc > .card-body { overflow: auto; }
+}
+
+/* sadržaj: numerisana poglavlja, potpoglavlja uvučena */
+.kt-help-toc-list { list-style: none; counter-reset: ch; margin: 0; padding: 0; font-size: 14px; }
+.kt-help-toc-list > li { counter-increment: ch; padding: 3px 0; }
+.kt-help-toc-list > li > a { display: flex; gap: 8px; font-weight: 600; color: var(--kt-text); text-decoration: none; }
+.kt-help-toc-list > li > a::before { content: counter(ch) "."; min-width: 20px; color: var(--kt-text-3); font-variant-numeric: tabular-nums; }
+.kt-help-toc-list ul { list-style: none; margin: 2px 0 6px 28px; padding: 0; }
+.kt-help-toc-list ul a { display: block; padding: 2px 0; color: var(--kt-text-2); text-decoration: none; font-size: 13px; }
+.kt-help-toc-list a:hover { color: var(--kt-primary); }
+.kt-help-toc-list a:focus-visible { outline: 2px solid var(--kt-primary); outline-offset: 2px; border-radius: 4px; }
+
+/* tekst uputstva */
+.kt-help { max-width: 780px; font-size: 15px; line-height: 1.65; color: var(--kt-text); counter-reset: ch; }
+.kt-help-intro { font-size: 16px; color: var(--kt-text-2); margin-bottom: 8px; }
+.kt-help-section + .kt-help-section { border-top: 1px solid var(--kt-border); margin-top: 32px; padding-top: 8px; }
+.kt-help h2, .kt-help h3, .kt-help h4 { font-family: var(--kt-font-display); color: var(--kt-text); scroll-margin-top: 80px; }
+.kt-help h2 { counter-increment: ch; font-size: 22px; font-weight: 700; margin: 24px 0 12px; }
+.kt-help h2::before { content: counter(ch) ". "; color: var(--kt-primary); }
+.kt-help h3 { font-size: 17px; font-weight: 650; margin: 24px 0 8px; }
+.kt-help h4 { font-size: 15px; font-weight: 650; margin: 16px 0 6px; }
+.kt-help p, .kt-help ul, .kt-help ol { margin-bottom: 12px; }
+.kt-help li + li { margin-top: 4px; }
+.kt-help ol > li::marker { font-weight: 600; color: var(--kt-text-2); }
+.kt-help strong { font-weight: 650; }
+.kt-help code, .kt-help kbd { font-family: var(--kt-font-mono); font-size: 13px; padding: 1px 6px; border-radius: var(--kt-radius-xs); background: var(--kt-surface-2); border: 1px solid var(--kt-border); color: var(--kt-text); }
+.kt-help kbd { border-bottom-width: 2px; }
+.kt-help .table-responsive { margin-bottom: 16px; border: 1px solid var(--kt-border); border-radius: var(--kt-radius-md); }
+.kt-help .table { margin: 0; font-size: 14px; }
+.kt-help .table th { background: var(--kt-surface-2); font-weight: 600; white-space: nowrap; }
+.kt-help img { max-width: 100%; height: auto; border: 1px solid var(--kt-border); border-radius: var(--kt-radius-md); box-shadow: var(--kt-shadow-sm); margin: 4px 0 12px; }
+
+/* okviri: > **Savet:** (zeleno) i > **Pažnja:** / **Važno:** (narandžasto) */
+.kt-help blockquote { margin: 0 0 16px; padding: 12px 16px; border-left: 3px solid var(--kt-border-strong); border-radius: 0 var(--kt-radius-md) var(--kt-radius-md) 0; background: var(--kt-surface-2); color: var(--kt-text); }
+.kt-help blockquote > :last-child { margin-bottom: 0; }
+.kt-help blockquote.is-tip { border-left-color: var(--kt-success); background: var(--kt-success-soft); }
+.kt-help blockquote.is-warn { border-left-color: var(--kt-warning); background: var(--kt-warning-soft); }
+.kt-help blockquote.is-tip > p:first-child > strong:first-child { color: var(--kt-success); }
+.kt-help blockquote.is-warn > p:first-child > strong:first-child { color: var(--kt-warning); }
+
+/* mesto za sliku: [SLIKA: opis] */
+.kt-help-shot.is-placeholder { display: flex; align-items: center; gap: 12px; margin: 4px 0 16px; padding: 14px 16px; border: 1.5px dashed var(--kt-border-strong); border-radius: var(--kt-radius-md); background: var(--kt-surface-2); color: var(--kt-text-2); font-size: 14px; }
+.kt-help-shot-label { flex: none; padding: 2px 8px; border-radius: 999px; background: var(--kt-primary-soft); color: var(--kt-primary); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.kt-help-shot figcaption { min-width: 0; }
+
+/* dugme za povratak na sadržaj (na telefonu iznad donje trake) */
+.kt-help-top { position: fixed; right: 24px; bottom: 24px; z-index: 1020; width: 44px; height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: var(--kt-shadow-md); }
+@media (max-width: 575.98px) {
+    /* na telefonu sadržaj samo sa poglavljima, da tekst ne bude daleko */
+    .kt-help-toc-list ul { display: none; }
+    .kt-help { font-size: 15px; }
+    .kt-help h2 { font-size: 20px; }
+    .kt-help-top { right: 16px; bottom: calc(80px + env(safe-area-inset-bottom)); }
+}

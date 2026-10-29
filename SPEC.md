@@ -642,6 +642,13 @@ Neradni dani, vrste odsustva i kategorije dokumenata, rokovi automatskog odobrav
 ### Nove notifikacije
 ABSENCE_REQUESTED (postoji), ABSENCE_APPROVED, ABSENCE_REJECTED (zamenjuju ABSENCE_DECIDED), ABSENCE_AUTO_APPROVED, APPROVAL_DEADLINE_SOON, DOCUMENT_EXPIRING, DOCUMENT_ADDED, CALENDAR_SYNC_FAILED.
 
+## 8o. Uputstvo za korisnike (u aplikaciji)
+- Meni **Pomoć → Uputstvo** (`/uputstvo`, na telefonu u „Više“) otvara uputstvo najviše role korisnika. Uputstva: **radnik**, **šef**, **admin** (`HelpGuide` enum). Superadmin nema posebno uputstvo: poglavlje „Samo za superadmina“ je u admin uputstvu.
+- Ko šta vidi (`HelpVoter`, `HELP_VIEW`, preko role_hierarchy): radnik samo svoje; šef šefovo i radničko; admin i superadmin sva tri. Tabovi na vrhu kad ih ima više.
+- Sadržaj je **Markdown** u `docs/uputstvo/{radnik,sef,admin}.md` (`twig/markdown-extra` + `league/commonmark`, GFM tabele). `HelpRenderer` pravi HTML, sadržaj (h2 i h3, sa id-jevima) i deli tekst na poglavlja (za pretragu); keš po vremenu izmene fajla.
+- Dogovor u tekstu (`docs/uputstvo/README.md`): `[SLIKA: opis]` = okvir za sliku koja dolazi kasnije; `![opis](fajl.png)` = slika iz `docs/uputstvo/slike/`, servira je `HelpController` samo prijavljenima (ne iz `public/`); `> **Savet:**` zeleni i `> **Pažnja:**` / `> **Važno:**` narandžasti okvir.
+- Strana: naslov iz `#`, sadržaj sa pretragom (bez obzira na kvačice) na vrhu, na desktopu lepljiv sa strane; poglavlja numerisana; dugme „nazad na sadržaj“.
+
 ---
 
 ## 9. Planirano za kasnije (NE implementirati sada, ali ne blokirati)

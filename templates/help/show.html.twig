@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}{{ doc.title }}{% endblock %}
+{% block page_title %}{{ doc.title }}{% endblock %}
+{% block breadcrumbs %}
+    <a href="{{ path('help_index') }}" class="breadcrumb-item">Uputstvo</a>
+    <span class="breadcrumb-item active">{{ guide.label }}</span>
+{% endblock %}
+
+{% block content %}
+    {% if guides|length > 1 %}
+        <ul class="nav kt-tabs mb-3" aria-label="Uputstva">
+            {% for g in guides %}
+                <li class="nav-item"><a href="{{ path('help_show', {guide: g.value}) }}" class="nav-link {{ g == guide ? 'active' }}" {% if g == guide %}aria-current="page"{% endif %}>{{ ux_icon('lucide:' ~ g.icon, {class: 'kt-icon me-1'}) }}{{ g.label }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if doc.html is empty %}
+        <div class="card"><div class="card-body">{{ ui.empty_state('Uputstvo još nije napisano.', 'book-open') }}</div></div>
+    {% else %}
+        <div class="kt-help-layout" data-kt-help>
+            {# sadržaj: na vrhu, sa pretragom; na širokom ekranu ostaje sa strane dok se čita #}
+            <nav class="card kt-help-toc" id="sadrzaj" aria-label="Sadržaj">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <h5 class="mb-0">{{ ux_icon('lucide:list', {class: 'kt-icon me-2'}) }}Sadržaj</h5>
+                    <button type="button" class="btn kt-btn-icon btn-sm ms-auto d-lg-none" data-bs-toggle="collapse" data-bs-target="#help-toc-list" aria-expanded="true" aria-controls="help-toc-list" aria-label="Prikaži ili sakrij sadržaj">{{ ux_icon('lucide:chevron-down', {class: 'kt-icon'}) }}</button>
+                </div>
+                <div class="card-body border-top">
+                    <div class="kt-input-icon mb-3">
+                        <input type="search" class="form-control form-control-sm" placeholder="Pretraži uputstvo" aria-label="Pretraži uputstvo" data-kt-help-search>
+                        <div class="kt-input-icon-start">{{ ux_icon('lucide:search', {class: 'kt-icon text-muted'}) }}</div>
+                    </div>
+                    <ol class="kt-help-toc-list collapse show" id="help-toc-list">
+                        {% for item in doc.toc %}
+                            <li data-kt-help-toc="{{ item.id }}">
+                                <a href="#{{ item.id }}">{{ item.text }}</a>
+                                {% if item.children is not empty %}
+                                    <ul>{% for child in item.children %}<li><a href="#{{ child.id }}">{{ child.text }}</a></li>{% endfor %}</ul>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ol>
+                    <div class="kt-text-sm text-muted" data-kt-help-empty hidden>Nema poglavlja sa tim pojmom.</div>
+                </div>
+            </nav>
+
+            <article class="card kt-help-article">
+                <div class="card-body kt-help">{{ doc.html|raw }}</div>
+            </article>
+        </div>
+        <a href="#sadrzaj" class="btn btn-light kt-help-top" aria-label="Nazad na sadržaj" title="Nazad na sadržaj" data-kt-help-top hidden>{{ ux_icon('lucide:arrow-up', {class: 'kt-icon'}) }}</a>
+    {% endif %}
+{% endblock %}

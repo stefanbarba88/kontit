@@ -79,6 +79,9 @@
 					{{ nav.link(path('admin_user_index'), 'contact', 'Korisnici', route starts with 'admin_user') }}
 				{% endif %}
 			{% endif %}
+
+			{{ nav.group('Pomoć') }}
+			{{ nav.link(path('help_index'), 'book-open', 'Uputstvo', route starts with 'help_') }}
 		</nav>
 
 		<div class="kt-sidebar-user dropup">

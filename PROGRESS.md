@@ -9,6 +9,14 @@
 - Otvorenih nedoumica: 0.
 
 ## Urađeno
+- 2026-10-29: **Uputstvo za korisnike u aplikaciji (SPEC 8o)**
+  - Meni **Pomoć → Uputstvo** (`/uputstvo`, `/uputstvo/{admin|sef|radnik}`; na telefonu u „Više“). `HelpGuide` enum, `HelpVoter` (`HELP_VIEW` preko role_hierarchy: radnik svoje, šef šef + radnik, admin i superadmin sva), `HelpController`, `HelpRenderer` (CommonMark + GFM, id-jevi naslova, sadržaj h2/h3, poglavlja u `<section>`, keš po vremenu izmene fajla).
+  - Sadržaj: `docs/uputstvo/radnik.md`, `sef.md`, `admin.md` (sa poglavljem „Samo za superadmina“), `README.md` (kako se menja i kako se ubacuju slike). Placeholderi `[SLIKA: …]` za slike koje dolaze kasnije; slike u `docs/uputstvo/slike/` servira kontroler samo prijavljenima.
+  - Strana: tabovi uputstava, sadržaj sa pretragom bez kvačica (lepljiv na desktopu, na vrhu na telefonu), numerisana poglavlja, okviri Savet / Pažnja, dugme „nazad na sadržaj“. `help.css`, `help.js`, `/_design`, DESIGN.md 19.
+  - Paketi: `twig/markdown-extra` 3.29, `league/commonmark` 2.10 (CLAUDE.md, stack).
+  - Usput: tekst na „Uvoz iz NBS“ više ne pominje pravnu formu (uklonjena u P1).
+  - Testovi: `HelpVoterTest` (4 role); 46 PHPUnit testova. Provereno u headless Chrome-u (1440 i 390, obe teme): bez horizontalnog skrola, svi linkovi sadržaja vode na naslov, pretraga, okviri, placeholderi, 404 za nepostojeće uputstvo i sliku, 0 JS grešaka.
+  - Napomena: `composer audit` prijavljuje CVE-2026-45070 u `symfony/mime` (postojeći paket, nije deo ove izmene); preporuka je `composer update symfony/mime`.
 - 2026-10-29: **Toast gore desno, flash kao toast, filteri kalendara**
   - **Toast je zamućivao i zatamnjivao desnu traku ekrana** (360px): pravilo za pozadinu SweetAlert dijaloga (`swal.css`) hvatalo je i kontejner toasta. Sada važi samo za dijalog.
   - Toast je **gore desno**, ispod gornje trake (na telefonu pune širine ispod trake), sa ✕. Uspeh traje 3 s, greška i upozorenje 6 s, a prelazak mišem zaustavlja odbrojavanje.

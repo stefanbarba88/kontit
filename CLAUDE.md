@@ -26,7 +26,8 @@ Ovaj fajl Claude Code čita automatski na početku svake sesije. Ovde su **trajn
 - Symfony Messenger (doctrine transport) za asinhrono slanje mailova
 - Paketi: `symfonycasts/reset-password-bundle`, `knplabs/knp-paginator-bundle`, `symfony/ux-icons`,
   `dompdf/dompdf` (PDF), `phpoffice/phpspreadsheet` (Excel), `league/csv` (CSV),
-  `knpuniversity/oauth2-client-bundle` + `league/oauth2-google` + `google/apiclient` (samo Calendar servis) za Google kalendar
+  `knpuniversity/oauth2-client-bundle` + `league/oauth2-google` + `google/apiclient` (samo Calendar servis) za Google kalendar,
+  `twig/markdown-extra` + `league/commonmark` za uputstvo u aplikaciji (`docs/uputstvo/*.md`)
 - Avatar je samo inicijali (bez upload-a slike). `vich/uploader-bundle` i `liip/imagine-bundle` su uklonjeni. Prilozi (FilePond) se čuvaju bez Vich-a: `UserDocumentService`, van `public/`, a fajl se servira samo kroz kontroler sa Voterom.
 
 ## Konvencije koda
