@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Enum\Role;
 use App\Enum\TaskStatus;
 use App\Repository\TeamMemberRepository;
+use App\Security\TeamScope;
 use App\Service\ReplacementResolver;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
@@ -78,6 +79,10 @@ class TaskVoter extends Voter
     private function leadsAssigneeTeam(Task $task, User $leader): bool
     {
         foreach ($task->getAssigneeUsers() as $assignee) {
+            // šef ne vidi zadatke člana tima koji je šef ili admin (TeamScope)
+            if (!TeamScope::covers($leader, $assignee)) {
+                continue;
+            }
             $team = $this->members->findActiveByUser($assignee)?->getTeam();
             if (null !== $team && !$team->isDeleted() && $team->getLeader() === $leader) {
                 return true;

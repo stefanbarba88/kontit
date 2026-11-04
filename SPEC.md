@@ -53,7 +53,7 @@ Objektna prava rešavaju Voteri:
 - leader → User (trenutni šef, obavezan)
 - members → `TeamMember` (user, team, joinedAt, leftAt; aktivan je onaj sa leftAt = null)
 - deletedAt (soft delete; tim sa aktivnim članovima ne može da se obriše)
-- U izboru šefa tima nude se **samo korisnici sa rolom šef** (trenutni šef ostaje u izboru). Rola se prvo dodeli u izmeni korisnika. Postavljanjem za šefa korisnik i dalje dobija `ROLE_SEF` (ako je bio radnik). Kad prestane da vodi ijedan tim, vraća se na radnika. Admin i superadmin zadržavaju svoju rolu. Šef ne mora biti član sopstvenog tima, a superadmin sme da bude šef.
+- U izboru šefa tima nude se **samo korisnici sa rolom šef** (trenutni šef ostaje u izboru). Rola se prvo dodeli u izmeni korisnika. Postavljanjem za šefa korisnik i dalje dobija `ROLE_SEF` (ako je bio radnik). Kad prestane da vodi ijedan tim, vraća se na radnika. Admin i superadmin zadržavaju svoju rolu. **Šef je uvek član svog tima** (dodaje se pri izradi tima i pri promeni šefa, ne može da se ukloni; ako vodi više timova, član je jednog). Superadmin sme da bude šef.
 - Korisnik koji vodi tim ne može da se deaktivira niti da mu se rola spusti na radnika dok se ne promeni šef.
 
 ### TeamLeaderLog

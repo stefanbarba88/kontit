@@ -28,6 +28,7 @@ class CalendarService
         private readonly WorkingDayService $workingDays,
         private readonly Security $security,
         private readonly UrlGeneratorInterface $urls,
+        private readonly AbsenceService $absenceService,
     ) {
     }
 
@@ -72,6 +73,16 @@ class CalendarService
             }
             foreach ($this->absences->findInPeriod($users, $from, $to) as $absence) {
                 $events[] = $this->absenceEvent($absence);
+            }
+            // radnik vidi i kada kolege iz tima nisu dostupne (samo odobreno, bez vrste i napomene)
+            if (!$this->taskService->isLeader($me)) {
+                $mates = $this->absenceService->teammates($me);
+                if (!empty($filters['user'])) {
+                    $mates = array_values(array_filter($mates, static fn (User $u) => $u->getId() === (int) $filters['user']));
+                }
+                foreach ($this->absences->findInPeriod($mates, $from, $to, false) as $absence) {
+                    $events[] = $this->availabilityEvent($absence);
+                }
             }
         }
         if (\in_array('holidays', $types, true)) {
@@ -211,6 +222,40 @@ class CalendarService
                 'summary' => $absence->summary(),
                 'color' => $type->getColor(),
                 'meta' => $type->getName().($absence->isPending() ? ' (na odobrenju)' : ''),
+            ],
+        ];
+    }
+
+    /**
+     * Odsustvo kolege za radnika: samo "nije dostupan" i period, bez vrste, statusa i napomene.
+     *
+     * @return array<string, mixed>
+     */
+    private function availabilityEvent(UserAbsence $absence): array
+    {
+        $user = $absence->getUser();
+        $period = $absence->getStartDate() == $absence->getEndDate()
+            ? $absence->getStartDate()->format('d.m.Y.')
+            : $absence->getStartDate()->format('d.m.Y.').' – '.$absence->getEndDate()->format('d.m.Y.');
+
+        return [
+            'id' => 'v'.$absence->getId(),
+            'title' => sprintf('%s · nije dostupan', $user->getFullName()),
+            'start' => $absence->getStartDate()->format('Y-m-d'),
+            'end' => $absence->getEndDate()->modify('+1 day')->format('Y-m-d'),
+            'allDay' => true,
+            'editable' => false,
+            'backgroundColor' => 'var(--kt-text-3)',
+            'borderColor' => 'var(--kt-text-3)',
+            'classNames' => ['kt-fc-absence', 'is-approved'],
+            'extendedProps' => [
+                'kind' => 'absence',
+                'initials' => $user->getInitials(),
+                'type' => '',
+                'status' => 'Nije dostupan',
+                'summary' => $period,
+                'color' => 'var(--kt-text-3)',
+                'meta' => 'Nije dostupan',
             ],
         ];
     }

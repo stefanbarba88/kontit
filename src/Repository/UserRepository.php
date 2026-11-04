@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use App\Enum\Role;
+use App\Security\TeamScope;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -110,9 +111,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         if (!$all) {
             $scope = $qb->expr()->andX(
                 'u.isActive = true',
-                'u = :actor OR EXISTS ('
+                'u = :actor OR (EXISTS ('
                 .'SELECT 1 FROM App\Entity\TeamMember m JOIN m.team t '
-                .'WHERE m.user = u AND m.leftAt IS NULL AND t.deletedAt IS NULL AND t.leader = :actor)',
+                .'WHERE m.user = u AND m.leftAt IS NULL AND t.deletedAt IS NULL AND t.leader = :actor) AND '.TeamScope::worker('u').')',
             );
             $qb->setParameter('actor', $actor);
         }
@@ -133,6 +134,10 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         if ($leader === $user) {
             return true;
+        }
+        // šef ne vidi detalje člana tima koji je šef ili admin (opšte pravilo, TeamScope)
+        if (!TeamScope::covers($leader, $user)) {
+            return false;
         }
 
         return (int) $this->getEntityManager()->createQuery(

@@ -173,7 +173,26 @@ class ActivityLogListener
             }
         } elseif ($entity instanceof User) {
             $this->userUpdated($entity, $cs, $user);
-        } elseif ($entity instanceof UserAbsence && isset($cs['status'])) {
+        } elseif ($entity instanceof UserAbsence) {
+            $this->absenceUpdated($entity, $cs, $user);
+        }
+    }
+
+    /**
+     * Izmena odsustva (vrsta, datumi, pola dana, napomena) i promena statusa, na timeline-u korisnika.
+     *
+     * @param array<string, array{0: mixed, 1: mixed}> $cs
+     */
+    private function absenceUpdated(UserAbsence $entity, array $cs, ?User $user): void
+    {
+        $changes = $this->logger->diff($cs, ['startDate' => 'Od', 'endDate' => 'Do', 'halfDay' => 'Pola dana', 'note' => 'Napomena']);
+        if (isset($cs['type']) && $cs['type'][0] !== $cs['type'][1]) {
+            $changes = ['Vrsta' => [$cs['type'][0]?->getName(), $cs['type'][1]?->getName()]] + $changes;
+        }
+        if ([] !== $changes) {
+            $this->add($entity->getUser(), ActivityAction::UPDATED, ['Odsustvo' => [null, $entity->summary()]] + $changes, $user);
+        }
+        if (isset($cs['status'])) {
             // bez prijavljenog korisnika (komanda za automatsko odobravanje) zapis je "Sistem"
             $this->add($entity->getUser(), $entity->getStatus()->isApproved() ? ActivityAction::APPROVED : ActivityAction::STATUS_CHANGED, ['Odsustvo '.$entity->summary() => [($cs['status'][0] instanceof \App\Enum\AbsenceStatus ? $cs['status'][0] : \App\Enum\AbsenceStatus::tryFrom((string) $cs['status'][0]))?->label(), $entity->getStatus()->label()]], $user);
         }

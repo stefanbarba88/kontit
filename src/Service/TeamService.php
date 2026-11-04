@@ -35,6 +35,7 @@ class TeamService
             $this->em->persist($team);
             $this->em->persist(new TeamLeaderLog($team, $leader, $actor));
             $this->grantLeaderRole($leader);
+            $this->ensureLeaderMembership($team, $leader);
         });
 
         $this->notifyLeader($team, $leader, $actor, true);
@@ -62,9 +63,11 @@ class TeamService
             $now = new \DateTimeImmutable();
             $this->leaderLogs->findCurrent($team)?->setEndedAt($now);
 
+            // bivši šef ostaje član tima kao radnik
             $team->setLeader($newLeader);
             $this->em->persist(new TeamLeaderLog($team, $newLeader, $actor));
             $this->grantLeaderRole($newLeader);
+            $this->ensureLeaderMembership($team, $newLeader);
             $this->em->flush();
 
             if (null !== $oldLeader) {
@@ -119,6 +122,9 @@ class TeamService
         if (null !== $current && $current->getTeam() === $team) {
             throw new \DomainException('Radnik je već član ovog tima.');
         }
+        if (null !== $current && $current->getTeam()->getLeader() === $user && $team->getLeader() !== $user) {
+            throw new \DomainException(sprintf('%s vodi tim „%s“ i član je tog tima. Prvo promeni šefa tog tima.', $user->getFullName(), $current->getTeam()->getName()));
+        }
 
         $previous = $current?->getTeam();
 
@@ -147,27 +153,63 @@ class TeamService
         if (!$member->isActive()) {
             throw new \DomainException('Radnik više nije član tima.');
         }
+        if ($member->getTeam()->getLeader() === $member->getUser()) {
+            throw new \DomainException('Šef je uvek član svog tima. Prvo promeni šefa tima.');
+        }
 
         $member->setLeftAt(new \DateTimeImmutable());
         $this->em->flush();
     }
 
+    /**
+     * Tim se briše kad u njemu ostane samo šef. Šefovo članstvo se završava,
+     * a ako vodi još neki tim, postaje član tog tima.
+     */
     public function delete(Team $team): void
     {
-        if ($team->getActiveMembers()->count() > 0) {
+        $leader = $team->getLeader();
+        $others = $team->getActiveMembers()->filter(static fn (TeamMember $m) => $m->getUser() !== $leader);
+        if ($others->count() > 0) {
             throw new \DomainException('Tim ima aktivne članove. Prvo ih premestite ili uklonite.');
         }
 
-        $this->em->wrapInTransaction(function () use ($team): void {
+        $this->em->wrapInTransaction(function () use ($team, $leader): void {
             $now = new \DateTimeImmutable();
             $team->setDeletedAt($now);
             $this->leaderLogs->findCurrent($team)?->setEndedAt($now);
+            foreach ($team->getActiveMembers() as $member) {
+                $member->setLeftAt($now);
+            }
             $this->em->flush();
 
-            if (null !== $team->getLeader()) {
-                $this->revokeLeaderRoleIfUnused($team->getLeader());
+            if (null !== $leader) {
+                $next = $this->teams->findActiveLedBy($leader);
+                if (null !== $next) {
+                    $this->ensureLeaderMembership($next, $leader);
+                    $this->em->flush();
+                }
+                $this->revokeLeaderRoleIfUnused($leader);
             }
         });
+    }
+
+    /**
+     * Šef je automatski član tima koji vodi (bez duplikata). Članstvo je jedno po osobi:
+     * ako je već član drugog tima koji takođe vodi, ostaje tamo; inače se premešta u ovaj tim.
+     */
+    private function ensureLeaderMembership(Team $team, User $leader): void
+    {
+        $current = $this->members->findActiveByUser($leader);
+        if (null !== $current && ($current->getTeam() === $team
+            || ($current->getTeam()->getLeader() === $leader && !$current->getTeam()->isDeleted()))) {
+            return;
+        }
+
+        $now = new \DateTimeImmutable();
+        $current?->setLeftAt($now);
+        $member = new TeamMember($team, $leader, $now);
+        $team->getMembers()->add($member);
+        $this->em->persist($member);
     }
 
     /**

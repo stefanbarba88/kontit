@@ -1,0 +1,24 @@
+{# Dostupnost kolega iz tima (za radnika): samo dostupan / nije dostupan i period, bez vrste i napomene.
+   availability: AbsenceService::teamAvailability() #}
+{% import 'components/ui.html.twig' as ui %}
+<div class="card mb-3">
+    <div class="card-header"><h5 class="mb-0">Dostupnost tima</h5><div class="kt-text-sm text-muted">Danas i narednih 30 dana</div></div>
+    <ul class="list-group list-group-flush">
+        {% for row in availability %}
+            <li class="list-group-item d-flex flex-wrap align-items-center gap-2">
+                {{ ui.avatar(row.user, 28) }}
+                <span class="flex-grow-1 min-w-0 text-truncate">{{ row.user.fullName }}</span>
+                {% if row.available %}
+                    <span class="badge kt-badge-success">Dostupan</span>
+                {% else %}
+                    <span class="badge kt-badge-secondary">Nije dostupan</span>
+                {% endif %}
+                {% if row.periods is not empty %}
+                    <div class="w-100 kt-text-sm text-muted">
+                        Nije dostupan: {% for p in row.periods %}{{ p.from|date('d.m.') }}{% if p.to != p.from %} – {{ p.to|date('d.m.') }}{% endif %}{{ not loop.last ? ', ' }}{% endfor %}
+                    </div>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</div>

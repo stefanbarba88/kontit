@@ -4,10 +4,8 @@ namespace App\Controller\Task;
 
 use App\Entity\ActivityLog;
 use App\Entity\ChecklistItem;
-use App\Entity\Client;
 use App\Entity\Task;
 use App\Entity\User;
-use App\Enum\TaskPriority;
 use App\Form\TaskType;
 use App\Repository\ActivityLogRepository;
 use App\Repository\ClientJobRepository;
@@ -16,6 +14,7 @@ use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
 use App\Service\ClientPeople;
 use App\Service\TaskCompletionService;
+use App\Service\TaskListFilters;
 use App\Service\TaskService;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -38,36 +37,31 @@ class TaskController extends AbstractController
     }
 
     #[Route('/tasks', name: 'task_index', methods: ['GET'])]
-    public function index(Request $request, PaginatorInterface $paginator): Response
+    public function index(Request $request, PaginatorInterface $paginator, TaskListFilters $listFilters): Response
     {
         $me = $this->actor();
         $admin = $this->tasks->isAdmin($me);
         $leader = $this->tasks->isLeader($me);
-
-        $tab = $request->query->getString('tab', 'all');
-        $tab = in_array($tab, TaskRepository::TABS, true) ? $tab : 'all';
-        $scope = $request->query->getString('scope', 'mine');
-        $scope = ('all' === $scope && $leader) ? 'all' : 'mine';
-        $client = $request->query->getInt('client') ? $this->clients->find($request->query->getInt('client')) : null;
-        $priority = TaskPriority::tryFrom($request->query->getString('priority'));
-
-        if ('approval' === $tab && $leader) {
-            $qb = $this->repository->createAwaitingApprovalQueryBuilder($me, $admin);
-        } else {
-            $tab = 'approval' === $tab ? 'all' : $tab;
-            $qb = $this->repository->createListQueryBuilder($me, $admin, $leader, $scope, [
-                'tab' => $tab,
-                'client' => $client instanceof Client && $this->isGranted('CLIENT_VIEW', $client) ? $client : null,
-                'priority' => $priority,
-            ]);
-        }
+        $f = $listFilters->resolve($request->query->all(), $me);
 
         return $this->render('task/index.html.twig', [
-            'pagination' => $paginator->paginate($qb, $request->query->getInt('page', 1), 15),
-            'filters' => ['tab' => $tab, 'scope' => $scope, 'client' => $client?->getId(), 'priority' => $priority?->value],
+            'pagination' => $paginator->paginate($listFilters->queryBuilder($f, $me), $request->query->getInt('page', 1), 15),
+            'filters' => [
+                'tab' => $f['tab'],
+                'scope' => $f['scope'],
+                'client' => $f['client']?->getId(),
+                'priority' => $f['priority']?->value,
+                'status' => $f['status']?->value,
+                'team' => $f['team']?->getId(),
+                'user' => $f['assignee']?->getId(),
+                'period' => $f['period'] ?: null,
+            ],
             'clients' => $this->clients->createVisibleQueryBuilder($me, $admin, null, 'active')->getQuery()->getResult(),
+            'teams' => $listFilters->teamsFor($me),
+            'people' => $listFilters->usersFor($me),
             'approvalCount' => $leader ? $this->repository->countAwaitingApproval($me, $admin) : 0,
             'canSeeAll' => $leader,
+            'isAdmin' => $admin,
         ]);
     }
 

@@ -68,7 +68,7 @@ final class UserExport implements ExportListInterface
         }
     }
 
-    public function describeFilters(array $query): string
+    public function describeFilters(array $query, ?User $user = null): string
     {
         $parts = [];
         if ('' !== (string) ($query['q'] ?? '')) {

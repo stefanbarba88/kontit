@@ -73,9 +73,11 @@ class AbsenceService
     /**
      * Podaci za formu zahteva (AJAX): radni dani, preostali godišnji posle zahteva, ko je još iz tima odsutan, upozorenja.
      *
+     * $details = false (radnik): od kolega samo odobrena odsustva, bez vrste (vidi se samo dostupnost).
+     *
      * @return array{workingDays: float, nonWorking: array<string, string>, leave: ?array{remaining: float, after: float}, teamAbsent: list<array{name: string, period: string, type: string, pending: bool}>, errors: list<string>, warnings: list<string>}
      */
-    public function preview(User $user, ?\App\Entity\AbsenceType $type, \DateTimeImmutable $from, \DateTimeImmutable $to, bool $halfDay): array
+    public function preview(User $user, ?\App\Entity\AbsenceType $type, \DateTimeImmutable $from, \DateTimeImmutable $to, bool $halfDay, bool $details = true, ?UserAbsence $ignore = null): array
     {
         $errors = [];
         $warnings = [];
@@ -85,20 +87,23 @@ class AbsenceService
         } elseif (0.0 === $days) {
             $errors[] = 'U izabranom periodu nema radnih dana.';
         }
-        if ($this->absences->hasOverlap($user, $from, $to)) {
+        if ($this->absences->hasOverlap($user, $from, $to, $ignore)) {
             $errors[] = 'Već postoji odsustvo koje se preklapa sa ovim periodom.';
         }
 
         $leave = null;
         if (null !== $type && $type->isCountsAgainstLeave()) {
             $balance = $this->leave->balance($user, (int) $from->format('Y'));
-            $leave = ['remaining' => $balance['remaining'] - $balance['pending'], 'after' => $balance['remaining'] - $balance['pending'] - $days];
+            // pri izmeni se dani samog odsustva ne računaju dva puta
+            $own = null !== $ignore && $ignore->getType()?->isCountsAgainstLeave() && $ignore->getStartDate()->format('Y') === $from->format('Y')
+                && \in_array($ignore->getStatus(), AbsenceStatus::blocking(), true) ? $ignore->getWorkingDays() : 0.0;
+            $leave = ['remaining' => $balance['remaining'] - $balance['pending'] + $own, 'after' => $balance['remaining'] - $balance['pending'] + $own - $days];
             if ($leave['after'] < 0) {
                 $warnings[] = sprintf('Posle ovog zahteva godišnji odmor je u minusu (%s dana).', number_format($leave['after'], 1, ',', ''));
             }
         }
         if (null !== $type && null !== $type->getMaxDaysPerYear()) {
-            $usedOfType = $this->absences->sumTypeDays($user, $type, (int) $from->format('Y'));
+            $usedOfType = $this->absences->sumTypeDays($user, $type, (int) $from->format('Y'), $ignore);
             if ($usedOfType + $days > $type->getMaxDaysPerYear()) {
                 $errors[] = sprintf('Za „%s“ je dozvoljeno najviše %d dana godišnje (već: %s).', $type->getName(), $type->getMaxDaysPerYear(), number_format($usedOfType, 1, ',', ''));
             }
@@ -106,12 +111,12 @@ class AbsenceService
 
         // ko je još iz tima odsutan u tom periodu (upozorenje, ne zabrana)
         $teamAbsent = [];
-        foreach ($this->absences->findInPeriod($this->teammates($user), $from, $to) as $other) {
+        foreach ($this->absences->findInPeriod($this->teammates($user), $from, $to, $details) as $other) {
             $teamAbsent[] = [
                 'name' => $other->getUser()->getFullName(),
                 'period' => $other->getStartDate()->format('d.m.').' – '.$other->getEndDate()->format('d.m.'),
-                'type' => (string) $other->getType()?->getName(),
-                'pending' => $other->isPending(),
+                'type' => $details ? (string) $other->getType()?->getName() : '',
+                'pending' => $details && $other->isPending(),
             ];
         }
 
@@ -141,6 +146,7 @@ class AbsenceService
         if (!$type->isActive()) {
             throw new \DomainException('Ova vrsta odsustva se više ne koristi.');
         }
+        $this->assertDatesAllowed($actor, $absence->getStartDate(), $absence->getEndDate());
         $preview = $this->preview($user, $type, $absence->getStartDate(), $absence->getEndDate(), $absence->isHalfDay());
         if ([] !== $preview['errors']) {
             throw new \DomainException($preview['errors'][0]);
@@ -187,6 +193,99 @@ class AbsenceService
         }
     }
 
+    /**
+     * Ko sme da menja odsustvo (vrstu, datume, napomenu), samo dok nije odbijeno ni otkazano:
+     * admin+ sva, i u prošlosti; šef odsustva članova svog tima dok nisu završena; radnik (i šef za sebe) svoje,
+     * samo dok je na odobrenju i dok nije počelo.
+     */
+    public function canEdit(User $actor, UserAbsence $absence): bool
+    {
+        if (!\in_array($absence->getStatus(), AbsenceStatus::blocking(), true)) {
+            return false;
+        }
+        if ($this->tasks->isAdmin($actor)) {
+            return true;
+        }
+        $user = $absence->getUser();
+        if ($user !== $actor) {
+            return $this->tasks->isLeader($actor) && $this->users->isInLeaderScope($actor, $user) && !$absence->hasEnded();
+        }
+
+        return $absence->isPending() && $absence->getStartDate() >= new \DateTimeImmutable('today');
+    }
+
+    /**
+     * Izmena odsustva (vrsta, datumi, pola dana, napomena). $original = stanje pre izmene (forma menja entitet).
+     * Ko nije admin ne može da upiše dan koji je prošao: početak se može ostaviti kakav je bio (odsustvo koje traje),
+     * ali novi početak i kraj ne mogu biti pre današnjeg dana. Status ostaje (izmena nije odluka), osim kad radnik
+     * na zahtevu koji čeka izabere vrstu bez odobrenja: tada je odmah na snazi, kao pri upisu.
+     *
+     * @param array{type: ?\App\Entity\AbsenceType, startDate: \DateTimeImmutable, endDate: \DateTimeImmutable, halfDay: bool, note: ?string} $original
+     */
+    public function update(UserAbsence $absence, User $actor, array $original): void
+    {
+        $user = $absence->getUser();
+        $type = $absence->getType() ?? throw new \DomainException('Izaberi vrstu odsustva.');
+        if (!$type->isActive() && $type !== $original['type']) {
+            throw new \DomainException('Ova vrsta odsustva se više ne koristi.');
+        }
+        $this->assertDatesAllowed($actor, $absence->getStartDate(), $absence->getEndDate(), $original['startDate']);
+
+        $preview = $this->preview($user, $type, $absence->getStartDate(), $absence->getEndDate(), $absence->isHalfDay(), true, $absence);
+        if ([] !== $preview['errors']) {
+            throw new \DomainException($preview['errors'][0]);
+        }
+
+        $periodChanged = $absence->getStartDate() != $original['startDate'] || $absence->getEndDate() != $original['endDate'];
+        $changed = $periodChanged || $type !== $original['type'] || $absence->isHalfDay() !== $original['halfDay'] || (string) $absence->getNote() !== (string) $original['note'];
+        if (!$changed) {
+            return;
+        }
+
+        $absence->setHalfDay($absence->isHalfDay() && $absence->getStartDate() == $absence->getEndDate())
+            ->setWorkingDays($preview['workingDays'])
+            ->markEdited($actor);
+
+        $activated = false;
+        if ($absence->isPending()) {
+            if (!$type->isRequiresApproval()) {
+                $absence->setStatus(AbsenceStatus::ODOBRENO)->setApprovalDeadline(null);
+                $activated = true;
+            } elseif ($periodChanged) {
+                // rok se računa od podnošenja, a ne od izmene (izmena ne produžava rok)
+                $hours = (int) $this->settings->getFloat(SettingsService::ABSENCE_APPROVAL_HOURS);
+                $absence->setApprovalDeadline($this->deadlines->deadline($absence->getCreatedAt() ?? new \DateTimeImmutable(), $hours, $absence->getStartDate()));
+            }
+        }
+        $this->em->flush();
+
+        // zamena dobija nov period
+        if ($activated || ($absence->isApproved() && $periodChanged && !$absence->hasEnded())) {
+            $this->activate($absence, $actor);
+        }
+        if ($actor !== $user) {
+            $this->notifications->notify($user, NotificationType::ABSENCE_UPDATED, 'Izmenjeno ti je odsustvo', sprintf('%s je izmenio tvoje odsustvo: %s.', $actor->getFullName(), $absence->summary()), ['absence_index'], $actor);
+        }
+    }
+
+    /**
+     * Ko nije admin ne može da upiše odsustvo za dan koji je prošao (najraniji je danas). Admin sme i u prošlosti
+     * (npr. naknadno upisano bolovanje). $originalStart: pri izmeni odsustva koje već traje početak može da ostane isti.
+     */
+    public function assertDatesAllowed(User $actor, \DateTimeImmutable $start, \DateTimeImmutable $end, ?\DateTimeImmutable $originalStart = null): void
+    {
+        if ($end < $start) {
+            throw new \DomainException('Kraj odsustva ne može biti pre početka.');
+        }
+        if ($this->tasks->isAdmin($actor)) {
+            return;
+        }
+        $today = new \DateTimeImmutable('today');
+        if ($end < $today || ($start < $today && $start != $originalStart)) {
+            throw new \DomainException('Ne možeš upisati odsustvo za dan koji je prošao. Najraniji datum je danas.');
+        }
+    }
+
     public function approve(UserAbsence $absence, User $actor): void
     {
         $this->assertPending($absence);
@@ -224,7 +323,7 @@ class AbsenceService
 
         if ($wasApproved && !$absence->hasEnded()) {
             foreach ($this->backupsFor($absence->getUser()) as $backup) {
-                $this->notifications->notify($backup, NotificationType::BACKUP_ACTIVATED, 'Zamena je otkazana', sprintf('%s je otkazao odsustvo (%s). Više ne preuzimaš njegove klijente.', $absence->getUser()->getFullName(), $absence->summary()), ['client_mine'], $actor);
+                $this->notifications->notify($backup, NotificationType::BACKUP_ACTIVATED, 'Zamena je otkazana', sprintf('%s je otkazao odsustvo (%s). Više ne preuzimaš njegove klijente.', $absence->getUser()->getFullName(), $absence->periodText()), ['client_mine'], $actor);
             }
         }
         if ($actor !== $absence->getUser()) {
@@ -249,7 +348,7 @@ class AbsenceService
         $this->notifications->notify($absence->getUser(), NotificationType::ABSENCE_REJECTED, 'Automatsko odobrenje je poništeno', sprintf('%s je poništio automatsko odobrenje tvog odsustva (%s). Razlog: %s', $actor->getFullName(), $absence->summary(), trim($reason)), ['absence_index'], $actor);
         if (!$absence->hasEnded()) {
             foreach ($this->backupsFor($absence->getUser()) as $backup) {
-                $this->notifications->notify($backup, NotificationType::BACKUP_ACTIVATED, 'Zamena je otkazana', sprintf('Odsustvo za %s (%s) više ne važi. Ne preuzimaš njegove klijente.', $absence->getUser()->getFullName(), $absence->summary()), ['client_mine'], $actor);
+                $this->notifications->notify($backup, NotificationType::BACKUP_ACTIVATED, 'Zamena je otkazana', sprintf('Odsustvo za %s (%s) više ne važi. Ne preuzimaš njegove klijente.', $absence->getUser()->getFullName(), $absence->periodText()), ['client_mine'], $actor);
             }
         }
     }
@@ -344,6 +443,30 @@ class AbsenceService
         }
 
         return $out;
+    }
+
+    /**
+     * Dostupnost kolega iz tima (stavka "odsustvo kolega"): samo odobrena odsustva, bez vrste i napomene.
+     * Radnik vidi da li je kolega danas dostupan i kada nije u narednih $days dana.
+     *
+     * @return list<array{user: User, available: bool, periods: list<array{from: \DateTimeImmutable, to: \DateTimeImmutable}>}>
+     */
+    public function teamAvailability(User $me, int $days = 30): array
+    {
+        $today = new \DateTimeImmutable('today');
+        $mates = $this->teammates($me);
+        $periods = [];
+        foreach ($this->absences->findInPeriod($mates, $today, $today->modify('+'.$days.' days'), false) as $absence) {
+            $periods[$absence->getUser()->getId()][] = ['from' => $absence->getStartDate(), 'to' => $absence->getEndDate()];
+        }
+        usort($mates, static fn (User $a, User $b) => strcmp($a->getFullName(), $b->getFullName()));
+
+        return array_map(static function (User $u) use ($periods, $today) {
+            $list = $periods[$u->getId()] ?? [];
+            $away = array_filter($list, static fn (array $p) => $p['from'] <= $today && $p['to'] >= $today);
+
+            return ['user' => $u, 'available' => [] === $away, 'periods' => $list];
+        }, $mates);
     }
 
     /**

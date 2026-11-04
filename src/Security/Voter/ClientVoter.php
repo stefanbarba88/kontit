@@ -6,6 +6,7 @@ use App\Entity\Client;
 use App\Entity\User;
 use App\Enum\Role;
 use App\Repository\TeamMemberRepository;
+use App\Security\TeamScope;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -68,7 +69,7 @@ class ClientVoter extends Voter
     private function leadsAssigneeTeam(Client $client, User $leader): bool
     {
         foreach ([$client->getPrimaryAccountant(), $client->getBackupAccountant()] as $assignee) {
-            if (null === $assignee) {
+            if (null === $assignee || !TeamScope::covers($leader, $assignee)) {
                 continue;
             }
             $team = $this->members->findActiveByUser($assignee)?->getTeam();

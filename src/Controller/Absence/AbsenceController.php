@@ -58,6 +58,8 @@ class AbsenceController extends AbstractController
             'teamId' => $teamId,
             'year' => $year,
             'balance' => $this->leave->balance($me, (int) date('Y')),
+            // radnik vidi samo dostupnost kolega iz tima; šef i admin imaju tab Pregled sa detaljima
+            'availability' => $leader ? [] : $this->service->teamAvailability($me),
         ];
 
         if ('zahtevi' === $tab) {
@@ -92,8 +94,11 @@ class AbsenceController extends AbstractController
         if ($request->query->get('from') && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $request->query->get('from'))) {
             $absence->setStartDate(new \DateTimeImmutable((string) $request->query->get('from')))->setEndDate(new \DateTimeImmutable((string) $request->query->get('from')));
         }
+        $today = $this->tasks->isAdmin($me) ? null : new \DateTimeImmutable('today');
         $form = $this->createForm(UserAbsenceType::class, $absence, [
             'user_query_builder' => $leader ? $this->users->createAssignableQueryBuilder($me, $this->tasks->isAdmin($me)) : null,
+            'start_min' => $today,
+            'end_min' => $today,
         ]);
         $form->handleRequest($request);
 
@@ -114,14 +119,57 @@ class AbsenceController extends AbstractController
     }
 
     /**
+     * Izmena odsustva: vrsta, datumi, pola dana, napomena (radnik se ne menja). Prava: ABSENCE_EDIT (AbsenceService::canEdit).
+     */
+    #[Route('/absences/{id}/edit', name: 'absence_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[IsGranted('ABSENCE_EDIT', 'absence')]
+    public function edit(Request $request, UserAbsence $absence): Response
+    {
+        $me = $this->actor();
+        $original = [
+            'type' => $absence->getType(),
+            'startDate' => $absence->getStartDate(),
+            'endDate' => $absence->getEndDate(),
+            'halfDay' => $absence->isHalfDay(),
+            'note' => $absence->getNote(),
+        ];
+        // ko nije admin, početak odsustva koje već traje može da ostane, ali ništa ne može ranije od današnjeg dana
+        $today = $this->tasks->isAdmin($me) ? null : new \DateTimeImmutable('today');
+        $form = $this->createForm(UserAbsenceType::class, $absence, [
+            'current_type' => $absence->getType(),
+            'start_min' => null === $today ? null : min($today, $original['startDate']),
+            'end_min' => $today,
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->service->update($absence, $me, $original);
+                $this->addFlash('success', 'Odsustvo je izmenjeno.');
+
+                return $this->redirectToRoute('absence_index');
+            } catch (\DomainException $e) {
+                $form->addError(new \Symfony\Component\Form\FormError($e->getMessage()));
+            }
+        }
+
+        return $this->render('absence/form.html.twig', ['form' => $form, 'canChooseUser' => false, 'me' => $me, 'absence' => $absence, 'isAdmin' => $this->tasks->isAdmin($me)]);
+    }
+
+    /**
      * Podaci za formu zahteva u letu: radni dani, preostali godišnji, kolege odsutne u istom periodu.
      */
     #[Route('/ajax/absences/preview', name: 'ajax_absence_preview', methods: ['GET'])]
     public function preview(Request $request, AbsenceTypeRepository $types): JsonResponse
     {
         $me = $this->actor();
-        $user = $request->query->getInt('user') ? $this->users->find($request->query->getInt('user')) : $me;
-        if (null === $user || !$this->service->canEnterFor($me, $user)) {
+        // izmena: odsustvo koje se menja se ne računa kao preklapanje ni kao već iskorišćeni dani
+        $editing = $request->query->getInt('absence') ? $this->repository->find($request->query->getInt('absence')) : null;
+        if (null !== $editing && !$this->isGranted('ABSENCE_EDIT', $editing)) {
+            return new JsonResponse(['success' => false, 'data' => null, 'message' => 'Nemaš pristup.'], 403);
+        }
+        $user = $editing?->getUser() ?? ($request->query->getInt('user') ? $this->users->find($request->query->getInt('user')) : $me);
+        if (null === $user || (null === $editing && !$this->service->canEnterFor($me, $user))) {
             return new JsonResponse(['success' => false, 'data' => null, 'message' => 'Nemaš pristup.'], 403);
         }
         try {
@@ -134,7 +182,15 @@ class AbsenceController extends AbstractController
             return new JsonResponse(['success' => false, 'data' => null, 'message' => 'Period je predug.'], 400);
         }
         $type = $request->query->getInt('type') ? $types->find($request->query->getInt('type')) : null;
-        $preview = $this->service->preview($user, $type, $from, $to, $request->query->getBoolean('half'));
+        // radnik od kolega vidi samo dostupnost (bez vrste i zahteva na odobrenju), šef i admin detalje
+        $preview = $this->service->preview($user, $type, $from, $to, $request->query->getBoolean('half'), $this->tasks->isLeader($me), $editing);
+        try {
+            $this->service->assertDatesAllowed($me, $from, $to, $editing?->getStartDate());
+        } catch (\DomainException $e) {
+            if (!\in_array($e->getMessage(), $preview['errors'], true)) {
+                array_unshift($preview['errors'], $e->getMessage());
+            }
+        }
         $preview['approvers'] = null !== $type && !$type->isRequiresApproval() ? [] : array_map(static fn (User $u) => $u->getFullName(), $this->service->approversFor($user));
 
         return new JsonResponse(['success' => true, 'data' => $preview, 'message' => '']);

@@ -85,6 +85,7 @@ function initDates(root) {
             allowInput: true,
             disableMobile: true,
             mode: range ? 'range' : 'single',
+            minDate: el.dataset.minDate || null,
             onReady: (_, __, fp) => {
                 fp.altInput.classList.add('kt-date');
                 showYear(fp);

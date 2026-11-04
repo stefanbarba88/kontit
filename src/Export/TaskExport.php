@@ -2,28 +2,20 @@
 
 namespace App\Export;
 
-use App\Entity\Client;
 use App\Entity\Task;
 use App\Entity\User;
-use App\Enum\TaskPriority;
-use App\Repository\ClientRepository;
-use App\Repository\TaskRepository;
-use App\Service\TaskService;
+use App\Service\TaskListFilters;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\SecurityBundle\Security;
 
 /**
- * Izvoz liste zadataka (/tasks): isti tabovi, opseg i filteri kao TaskController::index i TASK_VIEW po redu.
+ * Izvoz liste zadataka (/tasks): isti tabovi, opseg i filteri kao TaskController::index (TaskListFilters) i TASK_VIEW po redu.
  */
 final class TaskExport implements ExportListInterface
 {
-    private const TAB_LABELS = ['all' => 'svi', 'today' => 'danas', 'week' => 'ova nedelja', 'overdue' => 'kasne', 'review' => 'na proveri', 'approval' => 'čeka moju potvrdu'];
-
     public function __construct(
-        private readonly TaskRepository $tasks,
-        private readonly ClientRepository $clients,
-        private readonly TaskService $taskService,
+        private readonly TaskListFilters $filters,
         private readonly Security $security,
     ) {
     }
@@ -86,46 +78,18 @@ final class TaskExport implements ExportListInterface
         }
     }
 
-    public function describeFilters(array $query): string
+    public function describeFilters(array $query, ?User $user = null): string
     {
-        $tab = (string) ($query['tab'] ?? 'all');
-        $parts = ['Prikaz: '.(self::TAB_LABELS[$tab] ?? 'svi')];
-        if ('all' === ($query['scope'] ?? 'mine')) {
-            $parts[] = 'svi zadaci u mom opsegu';
-        }
-        if ($priority = TaskPriority::tryFrom((string) ($query['priority'] ?? ''))) {
-            $parts[] = 'Prioritet: '.$priority->label();
-        }
-        if (($id = (int) ($query['client'] ?? 0)) && $client = $this->clients->find($id)) {
-            $parts[] = 'Klijent: '.$client->getShortName();
-        }
+        $user ??= $this->security->getUser();
 
-        return implode(' · ', $parts);
+        return $user instanceof User ? $this->filters->describe($this->filters->resolve($query, $user)) : '';
     }
 
     /**
-     * Ista logika filtera kao TaskController::index.
-     *
      * @param array<string, mixed> $query
      */
     private function queryBuilder(array $query, User $user): QueryBuilder
     {
-        $admin = $this->taskService->isAdmin($user);
-        $leader = $this->taskService->isLeader($user);
-
-        $tab = (string) ($query['tab'] ?? 'all');
-        $tab = \in_array($tab, TaskRepository::TABS, true) ? $tab : 'all';
-        $scope = ('all' === ($query['scope'] ?? 'mine') && $leader) ? 'all' : 'mine';
-        $client = (int) ($query['client'] ?? 0) ? $this->clients->find((int) $query['client']) : null;
-
-        if ('approval' === $tab && $leader) {
-            return $this->tasks->createAwaitingApprovalQueryBuilder($user, $admin);
-        }
-
-        return $this->tasks->createListQueryBuilder($user, $admin, $leader, $scope, [
-            'tab' => 'approval' === $tab ? 'all' : $tab,
-            'client' => $client instanceof Client && $this->security->isGrantedForUser($user, 'CLIENT_VIEW', $client) ? $client : null,
-            'priority' => TaskPriority::tryFrom((string) ($query['priority'] ?? '')),
-        ]);
+        return $this->filters->queryBuilder($this->filters->resolve($query, $user), $user);
     }
 }

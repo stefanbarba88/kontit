@@ -20,8 +20,9 @@ class TaskRepository extends ServiceEntityRepository
     public const TABS = ['today', 'week', 'overdue', 'review', 'approval', 'all'];
 
     /** Član tima koji $me vodi (aktivno članstvo, tim nije obrisan) je učesnik zadatka t */
-    private const LEADS_ASSIGNEE = 'EXISTS (SELECT 1 FROM App\Entity\TaskAssignee la JOIN App\Entity\TeamMember lm WITH lm.user = la.user JOIN lm.team lt '
-        .'WHERE la.task = t AND lm.leftAt IS NULL AND lt.deletedAt IS NULL AND lt.leader = :me)';
+    private const LEADS_ASSIGNEE = 'EXISTS (SELECT 1 FROM App\Entity\TaskAssignee la JOIN la.user lu JOIN App\Entity\TeamMember lm WITH lm.user = la.user JOIN lm.team lt '
+        .'WHERE la.task = t AND lm.leftAt IS NULL AND lt.deletedAt IS NULL AND lt.leader = :me '
+        ."AND (lu.roles NOT LIKE '%ROLE_SEF%' AND lu.roles NOT LIKE '%ROLE_ADMIN%' AND lu.roles NOT LIKE '%ROLE_SUPERADMIN%'))";
 
     private const IS_ASSIGNEE = 'EXISTS (SELECT 1 FROM App\Entity\TaskAssignee ma WHERE ma.task = t AND ma.user = :me)';
 
@@ -88,6 +89,39 @@ class TaskRepository extends ServiceEntityRepository
         }
         if (($filters['priority'] ?? null) instanceof TaskPriority) {
             $qb->andWhere('t.priority = :priority')->setParameter('priority', $filters['priority']);
+        }
+
+        return $qb;
+    }
+
+    /**
+     * Filteri liste (TaskListFilters): klijent, prioritet, status, tim (učesnik je član ili šef tima), radnik (učesnik) i period roka.
+     * Samo sužavaju upit koji je već ograničen opsegom korisnika.
+     *
+     * @param array{client?: ?Client, priority?: ?TaskPriority, status?: ?TaskStatus, team?: ?\App\Entity\Team, assignee?: ?User, from?: ?\DateTimeImmutable, to?: ?\DateTimeImmutable} $f
+     */
+    public function applyFilters(QueryBuilder $qb, array $f): QueryBuilder
+    {
+        if (($f['client'] ?? null) instanceof Client) {
+            $qb->andWhere('t.client = :fClient')->setParameter('fClient', $f['client']);
+        }
+        if (($f['priority'] ?? null) instanceof TaskPriority) {
+            $qb->andWhere('t.priority = :fPriority')->setParameter('fPriority', $f['priority']);
+        }
+        if (($f['status'] ?? null) instanceof TaskStatus) {
+            $qb->andWhere('t.status = :fStatus')->setParameter('fStatus', $f['status']);
+        }
+        if (($f['team'] ?? null) instanceof \App\Entity\Team) {
+            $qb->andWhere('EXISTS (SELECT 1 FROM App\Entity\TaskAssignee fa WHERE fa.task = t AND (fa.user = :fTeamLeader OR EXISTS ('
+                .'SELECT 1 FROM App\Entity\TeamMember fm WHERE fm.user = fa.user AND fm.team = :fTeam AND fm.leftAt IS NULL)))')
+                ->setParameter('fTeam', $f['team'])
+                ->setParameter('fTeamLeader', $f['team']->getLeader());
+        }
+        if (($f['assignee'] ?? null) instanceof User) {
+            $qb->andWhere('EXISTS (SELECT 1 FROM App\Entity\TaskAssignee fu WHERE fu.task = t AND fu.user = :fUser)')->setParameter('fUser', $f['assignee']);
+        }
+        if (($f['from'] ?? null) instanceof \DateTimeImmutable) {
+            $qb->andWhere('t.dueDate BETWEEN :fFrom AND :fTo')->setParameter('fFrom', $f['from'])->setParameter('fTo', $f['to'] ?? $f['from']);
         }
 
         return $qb;

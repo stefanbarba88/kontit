@@ -14,7 +14,9 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class UserAbsenceRepository extends ServiceEntityRepository
 {
-    private const LEADS = 'EXISTS (SELECT 1 FROM App\Entity\TeamMember m JOIN m.team t WHERE m.user = a.user AND m.leftAt IS NULL AND t.deletedAt IS NULL AND t.leader = :me)';
+    /** Član tima koji $me vodi i na nivou je radnika (šef ne vidi odsustva člana koji je šef ili admin) */
+    private const LEADS = 'EXISTS (SELECT 1 FROM App\Entity\TeamMember m JOIN m.team t JOIN m.user mu WHERE m.user = a.user AND m.leftAt IS NULL AND t.deletedAt IS NULL AND t.leader = :me AND '.self::WORKER.')';
+    private const WORKER = "(mu.roles NOT LIKE '%ROLE_SEF%' AND mu.roles NOT LIKE '%ROLE_ADMIN%' AND mu.roles NOT LIKE '%ROLE_SUPERADMIN%')";
 
     public function __construct(ManagerRegistry $registry)
     {

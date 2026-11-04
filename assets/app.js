@@ -27,6 +27,7 @@ import './js/comments.js';
 import './js/notifications.js';
 import './js/dashboard.js';
 import './js/confirm.js';
+import './js/dropdowns.js';
 import './js/nbs.js';
 import './js/layout.js';
 import './js/forms.js';

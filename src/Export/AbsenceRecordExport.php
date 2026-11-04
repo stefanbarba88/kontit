@@ -68,7 +68,7 @@ class AbsenceRecordExport implements ExportListInterface
         }
     }
 
-    public function describeFilters(array $query): string
+    public function describeFilters(array $query, ?User $user = null): string
     {
         return sprintf('Godina: %d', $this->year($query));
     }

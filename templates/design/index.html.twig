@@ -124,7 +124,17 @@
                     <tr><td><div class="d-flex align-items-center gap-2"><span class="kt-avatar" data-tone="5" style="width: 32px; height: 32px; font-size: 12px;">AB</span><div><div class="fw-medium">Auto-servis Brzi</div><div class="kt-text-sm text-muted kt-mono">101000002</div></div></div></td>
                         <td><span class="kt-empty-value">—</span></td>
                         <td><span class="badge kt-badge-danger">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon'}) }} Kasni</span></td><td class="text-end">9.500,00 RSD</td>
-                        <td><button class="btn kt-btn-icon btn-sm">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button></td></tr>
+                        <td>{# radnje u redu: tri tačke (meni se ne seče ni u poslednjem redu, assets/js/dropdowns.js) #}
+                            <div class="dropdown">
+                                <button type="button" class="btn kt-btn-icon btn-sm" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Radnje">{{ ux_icon('lucide:ellipsis', {class: 'kt-icon'}) }}</button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <a class="dropdown-item" href="#">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-2'}) }}Izmeni</a>
+                                    <a class="dropdown-item" href="#">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Kreiraj zadatak</a>
+                                    <div class="dropdown-divider"></div>
+                                    <button type="button" class="dropdown-item text-danger">{{ ux_icon('lucide:trash-2', {class: 'kt-icon me-2'}) }}Obriši</button>
+                                </div>
+                            </div>
+                        </td></tr>
                 </tbody>
             </table>
         </div>
@@ -249,6 +259,12 @@
                         <tr><td class="kt-ag-name">{{ ui.avatar(app.user, 22) }} Primer na odobrenju</td>{% for d in 9..15 %}<td class="{{ d in [14, 15] ? 'is-off' }}">{% if d in [12, 13] %}<span class="kt-ag-cell is-pending" style="--kt-cat: #8B5CF6;"></span>{% endif %}</td>{% endfor %}</tr>
                     </tbody>
                 </table>
+            </div>
+            <div class="mt-3">
+                {% include 'absence/_team_availability.html.twig' with {availability: [
+                    {user: app.user, available: true, periods: []},
+                    {user: app.user, available: false, periods: [{from: date(), to: date('+3 days')}, {from: date('+14 days'), to: date('+14 days')}]},
+                ]} %}
             </div>
         </div>
     </div>

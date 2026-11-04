@@ -32,14 +32,24 @@ class TeamController extends AbstractController
 
     #[Route('/teams/{id}', name: 'team_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[IsGranted('TEAM_MEMBERS_VIEW', 'team')]
-    public function show(Team $team, TeamLeaderLogRepository $leaderLogs, \App\Service\TeamService $teams): Response
+    public function show(Team $team, TeamLeaderLogRepository $leaderLogs, \App\Service\TeamService $teams, \App\Repository\TeamMemberRepository $memberRepo): Response
     {
+        // šef je član svog tima; ako vodi više timova, član je samo jednog i ovde se prikazuje posebno
+        $members = $team->getActiveMembers()->toArray();
+        usort($members, static fn ($a, $b) => ($b->getUser() === $team->getLeader()) <=> ($a->getUser() === $team->getLeader()));
+        $leaderHome = null;
+        if (null !== $team->getLeader() && [] === array_filter($members, static fn ($m) => $m->getUser() === $team->getLeader())) {
+            $leaderHome = $memberRepo->findActiveByUser($team->getLeader())?->getTeam();
+        }
+
         $addMemberForm = $this->isGranted('TEAM_MANAGE')
             ? $this->createForm(TeamMemberType::class, null, ['warnings' => $teams->moveWarnings(), 'action' => $this->generateUrl('admin_team_member_add', ['id' => $team->getId()])])
             : null;
 
         return $this->render('team/show.html.twig', [
             'team' => $team,
+            'members' => $members,
+            'leaderHome' => $leaderHome,
             'leaderLog' => $leaderLogs->findByTeam($team),
             'addMemberForm' => $addMemberForm,
         ]);

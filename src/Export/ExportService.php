@@ -67,7 +67,7 @@ class ExportService
         match ($format) {
             'xlsx' => $this->writeXlsx($list, $columns, $rows, $path),
             'csv' => $this->writeCsv($columns, $rows, $path),
-            'pdf' => $this->writePdf($list, $columns, $rows, $list->describeFilters($query), $user, $path),
+            'pdf' => $this->writePdf($list, $columns, $rows, $list->describeFilters($query, $user), $user, $path),
             default => throw new \InvalidArgumentException('Nepoznat format izvoza.'),
         };
 

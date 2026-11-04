@@ -34,6 +34,12 @@
     .table > tbody > tr:hover .kt-btn-icon { opacity: 1; }
 }
 
+/* tri tačke u redu: meni je fixed (assets/js/dropdowns.js), pa ga overflow tabele ne seče */
+.table > tbody > tr .kt-btn-icon.show { opacity: 1; }
+.table .dropdown-menu, .card .dropdown-menu { max-height: calc(100dvh - 16px); overflow-y: auto; }
+/* transform na roditelju bi pomerio fixed meni */
+.card:has(.dropdown-menu.show) { transform: none !important; }
+
 /* složeni avatari */
 .kt-avatar-stack { display: inline-flex; align-items: center; }
 .kt-avatar-stack > * + * { margin-left: -8px; }

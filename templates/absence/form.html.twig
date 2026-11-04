@@ -1,19 +1,31 @@
 {% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
 
-{% block title %}Zahtev za odsustvo{% endblock %}
-{% block page_title %}Zahtev za odsustvo{% endblock %}
+{# Novi zahtev i izmena odsustva (absence je postavljen samo pri izmeni) #}
+{% set editing = absence is defined and absence %}
+{% set heading = editing ? 'Izmena odsustva' : 'Zahtev za odsustvo' %}
+
+{% block title %}{{ heading }}{% endblock %}
+{% block page_title %}{{ heading }}{% endblock %}
 {% block breadcrumbs %}
     <a href="{{ path('absence_index') }}" class="breadcrumb-item">Odsustva</a>
-    <span class="breadcrumb-item active">Novi zahtev</span>
+    <span class="breadcrumb-item active">{{ editing ? 'Izmena' : 'Novi zahtev' }}</span>
 {% endblock %}
 
 {% block content %}
-    {{ form_start(form, {attr: {'data-kt-absence-form': '', 'data-preview-url': path('ajax_absence_preview'), 'data-me': me.id}}) }}
+    {{ form_start(form, {attr: {'data-kt-absence-form': '', 'data-preview-url': path('ajax_absence_preview'), 'data-me': me.id, 'data-absence-id': editing ? absence.id : ''}}) }}
     <div class="row">
         <div class="col-lg-7">
             <div class="card">
                 <div class="card-body">
                     {{ form_errors(form) }}
+                    {% if editing %}
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                            {{ ui.user_chip(absence.user, 32) }}
+                            <span class="badge kt-badge-{{ absence.status.color }} ms-auto">{{ absence.status.label }}</span>
+                        </div>
+                        {% if absence.editedBy %}<p class="kt-text-sm text-muted">Poslednja izmena: {{ absence.editedBy.fullName }}, {{ absence.editedAt|date('d.m.Y. H:i') }}</p>{% endif %}
+                    {% endif %}
                     {% if form.user is defined %}{{ form_row(form.user) }}{% endif %}
                     {{ form_row(form.type) }}
                     <div class="row">
@@ -39,7 +51,12 @@
     </div>
     <div class="kt-form-actions">
         <a href="{{ path('absence_index') }}" class="btn btn-light">Otkaži</a>
-        <button class="btn btn-primary" data-kt-absence-submit>{{ canChooseUser ? 'Sačuvaj' : 'Pošalji zahtev' }}{{ ux_icon('lucide:send', {class: 'kt-icon ms-2'}) }}</button>
+        {% if editing %}
+            <button type="submit" class="btn btn-primary" data-kt-absence-submit
+                    {{ confirm_attrs('Sačuvati izmenu odsustva?', absence.user.fullName ~ ': ' ~ absence.summary ~ '. Izmena se beleži u istoriju' ~ (absence.user != me ? ', a radnik dobija obaveštenje.' : '.'), 'warning', 'Da, sačuvaj') }}>Sačuvaj izmenu{{ ux_icon('lucide:check', {class: 'kt-icon ms-2'}) }}</button>
+        {% else %}
+            <button class="btn btn-primary" data-kt-absence-submit>{{ canChooseUser ? 'Sačuvaj' : 'Pošalji zahtev' }}{{ ux_icon('lucide:send', {class: 'kt-icon ms-2'}) }}</button>
+        {% endif %}
     </div>
     {{ form_end(form) }}
 {% endblock %}

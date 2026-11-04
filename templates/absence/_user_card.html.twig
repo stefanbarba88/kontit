@@ -19,6 +19,7 @@
                     <span class="text-nowrap">{{ a.startDate|date('d.m.') }}{% if a.endDate != a.startDate %}–{{ a.endDate|date('d.m.') }}{% endif %}</span>
                     <span class="flex-grow-1">{{ a.type.name }} · {{ a.halfDay ? 'pola dana' : f.fmt(a.workingDays) ~ ' d' }}</span>
                     <span class="badge kt-badge-{{ a.status.color }}">{{ a.status.label }}</span>
+                    {% if is_granted('ABSENCE_EDIT', a) %}<a href="{{ path('absence_edit', {id: a.id}) }}" class="text-muted" title="Izmeni" aria-label="Izmeni odsustvo">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a>{% endif %}
                 </li>
             {% else %}
                 <li class="text-muted">Nema odsustava ove godine.</li>

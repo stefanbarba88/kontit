@@ -13,12 +13,14 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 /**
  * ABSENCE_CREATE (bez subjekta): svako prijavljen (za koga sme, proverava AbsenceService).
  * ABSENCE_DECIDE: odsustvo je na odobrenju, a odobrava admin+ ili šef tima radnika (nikad sam sebi).
+ * ABSENCE_EDIT: vrsta, datumi i napomena (pravila u AbsenceService::canEdit).
  * ABSENCE_CANCEL: podnosilac (ili onaj ko je upisao) dok je na odobrenju, admin+ u bilo kom trenutku.
  */
 class AbsenceVoter extends Voter
 {
     public const CREATE = 'ABSENCE_CREATE';
     public const DECIDE = 'ABSENCE_DECIDE';
+    public const EDIT = 'ABSENCE_EDIT';
     public const CANCEL = 'ABSENCE_CANCEL';
     /** Admin poništava automatsko odobrenje (SPEC 8m) */
     public const REVOKE = 'ABSENCE_REVOKE';
@@ -31,7 +33,7 @@ class AbsenceVoter extends Voter
     {
         return match ($attribute) {
             self::CREATE => null === $subject,
-            self::DECIDE, self::CANCEL, self::REVOKE => $subject instanceof UserAbsence,
+            self::DECIDE, self::EDIT, self::CANCEL, self::REVOKE => $subject instanceof UserAbsence,
             default => false,
         };
     }
@@ -50,6 +52,7 @@ class AbsenceVoter extends Voter
         $status = $subject->getStatus();
 
         return match ($attribute) {
+            self::EDIT => $this->service->canEdit($user, $subject),
             self::DECIDE => AbsenceStatus::NA_ODOBRENJU === $status && $this->service->canDecide($user, $subject->getUser()),
             // podnosilac dok je zahtev na odobrenju, admin u bilo kom trenutku (SPEC 8j.2)
             self::CANCEL => \in_array($status, AbsenceStatus::blocking(), true)

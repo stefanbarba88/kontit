@@ -12,6 +12,7 @@ use App\Enum\NotificationType;
 use App\Enum\TaskStatus;
 use App\Repository\TeamMemberRepository;
 use App\Repository\UserRepository;
+use App\Security\TeamScope;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -40,7 +41,7 @@ class TaskCompletionService
         foreach ($task->getAssigneeUsers() as $assignee) {
             $team = $this->members->findActiveByUser($assignee)?->getTeam();
             $leader = null !== $team && !$team->isDeleted() ? $team->getLeader() : null;
-            if (null !== $leader && $leader->isActive() && !$task->hasAssignee($leader)) {
+            if (null !== $leader && $leader->isActive() && !$task->hasAssignee($leader) && TeamScope::covers($leader, $assignee)) {
                 $leaders[spl_object_id($leader)] = $leader;
             }
         }

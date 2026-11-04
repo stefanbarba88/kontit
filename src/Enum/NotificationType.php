@@ -18,6 +18,7 @@ enum NotificationType: string
     case ABSENCE_APPROVED = 'ABSENCE_APPROVED';
     case ABSENCE_REJECTED = 'ABSENCE_REJECTED';
     case ABSENCE_AUTO_APPROVED = 'ABSENCE_AUTO_APPROVED';
+    case ABSENCE_UPDATED = 'ABSENCE_UPDATED';
     case APPROVAL_DEADLINE_SOON = 'APPROVAL_DEADLINE_SOON';
     case DOCUMENT_EXPIRING = 'DOCUMENT_EXPIRING';
     case DOCUMENT_ADDED = 'DOCUMENT_ADDED';
@@ -44,6 +45,7 @@ enum NotificationType: string
             self::ABSENCE_APPROVED => 'Moje odsustvo je odobreno',
             self::ABSENCE_REJECTED => 'Moje odsustvo je odbijeno',
             self::ABSENCE_AUTO_APPROVED => 'Odsustvo je automatski odobreno',
+            self::ABSENCE_UPDATED => 'Neko mi je izmenio odsustvo',
             self::APPROVAL_DEADLINE_SOON => 'Ističe rok za odobrenje',
             self::DOCUMENT_EXPIRING => 'Dokument uskoro ističe',
             self::DOCUMENT_ADDED => 'Dodat mi je dokument',
@@ -67,7 +69,7 @@ enum NotificationType: string
             self::TASK_OVERDUE => 'circle-alert',
             self::CLIENT_ASSIGNED, self::BACKUP_ACTIVATED => 'building-2',
             self::TEAM_CHANGED => 'users',
-            self::ABSENCE_REQUESTED, self::ABSENCE_APPROVED, self::ABSENCE_AUTO_APPROVED => 'calendar-check',
+            self::ABSENCE_REQUESTED, self::ABSENCE_APPROVED, self::ABSENCE_AUTO_APPROVED, self::ABSENCE_UPDATED => 'calendar-check',
             self::ABSENCE_REJECTED => 'calendar-x',
             self::APPROVAL_DEADLINE_SOON => 'hourglass',
             self::DOCUMENT_EXPIRING, self::DOCUMENT_ADDED => 'file-text',
@@ -80,7 +82,7 @@ enum NotificationType: string
     {
         return match ($this) {
             self::TASK_ASSIGNED, self::CLIENT_ASSIGNED, self::TEAM_CHANGED, self::DOCUMENT_ADDED => 'primary',
-            self::TASK_SUBMITTED, self::TASK_COMMENTED, self::BACKUP_ACTIVATED, self::ABSENCE_AUTO_APPROVED => 'info',
+            self::TASK_SUBMITTED, self::TASK_COMMENTED, self::BACKUP_ACTIVATED, self::ABSENCE_AUTO_APPROVED, self::ABSENCE_UPDATED => 'info',
             self::ABSENCE_REQUESTED, self::APPROVAL_DEADLINE_SOON, self::DOCUMENT_EXPIRING => 'warning',
             self::TASK_APPROVED, self::EXPORT_READY, self::ABSENCE_APPROVED => 'success',
             self::TASK_RETURNED, self::TASK_DUE_SOON => 'warning',

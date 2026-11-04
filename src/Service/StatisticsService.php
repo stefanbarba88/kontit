@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\User;
+use App\Security\TeamScope;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
@@ -23,6 +24,15 @@ class StatisticsService
 
     public function __construct(private readonly Connection $db)
     {
+    }
+
+    /**
+     * SQL uslov nad članstvom (alias tm): član je radnik ili šef tog tima. Šef ne vidi statistiku
+     * člana tima koji je šef ili admin (stavka 6, TeamScope).
+     */
+    private static function inLeaderScope(): string
+    {
+        return 'EXISTS (SELECT 1 FROM app_user wu WHERE wu.id = tm.user_id AND ('.TeamScope::worker('wu').' OR wu.id = (SELECT tl.leader_id FROM team tl WHERE tl.id = tm.team_id)))';
     }
 
     /**
@@ -87,23 +97,38 @@ class StatisticsService
     /**
      * Pregled timova: opterećenje po radniku, učinak, čekanje na potvrdu i "Čeka klijenta".
      *
+     * $everyone (admin, cela firma): svi aktivni radnici i šefovi, i oni bez tima, i svi zadaci, bez ograničenja na timove.
+     *
      * @param list<int> $teamIds
      *
      * @return array<string, mixed>
      */
-    public function forTeams(array $teamIds): array
+    public function forTeams(array $teamIds, bool $everyone = false): array
     {
-        if ([] === $teamIds) {
+        if ([] === $teamIds && !$everyone) {
             return ['workers' => [], 'awaiting' => [], 'waiting' => [], 'avgDaysToApproval' => null];
         }
 
         $today = (new \DateTimeImmutable('today'))->format('Y-m-d');
-        $members = $this->db->fetchAllAssociative(
-            'SELECT u.id, u.first_name, u.last_name, tm.team_id FROM team_member tm JOIN app_user u ON u.id = tm.user_id '
-            .'WHERE tm.left_at IS NULL AND u.is_active = 1 AND tm.team_id IN (:teams) ORDER BY u.last_name, u.first_name',
-            ['teams' => $teamIds],
-            ['teams' => ArrayParameterType::INTEGER],
-        );
+        $members = $everyone
+            ? $this->db->fetchAllAssociative(
+                // admin i superadmin samo ako rade kao radnici (član tima, klijent ili otvoren zadatak)
+                'SELECT u.id, u.first_name, u.last_name, tm.team_id FROM app_user u '
+                .'LEFT JOIN team_member tm ON tm.user_id = u.id AND tm.left_at IS NULL '
+                .'WHERE u.is_active = 1 AND (tm.id IS NOT NULL OR (u.roles NOT LIKE \'%ROLE_ADMIN%\' AND u.roles NOT LIKE \'%ROLE_SUPERADMIN%\') '
+                .'OR EXISTS (SELECT 1 FROM client c WHERE c.is_active = 1 AND (c.primary_accountant_id = u.id OR c.backup_accountant_id = u.id)) '
+                .'OR EXISTS (SELECT 1 FROM task_assignee ta JOIN task t ON t.id = ta.task_id WHERE ta.user_id = u.id AND t.status IN '.self::OPEN.')) '
+                .'ORDER BY u.last_name, u.first_name'
+            )
+            : $this->db->fetchAllAssociative(
+                'SELECT u.id, u.first_name, u.last_name, tm.team_id FROM team_member tm JOIN app_user u ON u.id = tm.user_id '
+                .'WHERE tm.left_at IS NULL AND u.is_active = 1 AND tm.team_id IN (:teams) AND '.self::inLeaderScope().' ORDER BY u.last_name, u.first_name',
+                ['teams' => $teamIds],
+                ['teams' => ArrayParameterType::INTEGER],
+            );
+        if ($everyone) {
+            $teamIds = null;
+        }
         $ids = array_map(static fn (array $m) => (int) $m['id'], $members);
 
         $clients = $this->countBy('SELECT primary_accountant_id k, COUNT(*) n FROM client WHERE is_active = 1 AND primary_accountant_id IN (:ids) GROUP BY primary_accountant_id', $ids);
@@ -134,27 +159,34 @@ class StatisticsService
             ];
         }
 
+        // cela firma: bez ograničenja na članove timova
+        $inTeams = null === $teamIds ? '' : 'JOIN team_member tm ON tm.user_id = a.user_id AND tm.left_at IS NULL AND tm.team_id IN (:teams) AND '.self::inLeaderScope().' ';
+        $teamParams = null === $teamIds ? [] : ['teams' => $teamIds];
+        $teamTypes = null === $teamIds ? [] : ['teams' => ArrayParameterType::INTEGER];
+
         $awaiting = $this->db->fetchAllAssociative(
             'SELECT DISTINCT t.id, t.title, t.submitted_at FROM task t JOIN task_assignee a ON a.task_id = t.id '
-            .'JOIN team_member tm ON tm.user_id = a.user_id AND tm.left_at IS NULL AND tm.team_id IN (:teams) '
+            .$inTeams
             .'WHERE t.status = \'NA_PROVERI\' ORDER BY t.submitted_at ASC',
-            ['teams' => $teamIds],
-            ['teams' => ArrayParameterType::INTEGER],
+            $teamParams,
+            $teamTypes,
         );
         $waiting = $this->db->fetchAllAssociative(
             'SELECT DISTINCT t.id, t.title, t.updated_at, c.short_name client FROM task t JOIN task_assignee a ON a.task_id = t.id '
-            .'JOIN team_member tm ON tm.user_id = a.user_id AND tm.left_at IS NULL AND tm.team_id IN (:teams) '
+            .$inTeams
             .'LEFT JOIN client c ON c.id = t.client_id '
             .'WHERE t.status = \'CEKA_KLIJENTA\' AND t.updated_at < :limit ORDER BY t.updated_at ASC',
-            ['teams' => $teamIds, 'limit' => (new \DateTimeImmutable('-'.self::WAITING_DAYS.' days'))->format('Y-m-d H:i:s')],
-            ['teams' => ArrayParameterType::INTEGER],
+            $teamParams + ['limit' => (new \DateTimeImmutable('-'.self::WAITING_DAYS.' days'))->format('Y-m-d H:i:s')],
+            $teamTypes,
         );
         $avg = $this->db->fetchOne(
             'SELECT AVG(TIMESTAMPDIFF(HOUR, x.created_at, x.approved_at)) FROM (SELECT DISTINCT t.id, t.created_at, t.approved_at FROM task t JOIN task_assignee a ON a.task_id = t.id '
-            .'WHERE t.status = \'ZAVRSENO\' AND t.approved_at >= :since AND EXISTS (SELECT 1 FROM team_member tm WHERE tm.user_id = a.user_id AND tm.team_id IN (:teams) '
-            .'AND tm.joined_at <= t.approved_at AND (tm.left_at IS NULL OR tm.left_at > t.approved_at))) x',
-            ['teams' => $teamIds, 'since' => (new \DateTimeImmutable('-90 days'))->format('Y-m-d H:i:s')],
-            ['teams' => ArrayParameterType::INTEGER],
+            .'WHERE t.status = \'ZAVRSENO\' AND t.approved_at >= :since'
+            .(null === $teamIds ? '' : ' AND EXISTS (SELECT 1 FROM team_member tm WHERE tm.user_id = a.user_id AND tm.team_id IN (:teams) AND '.self::inLeaderScope().' '
+                .'AND tm.joined_at <= t.approved_at AND (tm.left_at IS NULL OR tm.left_at > t.approved_at))')
+            .') x',
+            $teamParams + ['since' => (new \DateTimeImmutable('-90 days'))->format('Y-m-d H:i:s')],
+            $teamTypes,
         );
 
         return [

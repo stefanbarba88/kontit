@@ -39,7 +39,14 @@ class UserAbsenceType extends AbstractType
                 'class' => AbsenceType::class,
                 'choice_label' => 'name',
                 'placeholder' => '— izaberi —',
-                'query_builder' => static fn (AbsenceTypeRepository $r) => $r->createQueryBuilder('t')->andWhere('t.isActive = true')->orderBy('t.position')->addOrderBy('t.name'),
+                // pri izmeni ostaje u izboru i trenutna vrsta, i kad više nije aktivna
+                'query_builder' => static function (AbsenceTypeRepository $r) use ($options) {
+                    $qb = $r->createQueryBuilder('t')->orderBy('t.position')->addOrderBy('t.name');
+
+                    return null === $options['current_type']
+                        ? $qb->andWhere('t.isActive = true')
+                        : $qb->andWhere('t.isActive = true OR t = :current')->setParameter('current', $options['current_type']);
+                },
                 'choice_attr' => static fn (AbsenceType $t) => [
                     'data-leave' => $t->isCountsAgainstLeave() ? '1' : '0',
                     'data-approval' => $t->isRequiresApproval() ? '1' : '0',
@@ -47,14 +54,25 @@ class UserAbsenceType extends AbstractType
                 ],
                 'attr' => ['data-kt-absence-type' => '', 'data-native' => ''],
             ])
-            ->add('startDate', DateType::class, ['label' => 'Od', 'widget' => 'single_text', 'input' => 'datetime_immutable', 'attr' => ['data-kt-absence-from' => '']])
-            ->add('endDate', DateType::class, ['label' => 'Do (uključujući)', 'widget' => 'single_text', 'input' => 'datetime_immutable', 'attr' => ['data-kt-absence-to' => '']])
+            ->add('startDate', DateType::class, ['label' => 'Od', 'widget' => 'single_text', 'input' => 'datetime_immutable', 'attr' => ['data-kt-absence-from' => ''] + $this->minDate($options['start_min'])])
+            ->add('endDate', DateType::class, ['label' => 'Do (uključujući)', 'widget' => 'single_text', 'input' => 'datetime_immutable', 'attr' => ['data-kt-absence-to' => ''] + $this->minDate($options['end_min'])])
             ->add('halfDay', CheckboxType::class, ['label' => 'Pola dana', 'required' => false, 'help' => 'Samo za odsustvo od jednog dana.', 'attr' => ['data-kt-absence-half' => '']])
             ->add('note', TextareaType::class, ['label' => 'Napomena', 'required' => false, 'attr' => ['rows' => 3]]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults(['data_class' => UserAbsence::class, 'user_query_builder' => null]);
+        // start_min / end_min: najraniji datum koji bira može da izabere (null = bez ograničenja, admin)
+        $resolver->setDefaults(['data_class' => UserAbsence::class, 'user_query_builder' => null, 'current_type' => null, 'start_min' => null, 'end_min' => null]);
+        $resolver->setAllowedTypes('start_min', ['null', \DateTimeInterface::class]);
+        $resolver->setAllowedTypes('end_min', ['null', \DateTimeInterface::class]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function minDate(?\DateTimeInterface $min): array
+    {
+        return null === $min ? [] : ['data-min-date' => $min->format('Y-m-d')];
     }
 }

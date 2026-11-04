@@ -32,9 +32,10 @@ class ClientRepository extends ServiceEntityRepository
 
         if (!$all) {
             $qb->andWhere('c.primaryAccountant = :me OR c.backupAccountant = :me OR EXISTS ('
-                .'SELECT 1 FROM App\Entity\TeamMember m JOIN m.team t '
+                .'SELECT 1 FROM App\Entity\TeamMember m JOIN m.team t JOIN m.user mu '
                 .'WHERE m.leftAt IS NULL AND t.deletedAt IS NULL AND t.leader = :me '
-                .'AND (m.user = c.primaryAccountant OR m.user = c.backupAccountant))')
+                .'AND (m.user = c.primaryAccountant OR m.user = c.backupAccountant) '
+                ."AND (mu.roles NOT LIKE '%ROLE_SEF%' AND mu.roles NOT LIKE '%ROLE_ADMIN%' AND mu.roles NOT LIKE '%ROLE_SUPERADMIN%'))")
                 ->setParameter('me', $user);
         }
 

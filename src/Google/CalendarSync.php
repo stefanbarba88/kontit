@@ -12,6 +12,7 @@ use App\Enum\TaskStatus;
 use App\Repository\CalendarSyncLinkRepository;
 use App\Repository\GoogleCalendarConnectionRepository;
 use App\Repository\TeamMemberRepository;
+use App\Security\TeamScope;
 use App\Service\NotificationService;
 use App\Service\SettingsService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -170,7 +171,8 @@ class CalendarSync
         $users = [$absence->getUser()];
         if ('1' === $this->settings->get(SettingsService::GOOGLE_LEADER_TEAM)) {
             $leader = $this->members->findActiveByUser($absence->getUser())?->getTeam()?->getLeader();
-            if (null !== $leader && $leader !== $absence->getUser()) {
+            // šef dobija odsustva radnika iz tima, ne i člana koji je šef ili admin (TeamScope)
+            if (null !== $leader && $leader !== $absence->getUser() && TeamScope::covers($leader, $absence->getUser())) {
                 $users[] = $leader;
             }
         }

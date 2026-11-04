@@ -39,7 +39,7 @@
     </div>
 
     {% if showTeam %}
-        <h5 class="mb-3">{{ ux_icon('lucide:users', {class: 'kt-icon me-2'}) }}{{ admin ? 'Svi timovi' : 'Moj tim' }}</h5>
+        <h5 class="mb-3">{{ ux_icon('lucide:users', {class: 'kt-icon me-2'}) }}{{ admin ? 'Svi radnici' : 'Moj tim' }}</h5>
         {% if team.workers %}
             <div class="row mb-3">
                 <div class="col-lg-7 mb-3">
@@ -93,10 +93,10 @@
                         <tbody>
                             {% for w in team.workers|sort((a, b) => b.overdue <=> a.overdue) %}
                                 <tr>
-                                    <td>{{ w.name }}</td>
+                                    <td><a href="{{ path('task_index', {scope: 'all', user: w.id}) }}">{{ w.name }}</a></td>
                                     <td class="text-center">{{ w.clients }}</td>
-                                    <td class="text-center">{{ w.open }}</td>
-                                    <td class="text-center {{ w.overdue ? 'text-danger fw-semibold' : '' }}">{{ w.overdue }}</td>
+                                    <td class="text-center"><a href="{{ path('task_index', {scope: 'all', user: w.id}) }}">{{ w.open }}</a></td>
+                                    <td class="text-center {{ w.overdue ? 'text-danger fw-semibold' : '' }}">{% if w.overdue %}<a class="text-danger" href="{{ path('task_index', {tab: 'overdue', scope: 'all', user: w.id}) }}">{{ w.overdue }}</a>{% else %}0{% endif %}</td>
                                     <td class="text-center">{{ _self.pct(w.onTime30) }}</td>
                                     <td class="text-center">{{ _self.pct(w.onTime90) }}</td>
                                     <td class="text-center">{{ _self.pct(w.returned30) }}</td>

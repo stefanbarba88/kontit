@@ -37,32 +37,63 @@
             <div class="card-body border-top">
                 <form method="get" class="row g-2" data-kt-filters>
                     <input type="hidden" name="tab" value="{{ filters.tab }}">
-                    <div class="col-12 col-md-4">
-                        <select name="client" class="form-select">
+                    {% if canSeeAll %}
+                        <div class="col-12 col-md-6 col-xl-3">
+                            {# prva opcija je podrazumevana (brojač aktivnih filtera na telefonu): admin svi, šef svoji #}
+                            {% set scopes = {all: isAdmin ? 'Svi zadaci' : 'Zadaci mog tima', mine: 'Moji zadaci'} %}
+                            <select name="scope" class="form-select" aria-label="Opseg">
+                                {% for key in (isAdmin ? ['all', 'mine'] : ['mine', 'all']) %}
+                                    <option value="{{ key }}" {{ filters.scope == key ? 'selected' : '' }}>{{ scopes[key] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+                    {% if teams|length > 1 or (teams|length == 1 and isAdmin) %}
+                        <div class="col-6 col-md-6 col-xl-3">
+                            <select name="team" class="form-select" aria-label="Tim">
+                                <option value="">Svi timovi</option>
+                                {% for t in teams %}<option value="{{ t.id }}" {{ filters.team == t.id ? 'selected' }}>{{ t.name }}</option>{% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+                    {% if people is not empty %}
+                        <div class="col-6 col-md-6 col-xl-3">
+                            <select name="user" class="form-select" aria-label="Radnik">
+                                <option value="">Svi radnici</option>
+                                {% for u in people %}<option value="{{ u.id }}" {{ filters.user == u.id ? 'selected' }}>{{ u.fullName }}</option>{% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <select name="client" class="form-select" aria-label="Klijent">
                             <option value="">Svi klijenti</option>
                             {% for client in clients %}
                                 <option value="{{ client.id }}" {{ filters.client == client.id ? 'selected' : '' }}>{{ client.shortName }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-6 col-md-3">
-                        <select name="priority" class="form-select">
+                    <div class="col-6 col-md-4 col-xl-3">
+                        <select name="status" class="form-select" aria-label="Status">
+                            <option value="">Svi statusi</option>
+                            {% for s in enum_cases('App\\Enum\\TaskStatus') %}
+                                <option value="{{ s.value }}" {{ filters.status == s.value ? 'selected' : '' }}>{{ s.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3">
+                        <select name="priority" class="form-select" aria-label="Prioritet">
                             <option value="">Svi prioriteti</option>
                             {% for p in enum_cases('App\\Enum\\TaskPriority') %}
                                 <option value="{{ p.value }}" {{ filters.priority == p.value ? 'selected' : '' }}>{{ p.label }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    {% if canSeeAll %}
-                        <div class="col-6 col-md-3">
-                            <select name="scope" class="form-select">
-                                <option value="mine" {{ filters.scope == 'mine' ? 'selected' : '' }}>Moji zadaci</option>
-                                <option value="all" {{ filters.scope == 'all' ? 'selected' : '' }}>Svi zadaci u mom opsegu</option>
-                            </select>
-                        </div>
-                    {% endif %}
-                    <div class="col-12 col-md-2">
-                        <button class="btn btn-light w-100">{{ ux_icon('lucide:filter', {class: 'kt-icon me-2'}) }}Traži</button>
+                    <div class="col-12 col-md-4 col-xl-3">
+                        <input type="text" name="period" class="form-control" value="{{ filters.period }}" data-kt-period placeholder="Rok: od – do" aria-label="Period (rok)">
+                    </div>
+                    <div class="col-12 col-xl-3 d-flex gap-2">
+                        <button class="btn btn-light flex-fill">{{ ux_icon('lucide:filter', {class: 'kt-icon me-2'}) }}Traži</button>
+                        <a href="{{ path('task_index', {tab: filters.tab}) }}" class="btn btn-ghost" title="Poništi filtere" aria-label="Poništi filtere">{{ ux_icon('lucide:x', {class: 'kt-icon'}) }}</a>
                     </div>
                 </form>
             </div>

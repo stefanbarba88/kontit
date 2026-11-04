@@ -33,7 +33,8 @@ class DashboardController extends AbstractController
             'me' => $this->stats->forWorker($me),
             'week' => $this->calendar->week($me),
             'showTeam' => $showTeam,
-            'team' => $showTeam ? $this->stats->forTeams($teamIds) : null,
+            // admin: cela firma (i radnici bez tima i šefovi), šef: timovi koje vodi
+            'team' => $showTeam ? $this->stats->forTeams($teamIds, $admin) : null,
             'admin' => $admin,
             'teams' => $admin ? $this->stats->byTeam() : [],
             'company' => $admin ? $this->stats->forCompany() : null,

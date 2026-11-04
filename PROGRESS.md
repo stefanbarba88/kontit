@@ -7,8 +7,19 @@
 - Sledeće: po dogovoru. **Faza 8 (praćenje vremena) je odložena.** Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
 - Za pravi Google kalendar treba uraditi korake iz `docs/google-calendar-setup.md` (Client ID i Secret u `.env.local`).
 - Otvorenih nedoumica: 0.
+- Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-04: **Ispravke 1-7 (dostupnost, admin zadaci, odsustva, timovi, UI, prava, datumi) i DEPLOY.md**
+  - Odsustva: radnik vidi samo dostupnost kolega (period, bez vrste), šef detalje svog tima, admin sve; izmena odsustva (`ABSENCE_UPDATED` obaveštenje). Migracija `Version20261102094121`.
+  - Zadaci: admin i superadmin vide sve zadatke sa filterima (`TaskListFilters`).
+  - Timovi: šef je uvek član svog tima (`TeamService::ensureLeaderMembership`). Migracija `Version20261102112448` (samo podaci).
+  - UI: 3-tačkasti meni u tabelama i karticama se ne seče (`assets/js/dropdowns.js`, Popper `fixed`), primer na `/_design`.
+  - Prava: `TeamScope` (korisnik vidi detalje sebe i role ispod sebe) u upitima, Voterima, statistici, potvrdi zadataka i Google sinhronizaciji. Admin i superadmin i dalje vide sve.
+  - Datumi odsustva: radnik i šef najranije danas (backend `assertDatesAllowed` i pri unosu, `minDate` u biraču), admin i u prošlosti, "do" ne pre "od", bez preklapanja.
+  - `symfony/mime` 7.4.22 (CVE-2026-45070), `composer audit` čist.
+  - `DEPLOY.md`: vodič za DigitalOcean (Apache, PHP 8.3, MySQL 8). Pronađeno, nije menjano: pošiljalac `no-reply@kontit.local`, bez `login_throttling`.
+  - Testovi: PHPUnit 46 OK; skripte po stavkama prolaze. Nije provereno u ulogovanom pregledaču.
 - 2026-10-29: **Čišćenje baze (probni podaci obrisani, po dogovoru)**
   - Backup pre brisanja: `C:\xampp\backups\kontit\kontit_2026-10-29_09-11-07.sql` (van htdocs; provereno vraćanjem u privremenu bazu, broj redova se poklopio u svih 34 tabele).
   - Ostalo: superadmin id 1 (admin@kontit.local), `doctrine_migration_versions`, `app_setting`, šifarnici (`absence_type`, `document_category`, `job_category`), neradni dani (`non_working_day`, `weekly_non_working_rule`) i katalog (`job_template`, `job_template_checklist_item`, `service_package`, `service_package_item`).

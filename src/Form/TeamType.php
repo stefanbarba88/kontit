@@ -41,7 +41,7 @@ class TeamType extends AbstractType
                 'choice_label' => static fn (User $u) => $u->getFullName().' ('.$u->getEmail().')',
                 'query_builder' => static fn (UserRepository $r) => $r->createLeaderChoiceQueryBuilder($team->getLeader()),
                 'constraints' => [new NotNull(message: 'Izaberi šefa tima.')],
-                'help' => 'Prikazani su samo korisnici sa rolom šef. Promena šefa se beleži u istoriji.',
+                'help' => 'Prikazani su samo korisnici sa rolom šef. Šef je automatski i član tima (ako je u drugom timu, premešta se ovde). Bivši šef ostaje u timu kao radnik. Promena šefa se beleži u istoriji.',
             ]);
     }
 

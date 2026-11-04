@@ -47,5 +47,5 @@ interface ExportListInterface
      *
      * @param array<string, mixed> $query
      */
-    public function describeFilters(array $query): string;
+    public function describeFilters(array $query, ?User $user = null): string;
 }

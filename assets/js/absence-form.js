@@ -27,8 +27,16 @@ if (form) {
     let timer = null;
     let seq = 0;
 
+    // "Do" ne može pre "Od" (ni pre najranijeg dozvoljenog datuma)
+    const baseMin = to.dataset.minDate || null;
+    const limitTo = () => {
+        const min = from.value && (!baseMin || from.value > baseMin) ? from.value : baseMin;
+        to._flatpickr?.set('minDate', min);
+    };
+
     const render = async () => {
         const mine = ++seq;
+        limitTo();
         const option = type.selectedOptions[0];
         doc.hidden = option?.dataset.document !== '1';
         if (from.value && (!to.value || to.value < from.value)) {
@@ -45,6 +53,9 @@ if (form) {
             return;
         }
         const params = new URLSearchParams({ from: from.value, to: to.value || from.value, type: type.value, half: half.checked ? '1' : '0', user: user?.value || form.dataset.me });
+        if (form.dataset.absenceId) {
+            params.set('absence', form.dataset.absenceId);
+        }
         try {
             const { data } = await ajax('GET', `${form.dataset.previewUrl}?${params}`);
             if (mine !== seq) {
@@ -63,7 +74,7 @@ if (form) {
             }
             let html = `<dl>${rows.join('')}</dl>`;
             if (data.teamAbsent.length) {
-                html += `<div class="mt-2 text-warning"><strong>Iz tima su odsutni u tom periodu:</strong><ul class="mb-0 ps-3">${data.teamAbsent.map((p) => `<li>${escape(p.name)} · ${escape(p.period)} · ${escape(p.type)}${p.pending ? ' (na odobrenju)' : ''}</li>`).join('')}</ul></div>`;
+                html += `<div class="mt-2 text-warning"><strong>Iz tima su odsutni u tom periodu:</strong><ul class="mb-0 ps-3">${data.teamAbsent.map((p) => `<li>${escape(p.name)} · ${escape(p.period)}${p.type ? ` · ${escape(p.type)}` : ''}${p.pending ? ' (na odobrenju)' : ''}</li>`).join('')}</ul></div>`;
             }
             data.warnings.forEach((w) => { html += `<div class="mt-2 text-warning">${escape(w)}</div>`; });
             data.errors.forEach((e) => { html += `<div class="mt-2 text-danger fw-semibold">${escape(e)}</div>`; });

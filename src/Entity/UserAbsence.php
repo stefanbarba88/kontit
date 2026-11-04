@@ -87,6 +87,14 @@ class UserAbsence implements ApprovableInterface
     #[ORM\Column(options: ['default' => false])]
     private bool $documentReminderSent = false;
 
+    /** Ko je poslednji menjao odsustvo posle upisa (vrsta, datumi, napomena); cela istorija je u ActivityLog-u */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    private ?User $editedBy = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $editedAt = null;
+
     #[Assert\Callback]
     public function validateDates(ExecutionContextInterface $context): void
     {
@@ -305,6 +313,34 @@ class UserAbsence implements ApprovableInterface
     public function hasEnded(): bool
     {
         return null !== $this->endDate && $this->endDate < new \DateTimeImmutable('today');
+    }
+
+    public function getEditedBy(): ?User
+    {
+        return $this->editedBy;
+    }
+
+    public function getEditedAt(): ?\DateTimeImmutable
+    {
+        return $this->editedAt;
+    }
+
+    public function markEdited(User $by): static
+    {
+        $this->editedBy = $by;
+        $this->editedAt = new \DateTimeImmutable();
+
+        return $this;
+    }
+
+    /**
+     * Samo period, bez vrste i broja dana: za kolege (zamena, dostupnost tima), npr. "10.11.2026. – 15.11.2026.".
+     */
+    public function periodText(): string
+    {
+        return $this->startDate == $this->endDate
+            ? (string) $this->startDate?->format('d.m.Y.')
+            : sprintf('%s – %s', $this->startDate?->format('d.m.Y.'), $this->endDate?->format('d.m.Y.'));
     }
 
     /**
