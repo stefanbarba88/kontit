@@ -1,0 +1,116 @@
+{#
+    Filteri liste zadataka (/tasks, tab klijenta, tab korisnika). Ulaz: list (TaskListView::build).
+    Sve je GET (URL se može deliti, returnTo i osvežavanje rade), a promena filtera nema "page", pa se vraća na stranu 1.
+    Forma se šalje sama: izbor iz liste odmah, kucanje u "Naziv" posle 300 ms (assets/js/task-filters.js).
+    list.hidden: filteri koji su zaključani na stranici klijenta/korisnika.
+#}
+{% set f = list.filter %}
+{% set hidden = list.hidden %}
+<form method="get" action="{{ path(list.route, list.routeParams) }}" class="row g-2 kt-task-filters" data-kt-filters data-kt-task-filters data-active-count="{{ f.activeCount }}">
+    {% if f.tab != 'all' %}<input type="hidden" name="tab" value="{{ f.tab }}">{% endif %}
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="kt-search-field">
+            {{ ux_icon('lucide:search', {class: 'kt-icon kt-search-icon'}) }}
+            <input type="text" name="q" value="{{ f.qRaw }}" class="form-control" placeholder="Naziv zadatka" aria-label="Naziv zadatka" maxlength="100" autocomplete="off" data-kt-debounce="300">
+            <button type="button" class="kt-search-clear" data-kt-clear-q aria-label="Obriši pretragu" {{ f.qRaw == '' ? 'hidden' }}>{{ ux_icon('lucide:x', {class: 'kt-icon'}) }}</button>
+        </div>
+    </div>
+
+    {% if list.canSeeAll and 'scope' not in hidden %}
+        <div class="col-12 col-md-6 col-xl-3">
+            {# prva opcija je podrazumevana: admin svi, šef svoji #}
+            {% set scopes = {all: list.isAdmin ? 'Svi zadaci' : 'Zadaci mog tima', mine: 'Moji zadaci'} %}
+            <select name="scope" class="form-select" aria-label="Opseg" data-native>
+                {% for key in (list.isAdmin ? ['all', 'mine'] : ['mine', 'all']) %}
+                    <option value="{{ key }}" {{ f.scope == key ? 'selected' }}>{{ scopes[key] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+    {% if 'team' not in hidden and (list.teams|length > 1 or (list.teams|length == 1 and list.isAdmin)) %}
+        <div class="col-6 col-md-6 col-xl-3">
+            <select name="team" class="form-select" aria-label="Tim" data-native>
+                <option value="">Svi timovi</option>
+                {% for t in list.teams %}<option value="{{ t.id }}" {{ f.team and f.team.id == t.id ? 'selected' }}>{{ t.name }}</option>{% endfor %}
+            </select>
+        </div>
+    {% endif %}
+    {% if 'user' not in hidden and list.people is not empty %}
+        <div class="col-6 col-md-6 col-xl-3">
+            <select name="user" class="form-select" aria-label="Zaduženi" data-native>
+                <option value="">Svi zaduženi</option>
+                {% for u in list.people %}<option value="{{ u.id }}" {{ f.assignee and f.assignee.id == u.id ? 'selected' }}>{{ u.fullName }}</option>{% endfor %}
+            </select>
+        </div>
+    {% endif %}
+    {% if 'user' in hidden %}
+        <div class="col-6 col-md-6 col-xl-3">
+            <select name="role" class="form-select" aria-label="Uloga" data-native>
+                {% for key, label in {assigned: 'Zadužen', created: 'Kreirao', both: 'Zadužen ili kreirao'} %}
+                    <option value="{{ key }}" {{ f.role == key ? 'selected' }}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+    {% if 'client' not in hidden %}
+        <div class="col-12 col-md-6 col-xl-3">
+            <select name="client" class="form-select" aria-label="Klijent">
+                <option value="">Svi klijenti</option>
+                {% for client in list.clients %}
+                    <option value="{{ client.id }}" {{ f.client and f.client.id == client.id ? 'selected' }}>{{ client.shortName }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+    <div class="col-12 col-md-6 col-xl-3">
+        {# Posao: iz kog posla je zadatak nastao (generisan ili ručno kreiran iz posla), grupisano po kategoriji #}
+        <select name="job" class="form-select" aria-label="Posao" data-kt-search>
+            <option value="">Svi poslovi</option>
+            <option value="none" {{ f.noJob ? 'selected' }}>Samostalni zadaci (bez posla)</option>
+            {% for category, templates in list.jobs %}
+                <optgroup label="{{ category }}">
+                    {% for t in templates %}<option value="{{ t.id }}" {{ f.job and f.job.id == t.id ? 'selected' }}>{{ t.name }}</option>{% endfor %}
+                </optgroup>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-6 col-md-4 col-xl-3">
+        <select name="origin" class="form-select" aria-label="Nastanak" data-native>
+            {% for key, label in {all: 'Svi (automatski i ručni)', auto: 'Automatski generisani', manual: 'Ručno kreirani'} %}
+                <option value="{{ key }}" {{ f.origin == key ? 'selected' }}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-6 col-md-4 col-xl-3">
+        <select name="status" class="form-select" aria-label="Status" data-native>
+            <option value="">Svi statusi</option>
+            {% for s in enum_cases('App\\Enum\\TaskStatus') %}
+                <option value="{{ s.value }}" {{ f.status and f.status.value == s.value ? 'selected' }}>{{ s.label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-6 col-md-4 col-xl-3">
+        <select name="priority" class="form-select" aria-label="Prioritet" data-native>
+            <option value="">Svi prioriteti</option>
+            {% for p in enum_cases('App\\Enum\\TaskPriority') %}
+                <option value="{{ p.value }}" {{ f.priority and f.priority.value == p.value ? 'selected' }}>{{ p.label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-6 col-md-4 col-xl-3">
+        <input type="text" name="period" class="form-control" value="{{ f.period }}" data-datepicker-range placeholder="Rok: od – do" aria-label="Period (rok)">
+    </div>
+    {% if f.tab == 'all' %}
+        <div class="col-12 col-md-6 col-xl-3 d-flex align-items-center">
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" name="closed" value="1" id="tf-closed-{{ list.route }}" {{ f.showClosed ? 'checked' }}>
+                <label class="form-check-label" for="tf-closed-{{ list.route }}">Prikaži završene i otkazane</label>
+            </div>
+        </div>
+    {% endif %}
+    <div class="col-12 col-xl-3 d-flex align-items-center gap-2">
+        <button class="btn btn-light flex-fill" type="submit">{{ ux_icon('lucide:filter', {class: 'kt-icon me-2'}) }}Traži{% if f.activeCount %} <span class="kt-filter-count">{{ f.activeCount }}</span>{% endif %}</button>
+        <a href="{{ path(list.route, list.routeParams|merge({tab: f.tab != 'all' ? f.tab : null})) }}" class="btn btn-ghost" title="Poništi filtere" aria-label="Poništi filtere">{{ ux_icon('lucide:x', {class: 'kt-icon'}) }}Poništi{% if f.activeCount %} ({{ f.activeCount }}){% endif %}</a>
+    </div>
+</form>

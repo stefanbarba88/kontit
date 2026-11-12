@@ -17,6 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Index(name: 'IDX_TASK_STATUS_DUE', fields: ['status', 'dueDate'])]
+#[ORM\Index(name: 'IDX_TASK_CLIENT_STATUS', fields: ['client', 'status'])]
 // jedan zadatak po poslu klijenta i periodu (SPEC 8i.1); ručni zadaci iz posla imaju period_key = NULL, pa ih može biti više
 #[ORM\UniqueConstraint(name: 'UNIQ_TASK_JOB_PERIOD', columns: ['client_job_id', 'period_key'])]
 class Task
@@ -32,6 +33,10 @@ class Task
     #[Assert\NotBlank(message: 'Unesi naslov zadatka.')]
     #[Assert\Length(max: 255)]
     private ?string $title = null;
+
+    /** Normalizovan naziv za pretragu bez kvačica i velikih slova (TextNormalizer); puni ga TaskTitleSearchListener pri svakom čuvanju */
+    #[ORM\Column(length: 255, options: ['default' => ''])]
+    private string $titleSearch = '';
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
@@ -120,6 +125,19 @@ class Task
     public function setTitle(string $title): static
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    public function getTitleSearch(): string
+    {
+        return $this->titleSearch;
+    }
+
+    /** Samo za TaskTitleSearchListener */
+    public function setTitleSearch(string $titleSearch): static
+    {
+        $this->titleSearch = $titleSearch;
 
         return $this;
     }

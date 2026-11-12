@@ -15,7 +15,7 @@ use App\Repository\UserRepository;
 use App\Service\ClientPeople;
 use App\Service\ReturnUrlResolver;
 use App\Service\TaskCompletionService;
-use App\Service\TaskListFilters;
+use App\Service\TaskListView;
 use App\Service\TaskService;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -39,31 +39,10 @@ class TaskController extends AbstractController
     }
 
     #[Route('/tasks', name: 'task_index', methods: ['GET'])]
-    public function index(Request $request, PaginatorInterface $paginator, TaskListFilters $listFilters): Response
+    public function index(Request $request, TaskListView $listView): Response
     {
-        $me = $this->actor();
-        $admin = $this->tasks->isAdmin($me);
-        $leader = $this->tasks->isLeader($me);
-        $f = $listFilters->resolve($request->query->all(), $me);
-
         return $this->render('task/index.html.twig', [
-            'pagination' => $paginator->paginate($listFilters->queryBuilder($f, $me), $request->query->getInt('page', 1), 15),
-            'filters' => [
-                'tab' => $f['tab'],
-                'scope' => $f['scope'],
-                'client' => $f['client']?->getId(),
-                'priority' => $f['priority']?->value,
-                'status' => $f['status']?->value,
-                'team' => $f['team']?->getId(),
-                'user' => $f['assignee']?->getId(),
-                'period' => $f['period'] ?: null,
-            ],
-            'clients' => $this->clients->createVisibleQueryBuilder($me, $admin, null, 'active')->getQuery()->getResult(),
-            'teams' => $listFilters->teamsFor($me),
-            'people' => $listFilters->usersFor($me),
-            'approvalCount' => $leader ? $this->repository->countAwaitingApproval($me, $admin) : 0,
-            'canSeeAll' => $leader,
-            'isAdmin' => $admin,
+            'list' => $listView->build($request, $this->actor(), 'task_index', []),
         ]);
     }
 

@@ -1,0 +1,119 @@
+{#
+    Lista zadataka: filteri + tabovi (samo /tasks) + telefon (grupe po roku, swipe) + tabela + paginator.
+    Koristi se na /tasks, na tabu "Zadaci" klijenta i na tabu "Zadaci" korisnika. Ulaz: list (TaskListView::build),
+    tabs i approvalCount samo za /tasks. Izvoz i "Novi zadatak" su u page_actions stranice (list.exportQuery).
+#}
+{% import 'components/ui.html.twig' as ui %}
+{% set f = list.filter %}
+{% set pagination = list.pagination %}
+
+<div class="card">
+    {% if tabs is defined and tabs %}
+        <ul class="nav nav kt-tabs px-3 pt-2">
+            {% for key, label in tabs %}
+                <li class="nav-item">
+                    <a href="{{ path(list.route, list.routeParams|merge(list.query|merge({tab: key == 'all' ? null : key, page: null}))) }}" class="nav-link {{ f.tab == key ? 'active' : '' }}">
+                        {{ label }}
+                        {% if key == 'approval' and list.approvalCount > 0 %}<span class="badge bg-danger rounded-pill ms-2">{{ list.approvalCount }}</span>{% endif %}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if list.summary %}
+        <div class="kt-task-summary border-bottom px-3 py-2">
+            <span class="kt-task-summary-item"><strong>{{ list.summary.open }}</strong> otvoreno</span>
+            <span class="kt-task-summary-item {{ list.summary.overdue ? 'is-danger' }}"><strong>{{ list.summary.overdue }}</strong> kasni</span>
+            <span class="kt-task-summary-item"><strong>{{ list.summary.review }}</strong> na proveri</span>
+            <span class="kt-task-summary-item"><strong>{{ list.summary.doneMonth }}</strong> završeno ovog meseca</span>
+        </div>
+    {% endif %}
+
+    {% if f.tab != 'approval' %}
+        <div class="card-body {{ tabs is defined and tabs ? 'border-top' }}">
+            {% include 'components/_task_filters.html.twig' with {list: list} only %}
+        </div>
+    {% endif %}
+</div>
+
+{# telefon: zadaci grupisani po roku, swipe ulevo otvara brze akcije (DESIGN.md 16.4) #}
+{% set today = 'today'|date('Y-m-d') %}
+{% set tomorrow = '+1 day'|date('Y-m-d') %}
+{% set weekEnd = 'sunday this week'|date('Y-m-d') %}
+{% set grouped = {overdue: [], today: [], tomorrow: [], week: [], later: []} %}
+{% for task in pagination %}
+    {% set due = task.dueDate ? task.dueDate|date('Y-m-d') : null %}
+    {% set key = due is null ? 'later' : (task.overdue ? 'overdue' : (due == today ? 'today' : (due == tomorrow ? 'tomorrow' : (due <= weekEnd ? 'week' : 'later')))) %}
+    {% set grouped = grouped|merge({(key): grouped[key]|merge([task])}) %}
+{% endfor %}
+{% set groupLabels = {overdue: 'Kasni', today: 'Danas', tomorrow: 'Sutra', week: 'Ove nedelje', later: 'Kasnije'} %}
+<div class="kt-task-groups">
+    {% for key, group in grouped %}
+        {% if group|length %}
+            <div class="kt-group-head {{ key == 'overdue' ? 'is-danger' : '' }}">{{ groupLabels[key] }} · {{ group|length }}</div>
+            {% for task in group %}
+                {% set mine = task.findAssignee(app.user) %}
+                <div class="kt-swipe">
+                    <div class="kt-swipe-actions">
+                        {% if mine and mine.status.value != 'ZAVRSIO' and task.status.workable and is_granted('TASK_COMPLETE', task) %}
+                            <form method="post" action="{{ path('task_my_part', {id: task.id, action: 'done'}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('task_my_part_' ~ task.id) }}">
+                                <button class="btn btn-success">{{ ux_icon('lucide:check', {class: 'kt-icon'}) }}Moj deo je gotov</button>
+                            </form>
+                        {% endif %}
+                        <a href="{{ path('task_show', {id: task.id}) }}" class="btn btn-primary">{{ ux_icon('lucide:arrow-right', {class: 'kt-icon'}) }}Otvori</a>
+                    </div>
+                    <a href="{{ path('task_show', {id: task.id}) }}" class="kt-swipe-content">
+                        <div class="flex-fill min-w-0">
+                            <div class="kt-task-title text-truncate">{{ task.title }}</div>
+                            <div class="kt-task-meta text-truncate">{{ task.client ? task.client.shortName : 'Interni' }} · {{ ui.due_date(task) }}</div>
+                            <div class="mt-1 d-flex gap-1 flex-wrap">{{ ui.task_status(task.status) }} {{ ui.priority_badge(task.priority) }}{% if task.takenOverFrom or substituting_for(task) %} <span class="badge kt-badge-info">PREUZETO</span>{% endif %}</div>
+                        </div>
+                        <span class="kt-swipe-more">{{ ux_icon('lucide:ellipsis', {class: 'kt-icon'}) }}</span>
+                    </a>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+    {% if pagination|length == 0 %}{{ ui.empty_state('Nema zadataka za izabrane filtere.', 'list-checks') }}{% endif %}
+</div>
+
+<div class="card kt-task-table">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr><th>Zadatak</th>{% if 'client' not in list.hidden %}<th>Klijent</th>{% endif %}<th>Učesnici</th><th>Rok</th><th>Prioritet</th><th>Napredak</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                {% for task in pagination %}
+                    <tr>
+                        <td>
+                            <a href="{{ path('task_show', {id: task.id}) }}" class="fw-semibold">{{ task.title }}</a>
+                            {% if substituting_for(task) %}<span class="badge kt-badge-info ms-1" title="Zamenjuješ: {% for u in substituting_for(task) %}{{ u.fullName }}{% endfor %}">PREUZETO</span>{% elseif task.takenOverFrom %}<span class="badge kt-badge-info ms-1" title="Glavni radnik je bio odsutan: {{ task.takenOverFrom.fullName }}">PREUZETO</span>{% endif %}
+                        </td>
+                        {% if 'client' not in list.hidden %}
+                            <td>{% if task.client %}{{ task.client.shortName }}{% else %}<span class="text-muted">Interni</span>{% endif %}</td>
+                        {% endif %}
+                        <td>
+                            <div class="d-flex">
+                                {% for a in task.assignees %}{{ ui.avatar(a.user, 24, 'me-1') }}{% endfor %}
+                            </div>
+                        </td>
+                        <td>{{ ui.due_date(task) }}</td>
+                        <td>{{ ui.priority_badge(task.priority) }}</td>
+                        <td class="kt-text-sm text-muted">
+                            {{ task.finishedAssigneesCount }}/{{ task.assignees|length }} učesnika
+                            {% if task.checklistTotal > 0 %}<br>checklist {{ task.checklistDone }}/{{ task.checklistTotal }}{% endif %}
+                        </td>
+                        <td>{{ ui.task_status(task.status) }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="{{ 'client' in list.hidden ? 6 : 7 }}">{{ ui.empty_state('Nema zadataka za izabrane filtere.', 'list-checks') }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center">{{ knp_pagination_render(pagination) }}</div>

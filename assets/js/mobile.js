@@ -32,7 +32,7 @@ document.querySelectorAll('form[data-kt-filters]').forEach((form, index) => {
         return;
     }
     // aktivan filter = vrednost različita od podrazumevane (prva opcija liste, prazno polje)
-    const active = [...form.querySelectorAll('select, input:not([type=hidden])')].filter((el) => (
+    const active = form.dataset.activeCount !== undefined ? Number(form.dataset.activeCount) : [...form.querySelectorAll('select, input:not([type=hidden])')].filter((el) => (
         el.tagName === 'SELECT' ? el.selectedIndex > 0 : el.value !== ''
     )).length;
     const sheet = document.createElement('div');

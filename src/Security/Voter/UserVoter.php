@@ -4,6 +4,7 @@ namespace App\Security\Voter;
 
 use App\Entity\User;
 use App\Enum\Role;
+use App\Repository\UserRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -12,14 +13,19 @@ use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 /**
  * USER_MANAGE (bez subjekta): lista, kreiranje korisnika.
  * USER_VIEW / USER_EDIT (subjekt User): admin+, uz pravilo da admine i superadmine menja samo superadmin.
+ * USER_TASKS_VIEW (subjekt User): tab "Zadaci" korisnika: sam korisnik, šef za radnika iz svog tima (TeamScope), admin+ za sve.
  */
 class UserVoter extends Voter
 {
     public const MANAGE = 'USER_MANAGE';
     public const VIEW = 'USER_VIEW';
     public const EDIT = 'USER_EDIT';
+    public const TASKS_VIEW = 'USER_TASKS_VIEW';
 
-    public function __construct(private readonly RoleHierarchyInterface $roleHierarchy)
+    public function __construct(
+        private readonly RoleHierarchyInterface $roleHierarchy,
+        private readonly UserRepository $users,
+    )
     {
     }
 
@@ -27,7 +33,7 @@ class UserVoter extends Voter
     {
         return match ($attribute) {
             self::MANAGE => null === $subject,
-            self::VIEW, self::EDIT => $subject instanceof User,
+            self::VIEW, self::EDIT, self::TASKS_VIEW => $subject instanceof User,
             default => false,
         };
     }
@@ -42,6 +48,12 @@ class UserVoter extends Voter
         $reachable = $this->roleHierarchy->getReachableRoleNames($token->getRoleNames());
         $isAdmin = in_array(Role::ADMIN->value, $reachable, true);
         $isSuperadmin = in_array(Role::SUPERADMIN->value, $reachable, true);
+
+        if (self::TASKS_VIEW === $attribute) {
+            // admin+ svi; ostali sebe, a šef i radnike iz svog tima
+            return $isAdmin || $actor === $subject
+                || (in_array(Role::SEF->value, $reachable, true) && $this->users->isInLeaderScope($actor, $subject));
+        }
 
         if (!$isAdmin) {
             return false;

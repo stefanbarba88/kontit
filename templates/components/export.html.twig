@@ -2,8 +2,9 @@
     Dugme "Izvoz" (SPEC 8e): Excel / CSV / PDF, sa trenutnim filterima liste.
     Upotreba: {% import 'components/export.html.twig' as export %}{{ export.menu('klijenti') }}
 #}
-{% macro menu(list) %}
-    {% set query = app.request.query.all|filter((v, k) => k != 'page') %}
+{% macro menu(list, extra = null) %}
+    {# extra: parametri umesto trenutnog URL-a (npr. tab klijenta šalje forClient da izvoz dobije isti opseg) #}
+    {% set query = extra ?? app.request.query.all|filter((v, k) => k != 'page') %}
     <div class="dropdown">
         <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             {{ ux_icon('lucide:download', {class: 'kt-icon me-2'}) }}Izvoz

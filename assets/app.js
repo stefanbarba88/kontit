@@ -31,6 +31,7 @@ import './js/dropdowns.js';
 import './js/nbs.js';
 import './js/layout.js';
 import './js/forms.js';
+import './js/task-filters.js';
 import './js/theme.js';
 import './js/countup.js';
 import './js/mobile.js';

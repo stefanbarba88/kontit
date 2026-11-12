@@ -4,6 +4,7 @@ namespace App\Export;
 
 use App\Entity\Task;
 use App\Entity\User;
+use App\Repository\TaskRepository;
 use App\Service\TaskListFilters;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -16,6 +17,7 @@ final class TaskExport implements ExportListInterface
 {
     public function __construct(
         private readonly TaskListFilters $filters,
+        private readonly TaskRepository $tasks,
         private readonly Security $security,
     ) {
     }
@@ -59,7 +61,9 @@ final class TaskExport implements ExportListInterface
 
     public function rows(array $query, User $user): iterable
     {
-        foreach ($this->queryBuilder($query, $user)->getQuery()->getResult() as $task) {
+        $all = $this->queryBuilder($query, $user)->getQuery()->getResult();
+        $this->tasks->hydrateListRelations($all);
+        foreach ($all as $task) {
             if (!$task instanceof Task || !$this->security->isGrantedForUser($user, 'TASK_VIEW', $task)) {
                 continue;
             }
@@ -82,7 +86,7 @@ final class TaskExport implements ExportListInterface
     {
         $user ??= $this->security->getUser();
 
-        return $user instanceof User ? $this->filters->describe($this->filters->resolve($query, $user)) : '';
+        return $user instanceof User ? $this->filters->describe($this->filters->resolveFromQuery($query, $user)) : '';
     }
 
     /**
@@ -90,6 +94,6 @@ final class TaskExport implements ExportListInterface
      */
     private function queryBuilder(array $query, User $user): QueryBuilder
     {
-        return $this->filters->queryBuilder($this->filters->resolve($query, $user), $user);
+        return $this->filters->queryBuilder($this->filters->resolveFromQuery($query, $user), $user);
     }
 }

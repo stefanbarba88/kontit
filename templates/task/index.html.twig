@@ -1,5 +1,4 @@
 {% extends 'base.html.twig' %}
-{% import 'components/ui.html.twig' as ui %}
 
 {% set tabs = {
     'all': 'Svi',
@@ -8,7 +7,7 @@
     'overdue': 'Kasne',
     'review': 'Na proveri',
 } %}
-{% if canSeeAll %}{% set tabs = tabs|merge({'approval': 'Čeka moju potvrdu'}) %}{% endif %}
+{% if list.canSeeAll %}{% set tabs = tabs|merge({'approval': 'Čeka moju potvrdu'}) %}{% endif %}
 
 {% block title %}Zadaci{% endblock %}
 {% block page_title %}Zadaci{% endblock %}
@@ -16,166 +15,10 @@
 
 {% block page_actions %}
     {% import 'components/export.html.twig' as export %}
-    {{ export.menu('zadaci') }}
+    {{ export.menu('zadaci', list.exportQuery) }}
     <a href="{{ path('task_new', {returnTo: return_to_path()}) }}" class="btn btn-primary">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Novi zadatak</a>
 {% endblock %}
 
 {% block content %}
-    <div class="card">
-        <ul class="nav nav kt-tabs px-3 pt-2">
-            {% for key, label in tabs %}
-                <li class="nav-item">
-                    <a href="{{ path('task_index', filters|merge({tab: key, page: null})) }}" class="nav-link {{ filters.tab == key ? 'active' : '' }}">
-                        {{ label }}
-                        {% if key == 'approval' and approvalCount > 0 %}<span class="badge bg-danger rounded-pill ms-2">{{ approvalCount }}</span>{% endif %}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-
-        {% if filters.tab != 'approval' %}
-            <div class="card-body border-top">
-                <form method="get" class="row g-2" data-kt-filters>
-                    <input type="hidden" name="tab" value="{{ filters.tab }}">
-                    {% if canSeeAll %}
-                        <div class="col-12 col-md-6 col-xl-3">
-                            {# prva opcija je podrazumevana (brojač aktivnih filtera na telefonu): admin svi, šef svoji #}
-                            {% set scopes = {all: isAdmin ? 'Svi zadaci' : 'Zadaci mog tima', mine: 'Moji zadaci'} %}
-                            <select name="scope" class="form-select" aria-label="Opseg">
-                                {% for key in (isAdmin ? ['all', 'mine'] : ['mine', 'all']) %}
-                                    <option value="{{ key }}" {{ filters.scope == key ? 'selected' : '' }}>{{ scopes[key] }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    {% endif %}
-                    {% if teams|length > 1 or (teams|length == 1 and isAdmin) %}
-                        <div class="col-6 col-md-6 col-xl-3">
-                            <select name="team" class="form-select" aria-label="Tim">
-                                <option value="">Svi timovi</option>
-                                {% for t in teams %}<option value="{{ t.id }}" {{ filters.team == t.id ? 'selected' }}>{{ t.name }}</option>{% endfor %}
-                            </select>
-                        </div>
-                    {% endif %}
-                    {% if people is not empty %}
-                        <div class="col-6 col-md-6 col-xl-3">
-                            <select name="user" class="form-select" aria-label="Radnik">
-                                <option value="">Svi radnici</option>
-                                {% for u in people %}<option value="{{ u.id }}" {{ filters.user == u.id ? 'selected' }}>{{ u.fullName }}</option>{% endfor %}
-                            </select>
-                        </div>
-                    {% endif %}
-                    <div class="col-12 col-md-6 col-xl-3">
-                        <select name="client" class="form-select" aria-label="Klijent">
-                            <option value="">Svi klijenti</option>
-                            {% for client in clients %}
-                                <option value="{{ client.id }}" {{ filters.client == client.id ? 'selected' : '' }}>{{ client.shortName }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-6 col-md-4 col-xl-3">
-                        <select name="status" class="form-select" aria-label="Status">
-                            <option value="">Svi statusi</option>
-                            {% for s in enum_cases('App\\Enum\\TaskStatus') %}
-                                <option value="{{ s.value }}" {{ filters.status == s.value ? 'selected' : '' }}>{{ s.label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-6 col-md-4 col-xl-3">
-                        <select name="priority" class="form-select" aria-label="Prioritet">
-                            <option value="">Svi prioriteti</option>
-                            {% for p in enum_cases('App\\Enum\\TaskPriority') %}
-                                <option value="{{ p.value }}" {{ filters.priority == p.value ? 'selected' : '' }}>{{ p.label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-12 col-md-4 col-xl-3">
-                        <input type="text" name="period" class="form-control" value="{{ filters.period }}" data-datepicker-range placeholder="Rok: od – do" aria-label="Period (rok)">
-                    </div>
-                    <div class="col-12 col-xl-3 d-flex gap-2">
-                        <button class="btn btn-light flex-fill">{{ ux_icon('lucide:filter', {class: 'kt-icon me-2'}) }}Traži</button>
-                        <a href="{{ path('task_index', {tab: filters.tab}) }}" class="btn btn-ghost" title="Poništi filtere" aria-label="Poništi filtere">{{ ux_icon('lucide:x', {class: 'kt-icon'}) }}</a>
-                    </div>
-                </form>
-            </div>
-        {% endif %}
-    </div>
-
-    {# telefon: zadaci grupisani po roku, swipe ulevo otvara brze akcije (DESIGN.md 16.4) #}
-    {% set today = 'today'|date('Y-m-d') %}
-    {% set tomorrow = '+1 day'|date('Y-m-d') %}
-    {% set weekEnd = 'sunday this week'|date('Y-m-d') %}
-    {% set grouped = {overdue: [], today: [], tomorrow: [], week: [], later: []} %}
-    {% for task in pagination %}
-        {% set due = task.dueDate ? task.dueDate|date('Y-m-d') : null %}
-        {% set key = due is null ? 'later' : (task.overdue ? 'overdue' : (due == today ? 'today' : (due == tomorrow ? 'tomorrow' : (due <= weekEnd ? 'week' : 'later')))) %}
-        {% set grouped = grouped|merge({(key): grouped[key]|merge([task])}) %}
-    {% endfor %}
-    {% set groupLabels = {overdue: 'Kasni', today: 'Danas', tomorrow: 'Sutra', week: 'Ove nedelje', later: 'Kasnije'} %}
-    <div class="kt-task-groups">
-        {% for key, tasks in grouped %}
-            {% if tasks|length %}
-                <div class="kt-group-head {{ key == 'overdue' ? 'is-danger' : '' }}">{{ groupLabels[key] }} · {{ tasks|length }}</div>
-                {% for task in tasks %}
-                    {% set mine = task.findAssignee(app.user) %}
-                    <div class="kt-swipe">
-                        <div class="kt-swipe-actions">
-                            {% if mine and mine.status.value != 'ZAVRSIO' and task.status.workable and is_granted('TASK_COMPLETE', task) %}
-                                <form method="post" action="{{ path('task_my_part', {id: task.id, action: 'done'}) }}">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('task_my_part_' ~ task.id) }}">
-                                    <button class="btn btn-success">{{ ux_icon('lucide:check', {class: 'kt-icon'}) }}Moj deo je gotov</button>
-                                </form>
-                            {% endif %}
-                            <a href="{{ path('task_show', {id: task.id}) }}" class="btn btn-primary">{{ ux_icon('lucide:arrow-right', {class: 'kt-icon'}) }}Otvori</a>
-                        </div>
-                        <a href="{{ path('task_show', {id: task.id}) }}" class="kt-swipe-content">
-                            <div class="flex-fill min-w-0">
-                                <div class="kt-task-title text-truncate">{{ task.title }}</div>
-                                <div class="kt-task-meta text-truncate">{{ task.client ? task.client.shortName : 'Interni' }} · {{ ui.due_date(task) }}</div>
-                                <div class="mt-1 d-flex gap-1 flex-wrap">{{ ui.task_status(task.status) }} {{ ui.priority_badge(task.priority) }}{% if task.takenOverFrom or substituting_for(task) %} <span class="badge kt-badge-info">PREUZETO</span>{% endif %}</div>
-                            </div>
-                            <span class="kt-swipe-more">{{ ux_icon('lucide:ellipsis', {class: 'kt-icon'}) }}</span>
-                        </a>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endfor %}
-        {% if pagination|length == 0 %}{{ ui.empty_state('Nema zadataka za izabrani prikaz.', 'list-checks') }}{% endif %}
-    </div>
-
-    <div class="card kt-task-table">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr><th>Zadatak</th><th>Klijent</th><th>Učesnici</th><th>Rok</th><th>Prioritet</th><th>Napredak</th><th>Status</th></tr>
-                </thead>
-                <tbody>
-                    {% for task in pagination %}
-                        <tr>
-                            <td>
-                                <a href="{{ path('task_show', {id: task.id}) }}" class="fw-semibold">{{ task.title }}</a>
-                                {% if substituting_for(task) %}<span class="badge kt-badge-info ms-1" title="Zamenjuješ: {% for u in substituting_for(task) %}{{ u.fullName }}{% endfor %}">PREUZETO</span>{% elseif task.takenOverFrom %}<span class="badge kt-badge-info ms-1" title="Glavni radnik je bio odsutan: {{ task.takenOverFrom.fullName }}">PREUZETO</span>{% endif %}
-                            </td>
-                            <td>{% if task.client %}{{ task.client.shortName }}{% else %}<span class="text-muted">Interni</span>{% endif %}</td>
-                            <td>
-                                <div class="d-flex">
-                                    {% for a in task.assignees %}{{ ui.avatar(a.user, 24, 'me-1') }}{% endfor %}
-                                </div>
-                            </td>
-                            <td>{{ ui.due_date(task) }}</td>
-                            <td>{{ ui.priority_badge(task.priority) }}</td>
-                            <td class="kt-text-sm text-muted">
-                                {{ task.finishedAssigneesCount }}/{{ task.assignees|length }} učesnika
-                                {% if task.checklistTotal > 0 %}<br>checklist {{ task.checklistDone }}/{{ task.checklistTotal }}{% endif %}
-                            </td>
-                            <td>{{ ui.task_status(task.status) }}</td>
-                        </tr>
-                    {% else %}
-                        <tr><td colspan="7">{{ ui.empty_state('Nema zadataka za izabrani prikaz.', 'list-checks') }}</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="d-flex justify-content-center">{{ knp_pagination_render(pagination) }}</div>
+    {% include 'components/_task_list.html.twig' with {list: list, tabs: tabs} only %}
 {% endblock %}

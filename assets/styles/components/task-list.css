@@ -1,0 +1,22 @@
+/* Lista zadataka i filteri (templates/components/_task_list.html.twig, _task_filters.html.twig) */
+.kt-search-field { position: relative; }
+.kt-search-field .form-control { padding-left: 36px; padding-right: 36px; }
+.kt-search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--kt-text-3); pointer-events: none; }
+.kt-search-clear {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border: 0; border-radius: var(--kt-radius-sm); background: transparent; color: var(--kt-text-3);
+}
+.kt-search-clear:hover { background: var(--kt-surface-3); color: var(--kt-text); }
+.kt-search-clear[hidden] { display: none; }
+.kt-filter-count {
+    display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; margin-left: 4px;
+    border-radius: 999px; background: var(--kt-primary); color: var(--kt-on-primary); font-size: 11px; font-weight: 600;
+}
+.kt-task-summary { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 13px; color: var(--kt-text-2); }
+.kt-task-summary-item strong { color: var(--kt-text); font-variant-numeric: tabular-nums; }
+.kt-task-summary-item.is-danger, .kt-task-summary-item.is-danger strong { color: var(--kt-danger); }
+.kt-tab-dot { display: inline-block; width: 8px; height: 8px; margin-left: 6px; border-radius: 50%; background: var(--kt-danger); vertical-align: middle; }
+.kt-tab-count { margin-left: 6px; color: var(--kt-text-3); font-variant-numeric: tabular-nums; }
+.kt-user-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.kt-user-head-name { font-family: var(--kt-font-display); font-weight: 650; font-size: 18px; line-height: 1.2; }
+.kt-user-head-meta { color: var(--kt-text-3); font-size: 13px; }

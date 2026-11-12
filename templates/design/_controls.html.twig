@@ -62,6 +62,15 @@
                     <a class="kt-pager-btn" href="#"><span>Sledeća</span>{{ ux_icon('lucide:chevron-right', {class: 'kt-icon'}) }}</a>
                 </nav>
             </div>
+            <div class="col-12">
+                <label class="form-label">Lista zadataka: pretraga, brojač filtera, brojači taba</label>
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-4"><div class="kt-search-field">{{ ux_icon('lucide:search', {class: 'kt-icon kt-search-icon'}) }}<input type="text" class="form-control" value="racun" aria-label="Naziv zadatka"><button type="button" class="kt-search-clear" aria-label="Obriši pretragu">{{ ux_icon('lucide:x', {class: 'kt-icon'}) }}</button></div></div>
+                    <div class="col-md-4"><button class="btn btn-light" type="button">{{ ux_icon('lucide:filter', {class: 'kt-icon me-2'}) }}Traži <span class="kt-filter-count">3</span></button></div>
+                    <div class="col-md-4 kt-task-summary"><span class="kt-task-summary-item"><strong>12</strong> otvoreno</span><span class="kt-task-summary-item is-danger"><strong>2</strong> kasni</span></div>
+                </div>
+                <ul class="nav kt-tabs mt-2"><li class="nav-item"><a href="#" class="nav-link">Pregled</a></li><li class="nav-item"><a href="#" class="nav-link active">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-1'}) }}Zadaci<span class="kt-tab-count">12</span><span class="kt-tab-dot" aria-label="Ima zadataka koji kasne"></span></a></li></ul>
+            </div>
             <div class="col-md-4">
                 <label class="form-label">Lozinka</label>
                 <input type="password" class="form-control" value="tajna123">

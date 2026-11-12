@@ -7,6 +7,7 @@ use App\Entity\Task;
 use App\Entity\User;
 use App\Enum\TaskPriority;
 use App\Enum\TaskStatus;
+use App\Service\TaskFilter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -95,36 +96,142 @@ class TaskRepository extends ServiceEntityRepository
     }
 
     /**
-     * Filteri liste (TaskListFilters): klijent, prioritet, status, tim (učesnik je član ili šef tima), radnik (učesnik) i period roka.
-     * Samo sužavaju upit koji je već ograničen opsegom korisnika.
-     *
-     * @param array{client?: ?Client, priority?: ?TaskPriority, status?: ?TaskStatus, team?: ?\App\Entity\Team, assignee?: ?User, from?: ?\DateTimeImmutable, to?: ?\DateTimeImmutable} $f
+     * JEDINI upit liste zadataka (/tasks, tab klijenta, tab korisnika): lista, brojači, izvoz i opcije filtera.
+     * Vidljivost (kreator, učesnik, šef tima, zamena, admin) + svi filteri iz TaskFilter, klijent se učitava u istom upitu.
      */
-    public function applyFilters(QueryBuilder $qb, array $f): QueryBuilder
+    public function createFilteredQueryBuilder(TaskFilter $f, User $viewer): QueryBuilder
     {
-        if (($f['client'] ?? null) instanceof Client) {
-            $qb->andWhere('t.client = :fClient')->setParameter('fClient', $f['client']);
+        $qb = 'approval' === $f->tab
+            ? $this->createAwaitingApprovalQueryBuilder($viewer, $f->viewerAdmin)
+            : $this->createListQueryBuilder($viewer, $f->viewerAdmin, $f->viewerLeader, $f->scope, ['tab' => $f->tab]);
+
+        if (null !== $f->client) {
+            $qb->andWhere('t.client = :fClient')->setParameter('fClient', $f->client);
         }
-        if (($f['priority'] ?? null) instanceof TaskPriority) {
-            $qb->andWhere('t.priority = :fPriority')->setParameter('fPriority', $f['priority']);
+        if (null !== $f->priority) {
+            $qb->andWhere('t.priority = :fPriority')->setParameter('fPriority', $f->priority);
         }
-        if (($f['status'] ?? null) instanceof TaskStatus) {
-            $qb->andWhere('t.status = :fStatus')->setParameter('fStatus', $f['status']);
+        if (null !== $f->status) {
+            $qb->andWhere('t.status = :fStatus')->setParameter('fStatus', $f->status);
+        } elseif ('all' === $f->tab && !$f->showClosed) {
+            // podrazumevano samo otvoreni; tabovi vezani za status ("Na proveri" i sl.) ignorišu prekidač
+            $qb->andWhere('t.status IN (:fOpen)')->setParameter('fOpen', self::openStatuses());
         }
-        if (($f['team'] ?? null) instanceof \App\Entity\Team) {
+        if (null !== $f->team) {
             $qb->andWhere('EXISTS (SELECT 1 FROM App\Entity\TaskAssignee fa WHERE fa.task = t AND (fa.user = :fTeamLeader OR EXISTS ('
                 .'SELECT 1 FROM App\Entity\TeamMember fm WHERE fm.user = fa.user AND fm.team = :fTeam AND fm.leftAt IS NULL)))')
-                ->setParameter('fTeam', $f['team'])
-                ->setParameter('fTeamLeader', $f['team']->getLeader());
+                ->setParameter('fTeam', $f->team)
+                ->setParameter('fTeamLeader', $f->team->getLeader());
         }
-        if (($f['assignee'] ?? null) instanceof User) {
-            $qb->andWhere('EXISTS (SELECT 1 FROM App\Entity\TaskAssignee fu WHERE fu.task = t AND fu.user = :fUser)')->setParameter('fUser', $f['assignee']);
+        if (null !== $f->assignee) {
+            $isAssignee = 'EXISTS (SELECT 1 FROM App\Entity\TaskAssignee fu WHERE fu.task = t AND fu.user = :fUser)';
+            $qb->andWhere(match ($f->role) {
+                'created' => 't.createdBy = :fUser',
+                'both' => $isAssignee.' OR t.createdBy = :fUser',
+                default => $isAssignee,
+            })->setParameter('fUser', $f->assignee);
         }
-        if (($f['from'] ?? null) instanceof \DateTimeImmutable) {
-            $qb->andWhere('t.dueDate BETWEEN :fFrom AND :fTo')->setParameter('fFrom', $f['from'])->setParameter('fTo', $f['to'] ?? $f['from']);
+        if (null !== $f->from) {
+            $qb->andWhere('t.dueDate BETWEEN :fFrom AND :fTo')->setParameter('fFrom', $f->from)->setParameter('fTo', $f->to ?? $f->from);
+        }
+        if ('' !== $f->q) {
+            // title_search je već normalizovan (TextNormalizer), pa isti izraz traži bez razlike u kvačicama i velikim slovima
+            $qb->andWhere('t.titleSearch LIKE :fQ')->setParameter('fQ', '%'.addcslashes($f->q, '%_\\').'%');
+        }
+        if ($f->noJob) {
+            $qb->andWhere('t.clientJob IS NULL');
+        } elseif (null !== $f->job) {
+            $qb->andWhere('EXISTS (SELECT 1 FROM App\Entity\ClientJob fj WHERE fj = t.clientJob AND fj.jobTemplate = :fJob)')->setParameter('fJob', $f->job);
+        }
+        if ('auto' === $f->origin || 'manual' === $f->origin) {
+            $qb->andWhere('t.generatedAutomatically = :fAuto')->setParameter('fAuto', 'auto' === $f->origin);
         }
 
         return $qb;
+    }
+
+    /** Posle zamene select-a i brisanja sortiranja parametar :closed (iz sortiranja) više nije u upitu, pa se ne sme slati */
+    private function withoutSortParameters(QueryBuilder $qb): QueryBuilder
+    {
+        foreach ($qb->getParameters() as $parameter) {
+            if ('closed' === $parameter->getName()) {
+                $qb->getParameters()->removeElement($parameter);
+            }
+        }
+
+        return $qb;
+    }
+
+    /** @return list<TaskStatus> */
+    private static function openStatuses(): array
+    {
+        return array_values(array_filter(TaskStatus::cases(), static fn (TaskStatus $s) => $s->isOpen()));
+    }
+
+    /**
+     * Učesnici zadataka koje $viewer vidi u datom opsegu (opcije filtera "Zaduženi" na stranici klijenta), svi statusi.
+     *
+     * @return list<User>
+     */
+    public function findAssigneesOf(TaskFilter $f, User $viewer): array
+    {
+        $all = $f->with(['assignee' => null, 'status' => null, 'showClosed' => true, 'q' => '', 'job' => null, 'noJob' => false, 'origin' => 'all', 'from' => null, 'to' => null, 'priority' => null, 'team' => null, 'tab' => 'all']);
+        $ids = $this->createFilteredQueryBuilder($all, $viewer)->select('t.id')->resetDQLPart('orderBy');
+        $ids = $this->withoutSortParameters($ids)->getQuery()->getSingleColumnResult();
+        if ([] === $ids) {
+            return [];
+        }
+
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('u')->from(User::class, 'u')
+            ->where('EXISTS (SELECT 1 FROM App\Entity\TaskAssignee x WHERE x.user = u AND x.task IN (:ids))')
+            ->setParameter('ids', $ids)
+            ->orderBy('u.firstName')->addOrderBy('u.lastName')
+            ->getQuery()->getResult();
+    }
+
+    /**
+     * Brojači za zaglavlje taba (otvoreni, kasne, na proveri, završeni ovog meseca) nad istim opsegom, bez ostalih filtera.
+     *
+     * @return array{open: int, overdue: int, review: int, doneMonth: int}
+     */
+    public function countSummary(TaskFilter $f, User $viewer): array
+    {
+        $base = $f->with(['status' => null, 'showClosed' => true, 'q' => '', 'job' => null, 'noJob' => false, 'origin' => 'all', 'from' => null, 'to' => null, 'priority' => null, 'team' => null, 'tab' => 'all']);
+        $row = $this->createFilteredQueryBuilder($base, $viewer)
+            ->select('SUM(CASE WHEN t.status IN (:sOpen) THEN 1 ELSE 0 END) AS open_count')
+            ->addSelect('SUM(CASE WHEN t.status IN (:sOpen) AND t.dueDate < :sToday THEN 1 ELSE 0 END) AS overdue_count')
+            ->addSelect('SUM(CASE WHEN t.status = :sReview THEN 1 ELSE 0 END) AS review_count')
+            ->addSelect('SUM(CASE WHEN t.status = :sDone AND t.updatedAt >= :sMonth THEN 1 ELSE 0 END) AS done_count')
+            ->resetDQLPart('orderBy');
+        $row = $this->withoutSortParameters($row)
+            ->setParameter('sOpen', self::openStatuses())
+            ->setParameter('sToday', new \DateTimeImmutable('today'))
+            ->setParameter('sReview', TaskStatus::NA_PROVERI)
+            ->setParameter('sDone', TaskStatus::ZAVRSENO)
+            ->setParameter('sMonth', new \DateTimeImmutable('first day of this month 00:00'))
+            ->getQuery()->getSingleResult();
+
+        return ['open' => (int) $row['open_count'], 'overdue' => (int) $row['overdue_count'], 'review' => (int) $row['review_count'], 'doneMonth' => (int) $row['done_count']];
+    }
+
+    /**
+     * Učitava učesnike (sa korisnicima) i stavke checkliste za zadatke jedne strane u jednom upitu (bez N+1 u listi i izvozu).
+     * Zadaci su već učitani, pa ovo samo inicijalizuje njihove kolekcije.
+     *
+     * @param iterable<Task> $tasks
+     */
+    public function hydrateListRelations(iterable $tasks): void
+    {
+        $tasks = $tasks instanceof \Traversable ? iterator_to_array($tasks, false) : array_values((array) $tasks);
+        if ([] === $tasks) {
+            return;
+        }
+        $this->createQueryBuilder('t')
+            ->select('t', 'a', 'u', 'ci')
+            ->leftJoin('t.assignees', 'a')->leftJoin('a.user', 'u')->leftJoin('t.checklistItems', 'ci')
+            ->where('t IN (:tasks)')->setParameter('tasks', $tasks)
+            ->getQuery()->getResult();
     }
 
     private function bindSubstitute(QueryBuilder $qb): void

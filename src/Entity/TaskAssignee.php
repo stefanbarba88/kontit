@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TaskAssigneeRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_TASK_ASSIGNEE', fields: ['task', 'user'])]
+#[ORM\Index(name: 'IDX_TASK_ASSIGNEE_USER_TASK', fields: ['user', 'task'])]
 class TaskAssignee
 {
     #[ORM\Id]
