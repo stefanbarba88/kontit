@@ -12,7 +12,8 @@ use Doctrine\ORM\Events;
 /**
  * Održava task.title_search (normalizovan naziv za pretragu) na SVAKO čuvanje zadatka, bez obzira ko je promenio naziv
  * (forma, generator zadataka, uvoz, komanda): prePersist za novi zadatak, onFlush za izmenu postojećeg.
- * Ne pokriva masovne DQL/SQL UPDATE-ove; njih migracija ili komanda moraju sami da dopune.
+ * Provereno: u aplikaciji nigde ne postoji masovni DQL/SQL UPDATE koji menja task.title. Ako se takav ikad napiše, MORA sam da
+ * postavi i title_search (TextNormalizer), jer ga listener ne vidi (zaobilazi se ORM). Ako se nešto raziđe: php bin/console app:tasks:reindex-search.
  */
 #[AsDoctrineListener(event: Events::prePersist)]
 #[AsDoctrineListener(event: Events::onFlush)]
