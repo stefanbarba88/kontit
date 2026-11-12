@@ -10,6 +10,9 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-12: **Paginator na srpskom**
+  - Uzrok: bundle nema prevod za `sr_Latn` (default_locale), pa su se videli ključevi. Dodato `translations/KnpPaginatorBundle.sr_Latn.yaml` (`label_previous`, `label_next`, `filter_searchword`).
+  - Nov template `templates/components/pagination.html.twig` (`knp_paginator.template.pagination`) + `components/pagination.css`: Lucide chevron-left/right, na telefonu samo Prethodna · strana X od Y · Sledeća. Pokriva sve liste sa `knp_pagination_render` (zadaci, klijenti, korisnici, timovi, odsustva, obaveštenja). Primer na `/_design`. Nije provereno u ulogovanom pregledaču.
 - 2026-11-12: **Matični broj bez provera**
   - Uklonjeni `MaticniBroj` constraint i validator, Regex na entitetu, `maxlength=8` u formi, IMask maska i `isValidMaticniBroj`. Ostaje trim (prazno = null). PIB provera nije dirana. NBS pretraga je i ranije išla samo po PIB-u; dopuna NBS matičnog broja nulama do 8 cifara ostaje.
   - Migracija `Version20261112104338`: `client.maticni_broj` VARCHAR(20). SPEC.md 8 ažuriran. Test za kontrolnu cifru matičnog broja uklonjen.

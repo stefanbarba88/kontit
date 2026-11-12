@@ -1,0 +1,50 @@
+{# Paginacija (KnpPaginator): desktop brojevi strana, telefon "Prethodna · strana X od Y · Sledeća". Tokeni u components/pagination.css #}
+{% if pageCount > 1 %}
+    {% set prev_label = 'label_previous'|trans({}, 'KnpPaginatorBundle') %}
+    {% set next_label = 'label_next'|trans({}, 'KnpPaginatorBundle') %}
+    <nav class="kt-pager" aria-label="Paginacija">
+        {% if previous is defined %}
+            <a class="kt-pager-btn" rel="prev" href="{{ path(route, knp_pagination_query(query, previous, options)) }}">{{ ux_icon('lucide:chevron-left', {class: 'kt-icon'}) }}<span>{{ prev_label }}</span></a>
+        {% else %}
+            <span class="kt-pager-btn is-disabled" aria-disabled="true">{{ ux_icon('lucide:chevron-left', {class: 'kt-icon'}) }}<span>{{ prev_label }}</span></span>
+        {% endif %}
+
+        <span class="kt-pager-status">strana {{ current }} od {{ pageCount }}</span>
+
+        <ul class="kt-pager-pages">
+            {% if startPage > 1 %}
+                <li><a class="kt-pager-page" href="{{ path(route, knp_pagination_query(query, 1, options)) }}">1</a></li>
+                {% if startPage == 3 %}
+                    <li><a class="kt-pager-page" href="{{ path(route, knp_pagination_query(query, 2, options)) }}">2</a></li>
+                {% elseif startPage != 2 %}
+                    <li><span class="kt-pager-gap">…</span></li>
+                {% endif %}
+            {% endif %}
+            {% for page in pagesInRange %}
+                <li>
+                    {% if page != current %}
+                        <a class="kt-pager-page" href="{{ path(route, knp_pagination_query(query, page, options)) }}">{{ page }}</a>
+                    {% else %}
+                        <span class="kt-pager-page is-active" aria-current="page">{{ page }}</span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+            {% if pageCount > endPage %}
+                {% if pageCount > (endPage + 1) %}
+                    {% if pageCount > (endPage + 2) %}
+                        <li><span class="kt-pager-gap">…</span></li>
+                    {% else %}
+                        <li><a class="kt-pager-page" href="{{ path(route, knp_pagination_query(query, pageCount - 1, options)) }}">{{ pageCount - 1 }}</a></li>
+                    {% endif %}
+                {% endif %}
+                <li><a class="kt-pager-page" href="{{ path(route, knp_pagination_query(query, pageCount, options)) }}">{{ pageCount }}</a></li>
+            {% endif %}
+        </ul>
+
+        {% if next is defined %}
+            <a class="kt-pager-btn" rel="next" href="{{ path(route, knp_pagination_query(query, next, options)) }}"><span>{{ next_label }}</span>{{ ux_icon('lucide:chevron-right', {class: 'kt-icon'}) }}</a>
+        {% else %}
+            <span class="kt-pager-btn is-disabled" aria-disabled="true"><span>{{ next_label }}</span>{{ ux_icon('lucide:chevron-right', {class: 'kt-icon'}) }}</span>
+        {% endif %}
+    </nav>
+{% endif %}

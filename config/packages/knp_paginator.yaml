@@ -1,5 +1,5 @@
 knp_paginator:
     page_range: 5
     template:
-        pagination: '@KnpPaginator/Pagination/bootstrap_v5_pagination.html.twig'
+        pagination: 'components/pagination.html.twig'
         sortable: '@KnpPaginator/Pagination/bootstrap_v5_bi_sortable_link.html.twig'

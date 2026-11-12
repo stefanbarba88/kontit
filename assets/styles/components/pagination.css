@@ -1,0 +1,19 @@
+/* Paginacija (templates/components/pagination.html.twig). Desktop: Prethodna, brojevi, Sledeća. Telefon: Prethodna · strana X od Y · Sledeća. */
+.kt-pager { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; }
+.kt-pager-btn, .kt-pager-page {
+    display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 36px; padding: 0 12px;
+    border: 1px solid var(--kt-border-strong); border-radius: var(--kt-radius-sm); background: var(--kt-surface); color: var(--kt-text);
+    font-size: 14px; text-decoration: none; font-variant-numeric: tabular-nums;
+}
+.kt-pager-btn:hover, .kt-pager-page:hover { background: var(--kt-surface-3); color: var(--kt-text); }
+.kt-pager-btn.is-disabled { opacity: .45; pointer-events: none; }
+.kt-pager-page { min-width: 36px; padding: 0 8px; }
+.kt-pager-page.is-active { background: var(--kt-primary); border-color: var(--kt-primary); color: var(--kt-on-primary); font-weight: 600; }
+.kt-pager-pages { display: flex; align-items: center; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.kt-pager-gap { color: var(--kt-text-3); padding: 0 4px; }
+.kt-pager-status { display: none; color: var(--kt-text-2); font-size: 13px; white-space: nowrap; }
+@media (max-width: 575.98px) {
+    .kt-pager { justify-content: space-between; gap: 6px; }
+    .kt-pager-pages { display: none; }
+    .kt-pager-status { display: inline; }
+}

@@ -51,6 +51,17 @@
                 <input type="text" data-datepicker data-datepicker-inline data-default-date="2026-11-12" class="form-control">
                 <div class="form-text">Kontrola rasporeda: 12. je u koloni Čet, 16. u Pon, nedelja je poslednja kolona.</div>
             </div>
+            <div class="col-12">
+                <label class="form-label">Paginacija (telefon: Prethodna · strana X od Y · Sledeća)</label>
+                <nav class="kt-pager" aria-label="Primer paginacije">
+                    <span class="kt-pager-btn is-disabled">{{ ux_icon('lucide:chevron-left', {class: 'kt-icon'}) }}<span>Prethodna</span></span>
+                    <span class="kt-pager-status">strana 1 od 5</span>
+                    <ul class="kt-pager-pages">
+                        <li><span class="kt-pager-page is-active">1</span></li><li><a class="kt-pager-page" href="#">2</a></li><li><a class="kt-pager-page" href="#">3</a></li><li><span class="kt-pager-gap">…</span></li><li><a class="kt-pager-page" href="#">5</a></li>
+                    </ul>
+                    <a class="kt-pager-btn" href="#"><span>Sledeća</span>{{ ux_icon('lucide:chevron-right', {class: 'kt-icon'}) }}</a>
+                </nav>
+            </div>
             <div class="col-md-4">
                 <label class="form-label">Lozinka</label>
                 <input type="password" class="form-control" value="tajna123">
