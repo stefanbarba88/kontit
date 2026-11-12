@@ -91,4 +91,57 @@ class TodoItemRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->getQuery()->getResult();
     }
+
+    /**
+     * ID-evi stavki čiji je podsetnik stigao (remindAt <= $now) i još nije poslat. $now je UTC iz TodoClock, nikad NOW() iz baze.
+     * Ovo je samo spisak kandidata; slanje se tek posle uspešnog {@see claimReminder()}.
+     *
+     * @return list<int>
+     */
+    public function findDueReminderIds(\DateTimeImmutable $now, int $limit = 500): array
+    {
+        $rows = $this->createQueryBuilder('t')->select('t.id')
+            ->andWhere('t.remindAt IS NOT NULL AND t.remindAt <= :now AND t.reminderSentAt IS NULL AND t.isDone = false')
+            ->setParameter('now', $now)
+            ->orderBy('t.remindAt', 'ASC')->setMaxResults($limit)
+            ->getQuery()->getScalarResult();
+
+        return array_map(static fn (array $r): int => (int) $r['id'], $rows);
+    }
+
+    /**
+     * Atomski "rezerviše" slanje podsetnika: samo proces koji promeni red (reminder_sent_at je bio NULL) sme da pošalje.
+     * Zato dupli ili preklopljeni pokretanja komande ne šalju dvaput. Vreme je UTC parametar, ne NOW().
+     */
+    public function claimReminder(int $id, \DateTimeImmutable $now): bool
+    {
+        $moment = $now->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+
+        return 1 === $this->getEntityManager()->getConnection()->executeStatement(
+            'UPDATE todo_item SET reminder_sent_at = :now WHERE id = :id AND reminder_sent_at IS NULL AND is_done = 0 AND remind_at IS NOT NULL AND remind_at <= :now',
+            ['now' => $moment, 'id' => $id],
+        );
+    }
+
+    /**
+     * Stavke vlasnika čiji je podsetnik poslat (posle $since, da se posle dužeg odsustva ne nakupi gomila toast-ova), a još nije prikazan kao toast ni u jednom tabu.
+     *
+     * @return list<TodoItem>
+     */
+    public function findShowable(User $owner, \DateTimeImmutable $since): array
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.owner = :owner AND t.reminderSentAt IS NOT NULL AND t.reminderSentAt >= :since AND t.shownAt IS NULL AND t.isDone = false')
+            ->setParameter('owner', $owner)->setParameter('since', $since)->orderBy('t.remindAt', 'ASC')->setMaxResults(20)
+            ->getQuery()->getResult();
+    }
+
+    /** Atomski označava podsetnik kao prikazan: true samo za tab koji ga je prvi preuzeo (toast dobija jedan tab) */
+    public function claimShown(int $id, User $owner, \DateTimeImmutable $now): bool
+    {
+        return 1 === $this->getEntityManager()->getConnection()->executeStatement(
+            'UPDATE todo_item SET shown_at = :now WHERE id = :id AND owner_id = :owner AND shown_at IS NULL AND reminder_sent_at IS NOT NULL AND is_done = 0',
+            ['now' => $now->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s'), 'id' => $id, 'owner' => $owner->getId()],
+        );
+    }
 }

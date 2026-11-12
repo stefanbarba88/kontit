@@ -5,7 +5,7 @@ import Sortable from 'sortablejs';
 import flatpickr from 'flatpickr';
 import { Offcanvas } from 'bootstrap';
 import { ajax } from './ajax.js';
-import { confirmDialog, toast, undoToast } from './confirm.js';
+import { confirmDialog, reminderToast, snoozeDialog, toast, undoToast } from './confirm.js';
 import { initDatepickers, srLatn } from './datepicker.js';
 import { initSwipe } from './mobile.js';
 
@@ -74,9 +74,22 @@ if (roots().length) {
             chip.classList.toggle('is-selected', Boolean(on));
         });
     };
-    const askNotificationPermission = () => {
-        // dozvola se traži JEDNOM, tek kad korisnik prvi put postavi podsetnik (nikad pri učitavanju)
-        document.dispatchEvent(new CustomEvent('kt:todo-reminder-set'));
+    // Dozvola za browser obaveštenja se traži JEDNOM, tek kad korisnik prvi put postavi podsetnik (nikad pri učitavanju strane).
+    // Poziva se sinhrono iz klika/slanja forme, jer neki browseri traže korisnikov gest.
+    const NOTIF_KEY = 'kt-todo-notif-asked';
+    const requestNotifications = () => {
+        if (!('Notification' in window) || Notification.permission !== 'default') {
+            return;
+        }
+        try {
+            if (localStorage.getItem(NOTIF_KEY)) {
+                return;
+            }
+            localStorage.setItem(NOTIF_KEY, '1');
+        } catch {
+            // bez localStorage: pitamo najviše jednom po učitavanju
+        }
+        Notification.requestPermission();
     };
 
     document.addEventListener('click', (e) => {
@@ -145,15 +158,15 @@ if (roots().length) {
                 payload.remindTime = sel.time;
             }
         }
+        if (payload.remindDate) {
+            requestNotifications();
+        }
         input.disabled = true;
         const res = await call('POST', baseUrl, payload);
         input.disabled = false;
         if (res) {
             input.value = '';
             setSelection(root, null);
-            if (res.data.hasReminder) {
-                askNotificationPermission();
-            }
         }
         input.focus();
     });
@@ -233,12 +246,12 @@ if (roots().length) {
             }
         } else if (act === 'save') {
             const fields = fieldsOf(item);
+            if (fields.remindDate) {
+                requestNotifications();
+            }
             const res = await call('POST', `${baseUrl}/${item.dataset.id}`, fields);
             if (res) {
                 toast('Sačuvano.');
-                if (res.data.hasReminder) {
-                    askNotificationPermission();
-                }
             }
         } else if (act === 'done') {
             complete(item);
@@ -265,5 +278,59 @@ if (roots().length) {
         panel.addEventListener('show.bs.offcanvas', refresh);
         panel.addEventListener('shown.bs.offcanvas', () => panel.querySelector('[data-todo-title]')?.focus());
     }
+    // --- podsetnici dok je aplikacija otvorena ---
+    // Brz poll (15 s) dok je tab vidljiv; zvono u topbaru ostaje na 60 s kao rezervni kanal. Skriven tab pita samo ako sme da pokaže
+    // browser obaveštenje (inače ne preuzima podsetnik, pa ga korisnik vidi u zvonu). Server preuzima podsetnik atomski: toast dobija jedan tab.
+    const POLL_MS = 15000;
+    const showReminder = async (reminder) => {
+        if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+            const note = new Notification('Podsetnik', { body: reminder.title, tag: `kt-todo-${reminder.id}` });
+            note.onclick = () => {
+                window.focus();
+                window.ktTodo?.panel()?.show();
+                note.close();
+            };
+
+            return;
+        }
+        const choice = await reminderToast(reminder.title);
+        if (choice === 'done') {
+            await complete({ dataset: { id: reminder.id } });
+        } else if (choice === 'snooze') {
+            const preset = await snoozeDialog();
+            if (preset && await call('POST', `${baseUrl}/${reminder.id}/snooze`, { preset })) {
+                toast('Podsetnik je odložen.');
+            }
+        }
+    };
+    let polling = false;
+    const poll = async () => {
+        if (polling || (document.hidden && !('Notification' in window && Notification.permission === 'granted'))) {
+            return;
+        }
+        polling = true;
+        try {
+            const { data } = await ajax('GET', `${baseUrl}/due`);
+            render({ count: data.count });
+            for (const reminder of data.reminders) {
+                await showReminder(reminder);
+            }
+            if (data.reminders.length) {
+                refresh();
+            }
+        } catch {
+            // poll ne sme da smeta: pokušava se opet na sledeći interval
+        } finally {
+            polling = false;
+        }
+    };
+    setInterval(poll, POLL_MS);
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            poll();
+        }
+    });
+    poll();
+
     window.ktTodo = { refresh, panel: () => (panel ? Offcanvas.getOrCreateInstance(panel) : null) };
 }

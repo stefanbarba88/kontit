@@ -21,6 +21,7 @@ class TodoService
         private readonly TodoItemRepository $items,
         private readonly TodoClock $clock,
         private readonly TodoRepeatCalculator $repeat,
+        private readonly WorkingDayService $workingDays,
     ) {
     }
 
@@ -325,5 +326,23 @@ class TodoService
     public function search(User $owner, string $query): array
     {
         return $this->items->search($owner, $query);
+    }
+    public const SNOOZE_PRESETS = ['10m', '1h', 'tomorrow'];
+
+    /**
+     * Odloži podsetnik: 10 min, 1 h ili sutra u 9:00 (sutra = sledeći radni dan). Ponovo se šalje i ponovo prikazuje.
+     * Rok stavke se ne menja.
+     */
+    public function snooze(TodoItem $item, string $preset): void
+    {
+        $now = $this->clock->now();
+        $at = match ($preset) {
+            '10m' => $now->modify('+10 minutes'),
+            '1h' => $now->modify('+1 hour'),
+            'tomorrow' => $this->clock->fromLocal($this->workingDays->nextWorkingDay(new \DateTimeImmutable($this->clock->today().' +1 day'))->format('Y-m-d'), '09:00'),
+            default => throw new \DomainException('Nepoznato odlaganje.'),
+        };
+        $item->setRemindAt($at);
+        $this->em->flush();
     }
 }

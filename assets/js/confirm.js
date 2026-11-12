@@ -73,6 +73,42 @@ export function undoToast(message, onUndo, seconds = 5) {
         });
 }
 
+/**
+ * Toast podsetnika sa dugmadima "Završeno" i "Odloži". Rešava se sa 'done', 'snooze' ili null (zatvoren / istekao).
+ */
+export function reminderToast(title) {
+    return toaster
+        .fire({
+            icon: 'info',
+            title: `Podsetnik: ${title}`,
+            showConfirmButton: true,
+            confirmButtonText: 'Završeno',
+            showDenyButton: true,
+            denyButtonText: 'Odloži',
+            timer: 60000,
+            customClass: { popup: 'kt-toast', confirmButton: 'btn btn-sm btn-primary', denyButton: 'btn btn-sm btn-light' },
+        })
+        .then((result) => (result.isConfirmed ? 'done' : (result.isDenied ? 'snooze' : null)));
+}
+
+/**
+ * Izbor odlaganja podsetnika: '10m' | '1h' | 'tomorrow' (sutra 9:00, sledeći radni dan) ili null.
+ */
+export function snoozeDialog() {
+    return swal
+        .fire({
+            title: 'Odloži podsetnik',
+            input: 'select',
+            inputOptions: { '10m': '10 minuta', '1h': '1 sat', tomorrow: 'Sutra u 9:00 (sledeći radni dan)' },
+            inputValue: '10m',
+            showCancelButton: true,
+            confirmButtonText: 'Odloži',
+            cancelButtonText: 'Odustani',
+            customClass: { confirmButton: 'btn kt-btn-confirm', cancelButton: 'btn', popup: 'kt-swal text-start', input: 'form-select' },
+        })
+        .then((result) => (result.isConfirmed ? result.value : null));
+}
+
 // Flash poruke posle akcije (base.html.twig) prikazuju se kao toast, jedna za drugom
 const flashes = document.querySelector('script[data-kt-flashes]');
 if (flashes) {

@@ -7,6 +7,7 @@ use App\Entity\Task;
 use App\Entity\TodoItem;
 use App\Enum\TodoRepeat;
 use App\Repository\TodoItemRepository;
+use App\Service\TodoClock;
 use App\Service\TodoService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,6 +24,7 @@ class TodoController extends AbstractAjaxController
         private readonly TodoService $todo,
         private readonly TodoItemRepository $items,
         private readonly EntityManagerInterface $em,
+        private readonly TodoClock $clock,
     ) {
     }
 
@@ -30,6 +32,42 @@ class TodoController extends AbstractAjaxController
     public function list(Request $request): JsonResponse
     {
         return $this->ok($this->state($request->query->getString('q')));
+    }
+
+    /**
+     * Brz poll za podsetnike (JS ga zove na ~15 s dok je tab vidljiv). Lagan: samo stavke ulogovanog korisnika čiji je podsetnik
+     * poslat, a nije prikazan. Svaka se atomski "preuzima" (shown_at), pa toast dobija samo jedan tab; zvono ostaje rezervni kanal.
+     * Sesija se zatvara pre upita, da poll ne drži zaključanu sesiju i ne usporava ostale zahteve.
+     */
+    #[Route('/ajax/todo/due', name: 'ajax_todo_due', methods: ['GET'])]
+    public function due(Request $request): JsonResponse
+    {
+        $me = $this->actor();
+        if ($request->hasSession() && $request->getSession()->isStarted()) {
+            $request->getSession()->save();
+        }
+        $now = $this->clock->now();
+        $reminders = [];
+        foreach ($this->items->findShowable($me, $now->modify('-2 hours')) as $item) {
+            if ($this->items->claimShown((int) $item->getId(), $me, $now)) {
+                $reminders[] = ['id' => $item->getId(), 'title' => $item->getTitle()];
+            }
+        }
+
+        return $this->ok(['reminders' => $reminders, 'count' => $this->todo->dueCount($me)]);
+    }
+
+    #[Route('/ajax/todo/{id}/snooze', name: 'ajax_todo_snooze', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function snooze(int $id, Request $request): JsonResponse
+    {
+        $item = $this->owned($id, 'TODO_EDIT');
+        try {
+            $this->todo->snooze($item, (string) ($this->payload($request)['preset'] ?? ''));
+        } catch (\DomainException $e) {
+            return $this->fail($e->getMessage());
+        }
+
+        return $this->ok($this->state(), 'Podsetnik je odložen.');
     }
 
     #[Route('/ajax/todo', name: 'ajax_todo_add', methods: ['POST'])]
