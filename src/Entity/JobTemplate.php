@@ -67,6 +67,17 @@ class JobTemplate
     #[ORM\Column]
     private bool $isActive = true;
 
+    /** Posebna potvrda: zadatke iz ovog posla potvrđuju izabrani admini, bez obzira na poziciju radnika */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $requiresApproval = false;
+
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: 'job_template_approver')]
+    private Collection $approvers;
+
     /** @var Collection<int, JobTemplateChecklistItem> */
     #[ORM\OneToMany(targetEntity: JobTemplateChecklistItem::class, mappedBy: 'jobTemplate', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['position' => 'ASC'])]
@@ -75,6 +86,7 @@ class JobTemplate
     public function __construct()
     {
         $this->checklistItems = new ArrayCollection();
+        $this->approvers = new ArrayCollection();
         $this->schedule = Schedule::monthly();
     }
 
@@ -83,6 +95,14 @@ class JobTemplate
     {
         if ($this->schedule->isEmpty()) {
             $context->buildViolation('Izaberi raspored.')->atPath('schedule.type')->addViolation();
+        }
+    }
+
+    #[Assert\Callback]
+    public function validateApprovers(ExecutionContextInterface $context): void
+    {
+        if ($this->requiresApproval && $this->approvers->isEmpty()) {
+            $context->buildViolation('Izaberi bar jednog proveravača.')->atPath('approvers')->addViolation();
         }
     }
 
@@ -236,4 +256,38 @@ class JobTemplate
 
         return $this;
     }
-}
+
+    public function requiresApproval(): bool
+    {
+        return $this->requiresApproval;
+    }
+
+    public function setRequiresApproval(bool $requiresApproval): static
+    {
+        $this->requiresApproval = $requiresApproval;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getApprovers(): Collection
+    {
+        return $this->approvers;
+    }
+
+    /**
+     * @param iterable<User> $users
+     */
+    public function setApprovers(iterable $users): static
+    {
+        $this->approvers->clear();
+        foreach ($users as $user) {
+            if (!$this->approvers->contains($user)) {
+                $this->approvers->add($user);
+            }
+        }
+
+        return $this;
+    }}

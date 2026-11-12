@@ -103,7 +103,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
      * @var list<string>
      */
     #[ORM\Column(type: Types::JSON)]
-    private array $emailNotifications = [];
+    private array $emailNotifications = ['SPECIAL_APPROVAL_SUBMITTED', 'SPECIAL_APPROVAL_REMINDER'];
 
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;

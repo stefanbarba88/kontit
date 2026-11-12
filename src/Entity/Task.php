@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Entity\Trait\TimestampableTrait;
 use App\Enum\AssigneeStatus;
 use App\Enum\CompletionMode;
+use App\Enum\ReviewMode;
 use App\Enum\TaskPriority;
 use App\Enum\TaskStatus;
 use App\Repository\TaskRepository;
@@ -91,6 +92,35 @@ class Task
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $approvedAt = null;
 
+    /** Način provere (AUTO = po poziciji učesnika, NONE = bez provere, SPECIAL = posebna potvrda). Vidi TaskReviewPolicy */
+    #[ORM\Column(length: 10, enumType: ReviewMode::class, options: ['default' => 'AUTO'])]
+    private ReviewMode $reviewMode = ReviewMode::AUTO;
+
+    /** Ko je odlučio da zadatak ide bez provere ili na posebnu potvrdu (null: odluka dolazi iz posla ili je AUTO) */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    private ?User $reviewDecidedBy = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $reviewDecidedAt = null;
+
+    /** Posebna potvrda dolazi iz posla (requiresApproval): zaključano, ne menja se na zadatku */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $reviewFromJob = false;
+
+    /** Zadatak je završen direktno, bez provere (za statistiku); approvedBy i approvedAt ostaju null */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $completedWithoutReview = false;
+
+    /**
+     * Snapshot proveravača posebne potvrde (kopira se iz posla ili bira na zadatku). Kasnija izmena posla ne menja postojeće zadatke.
+     *
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: 'task_required_approver')]
+    private Collection $requiredApprovers;
+
     /** @var Collection<int, TaskAssignee> */
     #[ORM\OneToMany(targetEntity: TaskAssignee::class, mappedBy: 'task', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $assignees;
@@ -108,6 +138,7 @@ class Task
     public function __construct()
     {
         $this->assignees = new ArrayCollection();
+        $this->requiredApprovers = new ArrayCollection();
         $this->checklistItems = new ArrayCollection();
         $this->comments = new ArrayCollection();
     }
@@ -425,4 +456,86 @@ class Task
             && $this->status->isOpen()
             && $this->dueDate < new \DateTimeImmutable('today');
     }
-}
+
+    public function getReviewMode(): ReviewMode
+    {
+        return $this->reviewMode;
+    }
+
+    public function setReviewMode(ReviewMode $mode): static
+    {
+        $this->reviewMode = $mode;
+
+        return $this;
+    }
+
+    public function getReviewDecidedBy(): ?User
+    {
+        return $this->reviewDecidedBy;
+    }
+
+    public function getReviewDecidedAt(): ?\DateTimeImmutable
+    {
+        return $this->reviewDecidedAt;
+    }
+
+    public function setReviewDecision(?User $by): static
+    {
+        $this->reviewDecidedBy = $by;
+        $this->reviewDecidedAt = null === $by ? null : new \DateTimeImmutable();
+
+        return $this;
+    }
+
+    public function isReviewFromJob(): bool
+    {
+        return $this->reviewFromJob;
+    }
+
+    public function setReviewFromJob(bool $fromJob): static
+    {
+        $this->reviewFromJob = $fromJob;
+
+        return $this;
+    }
+
+    public function isCompletedWithoutReview(): bool
+    {
+        return $this->completedWithoutReview;
+    }
+
+    public function setCompletedWithoutReview(bool $value): static
+    {
+        $this->completedWithoutReview = $value;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getRequiredApprovers(): Collection
+    {
+        return $this->requiredApprovers;
+    }
+
+    /**
+     * @param iterable<User> $users
+     */
+    public function setRequiredApprovers(iterable $users): static
+    {
+        $this->requiredApprovers->clear();
+        foreach ($users as $user) {
+            if (!$this->requiredApprovers->contains($user)) {
+                $this->requiredApprovers->add($user);
+            }
+        }
+
+        return $this;
+    }
+
+    /** Posebna potvrda: izabrana na zadatku ili iz posla (stariji zadaci sa snapshot-om bez moda važe isto) */
+    public function isSpecialReview(): bool
+    {
+        return ReviewMode::SPECIAL === $this->reviewMode || (ReviewMode::AUTO === $this->reviewMode && !$this->requiredApprovers->isEmpty());
+    }}

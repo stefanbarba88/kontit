@@ -57,6 +57,10 @@ class Position
     #[ORM\Column(length: 20, nullable: true, enumType: Role::class)]
     private ?Role $suggestedAccessRole = null;
 
+    /** Zadaci radnika na ovoj poziciji idu na proveru (šef tima ili admin), vidi TaskReviewPolicy */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $requiresTaskReview = false;
+
     public function __construct(?string $name = null, string $color = '#64748B', int $level = 0, ?Role $suggestedAccessRole = null)
     {
         $this->name = $name;
@@ -144,6 +148,18 @@ class Position
     public function setMonthlyCapacityHours(?int $hours): static
     {
         $this->monthlyCapacityHours = $hours;
+
+        return $this;
+    }
+
+    public function requiresTaskReview(): bool
+    {
+        return $this->requiresTaskReview;
+    }
+
+    public function setRequiresTaskReview(bool $value): static
+    {
+        $this->requiresTaskReview = $value;
 
         return $this;
     }

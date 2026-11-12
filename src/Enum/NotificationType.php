@@ -24,6 +24,8 @@ enum NotificationType: string
     case DOCUMENT_ADDED = 'DOCUMENT_ADDED';
     case CALENDAR_SYNC_FAILED = 'CALENDAR_SYNC_FAILED';
     case EXPORT_READY = 'EXPORT_READY';
+    case SPECIAL_APPROVAL_SUBMITTED = 'SPECIAL_APPROVAL_SUBMITTED';
+    case SPECIAL_APPROVAL_REMINDER = 'SPECIAL_APPROVAL_REMINDER';
 
     /**
      * Naziv za podešavanja u profilu ("uvek šalji i na mail").
@@ -51,6 +53,8 @@ enum NotificationType: string
             self::DOCUMENT_ADDED => 'Dodat mi je dokument',
             self::CALENDAR_SYNC_FAILED => 'Google kalendar ne može da se osveži',
             self::EXPORT_READY => 'Izvoz je spreman za preuzimanje',
+            self::SPECIAL_APPROVAL_SUBMITTED => 'Posebna potvrda čeka moje odobrenje',
+            self::SPECIAL_APPROVAL_REMINDER => 'Podsetnik: posebna potvrda čeka duže od 2 radna dana',
         };
     }
 
@@ -75,6 +79,7 @@ enum NotificationType: string
             self::DOCUMENT_EXPIRING, self::DOCUMENT_ADDED => 'file-text',
             self::CALENDAR_SYNC_FAILED => 'cloud-off',
             self::EXPORT_READY => 'download',
+            self::SPECIAL_APPROVAL_SUBMITTED, self::SPECIAL_APPROVAL_REMINDER => 'shield-check',
         };
     }
 
@@ -86,7 +91,17 @@ enum NotificationType: string
             self::ABSENCE_REQUESTED, self::APPROVAL_DEADLINE_SOON, self::DOCUMENT_EXPIRING => 'warning',
             self::TASK_APPROVED, self::EXPORT_READY, self::ABSENCE_APPROVED => 'success',
             self::TASK_RETURNED, self::TASK_DUE_SOON => 'warning',
-            self::TASK_OVERDUE, self::ABSENCE_REJECTED, self::CALENDAR_SYNC_FAILED => 'danger',
+            self::TASK_OVERDUE, self::ABSENCE_REJECTED, self::CALENDAR_SYNC_FAILED, self::SPECIAL_APPROVAL_REMINDER => 'danger',
+            self::SPECIAL_APPROVAL_SUBMITTED => 'warning',
         };
     }
-}
+
+    /**
+     * Vrste koje se podrazumevano šalju i na mail (korisnik može da ih isključi u profilu).
+     *
+     * @return list<string>
+     */
+    public static function defaultEmailTypes(): array
+    {
+        return [self::SPECIAL_APPROVAL_SUBMITTED->value, self::SPECIAL_APPROVAL_REMINDER->value];
+    }}
