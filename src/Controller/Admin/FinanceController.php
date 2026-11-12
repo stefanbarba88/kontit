@@ -77,7 +77,7 @@ class FinanceController extends AbstractController
     }
 
     #[Route('/settings', name: 'admin_finance_settings', methods: ['GET', 'POST'])]
-    public function settings(Request $request, SettingsService $settings, UserRepository $users, EntityManagerInterface $em): Response
+    public function settings(Request $request, SettingsService $settings, UserRepository $users, EntityManagerInterface $em, \App\Service\CapacityResolver $capacities): Response
     {
         if ($request->isMethod('POST')) {
             if (!$this->isCsrfTokenValid('finance_settings', (string) $request->request->get('_token'))) {
@@ -103,10 +103,17 @@ class FinanceController extends AbstractController
             return $this->redirectToRoute('admin_finance_settings');
         }
 
+        $active = $users->findBy(['isActive' => true], ['lastName' => 'ASC']);
+        $inherited = [];
+        foreach ($active as $u) {
+            $inherited[$u->getId()] = $capacities->inherited($u);
+        }
+
         return $this->render('admin/finance/settings.html.twig', [
+            'inherited' => $inherited,
             'minRate' => $settings->get(SettingsService::MIN_HOURLY_RATE),
             'capacity' => $settings->get(SettingsService::DEFAULT_CAPACITY_HOURS),
-            'users' => $users->findBy(['isActive' => true], ['lastName' => 'ASC']),
+            'users' => $active,
         ]);
     }
 

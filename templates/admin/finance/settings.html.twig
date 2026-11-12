@@ -24,11 +24,12 @@
                             <label class="form-label" for="default_capacity_hours">Podrazumevani mesečni kapacitet radnika (sati)</label>
                             <input type="number" min="1" class="form-control" id="default_capacity_hours" name="default_capacity_hours" value="{{ capacity }}">
                         </div>
-                        <h6 class="mt-4">Kapacitet po radniku (prazno = podrazumevani)</h6>
+                        <h6 class="mt-4">Kapacitet po radniku</h6>
+                        <p class="text-muted kt-text-sm">Redosled: kapacitet radnika (ovde) > kapacitet njegove pozicije (Pozicije) > podrazumevani iz ovog podešavanja. Prazno polje znači da važi kapacitet pozicije, a ako ga nema, podrazumevani.</p>
                         {% for user in users %}
                             <div class="row mb-2 align-items-center">
                                 <div class="col-7">{{ user.fullName }}</div>
-                                <div class="col-5"><input type="number" min="1" class="form-control form-control-sm" name="capacity[{{ user.id }}]" value="{{ user.capacityHours }}" placeholder="{{ capacity }}"></div>
+                                <div class="col-5"><input type="number" min="1" class="form-control form-control-sm" name="capacity[{{ user.id }}]" value="{{ user.capacityHours }}" placeholder="{{ inherited[user.id]|default(capacity) }}"></div>
                             </div>
                         {% endfor %}
                         <div class="text-end mt-3">

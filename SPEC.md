@@ -40,10 +40,10 @@ Objektna prava rešavaju Voteri:
 - phone, address, city, postalCode
 - avatar = inicijali na gradijentu, bez slike (upload avatara je ukinut)
 - themePreference (LIGHT, DARK, SYSTEM; podrazumevano SYSTEM)
-- position (npr. "Knjigovođa", "Samostalni knjigovođa")
+- position → `Position` (nivo zaposlenog, vidi "Pozicije zaposlenih"); promene se beleže u `UserPositionLog`
 - employedAt (datum zaposlenja)
 - roles (JSON, čuva se jedna najviša rola; hijerarhiju rešava `role_hierarchy`), isActive, lastLoginAt
-- Admin može da menja samo radnike i šefove. Admine i superadmina menja i kreira samo superadmin. Svako sam menja svoj profil (ime, kontakt, lozinka, tema), a email, rolu i poziciju menja admin.
+- Admin može da menja samo radnike i šefove. Admine i superadmina menja i kreira samo superadmin. Svako sam menja svoj profil (ime, kontakt, lozinka, tema), a email, prava pristupa (rolu) i poziciju menja admin.
 - internalNote (vidi samo admin+)
 - emailNotifications (JSON: koje vrste notifikacija korisnik želi i na mail)
 - createdAt, updatedAt
@@ -704,6 +704,15 @@ ABSENCE_REQUESTED (postoji), ABSENCE_APPROVED, ABSENCE_REJECTED (zamenjuju ABSEN
 - **P11**: Pregled svih novih ekrana u obe teme, na 390 px i 1440 px *(Sonnet 5.5)*
 
 ---
+
+### Pozicije zaposlenih (odluke)
+- **Pozicija je nivo zaposlenog i NE daje prava pristupa.** Prava određuju samo `ROLE_*`, koji se u UI zovu **Prava pristupa**. Nijedan Voter, upit ni šablon ne odlučuje o pravima po poziciji.
+- Entitet **`Position`**: name (unique), description, color (8 boja iz DESIGN.md 3.6), level (redosled po senioritetu, prevlačenjem), isActive, monthlyCapacityHours (opciono), suggestedAccessRole (opciono, samo predlog u formi korisnika, dugme **Primeni** samo postavlja polje).
+- Početne pozicije (seed u migraciji, idempotentno): Entry level, Junior, Samostalni knjigovođa (predlog Radnik) i Šef (predlog Šef).
+- Admin+ upravlja pozicijama u **Administracija → Pozicije** (`POSITION_MANAGE`). Brisanje je dozvoljeno samo ako pozicija nikad nije korišćena (nema korisnika i nije u `UserPositionLog` kao from ili to); inače samo deaktivacija. Neaktivna pozicija se ne nudi u formama, ali je zadržavaju korisnici koji je već imaju.
+- **`UserPositionLog`**: user, from/to pozicija, snapshot imena (istorija ostaje čitljiva posle preimenovanja), changedAt, changedBy, napomena. Promena pozicije u formi korisnika traži SweetAlert potvrdu sa neobaveznom napomenom. Početni prenos starih podataka ne pravi istoriju.
+- Kapacitet za analitiku opterećenja: kapacitet korisnika > kapacitet pozicije > opšti iz Finansija (`CapacityResolver`).
+- Prenos starih slobodnih tekstova: `app:positions:migrate-legacy [--dry-run]`, pa migracija B koja briše kolonu `app_user.position`.
 
 ## 11. NEDOUMICE
 

@@ -70,15 +70,15 @@ Pored **Moj pregled**, admin vidi:
 ### Novi korisnik
 
 1. **Korisnici → Novi korisnik**.
-2. **Osnovni podaci**: **Ime**, **Prezime**, **Email (login)**, **Rola** i početna lozinka (dva puta).
+2. **Osnovni podaci**: **Ime**, **Prezime**, **Email (login)**, **Prava pristupa** i početna lozinka (dva puta).
 3. **Kontakt**: telefon, adresa (opciono).
-4. **Posao**: **Pozicija** (npr. Knjigovođa), **Datum zaposlenja**, **Interna beleška** (vidi samo admin).
+4. **Posao**: **Pozicija** (izbor sa liste, npr. Junior), **Datum zaposlenja**, **Interna beleška** (vidi samo admin).
 5. Klikni **Sačuvaj**.
 6. Javi korisniku email i početnu lozinku i reci mu da je promeni posle prve prijave.
 
 Role koje admin daje:
 
-| Rola | Za koga |
+| Prava pristupa | Za koga |
 |---|---|
 | **Radnik** | knjigovođa koji radi na svojim klijentima |
 | **Šef** | vodi tim. Samo korisnik sa rolom Šef može biti postavljen za šefa tima |
@@ -87,7 +87,7 @@ Role koje admin daje:
 
 ### Pretraga i pregled
 
-Na **Korisnici** pretražuješ po imenu, prezimenu ili emailu, i filtriraš po roli i statusu (**Aktivni**, **Neaktivni**). Klik na korisnika otvara njegovu stranu:
+Na **Korisnici** pretražuješ po imenu, prezimenu ili emailu, i filtriraš po pravima pristupa, poziciji i statusu (**Aktivni**, **Neaktivni**). Klik na korisnika otvara njegovu stranu:
 
 - **Podaci** i **Poslednja prijava**,
 - **Klijenti**: gde je glavni i gde je backup,
@@ -106,9 +106,13 @@ Strana korisnika ima dva taba: **Pregled** (podaci) i **Zadaci** (adresa `/users
 - **Izvoz** (Excel, CSV, PDF) izvozi tačno prikazanu listu.
 - Admin vidi zadatke svakog korisnika. Šef vidi samo članove svog tima, a radnik samo svoju stranu (dugme **Moji zadaci** na **Moj profil**); ostali dobijaju poruku da nemaju pravo.
 
-### Izmena i promena role
+### Izmena, prava pristupa i pozicija
 
-**Izmeni** otvara istu formu. Promena role traži potvrdu, jer menja prava. Lozinku ostavi praznu ako je ne menjaš.
+**Izmeni** otvara istu formu. Lozinku ostavi praznu ako je ne menjaš.
+
+- **Prava pristupa** određuju šta korisnik sme u aplikaciji (Radnik, Šef, Admin). Promena traži potvrdu.
+- **Pozicija** je samo nivo zaposlenog (npr. Junior, Samostalni knjigovođa) i **ne daje nikakva prava**. Kad izabereš poziciju koja ima predlog prava, ispod se pojavi „Predlažemo prava pristupa: Šef“ sa dugmetom **Primeni**. Dugme samo postavlja polje, a ti i dalje čuvaš formu.
+- Promena pozicije traži potvrdu uz neobaveznu napomenu. Upisuje se u **Istoriju pozicija** na strani korisnika (npr. „Junior → Samostalni knjigovođa, 1.3.2026.“).
 
 ### Godišnji odmor korisnika
 
@@ -128,6 +132,16 @@ Aplikacija neće dozvoliti deaktivaciju dok korisnik:
 - ima **zadatke u radu**: prebaci ih na nekog drugog ili ih otkaži.
 
 Sopstveni nalog ne možeš da deaktiviraš. Ponovo aktiviraš dugmetom **Aktiviraj**.
+
+## Pozicije
+
+**Administracija → Pozicije** je šifarnik nivoa zaposlenih. Pozicija **ne daje prava pristupa**; prava se zadaju posebno u profilu korisnika.
+
+- **Nova pozicija** (modal): naziv, opis, boja, **Mesečni kapacitet (sati)** i **Predlog prava pristupa** (samo predlog u formi korisnika).
+- Redosled po senioritetu menjaš prevlačenjem (prva je najniža).
+- **Brisanje** je moguće samo za poziciju koja nikad nije korišćena. Korišćena (ima korisnike ili se pominje u istoriji napredovanja) može samo da se **deaktivira**: više se ne nudi u formama, a korisnici koji je imaju je zadržavaju.
+- Kapacitet za analitiku opterećenja: prvo kapacitet samog radnika (Finansije → Podešavanja), pa kapacitet njegove pozicije, pa podrazumevani.
+- Listu korisnika možeš da filtriraš po poziciji, a izvoz poštuje isti filter.
 
 ## Timovi
 

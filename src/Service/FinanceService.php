@@ -29,6 +29,7 @@ class FinanceService
         private readonly ClientJobRepository $jobs,
         private readonly TeamMemberRepository $teamMembers,
         private readonly SettingsService $settings,
+        private readonly CapacityResolver $capacities,
         private readonly ScheduleCalculator $schedule,
         private readonly EntityManagerInterface $em,
     ) {
@@ -148,7 +149,7 @@ class FinanceService
 
         $defaultCapacity = $this->settings->getFloat(SettingsService::DEFAULT_CAPACITY_HOURS);
         foreach ($perUser as &$entry) {
-            $entry['capacity'] = (float) ($entry['user']->getCapacityHours() ?? $defaultCapacity);
+            $entry['capacity'] = $this->capacities->resolve($entry['user']);
             $entry['load'] = $entry['capacity'] > 0 ? (int) round(100 * $entry['hours'] / $entry['capacity']) : null;
         }
         unset($entry);

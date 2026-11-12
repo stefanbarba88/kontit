@@ -328,6 +328,13 @@ mpp\htdocs\kontit_template_backup` (nije bio u git-u; obrisati ručno kad više 
 - Provereno ručno preko curl-a: login, pogrešna lozinka, deaktiviran nalog, logout, zaštita `/`, slanje reset zahteva (upisuje se `reset_password_request`). Mail nije proveren jer je `MAILER_DSN=null://null`.
 - 2026-10-27: Specifikacija dopunjena odlukama (sekcije 2, 4.3, 5, 7, 9 u SPEC.md)
 
+### Pozicije zaposlenih (Position umesto slobodnog teksta)
+- Entiteti `Position`, `UserPositionLog`; `User.position` je sada veza. Migracija A (`Version20261112124502`: šema + seed 4 pozicije), komanda `app:positions:migrate-legacy [--dry-run]` (`LegacyPositionMigrator`), migracija B (`Version20261112124724`: briše staru kolonu, staje ako ima nemapiranih).
+- CRUD `/admin/positions` (modal, prevlačenje, brisanje samo nekorišćene, inače deaktivacija), `PositionVoter` (`POSITION_MANAGE`), stavka „Pozicije“ u Administraciji.
+- Forma korisnika: izbor pozicije (obojena tačka), predlog prava + **Primeni**, potvrda sa napomenom pri promeni (`confirm.js`: `data-confirm-field-*`, `data-confirm-reason="optional"`), `UserService::logPositionChange`, „Istorija pozicija“ na strani korisnika. Značke u zaglavlju, listi, profilu, Moj tim; filter i izvoz po poziciji; pozicija u nazivu učesnika/filtera zaduženih.
+- „Rola“ → „Prava pristupa“ u UI. `CapacityResolver`: korisnik > pozicija > opšti (FinanceService, podešavanja).
+- Testovi: `tests/Service/PositionTest.php`. Sledeće: grupisanje analitike po poziciji (nije urađeno): prosečno vreme završetka po poziciji (`StatisticsService::performance`), opterećenje po poziciji u Finansijama, % vraćenih na doradu po poziciji, MRR po poziciji, raspodela klijenata po poziciji.
+
 ## Odluke donete usput
 - 2026-10-27: Jedna firma, nije SaaS, pa nema Company entiteta.
 - 2026-10-27: Timove kreira samo admin. Jedan šef po timu, a šef može da se menja (TeamLeaderLog).
