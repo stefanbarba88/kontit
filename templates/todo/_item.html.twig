@@ -1,0 +1,76 @@
+{#
+    Jedna stavka Moje liste. Ulaz: item, section (overdue|today|upcoming|nodue|done|found).
+    Telefon: prevlačenje ulevo otkriva "Završi" i "Obriši" (isti .kt-swipe kao lista zadataka). Klik na naslov otvara detalje.
+    Veza ka klijentu/zadatku je link samo ako vlasnik i dalje sme da ih vidi, inače običan tekst.
+#}
+{% set f = todo_fields(item) %}
+{% set due = todo_due(item) %}
+{% set remind = todo_remind(item) %}
+{% set repeating = item.repeat.value != 'NONE' %}
+<div class="kt-todo-item kt-swipe {{ item.done ? 'is-done' : '' }} {{ item.pinned ? 'is-pinned' : '' }}" data-todo-item data-id="{{ item.id }}" data-repeating="{{ repeating ? 1 : 0 }}" data-pinned="{{ item.pinned ? 1 : 0 }}">
+    <div class="kt-swipe-actions">
+        {% if item.done %}
+            <button type="button" class="btn btn-secondary" data-todo-act="reopen">{{ ux_icon('lucide:undo-2', {class: 'kt-icon'}) }}Vrati</button>
+        {% else %}
+            <button type="button" class="btn btn-success" data-todo-act="done">{{ ux_icon('lucide:check', {class: 'kt-icon'}) }}Završi</button>
+        {% endif %}
+        <button type="button" class="btn btn-danger" data-todo-act="delete">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}Obriši</button>
+    </div>
+    <div class="kt-swipe-content kt-todo-row">
+        <input type="checkbox" class="kt-check" data-todo-act="toggle" {{ item.done ? 'checked' }} aria-label="{{ item.done ? 'Vrati u rad' : 'Označi kao završeno' }}">
+        <div class="kt-todo-main">
+            <button type="button" class="kt-todo-title kt-check-label" data-todo-act="open">{{ item.title }}</button>
+            <div class="kt-todo-meta">
+                {% if due %}<span class="{{ todo_overdue(item) ? 'text-danger fw-semibold' : '' }}">{{ ux_icon('lucide:calendar', {class: 'kt-icon'}) }}{{ due }}</span>{% endif %}
+                {% if remind %}<span title="Podsetnik">{{ ux_icon('lucide:bell', {class: 'kt-icon'}) }}{{ remind }}{% if item.remindByEmail %} {{ ux_icon('lucide:mail', {class: 'kt-icon'}) }}{% endif %}</span>{% endif %}
+                {% if repeating %}<span title="{{ item.repeat.label }}">{{ ux_icon('lucide:repeat', {class: 'kt-icon'}) }}{{ item.repeat.label }}</span>{% endif %}
+                {% if item.client %}
+                    <span>{{ ux_icon('lucide:building-2', {class: 'kt-icon'}) }}{% if is_granted('CLIENT_VIEW', item.client) %}<a href="{{ path('client_show', {id: item.client.id}) }}">{{ item.client.shortName }}</a>{% else %}{{ item.client.shortName }}{% endif %}</span>
+                {% endif %}
+                {% if item.task %}
+                    <span>{{ ux_icon('lucide:list-checks', {class: 'kt-icon'}) }}{% if is_granted('TASK_VIEW', item.task) %}<a href="{{ path('task_show', {id: item.task.id}) }}">{{ item.task.title }}</a>{% else %}{{ item.task.title }}{% endif %}</span>
+                {% endif %}
+                {% if item.createdTask %}
+                    <span>{{ ux_icon('lucide:arrow-right', {class: 'kt-icon'}) }}Zadatak: {% if is_granted('TASK_VIEW', item.createdTask) %}<a href="{{ path('task_show', {id: item.createdTask.id}) }}">{{ item.createdTask.title }}</a>{% else %}{{ item.createdTask.title }}{% endif %}</span>
+                {% endif %}
+            </div>
+        </div>
+        <button type="button" class="kt-icon-btn kt-todo-pin {{ item.pinned ? 'is-on' : '' }}" data-todo-act="pin" aria-label="{{ item.pinned ? 'Otkači' : 'Zakači' }}" title="{{ item.pinned ? 'Otkači' : 'Zakači na vrh' }}">{{ ux_icon('lucide:pin', {class: 'kt-icon'}) }}</button>
+        {% if section == 'nodue' %}<span class="kt-todo-handle" aria-hidden="true">{{ ux_icon('lucide:grip-vertical', {class: 'kt-icon'}) }}</span>{% endif %}
+    </div>
+
+    <form class="kt-todo-detail" data-todo-detail hidden>
+        <div class="mb-2">
+            <label class="form-label kt-text-sm">Naslov</label>
+            <input type="text" class="form-control" maxlength="200" value="{{ item.title }}" data-todo-field="title">
+        </div>
+        <div class="mb-2">
+            <label class="form-label kt-text-sm">Napomena</label>
+            <textarea class="form-control" rows="3" maxlength="5000" data-todo-field="note">{{ item.note }}</textarea>
+        </div>
+        <div class="row g-2 mb-2">
+            <div class="col-7"><label class="form-label kt-text-sm">Rok</label><input type="text" class="form-control" data-datepicker data-todo-field="dueDate" value="{{ f.dueDate }}" placeholder="Bez roka" autocomplete="off"></div>
+            <div class="col-5"><label class="form-label kt-text-sm">Vreme</label><input type="time" class="form-control" data-todo-field="dueTime" value="{{ f.dueTime }}"></div>
+        </div>
+        <div class="row g-2 mb-2">
+            <div class="col-7"><label class="form-label kt-text-sm">Podsetnik</label><input type="text" class="form-control" data-datepicker data-todo-field="remindDate" value="{{ f.remindDate }}" placeholder="Bez podsetnika" autocomplete="off"></div>
+            <div class="col-5"><label class="form-label kt-text-sm">Vreme</label><input type="time" class="form-control" data-todo-field="remindTime" value="{{ f.remindTime }}"></div>
+        </div>
+        <div class="row g-2 mb-2 align-items-end">
+            <div class="col-7">
+                <label class="form-label kt-text-sm">Ponavljanje</label>
+                <select class="form-select" data-native data-todo-field="repeat">
+                    {% for r in todo_repeats() %}<option value="{{ r.value }}" {{ item.repeat == r ? 'selected' }}>{{ r.label }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-5">
+                <div class="form-check"><input class="form-check-input" type="checkbox" data-todo-field="remindByEmail" id="rm-{{ item.id }}-{{ section }}" {{ item.remindByEmail ? 'checked' }}><label class="form-check-label kt-text-sm" for="rm-{{ item.id }}-{{ section }}">Podsetnik na mail</label></div>
+            </div>
+        </div>
+        <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-primary btn-sm" data-todo-act="save">Sačuvaj</button>
+            <button type="button" class="btn btn-light btn-sm" data-todo-act="open">Zatvori</button>
+            <button type="button" class="btn btn-ghost btn-sm text-danger ms-auto" data-todo-act="delete">{{ ux_icon('lucide:trash-2', {class: 'kt-icon me-1'}) }}Obriši</button>
+        </div>
+    </form>
+</div>

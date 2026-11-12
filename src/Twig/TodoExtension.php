@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Twig;
+
+use App\Entity\TodoItem;
+use App\Entity\User;
+use App\Enum\TodoRepeat;
+use App\Service\TodoService;
+use Symfony\Bundle\SecurityBundle\Security;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
+
+/**
+ * Moja lista u šablonima. Vremena i zonu računa isključivo TodoService/TodoClock; Twig samo prikazuje gotove vrednosti.
+ */
+class TodoExtension extends AbstractExtension
+{
+    public function __construct(
+        private readonly TodoService $todo,
+        private readonly Security $security,
+    ) {
+    }
+
+    public function getFunctions(): array
+    {
+        return [
+            new TwigFunction('todo_count', $this->count(...)),
+            new TwigFunction('todo_chips', $this->todo->chips(...)),
+            new TwigFunction('todo_fields', $this->todo->formValues(...)),
+            new TwigFunction('todo_due', $this->todo->dueLabel(...)),
+            new TwigFunction('todo_remind', $this->todo->remindLabel(...)),
+            new TwigFunction('todo_overdue', fn (TodoItem $item): bool => !$item->isDone() && 'overdue' === $this->todo->bucket($item)),
+            new TwigFunction('todo_repeats', static fn (): array => TodoRepeat::cases()),
+        ];
+    }
+
+    /** Broj za topbar: zakasnelo + danas */
+    public function count(): int
+    {
+        $user = $this->security->getUser();
+
+        return $user instanceof User ? $this->todo->dueCount($user) : 0;
+    }
+}

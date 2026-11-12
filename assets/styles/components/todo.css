@@ -1,0 +1,85 @@
+/* Moja lista (SPEC 8p): bočni panel, bottom sheet na telefonu, čipovi, sekcije i stavke. Tokeni iz tokens.css. */
+
+/* --- panel: desno na računaru, bottom sheet na telefonu --- */
+.kt-todo-panel.offcanvas-end { width: min(440px, 100vw); background: var(--kt-surface); color: var(--kt-text); border-left: 1px solid var(--kt-border); }
+.kt-todo-panel .kt-sheet-handle { display: none; }
+.kt-todo-panel .offcanvas-header { padding: 14px 20px; border-bottom: 1px solid var(--kt-border); }
+.kt-todo-panel .offcanvas-title { font-family: var(--kt-font-display); font-weight: 650; font-size: 17px; display: flex; align-items: center; }
+.kt-todo-panel .offcanvas-body { padding: 16px 20px; }
+@media (max-width: 575.98px) {
+    .kt-todo-panel.offcanvas-end {
+        top: auto; right: 0; left: 0; bottom: 0; width: 100%; height: auto; max-height: 85dvh;
+        border: 0; border-radius: var(--kt-radius-xl) var(--kt-radius-xl) 0 0; box-shadow: var(--kt-shadow-lg);
+        transform: translateY(100%); padding-bottom: env(safe-area-inset-bottom);
+    }
+    .kt-todo-panel .kt-sheet-handle { display: block; }
+    .kt-todo-panel .offcanvas-header { padding-top: 4px; }
+}
+
+/* --- dodavanje i čipovi --- */
+.kt-todo-add { margin-bottom: 16px; position: relative; }
+.kt-todo-add-field { position: relative; }
+.kt-todo-add-field .kt-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--kt-text-3); pointer-events: none; }
+.kt-todo-add-field .form-control { padding-left: 38px; }
+.kt-todo-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.kt-chip {
+    display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; border-radius: 999px;
+    border: 1px solid var(--kt-border); background: var(--kt-surface-2); color: var(--kt-text-2);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: background-color var(--kt-dur-1) var(--kt-ease), border-color var(--kt-dur-1) var(--kt-ease), color var(--kt-dur-1) var(--kt-ease);
+}
+.kt-chip:hover { border-color: var(--kt-primary); color: var(--kt-primary); }
+.kt-chip.is-selected { background: var(--kt-primary-soft); border-color: var(--kt-primary); color: var(--kt-primary); }
+.kt-chip .kt-icon { font-size: 14px; }
+.kt-chip-x { border: 0; background: transparent; color: inherit; padding: 0; margin-left: 6px; display: inline-flex; cursor: pointer; }
+.kt-todo-picker { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; border: 0; padding: 0; pointer-events: none; }
+
+/* --- sekcije --- */
+.kt-todo-section { margin-bottom: 16px; }
+.kt-todo-head { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--kt-text-3); padding: 4px 0 6px; cursor: default; }
+.kt-todo-section.is-danger .kt-todo-head { color: var(--kt-danger); }
+.kt-todo-done > summary { cursor: pointer; list-style: none; }
+.kt-todo-done > summary::-webkit-details-marker { display: none; }
+.kt-todo-done > summary::before { content: "▸ "; }
+.kt-todo-done[open] > summary::before { content: "▾ "; }
+.kt-todo-empty { text-align: center; color: var(--kt-text-3); padding: 24px 8px; font-size: 14px; }
+
+/* --- stavka --- */
+.kt-todo-item { border-bottom: 1px solid var(--kt-border); background: var(--kt-surface); position: relative; }
+.kt-todo-item:last-child { border-bottom: 0; }
+.kt-todo-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 4px; background: var(--kt-surface); }
+.kt-todo-row .kt-check { margin-top: 3px; }
+.kt-todo-main { flex: 1 1 auto; min-width: 0; }
+.kt-todo-title {
+    display: inline; border: 0; background-color: transparent; padding: 0; text-align: left; color: var(--kt-text);
+    font-size: 15px; font-weight: 500; line-height: 1.35; cursor: pointer; word-break: break-word;
+    background-image: linear-gradient(currentColor, currentColor); background-repeat: no-repeat; background-position: 0 55%; background-size: 0 1px;
+    transition: background-size 220ms var(--kt-ease), color var(--kt-dur-2) var(--kt-ease);
+}
+.kt-todo-item.is-done .kt-todo-title { background-size: 100% 1px; color: var(--kt-text-3); }
+.kt-todo-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 2px; font-size: 12.5px; color: var(--kt-text-3); }
+.kt-todo-meta .kt-icon { font-size: 13px; margin-right: 3px; vertical-align: -2px; }
+.kt-todo-meta a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.kt-todo-pin { opacity: 0; width: 28px; height: 28px; color: var(--kt-text-3); }
+.kt-todo-item:hover .kt-todo-pin, .kt-todo-pin.is-on { opacity: 1; }
+.kt-todo-pin.is-on { color: var(--kt-primary); }
+.kt-todo-handle { color: var(--kt-text-3); cursor: grab; opacity: 0; padding-top: 2px; }
+.kt-todo-item:hover .kt-todo-handle { opacity: 1; }
+.kt-todo-detail { padding: 8px 4px 14px 30px; }
+.kt-todo-item.sortable-ghost { opacity: .4; }
+@media (min-width: 576px) {
+    /* swipe radnje postoje samo na telefonu; na računaru su dugmad u detaljima */
+    .kt-todo-item .kt-swipe-actions { display: none; }
+}
+@media (max-width: 575.98px) {
+    .kt-todo-pin, .kt-todo-handle { opacity: 1; }
+    .kt-todo-row { padding: 12px 8px; }
+    .kt-todo-item .kt-swipe-content { padding: 12px 8px; }
+    .kt-todo-detail { padding-left: 8px; }
+}
+
+/* poništi u toast-u */
+.kt-toast .kt-toast-undo { margin-left: 8px; }
+
+/* topbar dugme */
+.kt-todo-btn { position: relative; }

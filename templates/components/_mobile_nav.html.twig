@@ -41,6 +41,7 @@
     <div class="kt-sheet-title">{{ app.user.fullName }}<span>{{ app.user.highestRole.label }}</span></div>
     <div class="kt-sheet-body">
         <a href="{{ path('client_mine') }}" class="kt-sheet-item">{{ ux_icon('lucide:briefcase', {class: 'kt-icon'}) }}Moji klijenti</a>
+        <a href="{{ path('todo_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:notebook-pen', {class: 'kt-icon'}) }}Moja lista</a>
         <a href="{{ path('absence_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:plane', {class: 'kt-icon'}) }}Odsustva</a>
         {% if is_granted('ROLE_SEF') %}
             {% if is_granted('TEAM_MANAGE') %}

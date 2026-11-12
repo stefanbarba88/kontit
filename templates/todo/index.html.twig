@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Moja lista{% endblock %}
+{% block page_title %}Moja lista{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item active">Moja lista</span>{% endblock %}
+
+{% block content %}
+    <div class="kt-todo-page">
+        <div class="kt-text-sm text-muted mb-3">{{ ux_icon('lucide:lock', {class: 'kt-icon me-1'}) }}Ovo je tvoja privatna lista. Vidiš je samo ti: ni administrator je ne vidi.</div>
+        <form method="get" class="kt-search-field mb-3" role="search">
+            {{ ux_icon('lucide:search', {class: 'kt-icon kt-search-icon'}) }}
+            <input type="search" name="q" value="{{ query }}" class="form-control" placeholder="Pretraga moje liste" aria-label="Pretraga moje liste" maxlength="100">
+        </form>
+        <div class="card">
+            <div class="card-body">
+                {% include 'todo/_body.html.twig' with {sections: sections, found: found, query: query} only %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

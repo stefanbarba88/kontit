@@ -136,7 +136,9 @@ document.addEventListener('shown.bs.modal', (e) => {
 });
 
 // --- swipe ulevo na redu zadatka otkriva brze akcije ---
-document.querySelectorAll('.kt-swipe').forEach((row) => {
+export function initSwipe(root = document) {
+    root.querySelectorAll('.kt-swipe:not([data-kt-swipe-init])').forEach((row) => {
+    row.dataset.ktSwipeInit = '1';
     const content = row.querySelector('.kt-swipe-content');
     const width = () => row.querySelector('.kt-swipe-actions')?.offsetWidth || 0;
     let startX = null;
@@ -173,7 +175,9 @@ document.querySelectorAll('.kt-swipe').forEach((row) => {
             content.style.transform = '';
         }
     });
-});
+    });
+}
+initSwipe();
 
 // --- dugme nazad: istorija ako smo došli iz aplikacije, inače poslednja karika u putanji ---
 const back = document.querySelector('[data-kt-back]');

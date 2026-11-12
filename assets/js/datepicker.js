@@ -8,7 +8,7 @@ import flatpickr from 'flatpickr';
 import { info, remember, cache } from './non-working.js';
 
 // flatpickr nizove dana UVEK čita od nedelje; ponedeljak kao prvi dan daje samo firstDayOfWeek: 1
-const srLatn = {
+export const srLatn = {
     weekdays: {
         shorthand: ['Ned', 'Pon', 'Uto', 'Sre', 'Čet', 'Pet', 'Sub'],
         longhand: ['Nedelja', 'Ponedeljak', 'Utorak', 'Sreda', 'Četvrtak', 'Petak', 'Subota'],

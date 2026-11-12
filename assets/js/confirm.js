@@ -51,6 +51,28 @@ export function toast(message, type = 'success') {
     return toaster.fire({ icon, title: message, timer: 'success' === icon ? 3000 : 6000 });
 }
 
+/**
+ * Toast sa dugmetom "Poništi" (5 s). onUndo se poziva samo ako korisnik klikne dugme.
+ */
+export function undoToast(message, onUndo, seconds = 5) {
+    return toaster
+        .fire({
+            icon: 'success',
+            title: message,
+            showConfirmButton: true,
+            confirmButtonText: 'Poništi',
+            timer: seconds * 1000,
+            customClass: { popup: 'kt-toast', confirmButton: 'btn btn-sm btn-light kt-toast-undo' },
+        })
+        .then((result) => {
+            if (result.isConfirmed) {
+                return onUndo();
+            }
+
+            return null;
+        });
+}
+
 // Flash poruke posle akcije (base.html.twig) prikazuju se kao toast, jedna za drugom
 const flashes = document.querySelector('script[data-kt-flashes]');
 if (flashes) {

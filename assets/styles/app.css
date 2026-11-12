@@ -7,6 +7,7 @@
 @import "base.css";
 @import "components/sidebar.css";
 @import "components/topbar.css";
+@import "components/todo.css";
 @import "components/card.css";
 @import "components/table.css";
 @import "components/form.css";
