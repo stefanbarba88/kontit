@@ -26,6 +26,7 @@ enum NotificationType: string
     case EXPORT_READY = 'EXPORT_READY';
     case SPECIAL_APPROVAL_SUBMITTED = 'SPECIAL_APPROVAL_SUBMITTED';
     case SPECIAL_APPROVAL_REMINDER = 'SPECIAL_APPROVAL_REMINDER';
+    case TODO_REMINDER = 'TODO_REMINDER';
 
     /**
      * Naziv za podešavanja u profilu ("uvek šalji i na mail").
@@ -55,6 +56,7 @@ enum NotificationType: string
             self::EXPORT_READY => 'Izvoz je spreman za preuzimanje',
             self::SPECIAL_APPROVAL_SUBMITTED => 'Posebna potvrda čeka moje odobrenje',
             self::SPECIAL_APPROVAL_REMINDER => 'Podsetnik: posebna potvrda čeka duže od 2 radna dana',
+            self::TODO_REMINDER => 'Podsetnik iz Moje liste',
         };
     }
 
@@ -64,7 +66,7 @@ enum NotificationType: string
     public function icon(): string
     {
         return match ($this) {
-            self::TASK_ASSIGNED => 'list-checks',
+            self::TASK_ASSIGNED, self::TODO_REMINDER => 'list-checks',
             self::TASK_SUBMITTED => 'send',
             self::TASK_APPROVED => 'circle-check',
             self::TASK_RETURNED => 'undo-2',
@@ -86,7 +88,7 @@ enum NotificationType: string
     public function color(): string
     {
         return match ($this) {
-            self::TASK_ASSIGNED, self::CLIENT_ASSIGNED, self::TEAM_CHANGED, self::DOCUMENT_ADDED => 'primary',
+            self::TASK_ASSIGNED, self::CLIENT_ASSIGNED, self::TEAM_CHANGED, self::DOCUMENT_ADDED, self::TODO_REMINDER => 'primary',
             self::TASK_SUBMITTED, self::TASK_COMMENTED, self::BACKUP_ACTIVATED, self::ABSENCE_AUTO_APPROVED, self::ABSENCE_UPDATED => 'info',
             self::ABSENCE_REQUESTED, self::APPROVAL_DEADLINE_SOON, self::DOCUMENT_EXPIRING => 'warning',
             self::TASK_APPROVED, self::EXPORT_READY, self::ABSENCE_APPROVED => 'success',

@@ -36,3 +36,11 @@ services:
         arguments:
             $preferred: "%env(NBS_PROVIDER)%"
             $cache: '@cache.app'
+
+when@test:
+    services:
+        _defaults: { autowire: true, autoconfigure: true }
+        # Moja lista: dok kontroleri ne koriste servise, test ih uzima direktno iz kontejnera
+        App\Service\TodoClock: { public: true }
+        App\Service\TodoService: { public: true }
+        App\Repository\TodoItemRepository: { public: true }
