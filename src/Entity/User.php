@@ -69,9 +69,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[Assert\Length(max: 20)]
     private ?string $postalCode = null;
 
-    #[ORM\Column(length: 100, nullable: true)]
-    #[Assert\Length(max: 100)]
-    private ?string $position = null;
+    /** Pozicija (nivo) zaposlenog. NE daje prava pristupa: njih određuju samo ROLE_* */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    private ?Position $position = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $employedAt = null;
@@ -277,12 +278,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return $this;
     }
 
-    public function getPosition(): ?string
+    public function getPosition(): ?Position
     {
         return $this->position;
     }
 
-    public function setPosition(?string $position): static
+    /** Ne menja prava pristupa; istoriju beleži UserService::changePosition */
+    public function setPosition(?Position $position): static
     {
         $this->position = $position;
 

@@ -109,6 +109,13 @@ Provereno i **uredu**: `web-profiler`, `debug` i `maker` su samo u `dev` okruže
 4. Nikad ne menjaj već izvršene migracije (pravilo iz `CLAUDE.md`).
 5. Transporti `calendar` i `failed` koriste `doctrine://default?queue_name=...` sa podrazumevanim `auto_setup=true`. Zato korisnik baze mora imati sva prava nad svojom bazom (ne samo SELECT/INSERT). U vodiču ima `GRANT ALL ... ON kontit.*`, a ne root.
 
+6. **Pozicije zaposlenih (stara tekstualna pozicija → `Position`)**, tačan redosled na produkciji:
+   1. `php bin/console doctrine:migrations:migrate 'DoctrineMigrations\Version20261112124502' --no-interaction` (migracija A: šema + 4 početne pozicije). Migracija B (`Version20261112124724`) **ne sme još**; ako je pokrećeš celu, ona sama staje sa porukom dok postoje nemapirani korisnici, pa prvo uradi korake 2–4.
+   2. `php bin/console app:positions:migrate-legacy --dry-run`: samo izveštaj (korisnik → stara vrednost → pozicija, i spisak novih pozicija).
+   3. Pregledaj izveštaj (nepoznate vrednosti postaju nove pozicije).
+   4. `php bin/console app:positions:migrate-legacy`: upisuje (idempotentno, ne pravi istoriju).
+   5. `php bin/console doctrine:migrations:migrate --no-interaction`: migracija B briše staru kolonu `app_user.position`.
+
 ### 1.6 Rizik: MariaDB (razvoj) naspram MySQL 8 (produkcija)
 
 Migracije su generisane na MariaDB 10.4. Kolone `JSON` se u MariaDB-u čuvaju kao `LONGTEXT`, u MySQL-u 8 kao pravi `JSON`, pa Doctrine može da prijavi razliku u šemi. **Ovo nisam mogao da proverim jer lokalno nema MySQL-a 8.**
