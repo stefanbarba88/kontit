@@ -67,7 +67,7 @@ Ide u `/var/www/kontit/.env.local` na serveru (fajl je u `.gitignore`). **Ne upi
 | `APP_ENV` | da | `prod`. Podrazumevano u `.env` je **`dev`** pa se mora prepisati |
 | `APP_DEBUG` | da | `0` |
 | `APP_SECRET` | da | `openssl rand -hex 32`. U `.env` je prazan. Sačuvaj kopiju u menadžeru lozinki |
-| `DATABASE_URL` | da | `mysql://kontit:<LOZINKA>@127.0.0.1:3306/kontit?serverVersion=8.0&charset=utf8mb4`. Pazi: lokalna vrednost je root bez lozinke i `mariadb-10.4.32` |
+| `DATABASE_URL` | da | `mysql://kontit:<LOZINKA>@127.0.0.1:3306/kontit?serverVersion=8.0.46&charset=utf8mb4`. Pazi: lokalna vrednost je root bez lozinke i `mariadb-10.4.32` |
 | `DEFAULT_URI` | da | `https://kontit.epars.rs`. Podrazumevano je `http://localhost`, a koristi se za linkove iz mailova koje šalju komande i worker |
 | `MESSENGER_TRANSPORT_DSN` | da | `doctrine://default?auto_setup=0` (ostaje kao u `.env`) |
 | `MAILER_DSN` | da | npr. `smtp://KORISNIK:LOZINKA@smtp.servis.com:587`. Podrazumevano je `null://null` (mailovi se bace) |
@@ -385,7 +385,7 @@ cat > .env.local <<'EOF'
 APP_ENV=prod
 APP_DEBUG=0
 DEFAULT_URI=https://kontit.epars.rs
-DATABASE_URL="mysql://kontit:<DB_PASS>@127.0.0.1:3306/kontit?serverVersion=8.0&charset=utf8mb4"
+DATABASE_URL="mysql://kontit:<DB_PASS>@127.0.0.1:3306/kontit?serverVersion=8.0.46&charset=utf8mb4"
 MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0
 MAILER_DSN=null://null
 NBS_PROVIDER=webservice
@@ -612,7 +612,7 @@ cat > ~/bin/backup.sh <<'EOF'
 set -euo pipefail
 DIR=/var/backups/kontit
 STAMP=$(date +%F_%H%M)
-mysqldump --single-transaction --routines --triggers kontit | gzip > "$DIR/db-$STAMP.sql.gz"
+mysqldump --no-tablespaces --single-transaction --routines --triggers kontit | gzip > "$DIR/db-$STAMP.sql.gz"
 tar -czf "$DIR/files-$STAMP.tar.gz" -C /var/www/kontit var/storage var/exports
 find "$DIR" -type f -mtime +14 -delete        # ⚠ briše SAMO stare kopije (starije od 14 dana)
 EOF
