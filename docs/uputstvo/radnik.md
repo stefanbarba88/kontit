@@ -136,7 +136,21 @@ Meni **Zadaci**. Gore su tabovi:
 | **Kasne** | rok je prošao, a zadatak nije završen |
 | **Na proveri** | ti si završio, čeka se potvrda šefa |
 
-Ispod tabova biraš **klijenta** i **prioritet**, pa klikneš **Traži**. Dugme **Izvoz** pravi Excel, CSV ili PDF od onoga što trenutno vidiš.
+Ispod tabova su filteri (vidi ispod). Dugme **Izvoz** pravi Excel, CSV ili PDF tačno od onoga što trenutno vidiš.
+
+### Filteri u listi zadataka
+
+Lista se sama osveži kad promeniš filter (a kad kucaš u polje **Naziv**, posle kratke pauze). Sve je u adresi, pa možeš da osvežiš stranu ili pošalješ link kolegi. Promena filtera vraća na prvu stranu.
+
+- **Naziv**: pretraga po nazivu zadatka. Ne razlikuje velika i mala slova ni kvačice („racun“ nalazi „Račun“, „dord“ nalazi „Đorđe“). **X** u polju briše pretragu.
+- **Posao**: iz kog posla je zadatak nastao, grupisano po kategoriji. Prva opcija **Samostalni zadaci (bez posla)** su zadaci koji nisu iz posla. Važi i za automatski napravljene i za ručne zadatke iz posla.
+- **Nastanak**: **Automatski generisani** ili **Ručno kreirani**.
+- **Klijent**, **Status**, **Prioritet** i **Rok** (od – do).
+- **Prikaži završene i otkazane**: podrazumevano vidiš samo otvorene zadatke. Tabovi vezani za status (npr. **Na proveri**) ne zavise od ovog prekidača.
+
+Dugme **Poništi** (sa brojem aktivnih filtera) vraća sve na početno. Na telefonu je dugme **Filteri** (sa brojem aktivnih) koje otvara filtere odozdo.
+
+Isti filteri i **Izvoz** postoje na kartici klijenta (tab **Zadaci**, vidi „Klijenti“) i na tvojoj strani **Moji zadaci** (dugme na **Moj profil**). Tamo vidiš samo zadatke koje inače smeš da vidiš.
 
 Na telefonu su zadaci grupisani po roku (**Kasni**, **Danas**, **Sutra**, **Ove nedelje**, **Kasnije**). Prevuci zadatak ulevo za brzo dugme **Moj deo je gotov**.
 

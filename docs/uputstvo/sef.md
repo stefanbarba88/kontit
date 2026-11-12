@@ -56,7 +56,7 @@ Ispod tvog **Moj pregled** je blok **Moj tim**:
 
 Meni **Moj tim** prikazuje:
 
-- **Članove** (ime, pozicija, od kada je u timu),
+- **Članove** (ime, pozicija, od kada je u timu), a pored svakog člana dugme **Zadaci** sa njegovim zadacima (vidi „Zadaci tima“),
 - **Bivše članove** (ko je bio u timu i do kada),
 - **Šefa tima** i **Istoriju šefova**.
 
@@ -69,6 +69,8 @@ Meni **Moj tim** prikazuje:
 Meni **Klijenti**. Pretražuješ po nazivu, PIB-u, matičnom broju ili gradu, biraš **Aktivni**, **Neaktivni** ili **Svi**, i klikneš **Traži**. U tabeli odmah vidiš **glavnog zaduženog** i **backup**. Žuto upozorenje „nema“ znači da klijent **nema zamenu**, što je rizik kad je glavni odsutan.
 
 Dugme **Izvoz** pravi Excel, CSV ili PDF sa istim filterom.
+
+Na kartici klijenta je tab **Zadaci** (vidi Uputstvo za admina, „Zadaci klijenta“): isti filteri, a ti vidiš samo zadatke koje smeš da vidiš.
 
 ### Promena glavnog zaduženog i zamene
 
@@ -94,6 +96,18 @@ Na kartici klijenta, tab **Ugovorene usluge** pokazuje šta je ugovoreno i kada 
 ### Šta vidiš
 
 Na **Zadaci**, filter **Moji zadaci / Svi zadaci u mom opsegu** prebacuje između tvojih zadataka i svih zadataka tvog tima. Dodatni tab **Čeka moju potvrdu** ima zadatke koje treba da potvrdiš.
+
+Filteri (naziv bez razlike u kvačicama, posao, nastanak, klijent, tim, radnik, status, prioritet, rok i **Prikaži završene i otkazane**) rade kao kod radnika (vidi Uputstvo za radnika). Filteri **Tim** i **Radnik** nude samo tvoj tim. Dugme **Izvoz** pravi Excel, CSV ili PDF tačno od prikazane liste.
+
+### Zadaci jednog člana tima
+
+U **Moj tim** klikni **Zadaci** pored člana (ili otvori adresu `/users/<broj>/zadaci`). Vidiš zaglavlje člana i listu njegovih zadataka sa istim filterima, plus:
+
+- filter **Uloga**: **Zadužen** (podrazumevano), **Kreirao** ili **Zadužen ili kreirao**,
+- brojače na vrhu: **otvoreno**, **kasni**, **na proveri** i **završeno ovog meseca**,
+- dugme **Izvoz** (izvozi baš ovu listu) i **Novi zadatak**. Posle čuvanja te vraća na ovu stranu sa istim filterima.
+
+Ovo smeš samo za članove svog tima na nivou radnika (i za sebe). Za člana tuđeg tima, drugog šefa ili admina dobijaš poruku da nemaš pravo.
 
 ### Novi zadatak za člana tima
 

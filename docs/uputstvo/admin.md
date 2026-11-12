@@ -93,8 +93,18 @@ Na **Korisnici** pretražuješ po imenu, prezimenu ili emailu, i filtriraš po r
 - **Klijenti**: gde je glavni i gde je backup,
 - **Tim**: trenutni tim i **Istorija članstva**,
 - **Odsustva**: stanje godišnjeg odmora, uz izmenu prava (vidi ispod),
+- **Zadaci**: tab pored **Pregled** (vidi „Zadaci korisnika“),
 - **Aktivnost**: sve što je korisnik menjao,
 - dugmad **Dokumenti**, **Izmeni**, **Deaktiviraj**.
+
+### Zadaci korisnika
+
+Strana korisnika ima dva taba: **Pregled** (podaci) i **Zadaci** (adresa `/users/<broj>/zadaci`). Zaglavlje sa imenom, pozicijom i timom je isto na oba.
+
+- **Zaduženi** je zaključan na tog korisnika, a filter **Uloga** bira **Zadužen** (podrazumevano), **Kreirao** ili **Zadužen ili kreirao**.
+- Na vrhu su brojači: **otvoreno**, **kasni**, **na proveri**, **završeno ovog meseca**. Ostali filteri (naziv, posao, nastanak, klijent, status, prioritet, rok, **Prikaži završene i otkazane**) rade kao na **Zadaci**.
+- **Izvoz** (Excel, CSV, PDF) izvozi tačno prikazanu listu.
+- Admin vidi zadatke svakog korisnika. Šef vidi samo članove svog tima, a radnik samo svoju stranu (dugme **Moji zadaci** na **Moj profil**); ostali dobijaju poruku da nemaju pravo.
 
 ### Izmena i promena role
 
@@ -184,6 +194,14 @@ Na kartici klijenta:
 - **Deaktiviraj**: klijent se više ne nudi za nove zadatke, a istorija ostaje. Traži da ukucaš kraći naziv. **Aktiviraj** ga vraća.
 
 Klijenti se ne brišu, samo deaktiviraju.
+
+### Zadaci klijenta
+
+Na kartici klijenta je tab **Zadaci** (adresa `/clients/<broj>/zadaci`, pa je možeš poslati kolegi sa već izabranim filterima). Pored naziva taba je broj otvorenih zadataka, a **crvena tačka** znači da neki kasne.
+
+- Isti filteri kao na **Zadaci**: **Naziv** (bez razlike u kvačicama), **Posao**, **Nastanak** (automatski ili ručni), **Zaduženi**, status, prioritet, rok i **Prikaži završene i otkazane**. Klijent je već izabran, pa tog filtera nema.
+- **Posao** nudi samo poslove koje klijent ima ili je imao, a **Zaduženi** samo ljude koji su radili na njegovim zadacima.
+- Dugme **Izvoz** (Excel, CSV, PDF) izvozi tačno prikazanu listu. **Novi zadatak** otvara formu sa zaključanim klijentom i posle čuvanja te vraća na ovaj tab.
 
 ## Katalog poslova
 
@@ -398,7 +416,7 @@ Na kartici klijenta dugme **Analitika** pokazuje finansije tog klijenta: mesečn
 
 ## Izvoz
 
-Liste **Klijenti**, **Zadaci**, **Korisnici** i **Odsustva → Evidencija** imaju dugme **Izvoz**: **Excel (.xlsx)**, **CSV** ili **PDF**. Izvozi se tačno ono što je trenutno filtrirano. Veliki izvozi (preko 2.000 redova) se prave u pozadini, pa stiže obaveštenje sa linkom kad je fajl spreman.
+Liste **Klijenti**, **Zadaci**, **Korisnici** i **Odsustva → Evidencija** imaju dugme **Izvoz**: **Excel (.xlsx)**, **CSV** ili **PDF**. Izvozi se tačno ono što je trenutno filtrirano (na tabovima **Zadaci** klijenta i korisnika samo ta lista). Veliki izvozi (preko 2.000 redova) se prave u pozadini, pa stiže obaveštenje sa linkom kad je fajl spreman.
 
 ## Google kalendar i ICS
 
