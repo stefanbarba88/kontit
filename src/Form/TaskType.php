@@ -7,6 +7,7 @@ use App\Entity\ClientJob;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Enum\CompletionMode;
+use App\Enum\ReviewMode;
 use App\Enum\TaskPriority;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -67,7 +68,7 @@ class TaskType extends AbstractType
                 'class' => ClientJob::class,
                 'query_builder' => $options['job_query_builder'],
                 'choice_label' => static fn (ClientJob $j) => $j->getJobTemplate()->getName(),
-                'choice_attr' => static fn (ClientJob $j) => ['data-client' => $j->getClient()->getId()],
+                'choice_attr' => static fn (ClientJob $j) => ['data-client' => $j->getClient()->getId(), 'data-requires-approval' => $j->getJobTemplate()->requiresApproval() ? '1' : '0'],
                 'required' => false,
                 'placeholder' => 'Bez posla (samostalan zadatak)',
                 'help' => 'Ugovoreni posao klijenta. Izbor posla popunjava checklist, prioritet i procenu trajanja.',
@@ -105,7 +106,7 @@ class TaskType extends AbstractType
                 'class' => User::class,
                 'query_builder' => $options['assignee_query_builder'],
                 'choice_label' => static fn (User $u) => $u->getFullName().($u->getPosition() ? ' ('.$u->getPosition()->getName().')' : ''),
-                'choice_attr' => static fn (User $u) => ['data-user' => $u->getId()],
+                'choice_attr' => static fn (User $u) => ['data-user' => $u->getId(), 'data-review' => $u->getPosition()?->requiresTaskReview() ? '1' : '0'],
                 'multiple' => true,
                 'expanded' => true,
                 'mapped' => false,
@@ -117,6 +118,31 @@ class TaskType extends AbstractType
                 'required' => false,
                 'mapped' => false,
                 'help' => 'Obaveštenje u aplikaciji dobijaju uvek. Za hitne zadatke se ova opcija preporučuje.',
+            ]);
+        }
+
+        // način provere: polje postoji samo ako kreator sme da bira (kreator čija pozicija traži proveru ga ne vidi, server forsira AUTO)
+        if ([] !== $options['review_modes']) {
+            $builder->add('reviewMode', ChoiceType::class, [
+                'label' => 'Provera',
+                'mapped' => false,
+                'choices' => array_combine(array_map(static fn (ReviewMode $m) => $m->label(), $options['review_modes']), $options['review_modes']),
+                'choice_value' => static fn (?ReviewMode $m) => $m?->value,
+                'data' => $task->getReviewMode(),
+                'attr' => ['data-native' => '', 'data-kt-review-mode' => ''],
+                'help' => 'Ko proverava završen zadatak. „Posebna potvrda“ ide na stranicu Posebne potvrde izabranih admina.',
+            ]);
+            $builder->add('reviewApprovers', EntityType::class, [
+                'label' => 'Ko potvrđuje',
+                'class' => User::class,
+                'multiple' => true,
+                'required' => false,
+                'mapped' => false,
+                'query_builder' => $options['review_approver_query_builder'],
+                'choice_label' => static fn (User $u) => $u->getFullName(),
+                'data' => $task->getRequiredApprovers()->toArray(),
+                'row_attr' => ['data-kt-review-approvers' => ''],
+                'help' => 'Najmanje jedan admin ili superadmin.',
             ]);
         }
 
@@ -144,6 +170,8 @@ class TaskType extends AbstractType
             'assignee_query_builder' => null,
             'default_assignees' => [],
             'lock_client' => false,
+            'review_modes' => [],
+            'review_approver_query_builder' => null,
         ]);
         $resolver->setRequired(['client_query_builder', 'job_query_builder']);
         $resolver->setAllowedTypes('client_query_builder', QueryBuilder::class);

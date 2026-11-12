@@ -73,6 +73,9 @@ class CatalogController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->catalog->saveJob($job);
             $this->addFlash('success', sprintf('Posao „%s“ je sačuvan.', $job->getName()));
+            if ($job->requiresApproval() && 1 === \count(array_filter($job->getApprovers()->toArray(), static fn (\App\Entity\User $u) => \App\Service\TaskReviewPolicy::isEligibleApprover($u)))) {
+                $this->addFlash('warning', 'Izabran je samo jedan proveravač. Ako je on i učesnik zadatka, zadatak potvrđuje superadmin.');
+            }
 
             return $this->redirectToRoute('admin_job_index');
         }

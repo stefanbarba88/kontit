@@ -9,6 +9,7 @@ use App\Enum\TaskStatus;
 use App\Repository\TeamMemberRepository;
 use App\Security\TeamScope;
 use App\Service\ReplacementResolver;
+use App\Service\TaskReviewPolicy;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -19,7 +20,8 @@ use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
  * TASK_VIEW (i komentarisanje): admin+, kreator, učesnik, šef tima čiji je član učesnik i zamena odsutnog učesnika.
  * TASK_EDIT (podaci, učesnici, struktura checkliste): admin+, kreator i šef tima, dok zadatak nije završen ni otkazan.
  * TASK_COMPLETE (štikliranje, svoj deo): admin+, učesnik, šef tima i zamena odsutnog učesnika, dok zadatak nije otkazan.
- * TASK_APPROVE: zadatak je na proveri, a potvrđuje admin+ ili šef tima koji nije i sam učesnik.
+ * TASK_APPROVE: zadatak je na proveri. Posebna potvrda: samo proveravači sa zadatka i superadmin (TaskReviewPolicy::canApproveSpecial),
+ *   šef tima i neizabrani admin ne mogu. Inače admin+ ili šef tima koji nije i sam učesnik.
  * TASK_CANCEL: kao TASK_EDIT.
  */
 class TaskVoter extends Voter
@@ -35,6 +37,7 @@ class TaskVoter extends Voter
         private readonly RoleHierarchyInterface $roleHierarchy,
         private readonly TeamMemberRepository $members,
         private readonly ReplacementResolver $replacements,
+        private readonly TaskReviewPolicy $policy,
     ) {
     }
 
@@ -71,7 +74,9 @@ class TaskVoter extends Voter
             self::VIEW => $isAdmin || $isLeader || $isAssignee || $isCreator || $isSubstitute,
             self::EDIT, self::CANCEL => $status->isOpen() && ($isAdmin || $isLeader || $isCreator),
             self::COMPLETE => TaskStatus::OTKAZANO !== $status && ($isAdmin || $isLeader || $isAssignee || $isSubstitute),
-            self::APPROVE => TaskStatus::NA_PROVERI === $status && ($isAdmin || ($isLeader && !$isAssignee)),
+            self::APPROVE => TaskStatus::NA_PROVERI === $status && ($subject->isSpecialReview()
+                ? $this->policy->canApproveSpecial($subject, $user)
+                : ($isAdmin || ($isLeader && !$isAssignee))),
             default => false,
         };
     }

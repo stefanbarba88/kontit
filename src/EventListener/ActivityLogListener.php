@@ -43,6 +43,7 @@ class ActivityLogListener
         'dueDate' => 'Rok',
         'priority' => 'Prioritet',
         'completionMode' => 'Režim završetka',
+        'reviewMode' => 'Provera',
     ];
 
     private const CLIENT_FIELDS = [
@@ -213,7 +214,7 @@ class ActivityLogListener
      */
     private function taskUpdated(Task $task, array $cs, ?User $user, array $returned): void
     {
-        if ([] !== ($changes = $this->logger->diff($cs, self::TASK_FIELDS, ['priority' => TaskPriority::class, 'completionMode' => CompletionMode::class]))) {
+        if ([] !== ($changes = $this->logger->diff($cs, self::TASK_FIELDS, ['priority' => TaskPriority::class, 'completionMode' => CompletionMode::class, 'reviewMode' => \App\Enum\ReviewMode::class]))) {
             $this->add($task, ActivityAction::UPDATED, $changes, $user);
         }
 

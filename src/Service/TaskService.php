@@ -8,6 +8,7 @@ use App\Entity\TaskAssignee;
 use App\Entity\TaskComment;
 use App\Entity\User;
 use App\Enum\NotificationType;
+use App\Enum\ReviewMode;
 use App\Enum\Role;
 use App\Enum\TaskPriority;
 use App\Enum\TaskStatus;
@@ -25,6 +26,7 @@ class TaskService
         private readonly NotificationService $notifications,
         private readonly ReplacementResolver $replacements,
         private readonly ClientPeople $clientPeople,
+        private readonly TaskReviewPolicy $reviewPolicy,
     ) {
     }
 
@@ -54,13 +56,14 @@ class TaskService
      * @param list<User> $assignees
      * @param bool       $generated zadatak pravi sistem iz ugovorenog posla (zaduženi je već određen pravilima generisanja)
      */
-    public function create(Task $task, array $assignees, User $actor, bool $email = false, bool $generated = false): void
+    public function create(Task $task, array $assignees, User $actor, bool $email = false, bool $generated = false, ?ReviewChoice $review = null): void
     {
         $assignees = $this->uniqueUsers($assignees);
         if (!$generated) {
             $this->validateAssignees($task, $assignees, $actor);
         }
         $this->validateClient($task);
+        $this->applyReviewOnCreate($task, $assignees, $actor, $generated, $review);
 
         $this->em->wrapInTransaction(function () use ($task, $assignees, $actor): void {
             $task->setCreatedBy($actor);
@@ -78,11 +81,12 @@ class TaskService
      *
      * @param list<User> $assignees
      */
-    public function update(Task $task, array $assignees, User $actor, bool $email = false): void
+    public function update(Task $task, array $assignees, User $actor, bool $email = false, ?ReviewChoice $review = null): void
     {
         $assignees = $this->uniqueUsers($assignees);
         $this->validateAssignees($task, $assignees, $actor);
         $this->validateClient($task);
+        $this->applyReviewOnUpdate($task, $actor, $review);
 
         $added = array_values(array_filter($assignees, fn (User $u) => !$task->hasAssignee($u)));
         $before = $task->getStatus();
@@ -285,6 +289,81 @@ class TaskService
     /**
      * @param list<User> $recipients
      */
+    /**
+     * Zahtev za posebnu potvrdu iz posla se kopira na zadatak (snapshot): kasnija izmena posla ne menja postojeće zadatke.
+     * Jedno mesto za sve ulaze: generator, "Kreiraj zadatak sada", "Po potrebi" i forma zadatka sa izabranim poslom.
+     */
+    private function snapshotJobApproval(Task $task): bool
+    {
+        $template = $task->getClientJob()?->getJobTemplate();
+        if (null === $template || !$template->requiresApproval()) {
+            return false;
+        }
+        $task->setRequiredApprovers($template->getApprovers())->setReviewMode(ReviewMode::SPECIAL)->setReviewFromJob(true)->setReviewDecision(null);
+
+        return true;
+    }
+
+    /**
+     * @param list<User> $assignees
+     */
+    private function applyReviewOnCreate(Task $task, array $assignees, User $actor, bool $generated, ?ReviewChoice $review): void
+    {
+        if ($this->snapshotJobApproval($task)) {
+            return;
+        }
+        // generisani zadaci (bez kreatora koji bira) uvek AUTO; kreator čija pozicija traži proveru ne bira (server forsira AUTO)
+        $mode = ReviewMode::AUTO;
+        if (!$generated && null !== $review && \in_array($review->mode, $this->reviewPolicy->modesFor($actor, $assignees), true)) {
+            $mode = $review->mode;
+        }
+        $this->setReviewMode($task, $mode, $review?->approvers ?? [], $actor);
+    }
+
+    private function applyReviewOnUpdate(Task $task, User $actor, ?ReviewChoice $review): void
+    {
+        // posao je upravo izabran (ili promenjen) na zadatku koji još nema zahtev iz posla
+        $original = $this->em->getUnitOfWork()->getOriginalEntityData($task)['clientJob'] ?? null;
+        if (!$task->isReviewFromJob() && $task->getClientJob() !== $original && $this->snapshotJobApproval($task)) {
+            return;
+        }
+        if (null === $review) {
+            return;
+        }
+        $approvers = array_map(static fn (User $u) => $u->getId(), $review->approvers);
+        $currentApprovers = array_map(static fn (User $u) => $u->getId(), $task->getRequiredApprovers()->toArray());
+        sort($approvers);
+        sort($currentApprovers);
+        $same = $review->mode === $task->getReviewMode() && (ReviewMode::SPECIAL !== $review->mode || $approvers === $currentApprovers);
+        if ($same) {
+            return;
+        }
+        if (!$this->reviewPolicy->canChangeMode($task, $actor)) {
+            throw new \DomainException('Način provere ovog zadatka ne možeš da menjaš.');
+        }
+        if (!\in_array($review->mode, $this->reviewPolicy->modesFor($actor, $task->getAssigneeUsers()), true)) {
+            throw new \DomainException('Izabrani način provere nije dozvoljen za ove učesnike.');
+        }
+        $this->setReviewMode($task, $review->mode, $review->approvers, $actor);
+    }
+
+    /**
+     * @param list<User> $approvers
+     */
+    private function setReviewMode(Task $task, ReviewMode $mode, array $approvers, User $actor): void
+    {
+        if (ReviewMode::SPECIAL === $mode) {
+            $approvers = array_values(array_filter($approvers, static fn (User $u) => TaskReviewPolicy::isEligibleApprover($u)));
+            if ([] === $approvers) {
+                throw new \DomainException('Za posebnu potvrdu izaberi bar jednog proveravača (admin ili superadmin).');
+            }
+            $task->setRequiredApprovers($approvers);
+        } else {
+            $task->setRequiredApprovers([]);
+        }
+        $task->setReviewMode($mode)->setReviewFromJob(false)->setReviewDecision(ReviewMode::AUTO === $mode ? null : $actor);
+    }
+
     private function notifyAssigned(Task $task, array $recipients, User $actor, bool $email): void
     {
         $urgent = TaskPriority::HITAN === $task->getPriority();

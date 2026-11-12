@@ -47,6 +47,10 @@ final class TaskFilter
         public readonly string $role = 'assigned',
         public readonly ?Client $lockedClient = null,
         public readonly ?User $lockedAssignee = null,
+        /** Stranica Posebne potvrde: korisnik čije posebne potvrde se prikazuju (tab special_waiting | special_progress | special_done) */
+        public readonly ?User $specialApprovalFor = null,
+        /** Samo superadmin: sve posebne potvrde, bez obzira na izabranog proveravača */
+        public readonly bool $specialAll = false,
     ) {
     }
 
@@ -107,6 +111,7 @@ final class TaskFilter
             'origin' => 'all' !== $this->origin ? $this->origin : null,
             'closed' => $this->showClosed ? 1 : null,
             'role' => null !== $this->lockedAssignee && 'assigned' !== $this->role ? $this->role : null,
+            'all' => $this->specialAll ? 1 : null,
         ];
 
         return array_filter($query, static fn ($v) => null !== $v);

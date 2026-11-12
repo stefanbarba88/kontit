@@ -9,6 +9,7 @@ use App\Enum\AssigneeStatus;
 use App\Enum\CommentType;
 use App\Enum\CompletionMode;
 use App\Enum\NotificationType;
+use App\Enum\ReviewOutcome;
 use App\Enum\TaskStatus;
 use App\Repository\TeamMemberRepository;
 use App\Repository\UserRepository;
@@ -27,26 +28,18 @@ class TaskCompletionService
         private readonly TeamMemberRepository $members,
         private readonly UserRepository $users,
         private readonly ReplacementResolver $replacements,
+        private readonly TaskReviewPolicy $policy,
     ) {
     }
 
     /**
-     * Ko može da potvrdi zadatak: šefovi timova učesnika koji sami nisu učesnici, a ako takvih nema, admini.
+     * Ko može da potvrdi zadatak: vidi TaskReviewPolicy (posebna potvrda ili šef tima učesnika, a ako nema, admini).
      *
      * @return list<User>
      */
     public function approversFor(Task $task): array
     {
-        $leaders = [];
-        foreach ($task->getAssigneeUsers() as $assignee) {
-            $team = $this->members->findActiveByUser($assignee)?->getTeam();
-            $leader = null !== $team && !$team->isDeleted() ? $team->getLeader() : null;
-            if (null !== $leader && $leader->isActive() && !$task->hasAssignee($leader) && TeamScope::covers($leader, $assignee)) {
-                $leaders[spl_object_id($leader)] = $leader;
-            }
-        }
-
-        return [] !== $leaders ? array_values($leaders) : $this->users->findActiveAdmins();
+        return $this->policy->reviewersFor($task);
     }
 
     /**
@@ -54,6 +47,19 @@ class TaskCompletionService
      */
     public function notifySubmitted(Task $task, ?User $actor = null): void
     {
+        if ($task->isSpecialReview()) {
+            // posebna potvrda: svim proveravačima sa zadatka, mail podrazumevano uključen (korisnik ga isključuje u profilu)
+            $this->notifications->notifyMany(
+                $this->approversFor($task),
+                NotificationType::SPECIAL_APPROVAL_SUBMITTED,
+                'Posebna potvrda čeka tvoje odobrenje',
+                sprintf('Zadatak „%s“ je završen i čeka posebnu potvrdu.', $task->getTitle()),
+                ['task_show', ['id' => $task->getId()]],
+                $actor,
+            );
+
+            return;
+        }
         $this->notifications->notifyMany(
             $this->approversFor($task),
             NotificationType::TASK_SUBMITTED,
@@ -141,7 +147,11 @@ class TaskCompletionService
     public function undoDone(Task $task, User $user): void
     {
         $assignee = $this->requireAssignee($task, $user);
-        if (!in_array($task->getStatus(), [TaskStatus::NA_PROVERI, ...$this->workable()], true)) {
+        $undoable = [TaskStatus::NA_PROVERI, ...$this->workable()];
+        if ($task->isCompletedWithoutReview()) {
+            $undoable[] = TaskStatus::ZAVRSENO;
+        }
+        if (!in_array($task->getStatus(), $undoable, true)) {
             throw new \DomainException('Zadatak je već zatvoren.');
         }
 
@@ -164,9 +174,17 @@ class TaskCompletionService
         };
 
         if ($complete && $task->getStatus()->isWorkable()) {
-            $task->setStatus(TaskStatus::NA_PROVERI)->setSubmittedAt(new \DateTimeImmutable());
+            if (ReviewOutcome::NONE === $this->policy->decide($task)) {
+                // bez provere: odmah završeno, bez approvedBy i approvedAt
+                $task->setStatus(TaskStatus::ZAVRSENO)->setSubmittedAt(null)->setApprovedBy(null)->setApprovedAt(null)->setCompletedWithoutReview(true);
+            } else {
+                $task->setStatus(TaskStatus::NA_PROVERI)->setSubmittedAt(new \DateTimeImmutable())->setCompletedWithoutReview(false);
+            }
         } elseif (!$complete && TaskStatus::NA_PROVERI === $task->getStatus()) {
             $task->setStatus(TaskStatus::U_RADU)->setSubmittedAt(null);
+        } elseif (!$complete && TaskStatus::ZAVRSENO === $task->getStatus() && $task->isCompletedWithoutReview()) {
+            // završeno bez provere, pa se promenio sastav učesnika ili povučen deo: ponovo u radu
+            $task->setStatus(TaskStatus::U_RADU)->setCompletedWithoutReview(false);
         }
     }
 
@@ -244,7 +262,7 @@ class TaskCompletionService
 
     private function resetToInProgress(Task $task): void
     {
-        $task->setStatus(TaskStatus::U_RADU)->setSubmittedAt(null)->setApprovedBy(null)->setApprovedAt(null);
+        $task->setStatus(TaskStatus::U_RADU)->setSubmittedAt(null)->setApprovedBy(null)->setApprovedAt(null)->setCompletedWithoutReview(false);
         foreach ($task->getAssignees() as $assignee) {
             $assignee->setStatus(AssigneeStatus::U_RADU)->setCompletedAt(null);
         }

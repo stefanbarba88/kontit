@@ -109,6 +109,22 @@ class TaskListFilters
     }
 
     /**
+     * Filteri stranice Posebne potvrde: isti parametri kao lista zadataka, ali tab je special_waiting | special_progress | special_done,
+     * a opseg određuje TaskRepository (proveravač je $me; superadmin sa prekidačem "all" vidi sve).
+     *
+     * @param array<string, mixed> $query
+     */
+    public function resolveSpecial(array $query, User $me): TaskFilter
+    {
+        $tab = (string) ($query['tab'] ?? 'special_waiting');
+        $tab = \in_array($tab, TaskRepository::SPECIAL_TABS, true) ? $tab : 'special_waiting';
+        $base = $this->resolve(array_diff_key($query, ['tab' => 1]), $me);
+        $all = \in_array((string) ($query['all'] ?? ''), ['1', 'on', 'true'], true) && \App\Enum\Role::SUPERADMIN === $me->getHighestRole();
+
+        return $base->with(['tab' => $tab, 'specialApprovalFor' => $me, 'specialAll' => $all, 'scope' => 'all', 'showClosed' => true]);
+    }
+
+    /**
      * Za izvoz i druge pozive sa istim GET parametrima kao stranica: forClient / forUser zaključavaju klijenta / korisnika
      * (uz proveru CLIENT_VIEW odnosno USER_TASKS_VIEW), pa izvoz sa taba daje tačno ono što tab prikazuje.
      *

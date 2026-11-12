@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Client;
 use App\Entity\Task;
 use App\Entity\User;
+use App\Enum\ReviewMode;
 use App\Enum\TaskPriority;
 use App\Enum\TaskStatus;
 use App\Service\TaskFilter;
@@ -19,6 +20,7 @@ class TaskRepository extends ServiceEntityRepository
 {
     /** Tabovi liste zadataka */
     public const TABS = ['today', 'week', 'overdue', 'review', 'approval', 'all'];
+    public const SPECIAL_TABS = ['special_waiting', 'special_progress', 'special_done'];
 
     /** Član tima koji $me vodi (aktivno članstvo, tim nije obrisan) je učesnik zadatka t */
     private const LEADS_ASSIGNEE = 'EXISTS (SELECT 1 FROM App\Entity\TaskAssignee la JOIN la.user lu JOIN App\Entity\TeamMember lm WITH lm.user = la.user JOIN lm.team lt '
@@ -101,9 +103,11 @@ class TaskRepository extends ServiceEntityRepository
      */
     public function createFilteredQueryBuilder(TaskFilter $f, User $viewer): QueryBuilder
     {
-        $qb = 'approval' === $f->tab
+        $qb = null !== $f->specialApprovalFor
+            ? $this->createSpecialQueryBuilder($f)
+            : ('approval' === $f->tab
             ? $this->createAwaitingApprovalQueryBuilder($viewer, $f->viewerAdmin)
-            : $this->createListQueryBuilder($viewer, $f->viewerAdmin, $f->viewerLeader, $f->scope, ['tab' => $f->tab]);
+            : $this->createListQueryBuilder($viewer, $f->viewerAdmin, $f->viewerLeader, $f->scope, ['tab' => $f->tab]));
 
         if (null !== $f->client) {
             $qb->andWhere('t.client = :fClient')->setParameter('fClient', $f->client);
@@ -132,7 +136,9 @@ class TaskRepository extends ServiceEntityRepository
             })->setParameter('fUser', $f->assignee);
         }
         if (null !== $f->from) {
-            $qb->andWhere('t.dueDate BETWEEN :fFrom AND :fTo')->setParameter('fFrom', $f->from)->setParameter('fTo', $f->to ?? $f->from);
+            // Potvrđeno: period se odnosi na datum potvrde, inače na rok
+            $field = 'special_done' === $f->tab ? 't.approvedAt' : 't.dueDate';
+            $qb->andWhere($field.' BETWEEN :fFrom AND :fTo')->setParameter('fFrom', $f->from)->setParameter('fTo', ('special_done' === $f->tab ? ($f->to ?? $f->from)->setTime(23, 59, 59) : ($f->to ?? $f->from)));
         }
         if ('' !== $f->q) {
             // title_search je već normalizovan (TextNormalizer), pa isti izraz traži bez razlike u kvačicama i velikim slovima
@@ -248,7 +254,9 @@ class TaskRepository extends ServiceEntityRepository
             ->addSelect('c')
             ->leftJoin('t.client', 'c')
             ->andWhere('t.status = :review')
+            ->andWhere('t.reviewMode <> :special')
             ->setParameter('review', TaskStatus::NA_PROVERI)
+            ->setParameter('special', ReviewMode::SPECIAL)
             ->orderBy('t.submittedAt', 'ASC');
 
         if (!$admin) {
@@ -360,4 +368,59 @@ class TaskRepository extends ServiceEntityRepository
 
         return $out;
     }
-}
+
+    /**
+     * Posebne potvrde (SPEC: Posebne potvrde). Samo zadaci sa reviewMode SPECIAL. Proveravač vidi zadatke gde je u snapshot-u;
+     * superadmin i one kojima nijedan izabrani proveravač nije više aktivan admin, a sa prekidačem "all" sve.
+     * Tabovi: special_waiting (NA_PROVERI, najstariji prvi), special_progress (još nisu poslati), special_done (potvrđeni).
+     */
+    public function createSpecialQueryBuilder(TaskFilter $f): QueryBuilder
+    {
+        $me = $f->specialApprovalFor;
+        $qb = $this->createQueryBuilder('t')->addSelect('c')->leftJoin('t.client', 'c')
+            ->andWhere('t.reviewMode = :sMode')->setParameter('sMode', ReviewMode::SPECIAL);
+
+        if (!$f->specialAll) {
+            $mine = ':sMe MEMBER OF t.requiredApprovers';
+            if (Role::SUPERADMIN === $me?->getHighestRole()) {
+                $mine .= ' OR NOT EXISTS (SELECT 1 FROM App\Entity\User sa WHERE sa MEMBER OF t.requiredApprovers AND sa.isActive = true AND (sa.roles LIKE :sAdmin OR sa.roles LIKE :sSuper))';
+                $qb->setParameter('sAdmin', '%"'.Role::ADMIN->value.'"%')->setParameter('sSuper', '%"'.Role::SUPERADMIN->value.'"%');
+            }
+            $qb->andWhere($mine)->setParameter('sMe', $me);
+        }
+
+        switch ($f->tab) {
+            case 'special_progress':
+                $qb->andWhere('t.status IN (:sWork)')->setParameter('sWork', [TaskStatus::NOVO, TaskStatus::U_RADU, TaskStatus::CEKA_KLIJENTA])
+                    ->orderBy('CASE WHEN t.dueDate IS NULL THEN 1 ELSE 0 END', 'ASC')->addOrderBy('t.dueDate', 'ASC')->addOrderBy('t.id', 'DESC');
+                break;
+            case 'special_done':
+                $qb->andWhere('t.status = :sDone AND t.approvedBy IS NOT NULL')->setParameter('sDone', TaskStatus::ZAVRSENO);
+                if (!$f->specialAll) {
+                    $qb->andWhere('t.approvedBy = :sMe');
+                }
+                $qb->orderBy('t.approvedAt', 'DESC')->addOrderBy('t.id', 'DESC');
+                break;
+            default:
+                $qb->andWhere('t.status = :sReview')->setParameter('sReview', TaskStatus::NA_PROVERI)->orderBy('t.submittedAt', 'ASC')->addOrderBy('t.id', 'ASC');
+        }
+
+        return $qb;
+    }
+
+    /** Broj posebnih potvrda koje čekaju $user (brojač u meniju i na dashboardu); isti upit kao tab "Čeka potvrdu". */
+    public function countAwaitingSpecialApproval(User $user, bool $all): int
+    {
+        $f = new TaskFilter(viewerAdmin: true, viewerLeader: true, scope: 'all', tab: 'special_waiting', specialApprovalFor: $user, specialAll: $all);
+
+        return (int) $this->createFilteredQueryBuilder($f, $user)->select('COUNT(t.id)')->resetDQLPart('orderBy')->getQuery()->getSingleScalarResult();
+    }
+
+    /** Najstarije slanje na posebnu potvrdu među onima koji čekaju (za karticu na dashboardu) */
+    public function oldestAwaitingSpecialApproval(User $user, bool $all): ?\DateTimeImmutable
+    {
+        $f = new TaskFilter(viewerAdmin: true, viewerLeader: true, scope: 'all', tab: 'special_waiting', specialApprovalFor: $user, specialAll: $all);
+        $value = $this->createFilteredQueryBuilder($f, $user)->select('MIN(t.submittedAt)')->resetDQLPart('orderBy')->getQuery()->getSingleScalarResult();
+
+        return null === $value ? null : new \DateTimeImmutable((string) $value);
+    }}

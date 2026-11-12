@@ -6,7 +6,9 @@ use App\Entity\JobCategory;
 use App\Entity\JobTemplate;
 use App\Enum\CompletionMode;
 use App\Enum\PriceUnit;
+use App\Entity\User;
 use App\Enum\TaskPriority;
+use App\Repository\UserRepository;
 use App\Repository\JobCategoryRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -21,6 +23,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class JobTemplateType extends AbstractType
 {
+    public function __construct(private readonly UserRepository $users)
+    {
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         /** @var JobTemplate $job */
@@ -48,6 +54,22 @@ class JobTemplateType extends AbstractType
             ->add('estimatedMinutes', IntegerType::class, ['label' => 'Procenjeno trajanje (min)', 'attr' => ['min' => 0]])
             ->add('priceUnit', EnumType::class, ['label' => 'Jedinica cene', 'class' => PriceUnit::class, 'choice_label' => static fn (PriceUnit $u) => $u->label()])
             ->add('defaultPrice', MoneyType::class, ['label' => 'Predložena cena', 'currency' => 'RSD', 'required' => false, 'help' => 'Samo predlog kad se posao ugovara pojedinačno; prava cena se upisuje na klijentu.'])
+            ->add('requiresApproval', CheckboxType::class, [
+                'label' => 'Traži potvrdu',
+                'required' => false,
+                'help' => 'Za posebne poslove. Zadatke iz ovog posla mora da potvrdi izabrana osoba, bez obzira na poziciju radnika.',
+                'attr' => ['data-kt-approval-toggle' => ''],
+            ])
+            ->add('approvers', EntityType::class, [
+                'label' => 'Ko potvrđuje',
+                'class' => User::class,
+                'multiple' => true,
+                'required' => false,
+                'query_builder' => $this->users->createReviewApproverQueryBuilder($job->getApprovers()),
+                'choice_label' => static fn (User $u) => $u->getFullName().($u->isActive() ? '' : ' (neaktivan)'),
+                'help' => 'Admini i superadmini. Najmanje jedan je obavezan kad je potvrda uključena.',
+                'row_attr' => ['data-kt-approvers-row' => ''],
+            ])
             ->add('active', CheckboxType::class, ['label' => 'Aktivan', 'required' => false]);
     }
 

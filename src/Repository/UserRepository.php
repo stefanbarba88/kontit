@@ -188,4 +188,24 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 //            ->getOneOrNullResult()
 //        ;
 //    }
-}
+
+    /**
+     * Mogući proveravači posebne potvrde: aktivni admini i superadmini, plus već izabrani (i ako su u međuvremenu deaktivirani).
+     *
+     * @param iterable<User> $alsoInclude
+     */
+    public function createReviewApproverQueryBuilder(iterable $alsoInclude = []): QueryBuilder
+    {
+        $keep = [];
+        foreach ($alsoInclude as $user) {
+            $keep[] = $user->getId();
+        }
+        $qb = $this->createQueryBuilder('u')
+            ->andWhere('(u.isActive = true AND (u.roles LIKE :admin OR u.roles LIKE :superadmin)) OR u.id IN (:keep)')
+            ->setParameter('admin', '%"'.Role::ADMIN->value.'"%')
+            ->setParameter('superadmin', '%"'.Role::SUPERADMIN->value.'"%')
+            ->setParameter('keep', [] === $keep ? [0] : $keep)
+            ->orderBy('u.lastName', 'ASC')->addOrderBy('u.firstName', 'ASC');
+
+        return $qb;
+    }}

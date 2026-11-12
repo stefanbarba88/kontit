@@ -13,7 +13,10 @@ use App\Repository\ClientRepository;
 use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
 use App\Service\ClientPeople;
+use App\Enum\ReviewMode;
 use App\Service\ReturnUrlResolver;
+use App\Service\ReviewChoice;
+use App\Service\TaskReviewPolicy;
 use App\Service\TaskCompletionService;
 use App\Service\TaskListView;
 use App\Service\TaskService;
@@ -35,6 +38,7 @@ class TaskController extends AbstractController
         private readonly ClientJobRepository $jobs,
         private readonly ClientPeople $clientPeople,
         private readonly ReturnUrlResolver $returnUrl,
+        private readonly TaskReviewPolicy $reviewPolicy,
     ) {
     }
 
@@ -100,7 +104,7 @@ class TaskController extends AbstractController
                 foreach (array_values((array) $form->get('checklist')->getData()) as $position => $row) {
                     $task->addChecklistItem(new ChecklistItem($task, (string) $row['text'], $position));
                 }
-                $this->tasks->create($task, $this->submittedAssignees($form, $me), $me, $this->wantsEmail($form));
+                $this->tasks->create($task, $this->submittedAssignees($form, $me), $me, $this->wantsEmail($form), false, $this->reviewChoice($form));
                 $this->addFlash('success', sprintf('Zadatak „%s“ je kreiran.', $task->getTitle()));
 
                 return $this->redirect($this->returnUrl->resolve($returnTo, $this->generateUrl('task_show', ['id' => $task->getId()])));
@@ -139,7 +143,7 @@ class TaskController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $this->tasks->update($task, $this->submittedAssignees($form, $me, $task), $me, $this->wantsEmail($form));
+                $this->tasks->update($task, $this->submittedAssignees($form, $me, $task), $me, $this->wantsEmail($form), $this->reviewChoice($form));
                 $this->addFlash('success', 'Zadatak je sačuvan.');
 
                 return $this->redirect($this->returnUrl->resolve($returnTo, $this->generateUrl('task_show', ['id' => $task->getId()])));
@@ -238,7 +242,8 @@ class TaskController extends AbstractController
             }
         }
 
-        return $this->redirectToRoute('task_show', ['id' => $task->getId()]);
+        // akcije iz liste (Posebne potvrde) vraćaju na listu sa filterima
+        return $this->redirect($this->returnUrl->resolve($this->returnUrl->fromRequest($request), $this->generateUrl('task_show', ['id' => $task->getId()])));
     }
 
     /**
@@ -266,7 +271,41 @@ class TaskController extends AbstractController
                 ? $this->users->createAssignableQueryBuilder($me, $admin, $task->getAssigneeUsers())
                 : null,
             'default_assignees' => $defaultAssignees,
+            'review_modes' => $this->reviewModesFor($task, $me),
+            'review_approver_query_builder' => $this->users->createReviewApproverQueryBuilder($task->getRequiredApprovers()),
         ]);
+    }
+
+    /**
+     * Izbor "Provera" u formi: skriven za kreatora čija pozicija traži proveru, za zadatak iz posla koji traži potvrdu (zaključano)
+     * i za izmenu koju akter ne sme. Koji je izbor dozvoljen za izabrane učesnike proverava server (TaskReviewPolicy::modesFor).
+     *
+     * @return list<ReviewMode>
+     */
+    private function reviewModesFor(Task $task, User $me): array
+    {
+        if ($me->getPosition()?->requiresTaskReview()) {
+            return [];
+        }
+        if (null !== $task->getId() && !$this->reviewPolicy->canChangeMode($task, $me)) {
+            return [];
+        }
+        $template = $task->getClientJob()?->getJobTemplate();
+        if ($task->isReviewFromJob() || (null === $task->getId() && null !== $template && $template->requiresApproval())) {
+            return [];
+        }
+
+        return $this->tasks->isLeader($me) ? [ReviewMode::AUTO, ReviewMode::NONE, ReviewMode::SPECIAL] : [ReviewMode::AUTO, ReviewMode::SPECIAL];
+    }
+
+    private function reviewChoice(\Symfony\Component\Form\FormInterface $form): ?ReviewChoice
+    {
+        if (!$form->has('reviewMode')) {
+            return null;
+        }
+        $mode = $form->get('reviewMode')->getData();
+
+        return $mode instanceof ReviewMode ? new ReviewChoice($mode, array_values((array) ($form->get('reviewApprovers')->getData() instanceof \Traversable ? iterator_to_array($form->get('reviewApprovers')->getData(), false) : $form->get('reviewApprovers')->getData()))) : null;
     }
 
     /**

@@ -58,6 +58,13 @@
                         <div class="col-md-4">{{ form_row(form.priority) }}</div>
                         <div class="col-md-4">{{ form_row(form.completionMode) }}</div>
                     </div>
+                    {% if form.reviewMode is defined %}
+                        {{ form_row(form.reviewMode) }}
+                        <div class="kt-text-sm text-muted mt-n2 mb-3" data-kt-review-hint></div>
+                        {{ form_row(form.reviewApprovers) }}
+                    {% elseif task.id %}
+                        <div class="kt-text-sm text-muted mb-1">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Provera: {{ task_review(task).text }}</div>
+                    {% endif %}
                 </div>
             </div>
             {% if form.checklist is defined %}
