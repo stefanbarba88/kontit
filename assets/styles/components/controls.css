@@ -99,6 +99,7 @@ textarea.form-control { resize: vertical; }
 .ts-wrapper.plugin-remove_button .item .remove:hover { background: rgba(0, 0, 0, .06); opacity: 1; }
 .ts-wrapper.disabled .ts-control { opacity: .6; background: var(--kt-surface-2); }
 .is-invalid + .ts-wrapper .ts-control, .ts-wrapper.is-invalid .ts-control { border-color: var(--kt-danger); }
+.kt-ts-dot { display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--kt-dot, #64748B); }
 .kt-ts-loading { padding: 10px; display: flex; justify-content: center; }
 
 /* --- flatpickr ---

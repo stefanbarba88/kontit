@@ -26,7 +26,7 @@ class DesignController extends AbstractController
     }
 
     #[Route('/_design', name: 'app_design', methods: ['GET'])]
-    public function index(ActivityLogRepository $activity, JobCategoryRepository $categories): Response
+    public function index(ActivityLogRepository $activity, JobCategoryRepository $categories, \App\Repository\PositionRepository $positions): Response
     {
         if ('dev' !== $this->environment) {
             throw $this->createNotFoundException();
@@ -44,6 +44,7 @@ class DesignController extends AbstractController
         return $this->render('design/index.html.twig', [
             'activity' => $activity->findUserPage($user),
             'categories' => $categories->findOrdered(),
+            'positions' => $positions->findOrdered(),
             'jobForm' => $this->createForm(JobTemplateType::class, $job)->createView(),
         ]);
     }

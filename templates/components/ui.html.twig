@@ -24,6 +24,10 @@
     {% if category %}<span class="kt-cat-badge{{ category.active ? '' : ' is-inactive' }}" style="--kt-cat: {{ category.color }};">{% if category.icon %}{{ ux_icon('lucide:' ~ category.icon, {class: 'kt-icon'}) }}{% endif %}{{ category.name }}</span>{% endif %}
 {% endmacro %}
 
+{% macro position_badge(position) %}
+    {% if position %}<span class="kt-cat-badge{{ position.active ? '' : ' is-inactive' }}" style="--kt-cat: {{ position.color }};">{{ position.name }}</span>{% endif %}
+{% endmacro %}
+
 {% macro role_badge(role) %}
     {% set cls = {
         'ROLE_SUPERADMIN': 'danger',

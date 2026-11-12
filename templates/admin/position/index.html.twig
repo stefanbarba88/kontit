@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% block title %}Pozicije{% endblock %}
+{% block page_title %}Pozicije{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item">Administracija</span><span class="breadcrumb-item active">Pozicije</span>{% endblock %}
+
+{% block page_actions %}
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#position-modal" data-kt-position-new>{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Nova pozicija</button>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-body border-bottom kt-text-sm text-muted">
+            {{ ux_icon('lucide:grip-vertical', {class: 'kt-icon me-1'}) }}Prevuci red da promeniš redosled: prva je najniža pozicija.
+            Pozicija je nivo zaposlenog i <strong>ne daje prava pristupa</strong>; prava se zadaju posebno u profilu korisnika.
+        </div>
+        <ul class="list-group list-group-flush kt-position-list" data-kt-sortable-url="{{ path('ajax_position_reorder') }}">
+            {% for position in positions %}
+                {% set users = counts[position.id] ?? 0 %}
+                <li class="list-group-item d-flex flex-wrap align-items-center gap-3" data-id="{{ position.id }}">
+                    <span class="kt-drag-handle text-muted" title="Prevuci" aria-label="Prevuci">{{ ux_icon('lucide:grip-vertical', {class: 'kt-icon'}) }}</span>
+                    <span class="min-w-0 flex-grow-1">
+                        {{ ui.position_badge(position) }}
+                        {% if position.description %}<span class="text-muted kt-text-sm ms-2">{{ position.description }}</span>{% endif %}
+                    </span>
+                    <span class="text-muted kt-text-sm text-nowrap">{{ users }} {{ users % 10 == 1 and users % 100 != 11 ? 'korisnik' : 'korisnika' }}</span>
+                    {{ ui.status_badge(position.active) }}
+                    <span class="text-nowrap">
+                        <button type="button" class="btn kt-btn-icon btn-sm" title="Izmeni" data-bs-toggle="modal" data-bs-target="#position-modal"
+                                data-kt-position-edit="{{ path('admin_position_edit', {id: position.id}) }}" data-name="{{ position.name }}" data-description="{{ position.description }}"
+                                data-color="{{ position.color }}" data-capacity="{{ position.monthlyCapacityHours }}" data-role="{{ position.suggestedAccessRole ? position.suggestedAccessRole.value : '' }}">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button>
+                        {% if used[position.id] is not defined %}
+                            <form method="post" action="{{ path('admin_position_delete', {id: position.id}) }}" class="d-inline" {{ confirm_attrs('Obrisati poziciju „' ~ position.name ~ '“?', 'Pozicija nikad nije korišćena, pa se briše trajno.', 'danger', 'Da, obriši') }}>
+                                <input type="hidden" name="_token" value="{{ csrf_token('position_delete_' ~ position.id) }}">
+                                <button class="btn kt-btn-icon btn-sm text-danger" title="Obriši">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}</button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{{ path('admin_position_toggle', {id: position.id}) }}" class="d-inline"
+                                {% if position.active %}{{ confirm_attrs('Deaktivirati poziciju „' ~ position.name ~ '“?', 'Pozicija je korišćena (korisnici ili istorija napredovanja), pa ne može da se obriše. Posle deaktivacije se ne nudi u formama, a korisnici koji je imaju je zadržavaju.', 'warning', 'Da, deaktiviraj') }}{% endif %}>
+                                <input type="hidden" name="_token" value="{{ csrf_token('position_toggle_' ~ position.id) }}">
+                                <button class="btn kt-btn-icon btn-sm" title="{{ position.active ? 'Deaktiviraj' : 'Aktiviraj' }}">{{ ux_icon(position.active ? 'lucide:eye-off' : 'lucide:eye', {class: 'kt-icon'}) }}</button>
+                            </form>
+                        {% endif %}
+                    </span>
+                </li>
+            {% else %}
+                <li class="list-group-item">{{ ui.empty_state('Još nema pozicija.', 'award') }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="modal fade" id="position-modal" tabindex="-1" aria-labelledby="position-modal-title" aria-hidden="true" {% if form.vars.submitted %}data-kt-open{% endif %}>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                {{ form_start(form, {attr: {'data-kt-position-form': '', 'data-new-action': path('admin_position_new')}}) }}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="position-modal-title" data-new="Nova pozicija" data-edit="Izmena pozicije">{{ editing and editing.id ? 'Izmena pozicije' : 'Nova pozicija' }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zatvori"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ form_row(form.name) }}
+                        {{ form_row(form.description) }}
+                        {{ form_row(form.color) }}
+                        {{ form_row(form.monthlyCapacityHours) }}
+                        {{ form_row(form.suggestedAccessRole) }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Odustani</button>
+                        <button class="btn btn-primary">Sačuvaj</button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
