@@ -143,6 +143,14 @@ Kad zadatak dođe **Na proveri**, dobijaš obaveštenje, a zadatak je u tabu **�
 
 > **Važno:** ako si i sam učesnik zadatka, ne možeš sam sebi da ga potvrdiš. Takav zadatak potvrđuje administrator.
 
+### Koji zadaci čekaju tvoju potvrdu
+
+Provera zavisi od **pozicije radnika**: zadaci radnika na pozicijama koje traže proveru (podrazumevano Entry level i Junior) dolaze tebi, a zadaci Samostalnih i Šefova se završavaju odmah. Tvoju potvrdu ne traže **posebne potvrde** (poslovi koje potvrđuju određeni admini); na takvom zadatku piše **Posebna potvrda: ime**.
+
+### Provera pri pravljenju zadatka
+
+U formi zadatka za člana tima možeš da izabereš polje **Provera**: **Automatski, po poziciji**, **Bez provere** ili **Posebna potvrda** (bira se admin). Promena je moguća dok zadatak nije poslat na proveru, a samo za zadatke čiji su svi učesnici u tvom timu. Polje se ne vidi ako je tvoja pozicija sa proverom.
+
 ## Odsustva tima
 
 Na strani **Odsustva** šef ima četiri taba.

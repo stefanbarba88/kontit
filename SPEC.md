@@ -162,10 +162,15 @@ OTKAZANO (iz bilo kog statusa, radi kreator / šef / admin)
 ```
 - `U_RADU` se postavlja automatski pri prvom štikliranju ili promeni statusa učesnika.
 - `NA_PROVERI` se postavlja automatski po pravilu iz 4.1.
-- **Završen zadatak mora da potvrdi šef** tima u kome je radnik:
-  - **Potvrdi**: zadatak prelazi u `ZAVRSENO`, uz approvedBy i approvedAt.
+- **Provera više nije obavezna za sve.** Odluku donosi jedno mesto, `TaskReviewPolicy`, po ovim pravilima (redom):
+  1. **Posebna potvrda** (`reviewMode=SPECIAL`, vidi 4.6): zadatak ide `NA_PROVERI`, potvrđuju ga samo izabrani proveravači (admin/superadmin), pozicija se ignoriše.
+  2. **Po poziciji** (`reviewMode=AUTO`): ako je bar jedan učesnik koji je završio svoj deo na poziciji sa `requiresTaskReview` (podrazumevano Entry level i Junior da, Samostalni i Šef ne, nove pozicije ne), zadatak ide `NA_PROVERI`. Poziciju čitamo u trenutku slanja, pa napredovanje usred zadatka važi. Proverava šef tima tog učesnika; ako je učesnik šef, nema tima ili je šef odsutan, proverava admin.
+  3. Inače (ili `reviewMode=NONE`) zadatak odmah postaje `ZAVRSENO`: `approvedBy`/`approvedAt` ostaju prazni, `completedWithoutReview=true`, a `finishedAt` je vreme završetka (koristi statistika).
+- Kad se zadatak proverava:
+  - **Potvrdi**: `ZAVRSENO`, uz approvedBy, approvedAt i finishedAt.
   - **Vrati na doradu**: obavezan komentar, zadatak se vraća u `U_RADU`, a statusi učesnika se vraćaju u `U_RADU`.
-- Ako je **šef sam učesnik** zadatka (ili je radnik bez tima), potvrđuje **admin**. Admin i superadmin mogu da potvrde bilo koji zadatak.
+- Niko ne potvrđuje sopstveni zadatak (osim superadmina kad nema drugog mogućeg proveravača). Admin i superadmin mogu da potvrde zadatak po poziciji.
+- Završen zadatak bez provere može da se vrati u rad ("Vrati moj deo u rad"), isto kao pre potvrde.
 - Ako se posle potvrde nešto promeni (odštiklira se stavka), zadatak se ponovo otvara i to se loguje.
 
 ### 4.4 Ko kome kreira zadatke
@@ -178,7 +183,7 @@ OTKAZANO (iz bilo kog statusa, radi kreator / šef / admin)
 - **Vidljivost** (`TASK_VIEW`): admin+, kreator, učesnik i šef tima čiji je član učesnik. Šef ne vidi zadatke drugih timova.
 - **Izmena** (`TASK_EDIT`: podaci, učesnici, struktura checkliste) i **otkazivanje** (`TASK_CANCEL`): admin+, kreator i šef tima, dok zadatak nije završen ni otkazan.
 - **Rad na zadatku** (`TASK_COMPLETE`: štikliranje, "moj deo", čeka klijenta): admin+, učesnik i šef tima, dok zadatak nije otkazan.
-- **Potvrda** (`TASK_APPROVE`): zadatak mora biti NA_PROVERI. Potvrđuje admin+ ili šef tima koji nije i sam učesnik.
+- **Potvrda** (`TASK_APPROVE`): zadatak mora biti NA_PROVERI. Po poziciji potvrđuje admin+ ili šef tima koji nije i sam učesnik; kod posebne potvrde samo izabrani proveravači (i superadmin kao poslednja instanca), šef ne.
 - **Checklist stavka**: zajedničku štiklira svako ko radi na zadatku, a dodeljenu samo ta osoba, kreator, šef tima ili admin. Dodavanje, brisanje, dodela i redosled su pravo izmene.
 - Štikliranje prebacuje zadatak i učesnika u U_RADU. **Odštiklirana stavka ili nova stavka** na zadatku koji je NA_PROVERI ili ZAVRSENO ponovo otvara zadatak (U_RADU, svi učesnici U_RADU, poništena potvrda).
 - **Vraćanje na doradu**: obavezan razlog, čuva se kao komentar tipa VRACANJE_NA_DORADU, svi učesnici se vraćaju u U_RADU.
@@ -187,6 +192,24 @@ OTKAZANO (iz bilo kog statusa, radi kreator / šef / admin)
 - Komentar može da izmeni autor 15 minuta. Komentare vraćanja na doradu nije moguće menjati.
 - Beleženje u `ActivityLog` je urađeno u Fazi 4 (vidi sekciju 3, ActivityLog), a notifikacije dolaze u Fazi 5. Prikaz tuđih zadataka kao "PREUZETO" za backup dolazi u Fazi 6.
 
+### 4.6 Posebne potvrde (implementirano)
+- **Posao** (`JobTemplate`): `requiresApproval` + proveravači (aktivni admin/superadmin, najmanje jedan). Značka „Traži potvrdu“ u katalogu i ugovorenim uslugama. Sa jednim proveravačem forma upozorava da on ne može da potvrdi sopstveni zadatak.
+- **Snapshot**: pri kreiranju zadatka iz posla (generator, „Kreiraj zadatak sada“, „Po potrebi“, ručni zadatak sa poslom; jedno mesto: `TaskService`) proveravači se kopiraju na zadatak (`task_required_approver`, `reviewFromJob`). Kasnija izmena posla ne menja postojeće zadatke.
+- **Način provere na zadatku** (`Task.reviewMode`, `reviewDecidedBy`, `reviewDecidedAt`), polje „Provera“ u formi:
+  - kreator čija pozicija traži proveru ne vidi polje, server nameće AUTO;
+  - kreira za sebe (bez pozicije sa proverom, npr. admin): AUTO ili SPECIAL;
+  - kreira za druge (šef za svoj tim, admin+ za sve): AUTO / NONE („Bez provere“) / SPECIAL;
+  - zadatak iz posla sa potvrdom je zaključan na SPECIAL sa proveravačima posla;
+  - izbor SPECIAL traži bar jednog aktivnog admina/superadmina;
+  - promena samo dok zadatak nije `NA_PROVERI`/`ZAVRSENO`, uz `TASK_EDIT` i vlast nad SVIM učesnicima (šef njihovog tima ili admin+); učesnik koji nije kreator ne menja;
+  - svaka promena ide u `ActivityLog`; značka prikazuje odluku („Bez provere, odlučio: …“, „Posebna potvrda: …, zatražio: …“);
+  - generisani zadaci su uvek AUTO, osim kad posao traži potvrdu (SPECIAL).
+- **Proveravač koji više nije važeći** (neaktivan ili bez admin prava) ne računa se; ako nijedan ne preostane, potvrđuje superadmin. Pri deaktivaciji ili spuštanju prava jedinog proveravača admin dobija upozorenje sa brojem posebnih poslova i otvorenih zadataka (`SpecialApprovalService::soleApproverWarning`).
+- **Stranica** `/tasks/special-approvals` (samo admin i superadmin, `SPECIAL_APPROVALS_VIEW`, stavka „Posebne potvrde“ u meniju sa brojačem): admin vidi zadatke gde je proveravač, superadmin svoje + prekidač „Sve posebne potvrde“. Tabovi: Čeka potvrdu (najstariji prvi, „čeka N radna dana“, crveno preko 2 radna dana), U radu, Potvrđeno (period se odnosi na datum potvrde, izvoz Excel/CSV/PDF). Filteri: klijent, posao, radnik, rok. Akcije u listi „Potvrdi“ i „Vrati na doradu“ (obavezan razlog), na telefonu prevlačenjem.
+- **Dashboard**: kartica „Posebne potvrde“ (broj, najstariji, link; „Nema posebnih potvrda.“ kad je prazno). Admin vidi i broj zadataka „Bez provere“ po odlučivaču (90 dana).
+- **Notifikacije**: `SPECIAL_APPROVAL_SUBMITTED` svim proveravačima (in-app + mail, podrazumevano uključen, korisnik ga isključuje u profilu); `TASK_SUBMITTED` samo onima koji smeju da potvrde; podsetnik `SPECIAL_APPROVAL_REMINDER` jednom dnevno za posebne potvrde koje čekaju duže od 2 radna dana (`app:notifications:due`).
+- **Automatsko odobravanje** se nikad ne primenjuje na posebne potvrde.
+- **Statistika**: „% vraćenih na doradu“ i „prosečno vreme do potvrde“ računaju samo zadatke koji su išli na proveru; zadaci završeni bez provere se broje kao završeni i „na vreme“ (po `finished_at`).
 ---
 
 ## 5. Backup radnik i odsustva

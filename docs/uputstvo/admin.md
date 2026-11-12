@@ -140,6 +140,7 @@ Sopstveni nalog ne možeš da deaktiviraš. Ponovo aktiviraš dugmetom **Aktivir
 - **Nova pozicija** (modal): naziv, opis, boja, **Mesečni kapacitet (sati)** i **Predlog prava pristupa** (samo predlog u formi korisnika).
 - Redosled po senioritetu menjaš prevlačenjem (prva je najniža).
 - **Brisanje** je moguće samo za poziciju koja nikad nije korišćena. Korišćena (ima korisnike ili se pominje u istoriji napredovanja) može samo da se **deaktivira**: više se ne nudi u formama, a korisnici koji je imaju je zadržavaju.
+- **Zadaci ove pozicije traže proveru**: kvačica u formi pozicije. Ako je uključena, završen zadatak radnika na toj poziciji potvrđuje šef tima (ili admin); inače se zadatak završava odmah.
 - Kapacitet za analitiku opterećenja: prvo kapacitet samog radnika (Finansije → Podešavanja), pa kapacitet njegove pozicije, pa podrazumevani.
 - Listu korisnika možeš da filtriraš po poziciji, a izvoz poštuje isti filter.
 
@@ -488,3 +489,16 @@ Ništa se ne briše fizički: poslovi i paketi se deaktiviraju ili završavaju, 
 - **Praznici nisu učitani za novu godinu**: rokovi u januaru padaju na praznike. Učitaj praznike na vreme.
 - **Promena neradnih dana u nedelji** menja rokove budućih zadataka i broj radnih dana u odsustvima. Radi to pažljivo.
 - **Cena sa tačkom i zarezom**: upisuj kao „2.500,00“ ili „2500“. Obe varijante su ispravne.
+
+## Posebne potvrde
+
+Neki poslovi traže da zadatak potvrdi tačno određeni admin, bez obzira na poziciju radnika.
+
+1. **Katalog → posao → Traži potvrdu**: uključi kvačicu i izaberi proveravače (aktivni admini i superadmini, najmanje jedan). Posao dobija značku **Traži potvrdu**. Ako izabereš samo jednog, on ne može da potvrdi sopstveni zadatak (tada potvrđuje drugi proveravač ili superadmin).
+2. Zadatak nastao iz tog posla pamti proveravače u trenutku kreiranja. Kasnija izmena posla ne menja već napravljene zadatke.
+3. Pregled je u meniju **Posebne potvrde** (brojač pokazuje koliko čeka tebe). Tabovi: **Čeka potvrdu** (najstariji prvi, crveno posle 2 radna dana), **U radu** i **Potvrđeno** (sa izvozom). Superadmin ima prekidač **Sve posebne potvrde**.
+4. U listi su dugmad **Potvrdi** i **Vrati na doradu** (razlog je obavezan); na telefonu se prevlači red.
+5. Obaveštenja (u aplikaciji i mailom, mail se isključuje u profilu) stižu pri slanju na potvrdu, a podsetnik jednom dnevno za zadatke koji čekaju duže od 2 radna dana. Automatsko odobravanje se ne primenjuje.
+6. Pri deaktivaciji admina (ili skidanju prava) koji je jedini proveravač nekog posla, dobijaš upozorenje sa brojem poslova i otvorenih zadataka. Dok ne izabereš novog proveravača, zadatke potvrđuje superadmin.
+
+U formi zadatka polje **Provera** (Automatski / Bez provere / Posebna potvrda) možeš da menjaš dok zadatak nije poslat na proveru. Na početnoj strani vidiš i koliko je zadataka „Bez provere“ ko odlučio u poslednjih 90 dana.

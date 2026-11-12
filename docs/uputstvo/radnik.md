@@ -182,14 +182,14 @@ Svaki učesnik ima i **svoj status** na zadatku: **Novo**, **U radu**, **Završi
    - Stavka bez avatara je zajednička i štiklira je bilo ko.
 4. Ako čekaš klijenta (nije poslao izvode, fakture...), klikni **Čeka klijenta**. Kad stigne, klikni **Nastavi rad**.
 5. Kad je tvoj deo gotov, po želji upiši **Napomenu** i klikni **Moj deo je gotov**.
-6. Kad svi završe (ili jedan, ako u **Detalji → Završetak** piše „Dovoljan jedan“), zadatak ide **Na proveri** i šef dobija obaveštenje.
-7. Šef ga **potvrdi** (status **Završeno**) ili **vrati na doradu** sa razlogom. Razlog vidiš u komentarima, označen narandžasto, a zadatak je opet **U radu**.
+6. Kad svi završe (ili jedan, ako u **Detalji → Završetak** piše „Dovoljan jedan“), zadatak ide **Na proveri** i proveravač dobija obaveštenje. Ne proverava se svaki zadatak: na zadatku piše značka **Proverava: šef tima**, **Posebna potvrda: ime** ili **Bez provere**. Ako zadatak ne ide na proveru, dobićeš poruku „Zadatak će biti završen bez provere“ i on odmah postaje **Završeno**.
+7. Kad se proverava, šef (ili admin) ga **potvrdi** (status **Završeno**) ili **vrati na doradu** sa razlogom. Razlog vidiš u komentarima, označen narandžasto, a zadatak je opet **U radu**.
 
 [SLIKA: strana zadatka, Checklist, Učesnici i dugme Moj deo je gotov]
 
 > **Pažnja:** dugme **Moj deo je gotov** ne radi dok nisi štiklirao sve stavke koje su dodeljene **tebi**.
 
-Ako si slučajno javio da si gotov, klikni **Vrati moj deo u rad** (može dok šef ne potvrdi).
+Ako si slučajno javio da si gotov, klikni **Vrati moj deo u rad** (može dok proveravač ne potvrdi, a kod zadatka završenog bez provere dok ga niko ne otvori ponovo).
 
 ### Komentari
 

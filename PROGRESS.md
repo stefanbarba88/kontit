@@ -335,6 +335,12 @@ mpp\htdocs\kontit_template_backup` (nije bio u git-u; obrisati ručno kad više 
 - „Rola“ → „Prava pristupa“ u UI. `CapacityResolver`: korisnik > pozicija > opšti (FinanceService, podešavanja).
 - Testovi: `tests/Service/PositionTest.php`. Sledeće: grupisanje analitike po poziciji (nije urađeno): prosečno vreme završetka po poziciji (`StatisticsService::performance`), opterećenje po poziciji u Finansijama, % vraćenih na doradu po poziciji, MRR po poziciji, raspodela klijenata po poziciji.
 
+### Provera zadataka po poziciji i posebne potvrde
+- Provera više nije obavezna za sve: `TaskReviewPolicy` odlučuje (posebna potvrda > pozicija > bez provere). `Position.requiresTaskReview`, `JobTemplate.requiresApproval` + proveravači, `Task.reviewMode/reviewDecidedBy/reviewDecidedAt/reviewFromJob/completedWithoutReview/finishedAt`, `task_required_approver` (snapshot). Migracije `Version20261112132735`, `Version20261112134053` (finished_at, podrazumevani mail za posebne potvrde).
+- `TASK_APPROVE` prilagođen, `SpecialApprovalVoter`, `SpecialApprovalService` (čekanje u radnim danima, podsetnik, upozorenje za jedinog proveravača), strana `/tasks/special-approvals` (+ izvoz `posebnepotvrde`, brojač u meniju), kartica na dashboardu, „Bez provere“ po odlučivaču (admin), statistika po `finished_at`.
+- Cron `app:notifications:due` sada šalje i podsetnike za posebne potvrde.
+- Testovi: `TaskReviewTest`, `SpecialApprovalServiceTest`, `SpecialApprovalsPageTest`, `ReviewFormsRenderTest`. Nije proveravano u pregledaču: review.js (forma zadatka/posla), swipe na stranici posebnih potvrda.
+- Sledeće: pregled u pregledaču na 390px i `/_design` (značka provere, „Traži potvrdu“).
 ## Odluke donete usput
 - 2026-10-27: Jedna firma, nije SaaS, pa nema Company entiteta.
 - 2026-10-27: Timove kreira samo admin. Jedan šef po timu, a šef može da se menja (TeamLeaderLog).
