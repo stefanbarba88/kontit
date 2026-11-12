@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block page_actions %}
+    {% if tab == 'zadaci' %}{% import 'components/export.html.twig' as export %}{{ export.menu('zadaci', list.exportQuery) }}{% endif %}
     <a href="{{ path('client_task_new', {clientId: client.id, returnTo: return_to_path()}) }}" class="btn btn-outline-primary">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Novi zadatak</a>
     {% if is_granted('PRICE_VIEW') %}
         <a href="{{ path('admin_finance_client', {id: client.id}) }}" class="btn btn-outline-primary">{{ ux_icon('lucide:trending-up', {class: 'kt-icon me-2'}) }}Analitika</a>
@@ -31,10 +32,13 @@
     <ul class="nav kt-tabs mb-3">
         <li class="nav-item"><a href="{{ path('client_show', {id: client.id}) }}" class="nav-link {{ tab == 'pregled' ? 'active' }}">Pregled</a></li>
         <li class="nav-item"><a href="{{ path('client_show', {id: client.id, tab: 'usluge'}) }}" class="nav-link {{ tab == 'usluge' ? 'active' }}">{{ ux_icon('lucide:package', {class: 'kt-icon me-1'}) }}Ugovorene usluge</a></li>
+        <li class="nav-item"><a href="{{ path('client_tasks', {id: client.id}) }}" class="nav-link {{ tab == 'zadaci' ? 'active' }}">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-1'}) }}Zadaci{% if taskCounts.open %}<span class="kt-tab-count">{{ taskCounts.open }}</span>{% endif %}{% if taskCounts.overdue %}<span class="kt-tab-dot" title="{{ taskCounts.overdue }} kasni" aria-label="Ima zadataka koji kasne"></span>{% endif %}</a></li>
     </ul>
 
     {% if tab == 'usluge' %}
         {{ include('client/_services.html.twig') }}
+    {% elseif tab == 'zadaci' %}
+        {% include 'components/_task_list.html.twig' with {list: list} only %}
     {% else %}
 
     <div class="row">

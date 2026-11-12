@@ -8,6 +8,7 @@ use App\Entity\ClientPackage;
 use App\Form\ClientPackageType;
 use App\Repository\ServicePackageRepository;
 use App\Service\ContractedServicesOverview;
+use App\Service\TaskListView;
 use App\Entity\User;
 use App\Form\ClientAssignmentType;
 use App\Form\ClientType;
@@ -147,13 +148,19 @@ class ClientController extends AbstractController
     }
 
     #[Route('/clients/{id}', name: 'client_show', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[Route('/clients/{id}/zadaci', name: 'client_tasks', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[IsGranted('CLIENT_VIEW', 'client')]
-    public function show(Request $request, Client $client, ClientAssignmentLogRepository $logs, ActivityLogRepository $activity, ContractedServicesOverview $services, ServicePackageRepository $packages, UserRepository $users): Response
+    public function show(Request $request, Client $client, ClientAssignmentLogRepository $logs, ActivityLogRepository $activity, ContractedServicesOverview $services, ServicePackageRepository $packages, UserRepository $users, TaskListView $taskList): Response
     {
-        // tab "Ugovorene usluge" (SPEC 8h.3) se učitava samo kad je otvoren
-        $tab = 'usluge' === $request->query->get('tab') ? 'usluge' : 'pregled';
+        // tabovi: Pregled, Ugovorene usluge (SPEC 8h.3) i Zadaci (/clients/{id}/zadaci) se učitavaju samo kad su otvoreni
+        $tab = 'client_tasks' === $request->attributes->get('_route') ? 'zadaci' : ('usluge' === $request->query->get('tab') ? 'usluge' : 'pregled');
         $data = ['client' => $client, 'tab' => $tab];
-        if ('usluge' === $tab) {
+        // brojač otvorenih zadataka na tabu i crvena tačka ako neki kasne (samo ono što korisnik sme da vidi)
+        $me = $this->getUser();
+        $data['taskCounts'] = $taskList->summary($me, $client);
+        if ('zadaci' === $tab) {
+            $data['list'] = $taskList->build($request, $me, 'client_tasks', ['id' => $client->getId()], $client);
+        } elseif ('usluge' === $tab) {
             $data['services'] = $services->build($client);
             $data['assignees'] = $users->findBy(['isActive' => true], ['firstName' => 'ASC', 'lastName' => 'ASC']);
             if ($this->isGranted('CATALOG_MANAGE')) {
@@ -162,7 +169,7 @@ class ClientController extends AbstractController
                 ])->createView();
                 $data['packagesData'] = ClientPackageController::packagesData($packages);
             }
-        } else {
+        } elseif ('pregled' === $tab) {
             $data['history'] = $logs->findByClient($client);
             $data['activity'] = $activity->findEntityPage(ActivityLog::CLIENT, $client->getId());
         }
