@@ -23,9 +23,17 @@
                 </div>
                 <div class="col-6 col-md-3">
                     <select name="role" class="form-select">
-                        <option value="">Sve role</option>
+                        <option value="">Sva prava pristupa</option>
                         {% for role in roles %}
                             <option value="{{ role.value }}" {{ filters.role == role.value ? 'selected' : '' }}>{{ role.label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <select name="position" class="form-select" aria-label="Pozicija">
+                        <option value="">Sve pozicije</option>
+                        {% for p in positions %}
+                            <option value="{{ p.id }}" {{ filters.position == p.id ? 'selected' : '' }}>{{ p.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -50,7 +58,7 @@
                     <tr>
                         <th>Korisnik</th>
                         <th>Pozicija</th>
-                        <th>Rola</th>
+                        <th>Prava pristupa</th>
                         <th>Status</th>
                         <th>Poslednja prijava</th>
                         <th class="text-center" style="width: 1%;"></th>
@@ -68,7 +76,7 @@
                                     </div>
                                 </a>
                             </td>
-                            <td>{{ user.position ?? '—' }}</td>
+                            <td>{{ user.position ? ui.position_badge(user.position) : '—' }}</td>
                             <td>{{ ui.role_badge(user.highestRole) }}</td>
                             <td>{{ ui.status_badge(user.active) }}</td>
                             <td>{{ user.lastLoginAt ? user.lastLoginAt|date('d.m.Y. H:i') : '—' }}</td>

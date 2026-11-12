@@ -19,6 +19,9 @@ function initSelects(root) {
             // data-kt-search: pretraga i po dodatnom tekstu opcije (data-data='{"search": "pun naziv, PIB"}')
             searchField: el.hasAttribute('data-kt-search') ? ['text', 'search'] : ['text'],
             render: {
+                // opcije sa data-data '{"color": "#hex"}' dobijaju obojenu tačku (pozicije)
+                option: (d, esc) => `<div>${d.color ? `<span class="kt-ts-dot" style="--kt-dot: ${esc(d.color)}"></span>` : ''}${esc(d.text)}</div>`,
+                item: (d, esc) => `<div>${d.color ? `<span class="kt-ts-dot" style="--kt-dot: ${esc(d.color)}"></span>` : ''}${esc(d.text)}</div>`,
                 no_results: () => '<div class="no-results">Nema rezultata</div>',
                 loading: () => '<div class="kt-ts-loading"><span class="kt-loader kt-loader--sm"><i></i><i></i><i></i><i></i></span></div>',
             },

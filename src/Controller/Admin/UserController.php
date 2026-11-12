@@ -27,16 +27,17 @@ class UserController extends AbstractController
 
     #[Route('', name: 'admin_user_index', methods: ['GET'])]
     #[IsGranted('USER_MANAGE')]
-    public function index(Request $request, UserRepository $repository, PaginatorInterface $paginator): Response
+    public function index(Request $request, UserRepository $repository, PaginatorInterface $paginator, \App\Repository\PositionRepository $positions): Response
     {
         $filters = [
             'q' => $request->query->getString('q'),
             'role' => $request->query->getString('role'),
             'status' => $request->query->getString('status'),
+            'position' => $request->query->getInt('position'),
         ];
 
         $pagination = $paginator->paginate(
-            $repository->createListQueryBuilder($filters['q'], $filters['role'], $filters['status']),
+            $repository->createListQueryBuilder($filters['q'], $filters['role'], $filters['status'], $filters['position']),
             $request->query->getInt('page', 1),
             15,
         );
@@ -45,6 +46,7 @@ class UserController extends AbstractController
             'pagination' => $pagination,
             'filters' => $filters,
             'roles' => Role::cases(),
+            'positions' => $positions->findOrdered(),
         ]);
     }
 
@@ -53,6 +55,7 @@ class UserController extends AbstractController
     public function new(Request $request): Response
     {
         $user = new User();
+        $positionBefore = null;
         $form = $this->createForm(UserType::class, $user, [
             'role_choices' => $this->users->assignableRoles($this->getUser()),
             'require_password' => true,
@@ -62,6 +65,7 @@ class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $this->users->save($user, $form->get('plainPassword')->getData(), $form->get('role')->getData());
+                $this->users->logPositionChange($user, $positionBefore, $this->getUser(), $request->request->getString('reason'));
                 $this->addFlash('success', sprintf('Korisnik %s je kreiran.', $user->getFullName()));
 
                 return $this->redirectToRoute('admin_user_show', ['id' => $user->getId()]);
@@ -75,7 +79,7 @@ class UserController extends AbstractController
 
     #[Route('/{id}', name: 'admin_user_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[IsGranted('USER_VIEW', 'user')]
-    public function show(User $user, TeamMemberRepository $members, TeamRepository $teams, ClientRepository $clients, ActivityLogRepository $activity, \App\Service\TaskListView $taskList): Response
+    public function show(User $user, TeamMemberRepository $members, TeamRepository $teams, ClientRepository $clients, ActivityLogRepository $activity, \App\Service\TaskListView $taskList, \App\Repository\UserPositionLogRepository $positionLog): Response
     {
         return $this->render('admin/user/show.html.twig', [
             'user' => $user,
@@ -86,6 +90,7 @@ class UserController extends AbstractController
             'currentMembership' => $members->findActiveByUser($user),
             'history' => $members->findHistoryByUser($user),
             'ledTeam' => $teams->findActiveLedBy($user),
+            'positionHistory' => $positionLog->findByUser($user),
         ]);
     }
 
@@ -93,6 +98,7 @@ class UserController extends AbstractController
     #[IsGranted('USER_EDIT', 'user')]
     public function edit(Request $request, User $user): Response
     {
+        $positionBefore = $user->getPosition();
         $form = $this->createForm(UserType::class, $user, [
             'role_choices' => $this->users->assignableRoles($this->getUser()),
         ]);
@@ -101,6 +107,7 @@ class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $this->users->save($user, $form->get('plainPassword')->getData(), $form->get('role')->getData());
+                $this->users->logPositionChange($user, $positionBefore, $this->getUser(), $request->request->getString('reason'));
                 $this->addFlash('success', 'Izmene su sačuvane.');
 
                 return $this->redirectToRoute('admin_user_show', ['id' => $user->getId()]);

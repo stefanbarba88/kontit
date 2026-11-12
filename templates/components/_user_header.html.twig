@@ -10,7 +10,7 @@
     <div class="min-w-0">
         <div class="kt-user-head-name text-truncate">{{ user.fullName }}</div>
         <div class="kt-user-head-meta">
-            {{ user.position ?? 'Bez pozicije' }}{% if team %} · {{ team.name }}{% endif %}
+            {% if user.position %}{% import 'components/ui.html.twig' as ui %}{{ ui.position_badge(user.position) }}{% else %}Bez pozicije{% endif %}{% if team %} · {{ team.name }}{% endif %}
             {% if not user.active %}<span class="badge kt-badge-secondary ms-1">Neaktivan</span>{% endif %}
         </div>
     </div>

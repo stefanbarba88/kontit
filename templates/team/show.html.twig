@@ -32,7 +32,7 @@
                             {% if leaderHome %}
                                 <tr>
                                     <td>{{ ui.user_chip(team.leader) }} <span class="badge kt-badge-primary ms-1">Šef</span>{% if is_granted('USER_TASKS_VIEW', team.leader) %}<a href="{{ path('user_tasks', {id: team.leader.id}) }}" class="btn btn-sm btn-light ms-2">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-1'}) }}Zadaci</a>{% endif %}</td>
-                                    <td>{{ team.leader.position ?? '—' }}</td>
+                                    <td>{{ team.leader.position ? ui.position_badge(team.leader.position) : '—' }}</td>
                                     <td class="text-muted kt-text-sm">član tima „{{ leaderHome.name }}“</td>
                                     <td></td>
                                 </tr>
@@ -50,7 +50,7 @@
                                         {% if isLeader %}<span class="badge kt-badge-primary ms-1">Šef</span>{% endif %}
                                         {% if not m.user.active %}<span class="badge kt-badge-secondary ms-1">Neaktivan</span>{% endif %}
                                     </td>
-                                    <td>{{ m.user.position ?? '—' }}</td>
+                                    <td>{{ m.user.position ? ui.position_badge(m.user.position) : '—' }}</td>
                                     <td>{{ m.joinedAt|date('d.m.Y.') }}</td>
                                     <td class="text-center">
                                         {% if is_granted('TEAM_MANAGE') and not isLeader %}

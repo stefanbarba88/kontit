@@ -2,7 +2,9 @@
 
 namespace App\Service;
 
+use App\Entity\Position;
 use App\Entity\User;
+use App\Entity\UserPositionLog;
 use App\Enum\Role;
 use App\Repository\ClientRepository;
 use App\Repository\TaskRepository;
@@ -50,6 +52,19 @@ class UserService
         }
 
         $this->em->persist($user);
+        $this->em->flush();
+    }
+
+    /**
+     * Beleži promenu pozicije u istoriju napredovanja (UserPositionLog). Poziva se posle čuvanja korisnika, sa pozicijom od pre izmene.
+     * Pozicija ne menja ROLE_*: prava pristupa se menjaju samo u save().
+     */
+    public function logPositionChange(User $user, ?Position $before, User $actor, ?string $note = null): void
+    {
+        if ($before === $user->getPosition()) {
+            return;
+        }
+        $this->em->persist(new UserPositionLog($user, $before, $user->getPosition(), $actor, $note));
         $this->em->flush();
     }
 

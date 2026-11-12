@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block content %}
-    {{ form_start(form, {attr: {'data-confirm-changed': '[name$="[role]"]', 'data-confirm': 'Promeniti rolu korisnika?', 'data-confirm-text': 'Promena role menja prava pristupa korisnika.', 'data-confirm-type': 'warning', 'data-confirm-button': 'Da, promeni'}}) }}
+    {{ form_start(form, {attr: {'data-confirm-changed': '[name$="[role]"], [name$="[position]"]', 'data-confirm': 'Promeniti korisnika?', 'data-confirm-text': '', 'data-confirm-type': 'warning', 'data-confirm-button': 'Da, promeni'}}) }}
     <div class="row">
         <div class="col-lg-7">
             <div class="card">
@@ -49,6 +49,10 @@
                 <div class="card-header"><h5 class="mb-0">Posao</h5></div>
                 <div class="card-body border-top">
                     {{ form_row(form.position) }}
+                    <div class="alert alert-info py-2 kt-text-sm d-none" data-kt-position-hint>
+                        Predlažemo prava pristupa: <strong data-kt-position-hint-role></strong>.
+                        <button type="button" class="btn btn-light btn-sm ms-2" data-kt-position-hint-apply>Primeni</button>
+                    </div>
                     {{ form_row(form.employedAt) }}
                     {{ form_row(form.internalNote) }}
                 </div>

@@ -40,7 +40,7 @@
         <div class="col-6 col-md-6 col-xl-3">
             <select name="user" class="form-select" aria-label="Zaduženi" data-native>
                 <option value="">Svi zaduženi</option>
-                {% for u in list.people %}<option value="{{ u.id }}" {{ f.assignee and f.assignee.id == u.id ? 'selected' }}>{{ u.fullName }}</option>{% endfor %}
+                {% for u in list.people %}<option value="{{ u.id }}" {{ f.assignee and f.assignee.id == u.id ? 'selected' }}>{{ u.fullName }}{% if u.position %} ({{ u.position.name }}){% endif %}</option>{% endfor %}
             </select>
         </div>
     {% endif %}

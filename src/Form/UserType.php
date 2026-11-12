@@ -3,8 +3,11 @@
 namespace App\Form;
 
 use App\Entity\User;
+use App\Entity\Position;
 use App\Enum\Role;
+use App\Repository\PositionRepository;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -22,6 +25,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class UserType extends AbstractType
 {
+    public function __construct(private readonly PositionRepository $positions)
+    {
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -29,13 +36,14 @@ class UserType extends AbstractType
             ->add('lastName', TextType::class, ['label' => 'Prezime'])
             ->add('email', EmailType::class, ['label' => 'Email (login)'])
             ->add('role', EnumType::class, [
-                'label' => 'Rola',
+                'label' => 'Prava pristupa',
                 'class' => Role::class,
                 'choices' => $options['role_choices'],
                 'choice_label' => static fn (Role $r) => $r->label(),
                 'mapped' => false,
                 'data' => $options['data']->getHighestRole(),
-                'help' => 'Šef tima dobija ROLE_SEF automatski kada se postavi za šefa tima.',
+                'help' => 'Prava pristupa određuju šta korisnik sme u aplikaciji. Šef tima dobija prava šefa automatski kada se postavi za šefa tima.',
+                'attr' => ['data-confirm-field-text' => 'Promena prava pristupa menja šta korisnik sme u aplikaciji.', 'data-confirm-field-message' => 'Promeniti prava pristupa korisnika?'],
             ])
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
@@ -54,7 +62,20 @@ class UserType extends AbstractType
             ->add('address', TextType::class, ['label' => 'Adresa', 'required' => false])
             ->add('city', TextType::class, ['label' => 'Grad', 'required' => false])
             ->add('postalCode', TextType::class, ['label' => 'Poštanski broj', 'required' => false])
-            ->add('position', TextType::class, ['label' => 'Pozicija', 'required' => false, 'help' => 'npr. Knjigovođa, Samostalni knjigovođa'])
+            ->add('position', EntityType::class, [
+                'class' => Position::class,
+                'label' => 'Pozicija',
+                'required' => false,
+                'placeholder' => 'Bez pozicije',
+                'choices' => $this->positions->findOrdered(true, $options['data']->getPosition()),
+                'choice_label' => static fn (Position $p) => $p->getName().($p->isActive() ? '' : ' (neaktivna)'),
+                'choice_attr' => static fn (Position $p) => [
+                    'data-data' => json_encode(['color' => $p->getColor()]),
+                    'data-suggested-role' => $p->getSuggestedAccessRole()?->value ?? '',
+                ],
+                'help' => 'Nivo zaposlenog. Pozicija NE daje prava pristupa, ona se biraju posebno. Promena pozicije se beleži u istoriji.',
+                'attr' => ['data-kt-position-select' => '', 'data-confirm-field-text' => 'Promena pozicije se beleži u istoriji korisnika; prava pristupa se ne menjaju.', 'data-confirm-field-message' => 'Promeniti poziciju korisnika?', 'data-confirm-reason' => 'optional'],
+            ])
             ->add('employedAt', DateType::class, [
                 'label' => 'Datum zaposlenja',
                 'required' => false,

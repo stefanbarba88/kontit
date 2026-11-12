@@ -33,7 +33,7 @@
                 <div class="card-body text-center">
                     <div class="mb-3">{{ ui.avatar(user, 80) }}</div>
                     <h5 class="mb-1">{{ user.fullName }}</h5>
-                    <div class="text-muted mb-3">{{ user.position ?? 'Bez pozicije' }}</div>
+                    <div class="text-muted mb-3">{% if user.position %}{{ ui.position_badge(user.position) }}{% else %}Bez pozicije{% endif %}</div>
                     <div class="d-flex justify-content-center gap-2">
                         {{ ui.role_badge(user.highestRole) }}
                         {{ ui.status_badge(user.active) }}
@@ -129,6 +129,20 @@
             </div>
         </div>
     </div>
+    {% if positionHistory|length > 0 %}
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:award', {class: 'kt-icon me-2'}) }}Istorija pozicija</h5></div>
+            <ul class="list-group list-group-flush border-top">
+                {% for l in positionHistory %}
+                    <li class="list-group-item">
+                        <strong>{{ l.fromPositionName ?? 'Bez pozicije' }} → {{ l.toPositionName ?? 'Bez pozicije' }}</strong>, {{ l.changedAt|date('j.n.Y.') }}
+                        {% if l.changedBy %}<span class="text-muted kt-text-sm">({{ l.changedBy.fullName }})</span>{% endif %}
+                        {% if l.note %}<div class="text-muted kt-text-sm">{{ l.note }}</div>{% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
     {{ include('absence/_user_card.html.twig', {person: user, edit: is_granted('USER_MANAGE')}) }}
     <div class="card">
         <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:history', {class: 'kt-icon me-2'}) }}Aktivnost</h5></div>

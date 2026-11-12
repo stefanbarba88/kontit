@@ -43,8 +43,8 @@
                 <div class="card-body border-top">
                     <dl class="row mb-0">
                         <dt class="col-sm-4">Email</dt><dd class="col-sm-8">{{ app.user.email }}</dd>
-                        <dt class="col-sm-4">Rola</dt><dd class="col-sm-8">{{ ui.role_badge(app.user.highestRole) }}</dd>
-                        <dt class="col-sm-4">Pozicija</dt><dd class="col-sm-8">{{ app.user.position ?? '—' }}</dd>
+                        <dt class="col-sm-4">Prava pristupa</dt><dd class="col-sm-8">{{ ui.role_badge(app.user.highestRole) }}</dd>
+                        <dt class="col-sm-4">Pozicija</dt><dd class="col-sm-8">{{ app.user.position ? ui.position_badge(app.user.position) : '—' }}</dd>
                         <dt class="col-sm-4">Tim</dt>
                         <dd class="col-sm-8">
                             {% if membership %}{{ ui.team_badge(membership.team) }}{% else %}<span class="text-muted">—</span>{% endif %}

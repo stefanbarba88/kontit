@@ -17,6 +17,7 @@ final class UserExport implements ExportListInterface
     public function __construct(
         private readonly UserRepository $users,
         private readonly Security $security,
+        private readonly \Doctrine\ORM\EntityManagerInterface $em,
     ) {
     }
 
@@ -40,7 +41,7 @@ final class UserExport implements ExportListInterface
         return [
             ['label' => 'Ime i prezime', 'type' => 'text', 'width' => 26],
             ['label' => 'Email', 'type' => 'text', 'width' => 30],
-            ['label' => 'Rola', 'type' => 'text', 'width' => 14],
+            ['label' => 'Prava pristupa', 'type' => 'text', 'width' => 14],
             ['label' => 'Pozicija', 'type' => 'text', 'width' => 22],
             ['label' => 'Telefon', 'type' => 'text', 'width' => 16],
             ['label' => 'Status', 'type' => 'text', 'width' => 10],
@@ -60,7 +61,7 @@ final class UserExport implements ExportListInterface
                 $u->getFullName(),
                 $u->getEmail(),
                 $u->getHighestRole()->label(),
-                $u->getPosition(),
+                $u->getPosition()?->getName(),
                 $u->getPhone(),
                 $u->isActive() ? 'aktivan' : 'neaktivan',
                 $u->getLastLoginAt(),
@@ -75,7 +76,10 @@ final class UserExport implements ExportListInterface
             $parts[] = 'Pretraga: '.$query['q'];
         }
         if ($role = Role::tryFrom((string) ($query['role'] ?? ''))) {
-            $parts[] = 'Rola: '.$role->label();
+            $parts[] = 'Prava pristupa: '.$role->label();
+        }
+        if ((int) ($query['position'] ?? 0) > 0 && ($position = $this->em->find(\App\Entity\Position::class, (int) $query['position']))) {
+            $parts[] = 'Pozicija: '.$position->getName();
         }
         if (\in_array($query['status'] ?? '', ['active', 'inactive'], true)) {
             $parts[] = 'Status: '.('active' === $query['status'] ? 'aktivni' : 'neaktivni');
@@ -93,6 +97,7 @@ final class UserExport implements ExportListInterface
             (string) ($query['q'] ?? ''),
             (string) ($query['role'] ?? ''),
             (string) ($query['status'] ?? ''),
+            (int) ($query['position'] ?? 0),
         );
     }
 }

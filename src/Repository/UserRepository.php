@@ -22,9 +22,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         parent::__construct($registry, User::class);
     }
 
-    public function createListQueryBuilder(?string $search, ?string $role, ?string $status): QueryBuilder
+    public function createListQueryBuilder(?string $search, ?string $role, ?string $status, ?int $positionId = null): QueryBuilder
     {
-        $qb = $this->createQueryBuilder('u')->orderBy('u.lastName', 'ASC')->addOrderBy('u.firstName', 'ASC');
+        $qb = $this->createQueryBuilder('u')->addSelect('p')->leftJoin('u.position', 'p')->orderBy('u.lastName', 'ASC')->addOrderBy('u.firstName', 'ASC');
 
         if (null !== $search && '' !== trim($search)) {
             $qb->andWhere('u.firstName LIKE :q OR u.lastName LIKE :q OR u.email LIKE :q OR CONCAT(u.firstName, \' \', u.lastName) LIKE :q')
@@ -35,6 +35,10 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             // roles je JSON niz, čuva se jedna rola po korisniku
             $qb->andWhere(Role::RADNIK->value === $role ? 'u.roles LIKE :role OR u.roles = \'[]\'' : 'u.roles LIKE :role')
                 ->setParameter('role', '%"'.$role.'"%');
+        }
+
+        if (null !== $positionId && $positionId > 0) {
+            $qb->andWhere('u.position = :position')->setParameter('position', $positionId);
         }
 
         if ('active' === $status) {

@@ -9,7 +9,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Korisnik sam menja svoj profil. Email, rola i pozicija ostaju adminu.
+ * Korisnik sam menja svoj profil. Email, prava pristupa i pozicija ostaju adminu.
  */
 class ProfileType extends AbstractType
 {

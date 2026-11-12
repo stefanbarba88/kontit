@@ -104,7 +104,7 @@ class TaskType extends AbstractType
                 'label' => 'Učesnici',
                 'class' => User::class,
                 'query_builder' => $options['assignee_query_builder'],
-                'choice_label' => 'fullName',
+                'choice_label' => static fn (User $u) => $u->getFullName().($u->getPosition() ? ' ('.$u->getPosition()->getName().')' : ''),
                 'choice_attr' => static fn (User $u) => ['data-user' => $u->getId()],
                 'multiple' => true,
                 'expanded' => true,

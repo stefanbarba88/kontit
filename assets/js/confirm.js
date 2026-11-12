@@ -72,8 +72,8 @@ export function confirmDialog(options) {
     if (typeName) {
         html.push('<div class="mb-1 text-muted">Za potvrdu ukucaj: <strong class="swal-type-name"></strong></div><input class="form-control swal-type-input" autocomplete="off">');
     }
-    if (needsReason) {
-        html.push('<textarea class="form-control swal-reason mt-2" rows="3" placeholder="Razlog (obavezno)"></textarea>');
+    if (needsReason || 'optional' === options.reason) {
+        html.push(`<textarea class="form-control swal-reason mt-2" rows="3" maxlength="255" placeholder="${needsReason ? 'Razlog (obavezno)' : 'Napomena (neobavezno)'}"></textarea>`);
     }
 
     return swal
@@ -157,7 +157,14 @@ const changedConfirm = (form) => {
     if (!$fields.length) {
         return null;
     }
-    const options = optionsFrom(form);
+    let options = optionsFrom(form);
+    // polje može da ima svoj tekst (data-confirm-field-text) i neobaveznu napomenu (data-confirm-reason="optional"); više izmenjenih polja = jedno pitanje
+    const texts = [...new Set($fields.map(function () { return $(this).data('confirmFieldText') || options.text; }).get())];
+    options = { ...options, text: texts.join(' '), message: $fields.length > 1 ? 'Sačuvati promene?' : $fields.first().data('confirmFieldMessage') || options.message };
+    const optionalNote = $fields.filter('[data-confirm-reason]').first().data('confirmReason');
+    if (optionalNote) {
+        options.reason = optionalNote;
+    }
     const $selected = $fields.first().is('select') ? $fields.first().find('option:selected') : $();
     const warning = $selected.data('warning');
     if ($form.is('[data-confirm-option-warning]') && !warning) {
