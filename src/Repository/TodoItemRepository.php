@@ -144,4 +144,17 @@ class TodoItemRepository extends ServiceEntityRepository
             ['now' => $now->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s'), 'id' => $id, 'owner' => $owner->getId()],
         );
     }
+    /**
+     * Nezavršene stavke vlasnika sa rokom u [$fromUtc, $toUtc) za kalendar.
+     *
+     * @return list<TodoItem>
+     */
+    public function findDueBetween(User $owner, \DateTimeImmutable $fromUtc, \DateTimeImmutable $toUtc): array
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.owner = :owner AND t.isDone = false AND t.dueAt IS NOT NULL AND t.dueAt >= :from AND t.dueAt < :to')
+            ->setParameter('owner', $owner)->setParameter('from', $fromUtc)->setParameter('to', $toUtc)
+            ->orderBy('t.dueAt', 'ASC')->setMaxResults(500)
+            ->getQuery()->getResult();
+    }
 }

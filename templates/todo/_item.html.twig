@@ -70,6 +70,9 @@
         <div class="d-flex gap-2 mt-3">
             <button type="button" class="btn btn-primary btn-sm" data-todo-act="save">Sačuvaj</button>
             <button type="button" class="btn btn-light btn-sm" data-todo-act="open">Zatvori</button>
+            {% if not item.done and not item.createdTask and is_granted('TASK_CREATE') %}
+                <a href="{{ path('task_new', {fromTodo: item.id}) }}" class="btn btn-light btn-sm" title="Otvara formu zadatka sa popunjenim podacima">{{ ux_icon('lucide:square-check-big', {class: 'kt-icon me-1'}) }}Pretvori u zadatak</a>
+            {% endif %}
             <button type="button" class="btn btn-ghost btn-sm text-danger ms-auto" data-todo-act="delete">{{ ux_icon('lucide:trash-2', {class: 'kt-icon me-1'}) }}Obriši</button>
         </div>
     </form>

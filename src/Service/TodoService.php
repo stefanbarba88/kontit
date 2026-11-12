@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Task;
 use App\Entity\TodoItem;
 use App\Entity\User;
 use App\Enum\TodoRepeat;
@@ -343,6 +344,13 @@ class TodoService
             default => throw new \DomainException('Nepoznato odlaganje.'),
         };
         $item->setRemindAt($at);
+        $this->em->flush();
+    }
+    /** Posle čuvanja zadatka iz stavke ("Pretvori u zadatak"): stavka se završava i dobija link na zadatak */
+    public function markConverted(TodoItem $item, Task $task): void
+    {
+        $item->setCreatedTask($task);
+        $this->complete($item);
         $this->em->flush();
     }
 }

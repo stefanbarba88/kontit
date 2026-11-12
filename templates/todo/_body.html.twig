@@ -10,11 +10,11 @@
         </div>
         <div class="kt-todo-chips" role="group" aria-label="Rok i podsetnik">
             {% for chip in todo_chips() %}
-                <button type="button" class="kt-chip" data-todo-chip data-date="{{ chip.date }}" data-time="{{ chip.time }}">{{ chip.label }}</button>
+                <button type="button" class="kt-tchip" data-todo-chip data-date="{{ chip.date }}" data-time="{{ chip.time }}">{{ chip.label }}</button>
             {% endfor %}
-            <button type="button" class="kt-chip" data-todo-chip-pick>{{ ux_icon('lucide:calendar-clock', {class: 'kt-icon me-1'}) }}Izaberi…</button>
+            <button type="button" class="kt-tchip" data-todo-chip-pick>{{ ux_icon('lucide:calendar-clock', {class: 'kt-icon me-1'}) }}Izaberi…</button>
             <input type="text" class="kt-todo-picker" data-todo-picker tabindex="-1" aria-hidden="true">
-            <span class="kt-chip is-selected" data-todo-selected hidden><span data-todo-selected-label></span><button type="button" class="kt-chip-x" data-todo-clear-chip aria-label="Ukloni rok">{{ ux_icon('lucide:x', {class: 'kt-icon'}) }}</button></span>
+            <span class="kt-tchip is-selected" data-todo-selected hidden><span data-todo-selected-label></span><button type="button" class="kt-tchip-x" data-todo-clear-chip aria-label="Ukloni rok">{{ ux_icon('lucide:x', {class: 'kt-icon'}) }}</button></span>
         </div>
     </form>
     <div class="kt-todo-list" data-kt-todo-list>

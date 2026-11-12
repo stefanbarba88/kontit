@@ -3,7 +3,7 @@
 // Vremena šalje i prima kao LOKALNA (Europe/Belgrade) "Y-m-d" i "H:i"; zonu računa server (TodoClock), ne ovaj fajl.
 import Sortable from 'sortablejs';
 import flatpickr from 'flatpickr';
-import { Offcanvas } from 'bootstrap';
+import { Modal, Offcanvas } from 'bootstrap';
 import { ajax } from './ajax.js';
 import { confirmDialog, reminderToast, snoozeDialog, toast, undoToast } from './confirm.js';
 import { initDatepickers, srLatn } from './datepicker.js';
@@ -278,6 +278,44 @@ if (roots().length) {
         panel.addEventListener('show.bs.offcanvas', refresh);
         panel.addEventListener('shown.bs.offcanvas', () => panel.querySelector('[data-todo-title]')?.focus());
     }
+    // --- "Podseti me" sa zadatka / klijenta: mali formular koji pravi stavku vezanu za njih ---
+    const remindModal = document.getElementById('kt-remind-modal');
+    if (remindModal) {
+        const form = remindModal.querySelector('form');
+        const modal = Modal.getOrCreateInstance(remindModal);
+        let context = {};
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-kt-remind]');
+            if (!btn) {
+                return;
+            }
+            context = { taskId: btn.dataset.taskId ? Number(btn.dataset.taskId) : undefined, clientId: btn.dataset.clientId ? Number(btn.dataset.clientId) : undefined };
+            form.querySelector('[name="title"]').value = btn.dataset.title;
+            const dateInput = form.querySelector('[name="date"]');
+            initDatepickers(form);
+            dateInput._flatpickr?.setDate(form.dataset.defaultDate, true);
+            form.querySelector('[name="time"]').value = '09:00';
+            form.querySelector('[name="remindByEmail"]').checked = false;
+            modal.show();
+        });
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(form).entries());
+            const payload = { ...context, title: data.title, date: data.date, time: data.time, remindByEmail: form.querySelector('[name="remindByEmail"]').checked };
+            if (!payload.date) {
+                toast('Izaberi datum podsetnika.', 'danger');
+
+                return;
+            }
+            requestNotifications();
+            const res = await call('POST', `${baseUrl}/remind`, payload);
+            if (res) {
+                modal.hide();
+                toast(res.message);
+            }
+        });
+    }
+
     // --- podsetnici dok je aplikacija otvorena ---
     // Brz poll (15 s) dok je tab vidljiv; zvono u topbaru ostaje na 60 s kao rezervni kanal. Skriven tab pita samo ako sme da pokaže
     // browser obaveštenje (inače ne preuzima podsetnik, pa ga korisnik vidi u zvonu). Server preuzima podsetnik atomski: toast dobija jedan tab.

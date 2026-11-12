@@ -22,16 +22,16 @@
 .kt-todo-add-field .kt-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--kt-text-3); pointer-events: none; }
 .kt-todo-add-field .form-control { padding-left: 38px; }
 .kt-todo-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.kt-chip {
+.kt-tchip {
     display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; border-radius: 999px;
     border: 1px solid var(--kt-border); background: var(--kt-surface-2); color: var(--kt-text-2);
     font-size: 13px; font-weight: 500; cursor: pointer;
     transition: background-color var(--kt-dur-1) var(--kt-ease), border-color var(--kt-dur-1) var(--kt-ease), color var(--kt-dur-1) var(--kt-ease);
 }
-.kt-chip:hover { border-color: var(--kt-primary); color: var(--kt-primary); }
-.kt-chip.is-selected { background: var(--kt-primary-soft); border-color: var(--kt-primary); color: var(--kt-primary); }
-.kt-chip .kt-icon { font-size: 14px; }
-.kt-chip-x { border: 0; background: transparent; color: inherit; padding: 0; margin-left: 6px; display: inline-flex; cursor: pointer; }
+.kt-tchip:hover { border-color: var(--kt-primary); color: var(--kt-primary); }
+.kt-tchip.is-selected { background: var(--kt-primary-soft); border-color: var(--kt-primary); color: var(--kt-primary); }
+.kt-tchip .kt-icon { font-size: 14px; }
+.kt-tchip-x { border: 0; background: transparent; color: inherit; padding: 0; margin-left: 6px; display: inline-flex; cursor: pointer; }
 .kt-todo-picker { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; border: 0; padding: 0; pointer-events: none; }
 
 /* --- sekcije --- */

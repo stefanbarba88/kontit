@@ -64,3 +64,4 @@
 .kt-calendar .fc-daygrid-event { overflow: hidden; max-width: 100%; }
 .kt-calendar .fc-event-main, .kt-calendar .fc-event-main-frame { min-width: 0; overflow: hidden; display: flex; align-items: center; }
 .kt-calendar .kt-fc-title { display: block; min-width: 0; flex: 1 1 auto; }
+.kt-calendar .kt-fc-todo { border: 0; padding: 1px 4px; border-radius: 4px; color: #fff; background: var(--kt-success); }

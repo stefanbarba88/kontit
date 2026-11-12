@@ -99,6 +99,12 @@ if (el && window.FullCalendar) {
                 if (p.kind === 'holiday') {
                     return;
                 }
+                if (p.kind === 'todo') {
+                    popover = new Popover(arg.el, { title: escape(e.title), content: `<div class="kt-text-sm"><div>Moja lista${p.time ? ` · ${escape(p.time)}` : ''}</div><a href="${escape(p.todoUrl)}" class="btn btn-primary btn-sm mt-2">Otvori Moju listu</a></div>`, html: true, trigger: 'manual', placement: 'auto', customClass: 'kt-fc-popover', sanitize: false });
+                    popover.show();
+
+                    return;
+                }
                 const body = p.kind === 'task'
                     ? `<div class="kt-text-sm"><div><strong>${escape(p.client)}</strong></div><div>Status: ${escape(p.status)} · ${escape(p.priority)}</div>${p.assignees ? `<div>Učesnici: ${escape(p.assignees)}</div>` : ''}<a href="${escape(e.url)}" class="btn btn-primary btn-sm mt-2">Otvori zadatak</a></div>`
                     : `<div class="kt-text-sm"><div>${escape(p.summary)}</div><div>Status: ${escape(p.status)}</div></div>`;

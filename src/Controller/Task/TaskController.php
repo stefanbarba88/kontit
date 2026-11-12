@@ -39,6 +39,8 @@ class TaskController extends AbstractController
         private readonly ClientPeople $clientPeople,
         private readonly ReturnUrlResolver $returnUrl,
         private readonly TaskReviewPolicy $reviewPolicy,
+        private readonly \App\Repository\TodoItemRepository $todoItems,
+        private readonly \App\Service\TodoService $todo,
     ) {
     }
 
@@ -74,6 +76,24 @@ class TaskController extends AbstractController
         if (!$request->isMethod('POST') && false !== ($due = \DateTimeImmutable::createFromFormat('!Y-m-d', (string) $request->query->get('due')))) {
             $task->setDueDate($due);
         }
+        // "Pretvori u zadatak" iz Moje liste: ?fromTodo=ID. Samo VLASNIK stavke (tuđa ili nepostojeća daje 404, i za admina)
+        $fromTodo = null;
+        if ($request->query->getInt('fromTodo')) {
+            $fromTodo = $this->todoItems->findOwned($request->query->getInt('fromTodo'), $me);
+            if (null === $fromTodo || !$this->isGranted('TODO_VIEW', $fromTodo)) {
+                throw $this->createNotFoundException();
+            }
+            if (null === $task->getClient() && null !== $fromTodo->getClient() && $this->isGranted('CLIENT_VIEW', $fromTodo->getClient())) {
+                $task->setClient($fromTodo->getClient());
+            }
+            if (!$request->isMethod('POST')) {
+                $task->setTitle($fromTodo->getTitle())->setDescription($fromTodo->getNote());
+                $fields = $this->todo->formValues($fromTodo);
+                if ('' !== $fields['dueDate'] && false !== ($due = \DateTimeImmutable::createFromFormat('!Y-m-d', $fields['dueDate']))) {
+                    $task->setDueDate($due);
+                }
+            }
+        }
         $job = null;
         if ($request->query->getInt('job') && null !== $task->getClient()) {
             $job = $this->jobs->find($request->query->getInt('job'));
@@ -106,6 +126,9 @@ class TaskController extends AbstractController
                 }
                 $this->tasks->create($task, $this->submittedAssignees($form, $me), $me, $this->wantsEmail($form), false, $this->reviewChoice($form));
                 $this->addFlash('success', sprintf('Zadatak „%s“ je kreiran.', $task->getTitle()));
+                if (null !== $fromTodo) {
+                    $this->todo->markConverted($fromTodo, $task);
+                }
 
                 return $this->redirect($this->returnUrl->resolve($returnTo, $this->generateUrl('task_show', ['id' => $task->getId()])));
             } catch (\DomainException $e) {

@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Repository\TaskRepository;
 use App\Service\SpecialApprovalService;
 use App\Service\StatisticsService;
+use App\Service\TodoService;
 use App\Service\CalendarService;
 use App\Service\TaskService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,6 +21,7 @@ class DashboardController extends AbstractController
         private readonly CalendarService $calendar,
         private readonly TaskRepository $taskRepository,
         private readonly SpecialApprovalService $specialApprovals,
+        private readonly TodoService $todo,
     ) {
     }
 
@@ -43,7 +45,13 @@ class DashboardController extends AbstractController
             ];
         }
 
+        // Moja lista danas: zakasnelo + danas, najviše 5 (privatno, samo moje stavke)
+        $sections = $this->todo->sections($me);
+        $todayItems = array_merge($sections['overdue'], $sections['today']);
+
         return $this->render('dashboard/index.html.twig', [
+            'todoToday' => array_slice($todayItems, 0, 5),
+            'todoTodayTotal' => \count($todayItems),
             'special' => $special,
             'noReview' => $admin ? $this->stats->noReviewDecisions() : [],
             'me' => $this->stats->forWorker($me),

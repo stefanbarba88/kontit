@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class CalendarService
 {
     public const SCOPES = ['mine', 'team', 'all'];
-    public const TYPES = ['tasks', 'absences', 'holidays'];
+    public const TYPES = ['tasks', 'absences', 'holidays', 'todo'];
 
     public function __construct(
         private readonly TaskRepository $tasks,
@@ -29,6 +29,8 @@ class CalendarService
         private readonly Security $security,
         private readonly UrlGeneratorInterface $urls,
         private readonly AbsenceService $absenceService,
+        private readonly \App\Repository\TodoItemRepository $todoItems,
+        private readonly TodoClock $todoClock,
     ) {
     }
 
@@ -83,6 +85,14 @@ class CalendarService
                 foreach ($this->absences->findInPeriod($mates, $from, $to, false) as $absence) {
                     $events[] = $this->availabilityEvent($absence);
                 }
+            }
+        }
+        // Moja lista: samo stavke OVOG korisnika (privatno), bez obzira na izabrani opseg; ne ulaze u ICS ni Google kalendar
+        if (\in_array('todo', $types, true) && empty($filters['client']) && empty($filters['user'])) {
+            $fromUtc = $this->todoClock->startOfDay($from->format('Y-m-d'));
+            $toUtc = $this->todoClock->startOfDay($to->modify('+1 day')->format('Y-m-d'));
+            foreach ($this->todoItems->findDueBetween($me, $fromUtc, $toUtc) as $item) {
+                $events[] = $this->todoEvent($item);
             }
         }
         if (\in_array('holidays', $types, true)) {
@@ -142,6 +152,23 @@ class CalendarService
      *
      * @return list<Task>
      */
+    /** @return array<string, mixed> */
+    private function todoEvent(\App\Entity\TodoItem $item): array
+    {
+        $due = $item->getDueAt();
+        $local = $this->todoClock->toLocal($due);
+
+        return [
+            'id' => 'todo-'.$item->getId(),
+            'title' => $item->getTitle(),
+            'start' => $item->hasDueTime() ? $local->format('Y-m-d\TH:i:s') : $local->format('Y-m-d'),
+            'allDay' => !$item->hasDueTime(),
+            'editable' => false,
+            'classNames' => ['kt-fc-todo'],
+            'extendedProps' => ['kind' => 'todo', 'time' => $item->hasDueTime() ? $local->format('H:i') : null, 'todoUrl' => $this->urls->generate('todo_index')],
+        ];
+    }
+
     private function taskQuery(User $me, string $scope, \DateTimeImmutable $from, \DateTimeImmutable $to, array $filters): array
     {
         $admin = $this->taskService->isAdmin($me);

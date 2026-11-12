@@ -116,6 +116,43 @@ class TodoController extends AbstractAjaxController
         return $this->ok($this->state(), 'Stavka je vraćena.');
     }
 
+    /**
+     * "Podseti me" sa zadatka ili klijenta: pravi stavku vezanu za njih (rok i podsetnik u isto vreme).
+     * Zadatak/klijent se moraju smeti videti (TASK_VIEW / CLIENT_VIEW), inače 404.
+     */
+    #[Route('/ajax/todo/remind', name: 'ajax_todo_remind', methods: ['POST'])]
+    public function remind(Request $request): JsonResponse
+    {
+        $data = $this->payload($request);
+        $task = isset($data['taskId']) ? $this->em->find(Task::class, (int) $data['taskId']) : null;
+        $client = isset($data['clientId']) ? $this->em->find(Client::class, (int) $data['clientId']) : null;
+        if (null === $task && null === $client) {
+            return $this->fail('Nedostaje zadatak ili klijent.');
+        }
+        if (($task && !$this->isGranted('TASK_VIEW', $task)) || ($client && !$this->isGranted('CLIENT_VIEW', $client))) {
+            throw $this->createNotFoundException();
+        }
+        $item = null;
+        try {
+            if (empty($data['date'])) {
+                throw new \DomainException('Izaberi datum podsetnika.');
+            }
+            $item = $this->todo->add($this->actor(), (string) ($data['title'] ?? ''));
+            $time = $data['time'] ?? '09:00';
+            $this->todo->fill($item, ['dueDate' => $data['date'], 'dueTime' => $time, 'remindDate' => $data['date'], 'remindTime' => $time, 'remindByEmail' => !empty($data['remindByEmail'])]);
+            $item->setTask($task)->setClient($task?->getClient() ?? $client);
+            $this->todo->save($item);
+        } catch (\DomainException $e) {
+            if (null !== $item) {
+                $this->todo->delete($item);
+            }
+
+            return $this->fail($e->getMessage());
+        }
+
+        return $this->ok($this->state(), 'Podsetnik je dodat u tvoju listu.');
+    }
+
     #[Route('/ajax/todo/{id}', name: 'ajax_todo_update', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function update(int $id, Request $request): JsonResponse
     {
