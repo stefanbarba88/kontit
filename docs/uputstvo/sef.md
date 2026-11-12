@@ -201,6 +201,9 @@ U **Kalendaru** gore biraš **Moji** ili **Moj tim**. **Moj tim** prikazuje zada
 
 Ako je administrator uključio „Šefovi dobijaju i odsustva svog tima“, a ti si povezao Google kalendar, odobrena odsustva članova tima stižu i u tvoj Google kalendar „KontIT“.
 
+## Moja lista
+
+Imaš i **Moju listu**: ličnu listu obaveza i podsetnika (opis je u uputstvu za radnika). Vidiš samo svoju, a tvoju ne vidi niko, ni administrator. Nije zadatak, pa tvoj tim ne vidi šta je u njoj.
 ## Česta pitanja
 
 **Zašto ne vidim zadatak koji je napravio kolega iz drugog tima?**

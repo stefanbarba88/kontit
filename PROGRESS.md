@@ -341,6 +341,14 @@ mpp\htdocs\kontit_template_backup` (nije bio u git-u; obrisati ručno kad više 
 - Cron `app:notifications:due` sada šalje i podsetnike za posebne potvrde.
 - Testovi: `TaskReviewTest`, `SpecialApprovalServiceTest`, `SpecialApprovalsPageTest`, `ReviewFormsRenderTest`. Nije proveravano u pregledaču: review.js (forma zadatka/posla), swipe na stranici posebnih potvrda.
 - Sledeće: pregled u pregledaču na 390px i `/_design` (značka provere, „Traži potvrdu“).
+### Moja lista (lična to-do lista i podsetnici)
+- `TodoItem` (UTC tip `utc_datetime_immutable`, `TodoClock` kao jedino mesto za zonu), `TodoVoter` (samo vlasnik, 404 za tuđe), `TodoItemRepository` (svi upiti po vlasniku), `TodoService`, `TodoRepeatCalculator`, `TodoReminderService` + komanda `app:todo:send-reminders` (cron svakog minuta, DEPLOY.md). Migracija `Version20261112141323`.
+- UI: ikonica u topbaru + panel (offcanvas / bottom sheet), `/moja-lista`, čipovi, sekcije, detalji, Poništi, prevlačenje (SortableJS), swipe (`initSwipe` izdvojen u `mobile.js`), `assets/js/todo.js`, `assets/styles/components/todo.css`.
+- Podsetnici: zvono (`TODO_REMINDER`), mail po stavci, toast Završeno/Odloži, browser obaveštenje, poll `/ajax/todo/due` na 15 s; Odloži (10 min, 1 h, sutra 9:00 radni dan).
+- Podseti me (zadatak, klijent), Pretvori u zadatak (`?fromTodo=`), tip „Moja lista“ u kalendaru, kartica na dashboardu, `/_design`, SPEC 8p, uputstva.
+- Testovi: `TodoTest`, `TodoReminderTest`, `TodoPagesTest`, `TodoIntegrationTest`.
+- Nije proveravano u pregledaču: ceo JS (`todo.js`), panel i swipe na telefonu, Notification API, flatpickr sa vremenom, drag redosleda. Serverska strana je pokrivena testovima.
+- Odluke: Ctrl K paleta ne postoji, pa pravilo „pretraga samo svoje“ je upisano u SPEC kao uslov za budućnost; stavke nisu u ICS/Google kalendaru.
 ## Odluke donete usput
 - 2026-10-27: Jedna firma, nije SaaS, pa nema Company entiteta.
 - 2026-10-27: Timove kreira samo admin. Jedan šef po timu, a šef može da se menja (TeamLeaderLog).

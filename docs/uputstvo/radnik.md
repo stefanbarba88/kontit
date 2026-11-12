@@ -225,6 +225,44 @@ Na kolegin zadatak možeš da štikliraš stavke, komentarišeš i da klikneš *
 
 Kad se kolega vrati (ili se odsustvo otkaže), zamena prestaje sama.
 
+## Moja lista
+
+**Moja lista** je tvoja lična lista obaveza i podsetnika. Nije zadatak: nema provere, ne ulazi u statistiku i **vidiš je samo ti** (ni šef, ni administrator, ni superadministrator).
+
+### Gde je
+- Ikonica sa listom u gornjoj traci otvara panel sa strane (na telefonu iz dna ekrana). Broj na njoj je koliko stavki kasni ili ističe danas.
+- **Meni → Moja lista** (na telefonu **Više → Moja lista**) otvara celu stranu, sa pretragom.
+- Na **Početnoj** strani je kartica **Moja lista danas**.
+
+### Dodavanje
+1. Upiši obavezu u polje **Dodaj u moju listu…** i pritisni **Enter**.
+2. Pre Entera možeš da klikneš čip: **Danas** (rok je danas, ceo dan), **Sutra 9:00**, **Ponedeljak 9:00** ili **Izaberi…** (datum i vreme). Čip sa vremenom postavlja i rok i **podsetnik** na to vreme.
+
+> **Savet:** prvi put kad postaviš podsetnik, browser pita da li sme da ti šalje obaveštenja. Ako dozvoliš, podsetnik ćeš videti i kad je KontIT u drugom tabu.
+
+### Sekcije
+**Zakasnelo** (crveno), **Danas**, **Predstojeće**, **Bez roka** i **Završeno** (poslednjih 20). Rok bez vremena važi ceo dan: stavka kasni tek posle ponoći. Zakačenu stavku (pribadača) držiš na vrhu njene sekcije. U **Bez roka** redosled menjaš prevlačenjem.
+
+### Rad sa stavkom
+- Štikliraj kružić da završiš stavku. U poruci dole imaš **Poništi** 5 sekundi.
+- Klikni na naslov za detalje: napomena, rok, podsetnik, **ponavljanje**, podsetnik na mail i **Pretvori u zadatak**.
+- Na telefonu povuci stavku ulevo: **Završi** ili **Obriši**.
+- Brisanje obične stavke ima **Poništi** 5 sekundi. Stavka koja se ponavlja traži potvrdu, jer brisanjem prestaje ponavljanje.
+
+### Ponavljanje
+Možeš da izabereš: svaki dan, svaki radni dan (preskače vikende i neradne dane), svake nedelje ili svakog meseca (31. u kraćem mesecu postaje poslednji dan tog meseca). Kad završiš stavku, odmah nastaje sledeća. Ako je stavka kasnila, sledeći rok se računa od danas. Ako završiš greškom i klikneš **Poništi**, nova stavka se briše. Ponavljanje prekidaš izborom **Ne ponavlja se** ili brisanjem.
+
+### Podsetnici
+U zadato vreme dobijaš obaveštenje u **zvoncu**, a ako je uključeno **Podsetnik na mail**, i mail. Dok je KontIT otvoren, pojavi se poruka sa dugmadima **Završeno** i **Odloži** (10 minuta, 1 sat ili sutra u 9:00, sledeći radni dan). Podsetnik se ne šalje sam od roka: samo ako ga ti postaviš.
+
+### Podseti me
+Na strani **zadatka** i **klijenta** je dugme **Podseti me**. Otvara mali formular (naslov je već upisan, ti biraš datum i vreme) i pravi stavku u tvojoj listi vezanu za taj zadatak ili klijenta. Ako kasnije izgubiš pravo da vidiš taj zadatak ili klijenta, u listi ostaje samo naziv, bez linka.
+
+### Kalendar
+U **Kalendaru** uključi **Moja lista** da vidiš svoje stavke sa rokom. Druge osobe ih ne vide, a ne šalju se ni u Google kalendar.
+
+### Pretvori u zadatak
+U detaljima stavke klikni **Pretvori u zadatak**. Otvara se forma novog zadatka sa naslovom, opisom, rokom i klijentom iz stavke. Posle čuvanja stavka je završena, uz link na zadatak. Važe sva uobičajena pravila za pravljenje zadataka.
 ## Kalendar
 
 Meni **Kalendar** prikazuje u jednom kalendaru:

@@ -443,6 +443,9 @@ Liste **Klijenti**, **Zadaci**, **Korisnici** i **Odsustva → Evidencija** imaj
 
 Ako se posle 5 pokušaja događaji ne upišu, korisnik dobija obaveštenje i vidi grešku na profilu, a obično je dovoljno da ponovo poveže nalog.
 
+## Moja lista i privatnost
+
+Svako (i admin) ima **Moju listu**, ličnu listu obaveza i podsetnika (vidi uputstvo za radnika). Stavke vidi **samo vlasnik**: ni admin ni superadmin ne mogu da ih otvore, izmene, pretraže ni izvezu, a pokušaj pristupa tuđoj stavci vraća „nije pronađeno“. Stavke se ne beleže u istoriji izmena i ne ulaze u statistiku. Za podsetnike mora da radi cron `app:todo:send-reminders` (svakog minuta, vidi `DEPLOY.md`).
 ## Samo za superadmina
 
 Superadmin ima sve što i admin, plus:

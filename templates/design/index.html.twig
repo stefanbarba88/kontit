@@ -331,4 +331,48 @@
             <button class="btn btn-light" onclick="window.ktToast('Klijent nije sačuvan: PIB već postoji.', 'danger')">Toast (greška)</button>
         </div>
     </div>
+    <div class="card">
+        <div class="card-header"><h5>Moja lista: stavka, čipovi i panel</h5></div>
+        <div class="card-body">
+            <p class="kt-text-sm text-muted mb-2">Čipovi za rok i podsetnik (<code>.kt-tchip</code>): izabrani je plav, "Izaberi…" otvara flatpickr sa vremenom.</p>
+            <div class="kt-todo-chips mb-4">
+                <button type="button" class="kt-tchip is-selected">Sutra 9:00</button>
+                <button type="button" class="kt-tchip">Danas</button>
+                <button type="button" class="kt-tchip">Ponedeljak 9:00</button>
+                <button type="button" class="kt-tchip">{{ ux_icon('lucide:calendar-clock', {class: 'kt-icon me-1'}) }}Izaberi…</button>
+                <span class="kt-tchip is-selected">13.11. 14:30<button type="button" class="kt-tchip-x" aria-label="Ukloni rok">{{ ux_icon('lucide:x', {class: 'kt-icon'}) }}</button></span>
+            </div>
+            <p class="kt-text-sm text-muted mb-2">Stavke liste (<code>templates/todo/_item.html.twig</code>): zakasnela, zakačena sa vezom i podsetnikom, ponavljajuća i završena.</p>
+            <div class="row g-4 mb-4">
+                <div class="col-lg-6">
+                    <div class="kt-todo-section is-danger"><div class="kt-todo-head">Zakasnelo (1)</div>
+                        <div class="kt-todo-item"><div class="kt-todo-row"><input type="checkbox" class="kt-check" aria-label="Završi"><div class="kt-todo-main"><button type="button" class="kt-todo-title kt-check-label">Poslati izvod klijentu</button><div class="kt-todo-meta"><span class="text-danger fw-semibold">{{ ux_icon('lucide:calendar', {class: 'kt-icon'}) }}Juče</span></div></div></div></div>
+                    </div>
+                    <div class="kt-todo-section"><div class="kt-todo-head">Danas (3)</div>
+                        <div class="kt-todo-item is-pinned"><div class="kt-todo-row"><input type="checkbox" class="kt-check" aria-label="Završi"><div class="kt-todo-main"><button type="button" class="kt-todo-title kt-check-label">Pozvati klijenta zbog PDV-a</button><div class="kt-todo-meta"><span>{{ ux_icon('lucide:calendar', {class: 'kt-icon'}) }}Danas 14:30</span><span>{{ ux_icon('lucide:bell', {class: 'kt-icon'}) }}Danas 14:30 {{ ux_icon('lucide:mail', {class: 'kt-icon'}) }}</span><span>{{ ux_icon('lucide:building-2', {class: 'kt-icon'}) }}<a href="#">Pekara Zlatni klas</a></span></div></div><button type="button" class="kt-icon-btn kt-todo-pin is-on" aria-label="Otkači">{{ ux_icon('lucide:pin', {class: 'kt-icon'}) }}</button></div></div>
+                        <div class="kt-todo-item"><div class="kt-todo-row"><input type="checkbox" class="kt-check" aria-label="Završi"><div class="kt-todo-main"><button type="button" class="kt-todo-title kt-check-label">Mesečni izveštaj</button><div class="kt-todo-meta"><span>{{ ux_icon('lucide:calendar', {class: 'kt-icon'}) }}Danas</span><span>{{ ux_icon('lucide:repeat', {class: 'kt-icon'}) }}Svakog meseca</span></div></div></div></div>
+                        <div class="kt-todo-item is-done"><div class="kt-todo-row"><input type="checkbox" class="kt-check" checked aria-label="Vrati u rad"><div class="kt-todo-main"><button type="button" class="kt-todo-title kt-check-label">Odgovoriti na mail</button></div></div></div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <p class="kt-text-sm text-muted mb-2">Panel iz topbara (bočni offcanvas na računaru, bottom sheet na telefonu), skraćeno.</p>
+                    <div class="border rounded p-3" style="background: var(--kt-surface);">
+                        <div class="d-flex align-items-center mb-3"><strong>{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Moja lista</strong><span class="kt-text-sm text-muted ms-auto">{{ ux_icon('lucide:lock', {class: 'kt-icon me-1'}) }}privatno</span></div>
+                        <div class="kt-todo-add">
+                            <div class="kt-todo-add-field">{{ ux_icon('lucide:plus', {class: 'kt-icon'}) }}<input type="text" class="form-control" placeholder="Dodaj u moju listu…" aria-label="Dodaj"></div>
+                            <div class="kt-todo-chips"><button type="button" class="kt-tchip">Danas</button><button type="button" class="kt-tchip">Sutra 9:00</button><button type="button" class="kt-tchip">Ponedeljak 9:00</button><button type="button" class="kt-tchip">{{ ux_icon('lucide:calendar-clock', {class: 'kt-icon me-1'}) }}Izaberi…</button></div>
+                        </div>
+                        <div class="kt-todo-head">Bez roka (2)</div>
+                        <div class="kt-todo-item"><div class="kt-todo-row"><input type="checkbox" class="kt-check" aria-label="Završi"><div class="kt-todo-main"><button type="button" class="kt-todo-title kt-check-label">Srediti arhivu</button></div><span class="kt-todo-handle">{{ ux_icon('lucide:grip-vertical', {class: 'kt-icon'}) }}</span></div></div>
+                        <div class="kt-todo-item"><div class="kt-todo-row"><input type="checkbox" class="kt-check" aria-label="Završi"><div class="kt-todo-main"><button type="button" class="kt-todo-title kt-check-label">Pročitati novi pravilnik</button></div><span class="kt-todo-handle">{{ ux_icon('lucide:grip-vertical', {class: 'kt-icon'}) }}</span></div></div>
+                    </div>
+                </div>
+            </div>
+            <p class="kt-text-sm text-muted mb-2">Toast podsetnika sa dugmadima "Završeno" i "Odloži" i toast sa "Poništi" (5 s).</p>
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-light" onclick="window.ktToast('Završeno.', 'success')">Toast sa "Poništi"</button>
+                <span class="kt-text-sm text-muted align-self-center">Podsetnik i "Poništi" se prikazuju kao SweetAlert toast (<code>reminderToast</code>, <code>undoToast</code> u <code>confirm.js</code>).</span>
+            </div>
+        </div>
+    </div>
 {% endblock %}
