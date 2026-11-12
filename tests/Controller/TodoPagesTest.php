@@ -75,6 +75,18 @@ class TodoPagesTest extends DatabaseTestCase
         self::assertStringContainsString('Pozvati klijenta', $res['data']['html']);
     }
 
+    public function testAddButtonIsRenderedDisabledWhileEmpty(): void
+    {
+        $me = $this->user('Ja');
+        $this->em->flush();
+        $this->browser->loginUser($me);
+        $crawler = $this->browser->request('GET', '/moja-lista');
+        $button = $crawler->filter('.kt-todo-page [data-todo-add] button[type="submit"][data-todo-submit]');
+        self::assertCount(1, $button);
+        self::assertNotNull($button->attr('disabled'));
+        self::assertStringContainsString('Dodaj', $button->text());
+    }
+
     public function testReorderAndSearchOnlyOwnItems(): void
     {
         $me = $this->user('Ja');

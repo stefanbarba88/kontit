@@ -18,7 +18,10 @@
 
 /* --- dodavanje i čipovi --- */
 .kt-todo-add { margin-bottom: 16px; position: relative; }
-.kt-todo-add-field { position: relative; }
+.kt-todo-add-row { display: flex; gap: 8px; align-items: stretch; }
+.kt-todo-add-field { position: relative; flex: 1 1 auto; min-width: 0; }
+.kt-todo-add-btn { flex: 0 0 auto; display: inline-flex; align-items: center; min-height: 44px; }
+.kt-todo-add-field .form-control { min-height: 44px; }
 .kt-todo-add-field .kt-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--kt-text-3); pointer-events: none; }
 .kt-todo-add-field .form-control { padding-left: 38px; }
 .kt-todo-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }

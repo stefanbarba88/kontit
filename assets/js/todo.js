@@ -161,14 +161,37 @@ if (roots().length) {
         if (payload.remindDate) {
             requestNotifications();
         }
-        input.disabled = true;
+        const button = form.querySelector('[data-todo-submit]');
+        input.readOnly = true; // ne disabled: disabled polje gubi fokus (tastatura na telefonu bi se zatvorila)
+        button.disabled = true;
         const res = await call('POST', baseUrl, payload);
-        input.disabled = false;
+        input.readOnly = false;
         if (res) {
             input.value = '';
             setSelection(root, null);
         }
+        syncAddButton(form);
         input.focus();
+    });
+
+    // dugme "Dodaj" je isključeno dok je polje prazno
+    const syncAddButton = (form) => {
+        const button = form.querySelector('[data-todo-submit]');
+        if (button) {
+            button.disabled = form.querySelector('[data-todo-title]').value.trim() === '';
+        }
+    };
+    // na telefonu tastatura ne sme da prekrije polje
+    document.addEventListener('focusin', (e) => {
+        if (e.target.matches?.('[data-todo-title]')) {
+            setTimeout(() => e.target.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 300);
+        }
+    });
+    document.addEventListener('input', (e) => {
+        const form = e.target.closest?.('[data-todo-add]');
+        if (form) {
+            syncAddButton(form);
+        }
     });
 
     // --- akcije nad stavkom ---
