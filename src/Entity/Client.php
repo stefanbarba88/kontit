@@ -39,9 +39,8 @@ class Client
     #[AppAssert\Pib]
     private ?string $pib = null;
 
-    #[ORM\Column(length: 8, nullable: true)]
-    #[Assert\Regex(pattern: '/^\d{8}$/', message: 'Matični broj mora imati tačno 8 cifara.')]
-    #[AppAssert\MaticniBroj]
+    #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Length(max: 20, maxMessage: 'Matični broj može imati najviše {{ limit }} znakova.')]
     private ?string $maticniBroj = null;
 
     #[ORM\Column(options: ['default' => false])]
@@ -150,6 +149,7 @@ class Client
 
     public function setMaticniBroj(?string $maticniBroj): static
     {
+        $maticniBroj = null === $maticniBroj ? null : trim($maticniBroj);
         $this->maticniBroj = '' === $maticniBroj ? null : $maticniBroj;
 
         return $this;

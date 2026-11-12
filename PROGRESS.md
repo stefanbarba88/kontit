@@ -10,6 +10,9 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-12: **Matični broj bez provera**
+  - Uklonjeni `MaticniBroj` constraint i validator, Regex na entitetu, `maxlength=8` u formi, IMask maska i `isValidMaticniBroj`. Ostaje trim (prazno = null). PIB provera nije dirana. NBS pretraga je i ranije išla samo po PIB-u; dopuna NBS matičnog broja nulama do 8 cifara ostaje.
+  - Migracija `Version20261112104338`: `client.maticni_broj` VARCHAR(20). SPEC.md 8 ažuriran. Test za kontrolnu cifru matičnog broja uklonjen.
 - 2026-11-12: **Fix: date picker prikazivao pogrešan dan u koloni (12.11.2026 u "Uto")**
   - Uzrok: naš CSS (`.flatpickr-day { max-width: 36px }`) uz fiksnu širinu `.dayContainer` (307.875 px) je terao 8 dana u red umesto 7, pa su se datumi vizuelno pomerali u odnosu na zaglavlje. Locale i JS su bili ispravni.
   - CSS (`assets/styles/components/controls.css`): kalendar fiksne širine, `.flatpickr-days`, `.dayContainer`, `.flatpickr-weekdays` 100%, dan tačno `calc(100% / 7)`; krug/kvadrat oko dana (danas, izabran, start/end opsega) crta `::before` fiksne veličine, opseg puna ćelija.

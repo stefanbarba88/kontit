@@ -29,7 +29,6 @@ function initSelects(root) {
 function initMasks(root) {
     const masks = [
         ['input[name$="[pib]"]', { mask: '000000000' }, 'numeric'],
-        ['input[name$="[maticniBroj]"]', { mask: '00000000' }, 'numeric'],
         ['input[name$="[bankAccount]"], input[data-kt-mask="account"]', { mask: '000-0000000000000-00' }, 'numeric'],
         ['input[type="tel"], input[name$="[phone]"]', { mask: /^[+\d\s/-]*$/ }, 'tel'],
     ];

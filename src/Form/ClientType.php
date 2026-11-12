@@ -29,7 +29,7 @@ class ClientType extends AbstractType
             ->add('name', TextType::class, ['label' => 'Pun naziv', 'help' => 'Zvaničan naziv iz registra. Prikazuje se samo na kartici klijenta, u izveštajima i izvozima.'])
             ->add('shortName', TextType::class, ['label' => 'Kraći naziv', 'help' => 'Koristi se svuda u aplikaciji, npr. „Mlekara Ivanjica“.', 'attr' => ['maxlength' => 40]])
             ->add('pib', TextType::class, ['label' => 'PIB', 'required' => false, 'attr' => ['maxlength' => 9, 'inputmode' => 'numeric']])
-            ->add('maticniBroj', TextType::class, ['label' => 'Matični broj', 'required' => false, 'attr' => ['maxlength' => 8, 'inputmode' => 'numeric']])
+            ->add('maticniBroj', TextType::class, ['label' => 'Matični broj', 'required' => false, 'attr' => ['maxlength' => 20]])
             ->add('pdvObveznik', CheckboxType::class, ['label' => 'PDV obveznik', 'required' => false])
             ->add('address', TextType::class, ['label' => 'Adresa', 'required' => false])
             ->add('postalCode', TextType::class, ['label' => 'Poštanski broj', 'required' => false, 'attr' => ['maxlength' => 10]])

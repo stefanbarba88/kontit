@@ -5,7 +5,7 @@ namespace App\Nbs;
 /**
  * Kontrolne cifre srpskih identifikatora firmi.
  *  - PIB: 9 cifara, ISO 7064 MOD 11,10
- *  - Matični broj pravnog lica: 8 cifara, MOD 11 (težine 8..2)
+ *  Matični broj se ne proverava (samo trim); ovde je samo dopuna NBS odgovora.
  */
 final class IdentifierChecksum
 {
@@ -25,24 +25,6 @@ final class IdentifierChecksum
         }
 
         return (11 - $product) % 10 === (int) $pib[8];
-    }
-
-    public static function isValidMaticniBroj(?string $mb): bool
-    {
-        if (null === $mb || !preg_match('/^\d{8}$/', $mb)) {
-            return false;
-        }
-
-        $sum = 0;
-        for ($i = 0; $i < 7; ++$i) {
-            $sum += (int) $mb[$i] * (8 - $i);
-        }
-        $control = 11 - ($sum % 11);
-        if ($control > 9) {
-            $control = 0;
-        }
-
-        return $control === (int) $mb[7];
     }
 
     /**

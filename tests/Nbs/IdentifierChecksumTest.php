@@ -16,11 +16,8 @@ final class IdentifierChecksumTest extends TestCase
         self::assertFalse(IdentifierChecksum::isValidPib(null));
     }
 
-    public function testMaticniBroj(): void
+    public function testNormalizeMaticniBroj(): void
     {
-        self::assertTrue(IdentifierChecksum::isValidMaticniBroj('07810318'));
-        self::assertFalse(IdentifierChecksum::isValidMaticniBroj('07810317'));
-        self::assertFalse(IdentifierChecksum::isValidMaticniBroj('7810318'), 'mora 8 cifara');
         self::assertSame('07810318', IdentifierChecksum::normalizeMaticniBroj('7810318'));
     }
 }

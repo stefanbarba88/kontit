@@ -78,7 +78,7 @@ Objektna prava rešavaju Voteri:
 **Učitavanje iz NBS-a i provera brojeva**
 - `NbsCompanyLookupService` sa zamenljivim izvorom: `NbsWebServiceProvider` (zvanični servis, kredencijali `NBS_WS_USERNAME`, `NBS_WS_PASSWORD`, `NBS_WS_LICENCE` u `.env.local`) Izbor u `.env` (`NBS_PROVIDER`); ako izabrani nije podešen, koristi se prvi podešen izvor. Rezervni izvor preko javne stranice nije napravljen: stranica rezultate vraća samo pregledaču, a automatsko predstavljanje kao pregledač se ne radi.
 - AJAX `/ajax/client/lookup?pib=...` vraća naziv, adresu, mesto, PIB, matični broj (dopunjen na 8 cifara) i tekuće račune (samo prikaz na formi). Poziv uvek ide preko našeg servera.
-- Pre poziva se proverava kontrolna cifra: PIB (9 cifara, ISO 7064 MOD 11,10), matični broj (8 cifara, MOD 11). Pogrešan broj se odbija bez poziva NBS-u. Ista provera je i Symfony validator na entitetu.
+- Pre poziva se proverava kontrolna cifra PIB-a (9 cifara, ISO 7064 MOD 11,10); pogrešan PIB se odbija bez poziva NBS-u (isto i Symfony validator na entitetu). **Matični broj se ne proverava** (bez kontrolne cifre, dužine i obaveznosti, kolona je VARCHAR(20)); samo se trimuje, a matični broj iz NBS-a se dopunjava nulama do 8 cifara.
 - Keš 24h po PIB-u, timeout 8 s, rate limit po korisniku. Odgovor na ćirilici se preslovljava u latinicu pre upisa.
 - UI: dugme "Učitaj iz NBS" pored PIB-a, loader na dugmetu, popunjena polja kratko zasijaju; ako polja već imaju vrednosti, SweetAlert pita da li da se prepišu. Kad NBS ne odgovori: jasna poruka, a forma se uvek može sačuvati ručno.
 - Parser ima test sa sačuvanim primerom odgovora (`tests/Fixtures/nbs/`).
