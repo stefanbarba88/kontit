@@ -116,7 +116,7 @@
                 <form method="post" action="{{ path('client_package_price', {id: cp.id}) }}" class="card-body border-top d-flex flex-wrap align-items-end gap-2" {{ confirm_attrs('Promeniti dogovorenu cenu?', 'Promena se beleži u istoriji cena.', 'warning', 'Da, promeni') }}>
                     <input type="hidden" name="_token" value="{{ csrf_token('client_package_price_' ~ cp.id) }}">
                     <div><label class="form-label kt-text-sm" for="np-{{ cp.id }}">Nova mesečna cena</label><input type="text" name="price" id="np-{{ cp.id }}" class="form-control form-control-sm" data-kt-money required></div>
-                    <div><label class="form-label kt-text-sm" for="nf-{{ cp.id }}">Važi od</label><input type="date" name="from" id="nf-{{ cp.id }}" class="form-control form-control-sm" value="{{ 'now'|date('Y-m-d') }}"></div>
+                    <div><label class="form-label kt-text-sm" for="nf-{{ cp.id }}">Važi od</label><input type="text" data-datepicker name="from" id="nf-{{ cp.id }}" class="form-control form-control-sm" value="{{ 'now'|date('Y-m-d') }}"></div>
                     <button class="btn btn-primary btn-sm">Primeni</button>
                 </form>
             </div>
@@ -262,7 +262,7 @@
                 <div class="row mt-3">
                     <div class="col-sm-6 col-md-4">
                         <label class="form-label" for="ind-start">Početak</label>
-                        <input type="date" class="form-control" id="ind-start" name="startDate" value="{{ 'now'|date('Y-m-d') }}">
+                        <input type="text" data-datepicker class="form-control" id="ind-start" name="startDate" value="{{ 'now'|date('Y-m-d') }}">
                     </div>
                 </div>
                 {% if can_manage %}<p class="kt-text-sm text-muted mt-2 mb-0">Drugačiji raspored za ovog klijenta podešavaš posle dodavanja, preko „Izmeni“.</p>{% endif %}

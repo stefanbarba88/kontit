@@ -51,9 +51,6 @@ return [
     'flatpickr' => [
         'version' => '4.6.13',
     ],
-    'flatpickr/dist/l10n/sr.js' => [
-        'version' => '4.6.13',
-    ],
     'flatpickr/dist/flatpickr.min.css' => [
         'version' => '4.6.13',
         'type' => 'css',

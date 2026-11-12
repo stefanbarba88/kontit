@@ -69,7 +69,7 @@
                     <option value="{{ action.value }}">{{ action.label }}</option>
                 {% endfor %}
             </select>
-            <input type="text" class="form-control form-control-sm" data-kt-period data-kt-activity-period placeholder="Period" aria-label="Period">
+            <input type="text" class="form-control form-control-sm" data-datepicker-range data-kt-activity-period placeholder="Period" aria-label="Period">
         </div>
         <div class="kt-tl-empty"{% if page.entries is not empty %} hidden{% endif %}>{{ ui.empty_state('Još nema aktivnosti.', 'history') }}</div>
         <ol class="kt-timeline">{{ tl.items(page.entries, show_target) }}</ol>

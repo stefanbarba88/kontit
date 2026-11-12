@@ -487,7 +487,7 @@ Sve se stilizuje tokenima, u obe teme, i prikazuje na `/_design` vodiču.
 - **Radio**: isti stil, krug sa unutrašnjom tačkom koja "izraste" pri izboru.
 - **Switch**: za uključeno/isključeno podešavanja, plava kad je uključen, sa glatkim pomeranjem kružića.
 - **Select (Tom Select)**: ista visina, ivica, radius i fokus kao input. Dropdown sa senkom `md`, hover na opcijama, izabrana opcija ima kvačicu desno, višestruki izbor ima "čipove" sa x. Poruka "Nema rezultata" i loader dok se traži.
-- **Datum (flatpickr)**: kalendar u našim bojama, današnji dan obeležen prstenom, izabrani pun plavi, vikend prigušen, praznici (tabela `Holiday`) obeleženi tačkicom. Format `d.m.Y.`, nedelja počinje ponedeljkom, prečice "Danas", "Ovaj mesec", "Prošli mesec".
+- **Datum (flatpickr)**: kalendar u našim bojama, današnji dan obeležen prstenom, izabrani pun plavi, vikend prigušen, praznici (tabela `Holiday`) obeleženi tačkicom. Format `d.m.Y.`, nedelja počinje ponedeljkom (dan je tačno 1/7 reda, oblici stanja idu u `::before`; kontrola na `/_design` je otvorena na novembru 2026), jedan picker u `assets/js/datepicker.js` preko `data-datepicker` / `data-datepicker-range`, prečice "Danas", "Ovaj mesec", "Prošli mesec".
 - **Input stanja**: normalno, hover, fokus, greška, uspeh, **disabled** (prigušeno, kursor not-allowed), **readonly** (bez ivice, pozadina `--kt-surface-2`).
 - **Ikonica unutar inputa** (pretraga levo, "x" za brisanje desno kad ima teksta).
 - **Lozinka**: dugme oko za prikaz i sakrivanje i upozorenje "Caps Lock je uključen".

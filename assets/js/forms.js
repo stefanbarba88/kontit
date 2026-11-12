@@ -1,28 +1,11 @@
-// Polja forme (DESIGN.md 17): Tom Select, flatpickr, IMask maske, autosize, lozinka (oko + Caps Lock), brisanje polja,
+// Polja forme (DESIGN.md 17): Tom Select, IMask maske, autosize, lozinka (oko + Caps Lock), brisanje polja,
 // brojač karaktera i tooltip-ovi. Sve se kači preko initForms(root), pa radi i za sadržaj dodat kasnije.
 import TomSelect from 'tom-select';
-import flatpickr from 'flatpickr';
-import { Serbian } from 'flatpickr/dist/l10n/sr.js';
+import { initDatepickers } from './datepicker.js';
 import IMask from 'imask';
 import autosize from 'autosize';
 import { Tooltip } from 'bootstrap';
-import { info, remember, cache } from './non-working.js';
 
-
-// Latinični srpski za flatpickr (paket ima samo ćirilicu pod 'sr'), nedelja počinje ponedeljkom
-const srLatn = {
-    ...Serbian,
-    weekdays: {
-        shorthand: ['Ned', 'Pon', 'Uto', 'Sre', 'Čet', 'Pet', 'Sub'],
-        longhand: ['Nedelja', 'Ponedeljak', 'Utorak', 'Sreda', 'Četvrtak', 'Petak', 'Subota'],
-    },
-    months: {
-        shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Avg', 'Sep', 'Okt', 'Nov', 'Dec'],
-        longhand: ['Januar', 'Februar', 'Mart', 'April', 'Maj', 'Jun', 'Jul', 'Avgust', 'Septembar', 'Oktobar', 'Novembar', 'Decembar'],
-    },
-    firstDayOfWeek: 1,
-    rangeSeparator: ' do ',
-};
 
 function initSelects(root) {
     root.querySelectorAll('select.form-select:not([data-native]):not(.tomselected)').forEach((el) => {
@@ -38,72 +21,6 @@ function initSelects(root) {
             render: {
                 no_results: () => '<div class="no-results">Nema rezultata</div>',
                 loading: () => '<div class="kt-ts-loading"><span class="kt-loader kt-loader--sm"><i></i><i></i><i></i><i></i></span></div>',
-            },
-        });
-    });
-}
-
-function addShortcuts(fp) {
-    const bar = document.createElement('div');
-    bar.className = 'kt-fp-shortcuts';
-    const today = new Date();
-    const shortcuts = {
-        Danas: [today, today],
-        'Ovaj mesec': [new Date(today.getFullYear(), today.getMonth(), 1), new Date(today.getFullYear(), today.getMonth() + 1, 0)],
-        'Prošli mesec': [new Date(today.getFullYear(), today.getMonth() - 1, 1), new Date(today.getFullYear(), today.getMonth(), 0)],
-    };
-    Object.entries(shortcuts).forEach(([label, range]) => {
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.textContent = label;
-        b.addEventListener('click', () => {
-            fp.setDate(fp.config.mode === 'range' ? range : range[0], true);
-            fp.close();
-        });
-        bar.appendChild(b);
-    });
-    fp.calendarContainer.appendChild(bar);
-}
-
-// učitava neradne dane prikazane godine (i susedne, zbog dana iz susednih meseci), pa ponovo crta kalendar
-function showYear(fp) {
-    const year = fp.currentYear;
-    const missing = [year - 1, year, year + 1].filter((y) => !(y in cache));
-    if (missing.length) {
-        Promise.all(missing.map(remember)).then(() => fp.redraw());
-    }
-}
-
-function initDates(root) {
-    root.querySelectorAll('input[type="date"]:not(.flatpickr-input), input[data-kt-period]:not(.flatpickr-input)').forEach((el) => {
-        const range = el.hasAttribute('data-kt-period');
-        flatpickr(el, {
-            locale: srLatn,
-            dateFormat: 'Y-m-d',
-            altInput: true,
-            altFormat: 'd.m.Y.',
-            allowInput: true,
-            disableMobile: true,
-            mode: range ? 'range' : 'single',
-            minDate: el.dataset.minDate || null,
-            onReady: (_, __, fp) => {
-                fp.altInput.classList.add('kt-date');
-                showYear(fp);
-                if (range || el.hasAttribute('data-kt-shortcuts')) {
-                    addShortcuts(fp);
-                }
-            },
-            onYearChange: (_, __, fp) => showYear(fp),
-            onMonthChange: (_, __, fp) => showYear(fp),
-            onOpen: (_, __, fp) => showYear(fp),
-            // neradni dani su prigušeni: dan u nedelji (vikend), praznik i kolektivni odmor sa nazivom u tooltip-u
-            onDayCreate: (_, __, ___, dayElem) => {
-                const date = dayElem.dateObj;
-                const day = info(date, cache[date.getFullYear()] || {});
-                if (day) {
-                    dayElem.classList.add(day.type === 'WEEKLY' ? 'kt-weekend' : 'kt-holiday');
-                    dayElem.title = day.name;
-                }
             },
         });
     });
@@ -224,7 +141,7 @@ function initTooltips(root) {
 
 export function initForms(root = document) {
     initSelects(root);
-    initDates(root);
+    initDatepickers(root);
     initMasks(root);
     initPasswords(root);
     initClearable(root);

@@ -39,12 +39,17 @@
 
             <div class="col-md-4">
                 <label class="form-label">Datum</label>
-                <input type="date" class="form-control" value="{{ 'now'|date('Y-m-d') }}">
+                <input type="text" data-datepicker class="form-control" value="{{ 'now'|date('Y-m-d') }}">
                 <div class="form-text">Vikend prigušen, praznik ima tačkicu.</div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Period (sa prečicama)</label>
-                <input type="text" class="form-control" data-kt-period placeholder="od – do">
+                <input type="text" class="form-control" data-datepicker-range placeholder="od – do">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Kalendar (novembar 2026)</label>
+                <input type="text" data-datepicker data-datepicker-inline data-default-date="2026-11-12" class="form-control">
+                <div class="form-text">Kontrola rasporeda: 12. je u koloni Čet, 16. u Pon, nedelja je poslednja kolona.</div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Lozinka</label>

@@ -94,7 +94,7 @@
                             </select>
                         </div>
                         <div class="mb-3"><label class="form-label" for="doc-title">Naziv</label><input type="text" id="doc-title" name="title" class="form-control" maxlength="150" placeholder="Prazno = ime fajla"></div>
-                        <div class="mb-3"><label class="form-label" for="doc-valid">Važi do (opciono)</label><input type="date" id="doc-valid" name="validUntil" class="form-control"><div class="form-text">Npr. ugovor na određeno; admin dobija obaveštenje 30 i 7 dana pre isteka.</div></div>
+                        <div class="mb-3"><label class="form-label" for="doc-valid">Važi do (opciono)</label><input type="text" data-datepicker id="doc-valid" name="validUntil" class="form-control"><div class="form-text">Npr. ugovor na određeno; admin dobija obaveštenje 30 i 7 dana pre isteka.</div></div>
                         {% if absences is not empty %}
                             <div class="mb-3">
                                 <label class="form-label" for="doc-absence">Uz odsustvo (npr. doznaka)</label>

@@ -10,6 +10,13 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-12: **Fix: date picker prikazivao pogrešan dan u koloni (12.11.2026 u "Uto")**
+  - Uzrok: naš CSS (`.flatpickr-day { max-width: 36px }`) uz fiksnu širinu `.dayContainer` (307.875 px) je terao 8 dana u red umesto 7, pa su se datumi vizuelno pomerali u odnosu na zaglavlje. Locale i JS su bili ispravni.
+  - CSS (`assets/styles/components/controls.css`): kalendar fiksne širine, `.flatpickr-days`, `.dayContainer`, `.flatpickr-weekdays` 100%, dan tačno `calc(100% / 7)`; krug/kvadrat oko dana (danas, izabran, start/end opsega) crta `::before` fiksne veličine, opseg puna ćelija.
+  - Jedan date picker: novi `assets/js/datepicker.js` (atributi `data-datepicker`, `data-datepicker-range`, `data-datepicker-inline`, `data-shortcuts`), sopstveni kompletan latinični locale; uklonjen `flatpickr/dist/l10n/sr.js` (importmap, vendor, installed.php). `forms.js` ga samo poziva.
+  - `DateTypeExtension`: samo `widget=single_text` dobija `html5=false`, format `yyyy-MM-dd` i `data-datepicker`. Ručni `type="date"` (dokumenti, ugovorene usluge, posao) prešli na `type="text" data-datepicker`; `data-kt-period` → `data-datepicker-range` (grep čist).
+  - Twig filter `day_name` (`DateExtension`, IntlDateFormatter `sr_Latn_RS`) + test (12.11.2026 četvrtak, 15.11. nedelja, 16.11. ponedeljak). `ScheduleController::DAYS_SHORT` i `non_working` zaglavlja su tačni i ostavljeni (isti izlaz); `ScheduleCalculator` nije dirnut.
+  - `/_design`: kalendar otvoren na novembru 2026. Bez migracija. PHPUnit 47 OK.
 - 2026-11-04: **Ispravke 1-7 (dostupnost, admin zadaci, odsustva, timovi, UI, prava, datumi) i DEPLOY.md**
   - Odsustva: radnik vidi samo dostupnost kolega (period, bez vrste), šef detalje svog tima, admin sve; izmena odsustva (`ABSENCE_UPDATED` obaveštenje). Migracija `Version20261102094121`.
   - Zadaci: admin i superadmin vide sve zadatke sa filterima (`TaskListFilters`).

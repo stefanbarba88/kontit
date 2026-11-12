@@ -33,7 +33,7 @@ class NbsController extends AbstractAjaxController
             return $this->fail('NBS trenutno ne odgovara, unesi podatke ručno.', 502);
         }
 
-        // datumi kao tekst za <input type="date">
+        // datumi kao tekst za tekst Y-m-d
         foreach (['registrationDate', 'foundingDate'] as $key) {
             $data[$key] = $data[$key]?->format('Y-m-d');
         }
