@@ -21,7 +21,7 @@ class ReviewFormsRenderTest extends DatabaseTestCase
         $this->em->flush();
 
         $this->browser->loginUser($admin);
-        foreach (['/tasks/new', '/admin/positions', '/admin/catalog/jobs', '/admin/catalog/jobs/new'] as $url) {
+        foreach (['/tasks/new', '/admin/positions', '/admin/catalog/jobs', '/admin/catalog/jobs/new', '/_design'] as $url) {
             $this->browser->request('GET', $url);
             self::assertResponseIsSuccessful($url);
         }

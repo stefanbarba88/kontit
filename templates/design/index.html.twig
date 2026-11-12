@@ -187,6 +187,35 @@
             <div class="d-flex flex-wrap gap-2 mb-4">{% for c in categories %}{{ ui.category_badge(c) }}{% endfor %}</div>
             <p class="kt-text-sm text-muted mb-2">Značka pozicije zaposlenog (<code>ui.position_badge</code>): nivo, ne prava pristupa.</p>
             <div class="d-flex flex-wrap gap-2 mb-4">{% for p in positions %}{{ ui.position_badge(p) }}{% endfor %}</div>
+            <p class="kt-text-sm text-muted mb-2">Značka provere zadatka (<code>task_review(task)</code>): ko proverava. Tri varijante: po poziciji (info), posebna potvrda (warning), bez provere (secondary).</p>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge kt-badge-info">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Proverava: šef tima</span>
+                <span class="badge kt-badge-info">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Proverava: admin</span>
+                <span class="badge kt-badge-warning">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Posebna potvrda: Ana Anić, zatražio: Petar Ilić</span>
+                <span class="badge kt-badge-warning">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Posebna potvrda: Ana Anić (zahteva posao)</span>
+                <span class="badge kt-badge-secondary">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Bez provere</span>
+                <span class="badge kt-badge-secondary">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Bez provere, odlučio: Marko Marković</span>
+            </div>
+            <p class="kt-text-sm text-muted mb-2">Značka „Traži potvrdu“ u katalogu poslova i ugovorenim uslugama klijenta.</p>
+            <div class="mb-4"><span class="kt-svc-name">Godišnji obračun <span class="badge kt-badge-warning ms-1" title="Zadatke iz ovog posla potvrđuje izabrana osoba">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Traži potvrdu</span></span></div>
+            <p class="kt-text-sm text-muted mb-2">Polje „Provera“ iz forme zadatka (<code>reviewMode</code>) sa pomoćnim tekstom i izborom proveravača kad je „Posebna potvrda“.</p>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="form-label" for="ds-review">Provera</label>
+                    <select class="form-select" id="ds-review" data-native>
+                        <option>Automatski, po poziciji</option>
+                        <option>Bez provere</option>
+                        <option selected>Posebna potvrda</option>
+                    </select>
+                    <div class="kt-text-sm text-muted mt-1">Zadatak potvrđuju samo izabrani admini; pozicija radnika se ne uzima u obzir.</div>
+                    <label class="form-label mt-3" for="ds-approvers">Proveravači</label>
+                    <select class="form-select" id="ds-approvers" multiple><option selected>Ana Anić</option><option>Marko Marković</option></select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="ds-review-locked">Provera (zaključano)</label>
+                    <div class="kt-text-sm text-muted" id="ds-review-locked">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Provera: Posebna potvrda: Ana Anić (zahteva posao)</div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-lg-7">
                     <div class="kt-overline mb-2">Raspored (segmentirana dugmad i pregled rokova)</div>
