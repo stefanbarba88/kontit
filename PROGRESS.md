@@ -10,6 +10,10 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-12: **Test baza, reindeks pretrage, uputstva**
+  - `composer test`: pravi `kontit_test` ako ne postoji, `doctrine:schema:update --env=test --force`, pa `php bin/phpunit`. Pravilo upisano u CLAUDE.md (kraj svakog zadatka).
+  - Provera: nigde u `src` nema DQL/SQL UPDATE-a koji menja `task.title` (jedini UPDATE je migracija popune). Napomena u `TaskTitleSearchListener`; nova komanda `app:tasks:reindex-search [--dry-run]` ponovo popunjava `title_search` direktnim upisom (bez `updated_at`).
+  - Uputstva za radnika, šefa i admina: filteri liste zadataka, tab Zadaci klijenta i korisnika, filter Uloga, izvoz po tabu.
 - 2026-11-12: **Lista zadataka: filteri + tab Zadaci na klijentu i na korisniku**
   - Jedna lista za 3 mesta: `TaskFilter` (DTO), `TaskListFilters::resolve` (pravi DTO iz GET-a), `TaskRepository::createFilteredQueryBuilder(TaskFilter, User)` (vidljivost + svi filteri; lista, brojači, opcije filtera i izvoz), `TaskListView` (podaci za šablon), `components/_task_list.html.twig` + `_task_filters.html.twig`. Stari `applyFilters` uklonjen. Izvoz (`TaskExport`) koristi isti upit; tab šalje `forClient` / `forUser` (uz CLIENT_VIEW / USER_TASKS_VIEW), pa izvoz daje tačno prikazano.
   - Novi filteri: Naziv (debounce 300 ms, X), Posao (Tom Select po kategoriji, "Samostalni zadaci"), Nastanak (automatski / ručni), prekidač završenih (podrazumevano samo otvoreni; tabovi vezani za status ga ignorišu), Uloga na tabu korisnika; broj aktivnih filtera, Poništi, bottom sheet na telefonu.
