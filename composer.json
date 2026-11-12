@@ -97,6 +97,11 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
+        "test": [
+            "@php bin/console doctrine:database:create --env=test --if-not-exists",
+            "@php bin/console doctrine:schema:update --env=test --force",
+            "@php bin/phpunit"
+        ],
         "pre-autoload-dump": "Google\\Task\\Composer::cleanup"
     },
     "conflict": {

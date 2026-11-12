@@ -12,7 +12,8 @@ Ovaj fajl Claude Code čita automatski na početku svake sesije. Ovde su **trajn
 ## Obavezno na kraju svakog zadatka
 1. Ažuriraj `PROGRESS.md`: šta je urađeno, koje su migracije dodate, šta je sledeće.
 2. Ako je doneta nova odluka (npr. rešena nedoumica), upiši je u `SPEC.md` i ukloni je iz nedoumica.
-3. Predloži commit poruku (konvencija: `feat:`, `fix:`, `refactor:`, `docs:`).
+3. Pokreni `composer test` (priprema test bazu `kontit_test`: `doctrine:schema:update --env=test --force`, pa `php bin/phpunit`). Obavezno posle svake izmene entiteta ili migracije, jer testovi sa bazom rade nad `kontit_test`, a ne nad razvojnom bazom.
+4. Predloži commit poruku (konvencija: `feat:`, `fix:`, `refactor:`, `docs:`).
 
 ## Stack
 - PHP 8.3+, Symfony 7.4 LTS (full webapp skeleton)
