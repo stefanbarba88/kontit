@@ -696,7 +696,7 @@ ABSENCE_REQUESTED (postoji), ABSENCE_APPROVED, ABSENCE_REJECTED (zamenjuju ABSEN
 - **"Podseti me"** na zadatku i klijentu: modal sa unapred popunjenim naslovom i izborom vremena; pravi stavku vezanu za zadatak/klijenta (potreban `TASK_VIEW` / `CLIENT_VIEW`, inače 404). U listi je veza link samo dok vlasnik sme da vidi zadatak/klijenta, inače običan tekst.
 - **Kalendar:** tip "Moja lista" (filter) prikazuje vlasniku njegove stavke sa rokom, bez obzira na opseg. Ne ulaze u ICS ni u Google kalendar.
 - **Pretvori u zadatak:** `task_new?fromTodo=ID` popunjava naslov, opis, rok i klijenta (ako ga vlasnik vidi); važe sva pravila kreiranja zadatka. Posle čuvanja stavka se završava i dobija link na zadatak.
-- **Dashboard:** kartica "Moja lista" je uvek na vrhu početne strane: SVE otvorene stavke (zakasnelo crveno, pa danas, pa ostale) sa unutrašnjim skrolom posle ~8 stavki, link "Završene" (poslednjih 10), u zaglavlju "+ Dodaj" i "Otvori celu listu". Prazno stanje ima poruku i isto dugme. Osvežava se kao i panel (isti `[data-kt-todo]` koren).
+- **Dashboard:** kartica "Moja lista" je uvek na vrhu početne strane: SVE otvorene stavke (zakasnelo crveno, pa danas, pa ostale) sa unutrašnjim skrolom posle ~8 stavki, link "Završene" (poslednjih 10), u zaglavlju samo "Otvori celu listu" (dodavanje: taster `n`, panel iz topbara, a u praznom stanju dugme "+ Dodaj"). Osvežava se kao i panel (isti `[data-kt-todo]` koren).
 
 ---
 ## 9. Planirano za kasnije (NE implementirati sada, ali ne blokirati)

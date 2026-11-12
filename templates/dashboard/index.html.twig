@@ -12,8 +12,7 @@
     <div class="card mb-4 kt-todo-card">
         <div class="card-header d-flex align-items-center gap-2 flex-wrap">
             <h5 class="mb-0">{{ ux_icon('lucide:notebook-pen', {class: 'kt-icon me-2'}) }}Moja lista</h5>
-            <button type="button" class="btn btn-primary btn-sm ms-auto kt-todo-new" data-todo-new>{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button>
-            <a href="{{ path('todo_index') }}" class="btn btn-ghost btn-sm">Otvori celu listu{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</a>
+            <a href="{{ path('todo_index') }}" class="btn btn-ghost btn-sm ms-auto">Otvori celu listu{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</a>
         </div>
         <div class="card-body border-top py-2">
             {% include 'todo/_body.html.twig' with {sections: todoSections, found: [], query: '', add: false} only %}
