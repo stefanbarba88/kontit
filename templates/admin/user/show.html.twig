@@ -26,6 +26,7 @@
 {% endblock %}
 
 {% block content %}
+    {% include 'components/_user_header.html.twig' with {user: user, team: currentMembership ? currentMembership.team : null, active: 'pregled', taskCounts: taskCounts} only %}
     <div class="row">
         <div class="col-lg-4">
             <div class="card">

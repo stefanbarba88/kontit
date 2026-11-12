@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Zadaci: {{ user.fullName }}{% endblock %}
+{% block page_title %}{{ user.fullName }}{% endblock %}
+{% block breadcrumbs %}
+    {% if is_granted('USER_VIEW', user) %}<a href="{{ path('admin_user_index') }}" class="breadcrumb-item">Korisnici</a>{% endif %}
+    <span class="breadcrumb-item active">{{ user.fullName }}</span>
+{% endblock %}
+
+{% block page_actions %}
+    {% import 'components/export.html.twig' as export %}
+    {{ export.menu('zadaci', list.exportQuery) }}
+    <a href="{{ path('task_new', {returnTo: return_to_path()}) }}" class="btn btn-primary">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Novi zadatak</a>
+{% endblock %}
+
+{% block content %}
+    {% include 'components/_user_header.html.twig' with {user: user, team: team, active: 'zadaci', taskCounts: list.summary} only %}
+    {% include 'components/_task_list.html.twig' with {list: list} only %}
+{% endblock %}

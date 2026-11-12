@@ -1,0 +1,27 @@
+{#
+    Zaglavlje korisnika (avatar, ime, pozicija, tim) i tabovi "Pregled" / "Zadaci". Zajednički za admin_user_show i user_tasks.
+    Ulaz: user, team (ili null), active ('pregled' | 'zadaci'), taskCounts (TaskListView::summary).
+    "Pregled" vodi na admin_user_show (admin+) ili /profile (sam korisnik); drugi (šef) ga nemaju, pa vide samo tab "Zadaci".
+#}
+{% import 'components/ui.html.twig' as ui %}
+{% set overview = is_granted('USER_VIEW', user) ? path('admin_user_show', {id: user.id}) : (app.user and app.user.id == user.id ? path('app_profile') : null) %}
+<div class="kt-user-head">
+    {{ ui.avatar(user, 56) }}
+    <div class="min-w-0">
+        <div class="kt-user-head-name text-truncate">{{ user.fullName }}</div>
+        <div class="kt-user-head-meta">
+            {{ user.position ?? 'Bez pozicije' }}{% if team %} · {{ team.name }}{% endif %}
+            {% if not user.active %}<span class="badge kt-badge-secondary ms-1">Neaktivan</span>{% endif %}
+        </div>
+    </div>
+</div>
+<ul class="nav kt-tabs mb-3">
+    {% if overview %}
+        <li class="nav-item"><a href="{{ overview }}" class="nav-link {{ active == 'pregled' ? 'active' }}">Pregled</a></li>
+    {% endif %}
+    <li class="nav-item">
+        <a href="{{ path('user_tasks', {id: user.id}) }}" class="nav-link {{ active == 'zadaci' ? 'active' }}">
+            {{ ux_icon('lucide:list-checks', {class: 'kt-icon me-1'}) }}Zadaci{% if taskCounts.open|default(0) %}<span class="kt-tab-count">{{ taskCounts.open }}</span>{% endif %}{% if taskCounts.overdue|default(0) %}<span class="kt-tab-dot" title="{{ taskCounts.overdue }} kasni" aria-label="Ima zadataka koji kasne"></span>{% endif %}
+        </a>
+    </li>
+</ul>

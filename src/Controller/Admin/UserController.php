@@ -75,10 +75,11 @@ class UserController extends AbstractController
 
     #[Route('/{id}', name: 'admin_user_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[IsGranted('USER_VIEW', 'user')]
-    public function show(User $user, TeamMemberRepository $members, TeamRepository $teams, ClientRepository $clients, ActivityLogRepository $activity): Response
+    public function show(User $user, TeamMemberRepository $members, TeamRepository $teams, ClientRepository $clients, ActivityLogRepository $activity, \App\Service\TaskListView $taskList): Response
     {
         return $this->render('admin/user/show.html.twig', [
             'user' => $user,
+            'taskCounts' => $taskList->summary($this->getUser(), null, $user),
             'activity' => $activity->findUserPage($user),
             'primaryClients' => $clients->findActivePrimaryFor($user),
             'backupClients' => $clients->findActiveBackupFor($user),
