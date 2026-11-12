@@ -13,6 +13,7 @@ use App\Repository\ClientRepository;
 use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
 use App\Service\ClientPeople;
+use App\Service\ReturnUrlResolver;
 use App\Service\TaskCompletionService;
 use App\Service\TaskListFilters;
 use App\Service\TaskService;
@@ -33,6 +34,7 @@ class TaskController extends AbstractController
         private readonly ClientRepository $clients,
         private readonly ClientJobRepository $jobs,
         private readonly ClientPeople $clientPeople,
+        private readonly ReturnUrlResolver $returnUrl,
     ) {
     }
 
@@ -107,6 +109,7 @@ class TaskController extends AbstractController
 
         // podrazumevani učesnik: glavni radnik klijenta (ili zaduženi na poslu), ako sme da mu se dodeli; inače ja
         $default = $job?->getAssigneeOverride() ?? $task->getClient()?->getPrimaryAccountant();
+        $returnTo = $this->returnUrl->fromRequest($request);
         $form = $this->createTaskForm($task, $me, null !== $default && $this->tasks->canAssignTo($me, $default) ? [$default] : [$me], $locked);
         if (null !== $job && !$request->isMethod('POST') && $form->has('checklist')) {
             $form->get('checklist')->setData(array_map(static fn ($i) => ['text' => $i->getText(), 'position' => $i->getPosition()], $job->getJobTemplate()->getChecklistItems()->toArray()));
@@ -121,7 +124,7 @@ class TaskController extends AbstractController
                 $this->tasks->create($task, $this->submittedAssignees($form, $me), $me, $this->wantsEmail($form));
                 $this->addFlash('success', sprintf('Zadatak „%s“ je kreiran.', $task->getTitle()));
 
-                return $this->redirectToRoute('task_show', ['id' => $task->getId()]);
+                return $this->redirect($this->returnUrl->resolve($returnTo, $this->generateUrl('task_show', ['id' => $task->getId()])));
             } catch (\DomainException $e) {
                 $this->addFlash('danger', $e->getMessage());
             }
@@ -131,6 +134,7 @@ class TaskController extends AbstractController
             'form' => $form,
             'task' => $task,
             'locked' => $locked,
+            'returnTo' => $returnTo,
             'people' => null !== $task->getClient() ? $this->clientPeople->of($task->getClient()) : [],
         ]);
     }
@@ -150,6 +154,7 @@ class TaskController extends AbstractController
     public function edit(Request $request, Task $task): Response
     {
         $me = $this->actor();
+        $returnTo = $this->returnUrl->fromRequest($request);
         $form = $this->createTaskForm($task, $me, $task->getAssigneeUsers());
         $form->handleRequest($request);
 
@@ -158,13 +163,13 @@ class TaskController extends AbstractController
                 $this->tasks->update($task, $this->submittedAssignees($form, $me, $task), $me, $this->wantsEmail($form));
                 $this->addFlash('success', 'Zadatak je sačuvan.');
 
-                return $this->redirectToRoute('task_show', ['id' => $task->getId()]);
+                return $this->redirect($this->returnUrl->resolve($returnTo, $this->generateUrl('task_show', ['id' => $task->getId()])));
             } catch (\DomainException $e) {
                 $this->addFlash('danger', $e->getMessage());
             }
         }
 
-        return $this->render('task/form.html.twig', ['form' => $form, 'task' => $task, 'locked' => false, 'people' => null !== $task->getClient() ? $this->clientPeople->of($task->getClient()) : []]);
+        return $this->render('task/form.html.twig', ['form' => $form, 'task' => $task, 'locked' => false, 'returnTo' => $returnTo, 'people' => null !== $task->getClient() ? $this->clientPeople->of($task->getClient()) : []]);
     }
 
     /**

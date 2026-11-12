@@ -46,7 +46,7 @@
         <div class="card-body pt-3">
             <div id="kt-calendar" class="kt-calendar"
                  data-events-url="{{ path('ajax_calendar_events') }}"
-                 data-task-new-url="{{ path('task_new') }}"
+                 data-task-new-url="{{ path('task_new') }}" data-return-to="{{ return_to_path() }}"
                  data-absence-new-url="{{ path('absence_new') }}"></div>
         </div>
     </div>

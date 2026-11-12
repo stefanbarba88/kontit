@@ -16,6 +16,7 @@
 {% endblock %}
 
 {% block content %}
+    {# returnTo: skriveno polje, da preživi grešku pri validaciji (ReturnUrlResolver) #}
     {{ form_start(form, {attr: {'data-kt-task-form': '', 'data-options-url': path('ajax_client_task_options', {id: 0}), 'data-locked': locked ? '1' : '0'}}) }}
     <div class="row">
         <div class="col-lg-7">
@@ -95,8 +96,9 @@
         </div>
     </div>
 
+    {% if returnTo %}<input type="hidden" name="returnTo" value="{{ returnTo }}">{% endif %}
     <div class="kt-form-actions">
-        <a href="{{ is_new ? (locked ? path('client_show', {id: task.client.id}) : path('task_index')) : path('task_show', {id: task.id}) }}" class="btn btn-light">Otkaži</a>
+        <a href="{{ returnTo ?: (is_new ? (locked ? path('client_show', {id: task.client.id}) : path('task_index')) : path('task_show', {id: task.id})) }}" class="btn btn-light">Otkaži</a>
         <button class="btn btn-primary">Sačuvaj{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
     </div>
     {{ form_end(form) }}

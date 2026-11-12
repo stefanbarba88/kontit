@@ -10,6 +10,10 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-12: **Zadatak: povratak na stranicu sa koje je korisnik došao (`returnTo`)**
+  - `ReturnUrlResolver` (`src/Service/`): prihvata samo relativnu putanju (jedno `/`, bez `//`, `\`, šeme, hosta i kontrolnih karaktera, proverava i dekodiranu vrednost); `resolve`, `sanitize`, `fromRequest`, `current`. Twig: `return_to_path()` (trenutna adresa sa filterima i stranom, samo GET) i `return_to_value()`. Test `ReturnUrlResolverTest` (14 slučajeva).
+  - Primena: `TaskController::new/edit` (redirect na returnTo, inače na detalj zadatka; flash ostaje), skriveno polje `returnTo` u formi, "Otkaži" vodi na returnTo. Linkovi: lista zadataka, detalj (Izmeni), kartica klijenta (Novi zadatak, Kreiraj zadatak sada), mobilni meni, kalendar (`calendar.js`). Dashboard nema linkova ka formi zadatka.
+  - Mogu isto: klijent (`client_new`/`client_edit`), korisnik (`admin_user_*`), tim, odsustvo (`absence_new` iz kalendara i liste), neradni dani.
 - 2026-11-12: **Paginator na srpskom**
   - Uzrok: bundle nema prevod za `sr_Latn` (default_locale), pa su se videli ključevi. Dodato `translations/KnpPaginatorBundle.sr_Latn.yaml` (`label_previous`, `label_next`, `filter_searchword`).
   - Nov template `templates/components/pagination.html.twig` (`knp_paginator.template.pagination`) + `components/pagination.css`: Lucide chevron-left/right, na telefonu samo Prethodna · strana X od Y · Sledeća. Pokriva sve liste sa `knp_pagination_render` (zadaci, klijenti, korisnici, timovi, odsustva, obaveštenja). Primer na `/_design`. Nije provereno u ulogovanom pregledaču.

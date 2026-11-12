@@ -28,7 +28,7 @@
     <div class="kt-sheet-handle"></div>
     <div class="kt-sheet-title">Brze akcije</div>
     <div class="kt-sheet-body">
-        <a href="{{ path('task_new') }}" class="kt-sheet-item">{{ ux_icon('lucide:list-checks', {class: 'kt-icon'}) }}Novi zadatak</a>
+        <a href="{{ path('task_new', {returnTo: return_to_path()}) }}" class="kt-sheet-item">{{ ux_icon('lucide:list-checks', {class: 'kt-icon'}) }}Novi zadatak</a>
         {% if is_granted('CLIENT_CREATE') %}
             <a href="{{ path('client_new') }}" class="kt-sheet-item">{{ ux_icon('lucide:building-2', {class: 'kt-icon'}) }}Novi klijent</a>
         {% endif %}

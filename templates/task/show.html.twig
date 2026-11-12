@@ -14,7 +14,7 @@
 
 {% block page_actions %}
     {% if is_granted('TASK_EDIT', task) %}
-        <a href="{{ path('task_edit', {id: task.id}) }}" class="btn btn-primary">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-2'}) }}Izmeni</a>
+        <a href="{{ path('task_edit', {id: task.id, returnTo: return_to_path()}) }}" class="btn btn-primary">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-2'}) }}Izmeni</a>
     {% endif %}
     {% if can_complete and task.status.value in ['U_RADU', 'NOVO'] %}
         <form method="post" action="{{ path('task_waiting', {id: task.id}) }}">

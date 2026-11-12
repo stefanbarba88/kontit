@@ -17,7 +17,7 @@
 {% block page_actions %}
     {% import 'components/export.html.twig' as export %}
     {{ export.menu('zadaci') }}
-    <a href="{{ path('task_new') }}" class="btn btn-primary">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Novi zadatak</a>
+    <a href="{{ path('task_new', {returnTo: return_to_path()}) }}" class="btn btn-primary">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Novi zadatak</a>
 {% endblock %}
 
 {% block content %}

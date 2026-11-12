@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block page_actions %}
-    <a href="{{ path('client_task_new', {clientId: client.id}) }}" class="btn btn-outline-primary">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Novi zadatak</a>
+    <a href="{{ path('client_task_new', {clientId: client.id, returnTo: return_to_path()}) }}" class="btn btn-outline-primary">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Novi zadatak</a>
     {% if is_granted('PRICE_VIEW') %}
         <a href="{{ path('admin_finance_client', {id: client.id}) }}" class="btn btn-outline-primary">{{ ux_icon('lucide:trending-up', {class: 'kt-icon me-2'}) }}Analitika</a>
     {% endif %}
