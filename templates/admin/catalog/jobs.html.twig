@@ -21,7 +21,7 @@
                 <tbody>
                     {% for job in jobs %}
                         <tr>
-                            <td>{{ job.name }}{% if job.checklistItems|length %}<div class="text-muted kt-text-sm">{{ job.checklistItems|length }} stavki checkliste</div>{% endif %}</td>
+                            <td>{{ job.name }}{% if job.requiresApproval %} <span class="badge kt-badge-warning ms-1" title="Zadatke iz ovog posla potvrđuje izabrana osoba">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Traži potvrdu</span>{% endif %}{% if job.checklistItems|length %}<div class="text-muted kt-text-sm">{{ job.checklistItems|length }} stavki checkliste</div>{% endif %}</td>
                             <td>{{ ui.category_badge(job.category) }}</td>
                             <td>{{ schedule_describe(job.schedule, true) }}</td>
                             <td>{{ job.schedule.automatic ? (job.schedule.leadDays ?? 0) ~ ' dana pre roka' : '—' }}</td>

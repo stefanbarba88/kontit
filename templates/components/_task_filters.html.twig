@@ -8,6 +8,7 @@
 {% set hidden = list.hidden %}
 <form method="get" action="{{ path(list.route, list.routeParams) }}" class="row g-2 kt-task-filters" data-kt-filters data-kt-task-filters data-active-count="{{ f.activeCount }}">
     {% if f.tab != 'all' %}<input type="hidden" name="tab" value="{{ f.tab }}">{% endif %}
+    {% if f.specialAll %}<input type="hidden" name="all" value="1">{% endif %}
 
     <div class="col-12 col-md-6 col-xl-3">
         <div class="kt-search-field">
@@ -75,21 +76,21 @@
             {% endfor %}
         </select>
     </div>
-    <div class="col-6 col-md-4 col-xl-3">
+    {% if 'origin' not in hidden %}<div class="col-6 col-md-4 col-xl-3">
         <select name="origin" class="form-select" aria-label="Nastanak" data-native>
             {% for key, label in {all: 'Svi (automatski i ručni)', auto: 'Automatski generisani', manual: 'Ručno kreirani'} %}
                 <option value="{{ key }}" {{ f.origin == key ? 'selected' }}>{{ label }}</option>
             {% endfor %}
         </select>
-    </div>
-    <div class="col-6 col-md-4 col-xl-3">
+    </div>{% endif %}
+    {% if 'status' not in hidden %}<div class="col-6 col-md-4 col-xl-3">
         <select name="status" class="form-select" aria-label="Status" data-native>
             <option value="">Svi statusi</option>
             {% for s in enum_cases('App\\Enum\\TaskStatus') %}
                 <option value="{{ s.value }}" {{ f.status and f.status.value == s.value ? 'selected' }}>{{ s.label }}</option>
             {% endfor %}
         </select>
-    </div>
+    </div>{% endif %}
     <div class="col-6 col-md-4 col-xl-3">
         <select name="priority" class="form-select" aria-label="Prioritet" data-native>
             <option value="">Svi prioriteti</option>
@@ -99,7 +100,7 @@
         </select>
     </div>
     <div class="col-6 col-md-4 col-xl-3">
-        <input type="text" name="period" class="form-control" value="{{ f.period }}" data-datepicker-range placeholder="Rok: od – do" aria-label="Period (rok)">
+        <input type="text" name="period" class="form-control" value="{{ f.period }}" data-datepicker-range placeholder="{{ f.tab == 'special_done' ? 'Potvrđeno: od – do' : 'Rok: od – do' }}" aria-label="Period (rok)">
     </div>
     {% if f.tab == 'all' %}
         <div class="col-12 col-md-6 col-xl-3 d-flex align-items-center">

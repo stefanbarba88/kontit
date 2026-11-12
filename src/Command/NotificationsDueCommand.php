@@ -26,6 +26,7 @@ class NotificationsDueCommand extends Command
         private readonly TaskRepository $tasks,
         private readonly NotificationRepository $notificationRepository,
         private readonly NotificationService $notifications,
+        private readonly \App\Service\SpecialApprovalService $specialApprovals,
     ) {
         parent::__construct();
     }
@@ -64,7 +65,10 @@ class NotificationsDueCommand extends Command
             }
         }
 
-        $io->success(sprintf('Poslato notifikacija: %d.', $sent));
+        // podsetnik proveravačima: posebna potvrda koja čeka duže od 2 radna dana (jednom dnevno po proveravaču)
+        $reminded = $this->specialApprovals->remind();
+
+        $io->success(sprintf('Poslato notifikacija: %d, podsetnika za posebne potvrde: %d.', $sent, $reminded));
 
         return Command::SUCCESS;
     }

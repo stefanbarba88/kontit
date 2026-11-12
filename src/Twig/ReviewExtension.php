@@ -5,6 +5,7 @@ namespace App\Twig;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Repository\TaskRepository;
+use App\Service\SpecialApprovalService;
 use App\Service\TaskReviewPolicy;
 use Symfony\Bundle\SecurityBundle\Security;
 use Twig\Extension\AbstractExtension;
@@ -23,6 +24,7 @@ class ReviewExtension extends AbstractExtension
         private readonly TaskReviewPolicy $policy,
         private readonly TaskRepository $tasks,
         private readonly Security $security,
+        private readonly SpecialApprovalService $special,
     ) {
     }
 
@@ -32,6 +34,7 @@ class ReviewExtension extends AbstractExtension
             new TwigFunction('task_review', $this->policy->describe(...)),
             new TwigFunction('finishes_without_review', $this->finishesWithoutReview(...)),
             new TwigFunction('special_approval_count', $this->specialCount(...)),
+            new TwigFunction('special_wait', $this->wait(...)),
         ];
     }
 
@@ -41,6 +44,15 @@ class ReviewExtension extends AbstractExtension
     public function finishesWithoutReview(Task $task, User $user): bool
     {
         return $this->policy->wouldFinishWithoutReview($task, $user);
+    }
+
+    /** @return array{days: int, overdue: bool, text: string} koliko radnih dana posebna potvrda čeka */
+    public function wait(Task $task): array
+    {
+        $days = $this->special->waitingWorkingDays($task);
+        $text = 0 === $days ? 'Čeka od danas' : sprintf('Čeka %d %s', $days, 1 === $days ? 'radni dan' : 'radna dana');
+
+        return ['days' => $days, 'overdue' => $this->special->isOverdue($task), 'text' => $text];
     }
 
     public function specialCount(): int

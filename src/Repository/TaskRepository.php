@@ -6,6 +6,7 @@ use App\Entity\Client;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Enum\ReviewMode;
+use App\Enum\Role;
 use App\Enum\TaskPriority;
 use App\Enum\TaskStatus;
 use App\Service\TaskFilter;

@@ -8,6 +8,22 @@
 {% macro pct(value) %}{{ value is null ? '—' : value ~ '%' }}{% endmacro %}
 
 {% block content %}
+    {% if special is not null %}
+        <div class="card mb-4">
+            <div class="card-body d-flex align-items-center gap-3 flex-wrap">
+                <span class="kt-stat-icon text-{{ special.count ? (special.overdue ? 'danger' : 'warning') : 'secondary' }}">{{ ux_icon('lucide:shield-check', {class: 'kt-icon'}) }}</span>
+                <div class="flex-fill">
+                    <h6 class="mb-0">Posebne potvrde</h6>
+                    {% if special.count %}
+                        <div class="kt-text-sm {{ special.overdue ? 'text-danger' : 'text-muted' }}">Čeka tvoju potvrdu: <strong>{{ special.count }}</strong> · najstariji od {{ special.oldest|date('d.m.Y.') }}</div>
+                    {% else %}
+                        <div class="kt-text-sm text-muted">Nema posebnih potvrda.</div>
+                    {% endif %}
+                </div>
+                {% if special.count %}<a href="{{ path('special_approvals_index') }}" class="btn btn-primary btn-sm">Pregledaj{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</a>{% endif %}
+            </div>
+        </div>
+    {% endif %}
     {# mali pregled naredne nedelje (SPEC 8n) #}
     <div class="card mb-4">
         <div class="card-header d-flex align-items-center"><h5 class="mb-0">{{ ux_icon('lucide:calendar-days', {class: 'kt-icon me-2'}) }}Naredna nedelja</h5><a href="{{ path('calendar_index') }}" class="btn btn-ghost btn-sm ms-auto">Kalendar{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</a></div>
@@ -141,6 +157,15 @@
                 </table>
             </div>
         </div>
+
+        {% if noReview %}
+            <div class="card mt-3">
+                <div class="card-header"><h6 class="mb-0">{{ ux_icon('lucide:shield-off', {class: 'kt-icon me-2'}) }}Zadaci „Bez provere“ po odlučivaču <span class="text-muted kt-text-sm">(90 dana)</span></h6></div>
+                <ul class="list-group list-group-flush">
+                    {% for r in noReview %}<li class="list-group-item d-flex justify-content-between"><span>{{ r.name }}</span><span class="fw-semibold">{{ r.n }}</span></li>{% endfor %}
+                </ul>
+            </div>
+        {% endif %}
 
         <div class="row">
             <div class="col-lg-7 mb-3">

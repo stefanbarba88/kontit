@@ -14,7 +14,7 @@
         {% set job = row.job %}
         <tr class="{{ job.excluded ? 'kt-row-excluded' }}">
             <td>
-                <div class="kt-svc-name">{{ job.jobTemplate.name }}</div>
+                <div class="kt-svc-name">{{ job.jobTemplate.name }}{% if job.jobTemplate.requiresApproval %} <span class="badge kt-badge-warning ms-1" title="Zadatke iz ovog posla potvrđuje izabrana osoba">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Traži potvrdu</span>{% endif %}</div>
                 <div class="d-flex flex-wrap gap-1 align-items-center mt-1">
                     {{ ui.category_badge(job.jobTemplate.category) }}
                     {% if job.note %}<span class="kt-text-xs text-muted">{{ job.note }}</span>{% endif %}

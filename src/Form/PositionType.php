@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Position;
 use App\Enum\Role;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -27,6 +28,11 @@ class PositionType extends AbstractType
                 'choices' => TeamType::colorChoices($position->getColor()),
                 'choice_attr' => static fn (string $hex) => ['data-swatch' => $hex],
                 'row_attr' => ['class' => 'kt-swatches'],
+            ])
+            ->add('requiresTaskReview', CheckboxType::class, [
+                'label' => 'Zadaci ove pozicije traže proveru',
+                'required' => false,
+                'help' => 'Završen zadatak radnika na ovoj poziciji potvrđuje šef tima (ili admin). Bez kvačice se zadatak završava odmah.',
             ])
             ->add('monthlyCapacityHours', IntegerType::class, [
                 'label' => 'Mesečni kapacitet (sati)',

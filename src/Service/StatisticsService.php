@@ -74,11 +74,11 @@ class StatisticsService
             ['u' => $id, 'from' => $today->format('Y-m-d'), 'to' => $today->modify('+3 days')->format('Y-m-d')],
         );
 
-        $doneSql = 'SELECT COUNT(DISTINCT t.id) FROM task t JOIN task_assignee a ON a.task_id = t.id WHERE a.user_id = :u AND t.status = \'ZAVRSENO\' AND t.approved_at >= :from AND t.approved_at < :to';
+        $doneSql = 'SELECT COUNT(DISTINCT t.id) FROM task t JOIN task_assignee a ON a.task_id = t.id WHERE a.user_id = :u AND t.status = \'ZAVRSENO\' AND t.finished_at >= :from AND t.finished_at < :to';
         $thisMonth = (int) $this->db->fetchOne($doneSql, ['u' => $id, 'from' => $monthStart->format('Y-m-d'), 'to' => $monthStart->modify('+1 month')->format('Y-m-d')]);
         $lastMonth = (int) $this->db->fetchOne($doneSql, ['u' => $id, 'from' => $prevStart->format('Y-m-d'), 'to' => $monthStart->format('Y-m-d')]);
 
-        $perf = $this->performance([$id], null, 90)[$id] ?? ['done' => 0, 'withDue' => 0, 'onTime' => 0];
+        $perf = $this->performance([$id], null, 90)[$id] ?? ['done' => 0, 'withDue' => 0, 'onTime' => 0, 'reviewed' => 0];
         $returned = $this->returned([$id], null, 30)[$id] ?? 0;
 
         return [
@@ -142,8 +142,8 @@ class StatisticsService
         $workers = [];
         foreach ($members as $m) {
             $id = (int) $m['id'];
-            $p30 = $perf30[$id] ?? ['done' => 0, 'withDue' => 0, 'onTime' => 0];
-            $p90 = $perf90[$id] ?? ['done' => 0, 'withDue' => 0, 'onTime' => 0];
+            $p30 = $perf30[$id] ?? ['done' => 0, 'withDue' => 0, 'onTime' => 0, 'reviewed' => 0];
+            $p90 = $perf90[$id] ?? ['done' => 0, 'withDue' => 0, 'onTime' => 0, 'reviewed' => 0];
             $workers[$id] = [
                 'id' => $id,
                 'name' => $m['first_name'].' '.$m['last_name'],
@@ -153,8 +153,8 @@ class StatisticsService
                 'overdue' => $late[$id] ?? 0,
                 'onTime30' => self::percent($p30['onTime'], $p30['withDue']),
                 'onTime90' => self::percent($p90['onTime'], $p90['withDue']),
-                'returned30' => self::percent($ret30[$id] ?? 0, $p30['done']),
-                'returned90' => self::percent($ret90[$id] ?? 0, $p90['done']),
+                'returned30' => self::percent($ret30[$id] ?? 0, $p30['reviewed']),
+                'returned90' => self::percent($ret90[$id] ?? 0, $p90['reviewed']),
                 'returnedCount30' => $ret30[$id] ?? 0,
             ];
         }
@@ -181,7 +181,7 @@ class StatisticsService
         );
         $avg = $this->db->fetchOne(
             'SELECT AVG(TIMESTAMPDIFF(HOUR, x.created_at, x.approved_at)) FROM (SELECT DISTINCT t.id, t.created_at, t.approved_at FROM task t JOIN task_assignee a ON a.task_id = t.id '
-            .'WHERE t.status = \'ZAVRSENO\' AND t.approved_at >= :since'
+            .'WHERE t.status = \'ZAVRSENO\' AND t.completed_without_review = 0 AND t.approved_at >= :since'
             .(null === $teamIds ? '' : ' AND EXISTS (SELECT 1 FROM team_member tm WHERE tm.user_id = a.user_id AND tm.team_id IN (:teams) AND '.self::inLeaderScope().' '
                 .'AND tm.joined_at <= t.approved_at AND (tm.left_at IS NULL OR tm.left_at > t.approved_at))')
             .') x',
@@ -235,6 +235,20 @@ class StatisticsService
      *
      * @return array<string, mixed>
      */
+    /**
+     * Samo za admina: koliko je zadataka ko odlučio da ide "Bez provere" (reviewMode NONE), poslednjih 90 dana.
+     *
+     * @return list<array{name: string, n: int}>
+     */
+    public function noReviewDecisions(): array
+    {
+        return $this->db->fetchAllAssociative(
+            'SELECT CONCAT(u.first_name, \' \', u.last_name) name, COUNT(t.id) n FROM task t JOIN app_user u ON u.id = t.review_decided_by_id '
+            ."WHERE t.review_mode = 'NONE' AND t.review_decided_at >= :since GROUP BY u.id, u.first_name, u.last_name ORDER BY n DESC, name",
+            ['since' => (new \DateTimeImmutable('-90 days'))->format('Y-m-d H:i:s')],
+        );
+    }
+
     public function forCompany(): array
     {
         $noBackup = $this->db->fetchAllAssociative(
@@ -258,7 +272,7 @@ class StatisticsService
 
         $start = (new \DateTimeImmutable('first day of this month'))->modify('-11 months')->format('Y-m-d');
         $rows = $this->db->fetchAllKeyValue(
-            'SELECT DATE_FORMAT(approved_at, \'%Y-%m\') m, COUNT(*) n FROM task WHERE status = \'ZAVRSENO\' AND approved_at >= :start GROUP BY m',
+            'SELECT DATE_FORMAT(finished_at, \'%Y-%m\') m, COUNT(*) n FROM task WHERE status = \'ZAVRSENO\' AND finished_at >= :start GROUP BY m',
             ['start' => $start],
         );
         $trend = [];
@@ -291,7 +305,7 @@ class StatisticsService
      * @param list<int>      $ids
      * @param list<int>|null $teamIds samo zadaci iz perioda kad je radnik bio član tih timova
      *
-     * @return array<int, array{done: int, withDue: int, onTime: int}>
+     * @return array<int, array{done: int, withDue: int, onTime: int, reviewed: int}>
      */
     private function performance(array $ids, ?array $teamIds, int $days): array
     {
@@ -301,13 +315,14 @@ class StatisticsService
         $params = ['ids' => $ids, 'since' => (new \DateTimeImmutable("-$days days"))->format('Y-m-d H:i:s')];
         $types = ['ids' => ArrayParameterType::INTEGER];
         $sql = 'SELECT a.user_id id, COUNT(DISTINCT t.id) done, COUNT(DISTINCT CASE WHEN t.due_date IS NOT NULL THEN t.id END) withDue, '
-            .'COUNT(DISTINCT CASE WHEN t.due_date IS NOT NULL AND DATE(COALESCE(t.submitted_at, t.approved_at)) <= t.due_date THEN t.id END) onTime '
-            .'FROM task t JOIN task_assignee a ON a.task_id = t.id WHERE a.user_id IN (:ids) AND t.status = \'ZAVRSENO\' AND t.approved_at >= :since'
-            .$this->teamFilter($teamIds, 't.approved_at', $params, $types).' GROUP BY a.user_id';
+            .'COUNT(DISTINCT CASE WHEN t.due_date IS NOT NULL AND DATE(COALESCE(t.submitted_at, t.finished_at)) <= t.due_date THEN t.id END) onTime, '
+            .'COUNT(DISTINCT CASE WHEN t.completed_without_review = 0 THEN t.id END) reviewed '
+            .'FROM task t JOIN task_assignee a ON a.task_id = t.id WHERE a.user_id IN (:ids) AND t.status = \'ZAVRSENO\' AND t.finished_at >= :since'
+            .$this->teamFilter($teamIds, 't.finished_at', $params, $types).' GROUP BY a.user_id';
 
         $result = [];
         foreach ($this->db->fetchAllAssociative($sql, $params, $types) as $row) {
-            $result[(int) $row['id']] = ['done' => (int) $row['done'], 'withDue' => (int) $row['withDue'], 'onTime' => (int) $row['onTime']];
+            $result[(int) $row['id']] = ['done' => (int) $row['done'], 'withDue' => (int) $row['withDue'], 'onTime' => (int) $row['onTime'], 'reviewed' => (int) $row['reviewed']];
         }
 
         return $result;

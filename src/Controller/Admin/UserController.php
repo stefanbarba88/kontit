@@ -21,7 +21,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/admin/users')]
 class UserController extends AbstractController
 {
-    public function __construct(private readonly UserService $users)
+    public function __construct(private readonly UserService $users, private readonly \App\Service\SpecialApprovalService $specialApprovals)
     {
     }
 
@@ -99,6 +99,8 @@ class UserController extends AbstractController
     public function edit(Request $request, User $user): Response
     {
         $positionBefore = $user->getPosition();
+        $wasApprover = \App\Service\TaskReviewPolicy::isEligibleApprover($user);
+        $soleWarning = $wasApprover ? $this->specialApprovals->soleApproverWarning($user) : null;
         $form = $this->createForm(UserType::class, $user, [
             'role_choices' => $this->users->assignableRoles($this->getUser()),
         ]);
@@ -109,6 +111,10 @@ class UserController extends AbstractController
                 $this->users->save($user, $form->get('plainPassword')->getData(), $form->get('role')->getData());
                 $this->users->logPositionChange($user, $positionBefore, $this->getUser(), $request->request->getString('reason'));
                 $this->addFlash('success', 'Izmene su sačuvane.');
+                // admin koji je jedini proveravač posebnih potvrda više nema prava da ih potvrđuje
+                if (null !== $soleWarning && !\App\Service\TaskReviewPolicy::isEligibleApprover($user)) {
+                    $this->addFlash('warning', $soleWarning);
+                }
 
                 return $this->redirectToRoute('admin_user_show', ['id' => $user->getId()]);
             } catch (\DomainException $e) {
@@ -128,10 +134,14 @@ class UserController extends AbstractController
         }
 
         $activate = !$user->isActive();
+        $soleWarning = !$activate ? $this->specialApprovals->soleApproverWarning($user) : null;
 
         try {
             $this->users->setActive($user, $activate, $this->getUser());
             $this->addFlash('success', $activate ? 'Korisnik je aktiviran.' : 'Korisnik je deaktiviran.');
+            if (null !== $soleWarning) {
+                $this->addFlash('warning', $soleWarning);
+            }
         } catch (\DomainException $e) {
             $this->addFlash('danger', $e->getMessage());
         }

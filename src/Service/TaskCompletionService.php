@@ -176,7 +176,7 @@ class TaskCompletionService
         if ($complete && $task->getStatus()->isWorkable()) {
             if (ReviewOutcome::NONE === $this->policy->decide($task)) {
                 // bez provere: odmah završeno, bez approvedBy i approvedAt
-                $task->setStatus(TaskStatus::ZAVRSENO)->setSubmittedAt(null)->setApprovedBy(null)->setApprovedAt(null)->setCompletedWithoutReview(true);
+                $task->setStatus(TaskStatus::ZAVRSENO)->setSubmittedAt(null)->setApprovedBy(null)->setApprovedAt(null)->setCompletedWithoutReview(true)->setFinishedAt(new \DateTimeImmutable());
             } else {
                 $task->setStatus(TaskStatus::NA_PROVERI)->setSubmittedAt(new \DateTimeImmutable())->setCompletedWithoutReview(false);
             }
@@ -184,7 +184,7 @@ class TaskCompletionService
             $task->setStatus(TaskStatus::U_RADU)->setSubmittedAt(null);
         } elseif (!$complete && TaskStatus::ZAVRSENO === $task->getStatus() && $task->isCompletedWithoutReview()) {
             // završeno bez provere, pa se promenio sastav učesnika ili povučen deo: ponovo u radu
-            $task->setStatus(TaskStatus::U_RADU)->setCompletedWithoutReview(false);
+            $task->setStatus(TaskStatus::U_RADU)->setCompletedWithoutReview(false)->setFinishedAt(null);
         }
     }
 
@@ -194,7 +194,8 @@ class TaskCompletionService
             throw new \DomainException('Zadatak nije na proveri.');
         }
 
-        $task->setStatus(TaskStatus::ZAVRSENO)->setApprovedBy($approver)->setApprovedAt(new \DateTimeImmutable());
+        $now = new \DateTimeImmutable();
+        $task->setStatus(TaskStatus::ZAVRSENO)->setApprovedBy($approver)->setApprovedAt($now)->setFinishedAt($now);
         $this->em->flush();
 
         $this->notifications->notifyMany(
@@ -262,7 +263,7 @@ class TaskCompletionService
 
     private function resetToInProgress(Task $task): void
     {
-        $task->setStatus(TaskStatus::U_RADU)->setSubmittedAt(null)->setApprovedBy(null)->setApprovedAt(null)->setCompletedWithoutReview(false);
+        $task->setStatus(TaskStatus::U_RADU)->setSubmittedAt(null)->setApprovedBy(null)->setApprovedAt(null)->setCompletedWithoutReview(false)->setFinishedAt(null);
         foreach ($task->getAssignees() as $assignee) {
             $assignee->setStatus(AssigneeStatus::U_RADU)->setCompletedAt(null);
         }

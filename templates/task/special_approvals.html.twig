@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui.html.twig' as ui %}
+
+{% set f = list.filter %}
+
+{% block title %}Posebne potvrde{% endblock %}
+{% block page_title %}Posebne potvrde{% endblock %}
+{% block breadcrumbs %}<a href="{{ path('task_index') }}" class="breadcrumb-item">Zadaci</a><span class="breadcrumb-item active">Posebne potvrde</span>{% endblock %}
+
+{% block page_actions %}
+    {% if f.tab == 'special_done' %}
+        {% import 'components/export.html.twig' as export %}
+        {{ export.menu('posebnepotvrde', list.exportQuery) }}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <ul class="nav nav kt-tabs px-3 pt-2">
+            {% for key, label in {special_waiting: 'Čeka potvrdu', special_progress: 'U radu', special_done: 'Potvrđeno'} %}
+                <li class="nav-item">
+                    <a href="{{ path(list.route, list.query|merge({tab: key == 'special_waiting' ? null : key, page: null})) }}" class="nav-link {{ f.tab == key ? 'active' : '' }}">
+                        {{ label }}
+                        {% if key == 'special_waiting' and list.counts.waiting > 0 %}<span class="badge bg-danger rounded-pill ms-2">{{ list.counts.waiting }}</span>{% endif %}
+                        {% if key == 'special_progress' and list.counts.progress > 0 %}<span class="badge bg-secondary rounded-pill ms-2">{{ list.counts.progress }}</span>{% endif %}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+        <div class="card-body border-top">
+            {% if list.canSeeEverything %}
+                <form method="get" class="mb-3">
+                    {% for key, value in list.query|filter((v, k) => k != 'all' and k != 'page') %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" name="all" value="1" id="special-all" {{ f.specialAll ? 'checked' }} onchange="this.form.submit()">
+                        <label class="form-check-label" for="special-all">Sve posebne potvrde <span class="text-muted kt-text-sm">(bez obzira na izabranog proveravača)</span></label>
+                    </div>
+                </form>
+            {% endif %}
+            {% if f.tab == 'special_waiting' %}
+                <div class="kt-text-sm text-muted mb-3">Najstariji čeka najduže i nalazi se na vrhu. Preko 2 radna dana čekanja je označeno crveno.</div>
+            {% endif %}
+            {% include 'components/_task_filters.html.twig' with {list: list} only %}
+        </div>
+    </div>
+
+    {% include 'components/_special_list.html.twig' with {list: list} only %}
+{% endblock %}

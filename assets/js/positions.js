@@ -48,6 +48,7 @@ if (modal && form) {
             field('description').value = edit.dataset.description;
             field('monthlyCapacityHours').value = edit.dataset.capacity;
             field('suggestedAccessRole').value = edit.dataset.role;
+            field('requiresTaskReview').checked = edit.dataset.review === '1';
             setColor(edit.dataset.color);
         } else {
             form.setAttribute('action', form.dataset.newAction);
@@ -56,6 +57,7 @@ if (modal && form) {
             field('description').value = '';
             field('monthlyCapacityHours').value = '';
             field('suggestedAccessRole').value = '';
+            field('requiresTaskReview').checked = false;
         }
     });
     modal.addEventListener('shown.bs.modal', () => field('name')?.focus());

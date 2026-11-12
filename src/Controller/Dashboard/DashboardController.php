@@ -3,6 +3,8 @@
 namespace App\Controller\Dashboard;
 
 use App\Entity\User;
+use App\Repository\TaskRepository;
+use App\Service\SpecialApprovalService;
 use App\Service\StatisticsService;
 use App\Service\CalendarService;
 use App\Service\TaskService;
@@ -16,6 +18,8 @@ class DashboardController extends AbstractController
         private readonly StatisticsService $stats,
         private readonly TaskService $tasks,
         private readonly CalendarService $calendar,
+        private readonly TaskRepository $taskRepository,
+        private readonly SpecialApprovalService $specialApprovals,
     ) {
     }
 
@@ -29,7 +33,19 @@ class DashboardController extends AbstractController
         $teamIds = $admin ? $this->stats->allTeamIds() : ($this->tasks->isLeader($me) ? $this->stats->ledTeamIds($me) : []);
         $showTeam = $admin || $this->tasks->isLeader($me);
 
+        $special = null;
+        if ($this->isGranted('SPECIAL_APPROVALS_VIEW')) {
+            $oldest = $this->taskRepository->oldestAwaitingSpecialApproval($me, false);
+            $special = [
+                'count' => $this->taskRepository->countAwaitingSpecialApproval($me, false),
+                'oldest' => $oldest,
+                'overdue' => null !== $oldest && $this->specialApprovals->waitingWorkingDaysSince($oldest) > SpecialApprovalService::REMIND_AFTER_WORKING_DAYS,
+            ];
+        }
+
         return $this->render('dashboard/index.html.twig', [
+            'special' => $special,
+            'noReview' => $admin ? $this->stats->noReviewDecisions() : [],
             'me' => $this->stats->forWorker($me),
             'week' => $this->calendar->week($me),
             'showTeam' => $showTeam,

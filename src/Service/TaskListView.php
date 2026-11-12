@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Client;
 use App\Entity\User;
+use App\Enum\Role;
 use App\Repository\ClientRepository;
 use App\Repository\TaskRepository;
 use Knp\Component\Pager\PaginatorInterface;
@@ -77,6 +78,50 @@ class TaskListView
             'isAdmin' => $admin,
             'approvalCount' => !$locked && $leader ? $this->tasks->countAwaitingApproval($me, $admin) : 0,
             'summary' => $locked ? $this->tasks->countSummary($f, $me) : null,
+        ];
+    }
+    /**
+     * Lista stranice Posebne potvrde: isti oblik kao build(), ali tabovi su special_*, a opseg određuje TaskRepository::createSpecialQueryBuilder.
+     * Brojači tabova se računaju bez ostalih filtera.
+     *
+     * @return array<string, mixed>
+     */
+    public function buildSpecial(Request $request, User $me, string $route): array
+    {
+        $f = $this->filters->resolveSpecial($request->query->all(), $me);
+        $pagination = $this->paginator->paginate($this->filters->queryBuilder($f, $me), $request->query->getInt('page', 1), self::PER_PAGE);
+        $this->tasks->hydrateListRelations($pagination);
+
+        $count = fn (string $tab): int => (int) $this->tasks->createFilteredQueryBuilder(
+            $f->with(['tab' => $tab, 'client' => null, 'job' => null, 'noJob' => false, 'assignee' => null, 'status' => null, 'priority' => null, 'from' => null, 'to' => null, 'q' => '', 'qRaw' => '', 'origin' => 'all']),
+            $me,
+        )->select('COUNT(t.id)')->resetDQLPart('orderBy')->getQuery()->getSingleScalarResult();
+
+        $query = $f->toQuery();
+        unset($query['closed']);
+        if ('special_waiting' === $f->tab) {
+            unset($query['tab']);
+        }
+
+        return [
+            'filter' => $f,
+            'pagination' => $pagination,
+            'route' => $route,
+            'routeParams' => array_filter(['all' => $f->specialAll ? 1 : null]),
+            'query' => $query,
+            'exportQuery' => $f->toQuery(),
+            'locked' => false,
+            'hidden' => ['scope', 'team', 'status', 'origin'],
+            'clients' => $this->clients->createVisibleQueryBuilder($me, true, null, 'active')->getQuery()->getResult(),
+            'teams' => [],
+            'people' => $this->filters->usersFor($me),
+            'jobs' => $this->filters->jobOptions(),
+            'canSeeAll' => false,
+            'canSeeEverything' => Role::SUPERADMIN === $me->getHighestRole(),
+            'isAdmin' => true,
+            'approvalCount' => 0,
+            'summary' => null,
+            'counts' => ['waiting' => $count('special_waiting'), 'progress' => $count('special_progress')],
         ];
     }
 }

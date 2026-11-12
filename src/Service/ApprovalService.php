@@ -97,6 +97,10 @@ class ApprovalService
         $count = 0;
         /** @var Task $task */
         foreach ($this->tasks->findBy(['status' => TaskStatus::NA_PROVERI]) as $task) {
+            // posebne potvrde se nikad ne odobravaju automatski
+            if ($task->isSpecialReview()) {
+                continue;
+            }
             $submitted = $task->getSubmittedAt();
             if (null === $submitted || $this->deadlines->deadline($submitted, $hours) > $now) {
                 continue;

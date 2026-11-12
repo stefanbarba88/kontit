@@ -1,0 +1,96 @@
+{#
+    Lista posebnih potvrda (stranica /tasks/special-approvals). Ulaz: list (TaskListView::buildSpecial).
+    Telefon: isti swipe kao u listi zadataka (DESIGN.md 16.4), akcije "Potvrdi" i "Vrati na doradu".
+    Računar: tabela sa dugmadima. Akcije idu na task_approve / task_return, uz returnTo na ovu stranicu.
+#}
+{% import 'components/ui.html.twig' as ui %}
+{% set f = list.filter %}
+{% set pagination = list.pagination %}
+{% set returnTo = return_to_path() %}
+
+{% macro actions(task, returnTo, compact) %}
+    {% if is_granted('TASK_APPROVE', task) %}
+        <form method="post" action="{{ path('task_approve', {id: task.id}) }}" class="d-inline">
+            <input type="hidden" name="_token" value="{{ csrf_token('task_approve_' ~ task.id) }}">
+            <input type="hidden" name="returnTo" value="{{ returnTo }}">
+            <button class="btn btn-success {{ compact ? 'btn-sm' }}" {{ confirm_attrs('Potvrditi zadatak?', 'Zadatak „' ~ task.title ~ '“ postaje završen.', 'info', 'Da, potvrdi') }}>{{ ux_icon('lucide:check', {class: 'kt-icon' ~ (compact ? '' : ' me-1')}) }}{% if not compact %}Potvrdi{% endif %}</button>
+        </form>
+        <form method="post" action="{{ path('task_return', {id: task.id}) }}" class="d-inline">
+            <input type="hidden" name="_token" value="{{ csrf_token('task_return_' ~ task.id) }}">
+            <input type="hidden" name="returnTo" value="{{ returnTo }}">
+            <button class="btn btn-outline-warning {{ compact ? 'btn-sm' }}" {{ confirm_attrs('Vratiti zadatak na doradu?', 'Učesnici dobijaju razlog i zadatak se vraća u rad.', 'warning', 'Da, vrati', true) }}>{{ ux_icon('lucide:undo-2', {class: 'kt-icon' ~ (compact ? '' : ' me-1')}) }}{% if not compact %}Vrati na doradu{% endif %}</button>
+        </form>
+    {% endif %}
+{% endmacro %}
+
+{# telefon: lista sa swipe-om #}
+<div class="kt-task-groups">
+    {% for task in pagination %}
+        {% set wait = special_wait(task) %}
+        <div class="kt-swipe">
+            <div class="kt-swipe-actions">
+                {% if f.tab == 'special_waiting' %}{{ _self.actions(task, returnTo, false) }}{% endif %}
+                <a href="{{ path('task_show', {id: task.id, returnTo: returnTo}) }}" class="btn btn-primary">{{ ux_icon('lucide:arrow-right', {class: 'kt-icon'}) }}Otvori</a>
+            </div>
+            <a href="{{ path('task_show', {id: task.id, returnTo: returnTo}) }}" class="kt-swipe-content">
+                <div class="flex-fill min-w-0">
+                    <div class="kt-task-title text-truncate">{{ task.title }}</div>
+                    <div class="kt-task-meta text-truncate">{{ task.client ? task.client.shortName : 'Interni' }}{% if task.clientJob %} · {{ task.clientJob.jobTemplate.name }}{% endif %}</div>
+                    <div class="mt-1 d-flex gap-1 flex-wrap align-items-center">
+                        {% if f.tab == 'special_waiting' %}
+                            <span class="badge {{ wait.overdue ? 'kt-badge-danger' : 'kt-badge-secondary' }}">{{ wait.text }}</span>
+                        {% elseif f.tab == 'special_done' %}
+                            <span class="badge kt-badge-success">{{ task.approvedBy ? task.approvedBy.fullName : '' }} · {{ task.approvedAt ? task.approvedAt|date('d.m.Y.') }}</span>
+                        {% else %}
+                            {{ ui.due_date(task) }}
+                        {% endif %}
+                        {{ ui.priority_badge(task.priority) }}
+                    </div>
+                </div>
+                <span class="kt-swipe-more">{{ ux_icon('lucide:ellipsis', {class: 'kt-icon'}) }}</span>
+            </a>
+        </div>
+    {% else %}
+        {{ ui.empty_state(f.tab == 'special_waiting' ? 'Nema posebnih potvrda koje čekaju.' : 'Nema zadataka.', 'shield-check') }}
+    {% endfor %}
+</div>
+
+{# računar: tabela #}
+<div class="card kt-task-table">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Zadatak</th><th>Klijent</th><th>Posao</th><th>Učesnici</th>
+                    {% if f.tab == 'special_waiting' %}<th>Čeka</th>{% elseif f.tab == 'special_done' %}<th>Potvrdio</th><th>Potvrđeno</th>{% else %}<th>Rok</th><th>Status</th>{% endif %}
+                    <th class="text-end"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in pagination %}
+                    {% set wait = special_wait(task) %}
+                    <tr>
+                        <td><a href="{{ path('task_show', {id: task.id, returnTo: returnTo}) }}" class="fw-semibold">{{ task.title }}</a></td>
+                        <td>{% if task.client %}{{ task.client.shortName }}{% else %}<span class="text-muted">Interni</span>{% endif %}</td>
+                        <td>{% if task.clientJob %}{{ task.clientJob.jobTemplate.name }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                        <td><div class="d-flex">{% for a in task.assignees %}{{ ui.avatar(a.user, 24, 'me-1') }}{% endfor %}</div></td>
+                        {% if f.tab == 'special_waiting' %}
+                            <td><span class="{{ wait.overdue ? 'text-danger fw-semibold' : 'text-muted' }}">{{ wait.text }}</span></td>
+                        {% elseif f.tab == 'special_done' %}
+                            <td>{{ task.approvedBy ? task.approvedBy.fullName : '—' }}</td>
+                            <td>{{ task.approvedAt ? task.approvedAt|date('d.m.Y. H:i') : '—' }}</td>
+                        {% else %}
+                            <td>{{ ui.due_date(task) }}</td>
+                            <td>{{ ui.task_status(task.status) }}</td>
+                        {% endif %}
+                        <td class="text-end text-nowrap">{% if f.tab == 'special_waiting' %}{{ _self.actions(task, returnTo, true) }}{% endif %}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7">{{ ui.empty_state(f.tab == 'special_waiting' ? 'Nema posebnih potvrda koje čekaju.' : 'Nema zadataka.', 'shield-check') }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center">{{ knp_pagination_render(pagination) }}</div>

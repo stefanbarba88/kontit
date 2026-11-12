@@ -108,6 +108,10 @@ class Task
     #[ORM\Column(options: ['default' => false])]
     private bool $reviewFromJob = false;
 
+    /** Kad je zadatak postao ZAVRSENO (potvrdom ili direktno bez provere); za statistiku, jer approvedAt ostaje null kad provere nije bilo */
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $finishedAt = null;
+
     /** Zadatak je završen direktno, bez provere (za statistiku); approvedBy i approvedAt ostaju null */
     #[ORM\Column(options: ['default' => false])]
     private bool $completedWithoutReview = false;
@@ -495,6 +499,18 @@ class Task
     public function setReviewFromJob(bool $fromJob): static
     {
         $this->reviewFromJob = $fromJob;
+
+        return $this;
+    }
+
+    public function getFinishedAt(): ?\DateTimeImmutable
+    {
+        return $this->finishedAt;
+    }
+
+    public function setFinishedAt(?\DateTimeImmutable $finishedAt): static
+    {
+        $this->finishedAt = $finishedAt;
 
         return $this;
     }
