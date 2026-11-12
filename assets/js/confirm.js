@@ -26,6 +26,9 @@ const swal = Swal.mixin({
     customClass: { cancelButton: 'btn', confirmButton: '', popup: 'kt-swal text-start' },
 });
 
+/** Dijalog sa istim izgledom (mixin) za module koji grade svoj sadržaj, npr. prozor stavke Moje liste. */
+export const swalFire = (options) => swal.fire(options);
+
 const toaster = Swal.mixin({
     toast: true,
     position: 'top-end',

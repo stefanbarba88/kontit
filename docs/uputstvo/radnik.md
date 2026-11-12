@@ -232,7 +232,204 @@ Kad se kolega vrati (ili se odsustvo otkaže), zamena prestaje sama.
 ### Gde je
 - Ikonica sa listom u gornjoj traci otvara panel sa strane (na telefonu iz dna ekrana). Broj na njoj je koliko stavki kasni ili ističe danas.
 - **Meni → Moja lista** (na telefonu **Više → Moja lista**) otvara celu stranu, sa pretragom.
-- Na **Početnoj** strani je kartica **Moja lista danas**.
+- Na **Početnoj** strani, na vrhu, je kartica **Moja lista** sa svim tvojim otvorenim stavkama (zakasnelo je crveno, pa danas, pa ostalo). Ispod je link **Završene**.
+
+### Dodavanje
+1. Klikni **+ Dodaj** (na kartici, u panelu ili na strani Moje liste) ili pritisni taster **n** bilo gde u aplikaciji (dok ne kucaš u nekom polju).
+2. Upiši naslov i pritisni **Enter**. To je dovoljno.
+3. Ako treba, izaberi **Rok** (čipovi **Danas**, **Sutra**, **Ponedeljak** ili datum, uz vreme po želji).
+4. Klikom na **Više opcija** dobijaš: napomenu, **podsetnik** (datum i vreme ili čip **Sutra 9:00**, **Ponedeljak 9:00**), **ponavljanje**, **podsetnik na mail** i vezu sa **klijentom**.
+
+> **Savet:** ako mail ne stigne za par minuta, proveri folder za neželjenu poštu (spam). Ako ni tada nema, javi se administratoru.
+
+### Sredi svoj profil
+
+Na strani **Moj profil**:
+
+- **Lični podaci**: ime, prezime, telefon, adresa. Klikni **Sačuvaj**. Email, rolu i poziciju menja samo administrator.
+- **Obaveštenja na mail**: štikliraj za šta želiš da dobiješ i mail (npr. kad dobiješ nov zadatak). U aplikaciji (zvonce) uvek dobijaš sva obaveštenja.
+- **Tema**: ikonica sunca/meseca gore desno. Biraš **Svetla**, **Tamna** ili **Kao sistem**.
+
+[SLIKA: strana Moj profil sa karticama Lični podaci, Obaveštenja na mail i Promena lozinke]
+
+## Kako je aplikacija organizovana
+
+### Meni sa leve strane (računar)
+
+| Stavka | Šta je tu |
+|---|---|
+| **Početna** | tvoj pregled: zadaci koji kasne, ističu, završeni, i naredna nedelja |
+| **Moji klijenti** | klijenti na kojima si glavni i na kojima si zamena |
+| **Odsustva** | tvoji zahtevi za odsustvo i stanje godišnjeg odmora |
+| **Zadaci** | svi tvoji zadaci, sa tabovima i filterima |
+| **Kalendar** | zadaci po roku, odsustva i praznici u kalendaru |
+| **Uputstvo** | ovo uputstvo |
+
+Broj pored stavke (crveni krug) znači da te tu nešto čeka.
+
+Meni možeš da skupiš na ikonice dugmetom sa ikonicom panela pored logoa. Dole levo je tvoje ime: klik otvara **Moj profil** i **Odjava**.
+
+### Gornja traka
+
+- **Putanja** (npr. Klijenti / Firma X): klik vraća na prethodni nivo.
+- **Tema** (sunce/mesec).
+- **Zvonce**: obaveštenja. Broj na zvoncu je broj nepročitanih.
+- **Avatar**: Moj profil i Odjava.
+
+### Na telefonu
+
+Meni sa strane ne postoji, nego je **traka na dnu**: **Početna**, **Zadaci**, veliko **+** (brze akcije: Novi zadatak, Prijavi odsustvo), **Klijenti** i **Više** (Moji klijenti, Odsustva, Notifikacije, Moj profil, Uputstvo, Tema, Odjava). Lupa gore desno pretražuje klijente po nazivu i PIB-u.
+
+[SLIKA: telefon, donja traka i otvoren meni Više]
+
+## Početna strana
+
+Blok **Moj pregled** pokazuje brojke samo za tebe:
+
+- **Otvoreni zadaci**: koliko zadataka još nije završeno.
+- **Kasne**: zadaci kojima je prošao rok. Ovo rešavaj prvo.
+- **Ističu u 3 dana**: zadaci kojima rok stiže uskoro.
+- **Završeno ovog meseca**: uz poređenje sa prošlim mesecom.
+- **Završeno na vreme**: koliki deo zadataka si predao do roka (poslednjih 90 dana).
+- **Vraćeno na doradu**: koliko puta ti je šef vratio zadatak (30 dana).
+- **Klijenti (glavni)** i **Klijenti (backup)**.
+
+Blok **Naredna nedelja** pokazuje narednih 7 dana: tvoje zadatke po roku i odsustva. Klik na stavku otvara zadatak, a **Kalendar** otvara pun kalendar.
+
+[SLIKA: početna strana radnika, Moj pregled i Naredna nedelja]
+
+## Moji klijenti
+
+Strana ima dva bloka:
+
+1. **Glavni zadužen**: klijenti za koje si ti glavni knjigovođa. Njihovi zadaci po pravilu stižu tebi.
+2. **Backup / zamena**: klijenti na kojima menjaš kolegu kad je odsutan. Kartica ima isprekidanu ivicu i ime glavnog zaduženog. Kad je kolega baš sada na odsustvu, kartica je istaknuta.
+
+Klik na karticu otvara **karticu klijenta**:
+
+- tab **Pregled**: podaci (pun naziv, PIB, matični broj, adresa, kontakt), ko je glavni, ko je backup, istorija dodela i **Istorija izmena**,
+- tab **Ugovorene usluge**: koji se poslovi rade za klijenta i kada je sledeći zadatak (bez cena),
+- dugme **Novi zadatak**: zadatak za tog klijenta (vidi „Novi zadatak“).
+
+Podatke klijenta ne menjaš ti. Ako je nešto pogrešno (telefon, email, adresa), javi administratoru.
+
+### Predlog novog posla za klijenta
+
+Ako klijent traži nešto što nije ugovoreno (npr. godišnji izveštaj), u tabu **Ugovorene usluge** klikni **Predloži posao**, izaberi posao iz liste, po želji upiši **Napomenu** i klikni **Pošalji predlog**. Predlog vidi administrator, upisuje cenu i odobrava ga. Do odobrenja se zadaci za taj posao ne prave.
+
+[SLIKA: kartica klijenta, tab Ugovorene usluge sa dugmetom Predloži posao]
+
+## Zadaci
+
+### Lista zadataka
+
+Meni **Zadaci**. Gore su tabovi:
+
+| Tab | Šta prikazuje |
+|---|---|
+| **Svi** | sve tvoje zadatke |
+| **Danas** | rok je danas |
+| **Ova nedelja** | rok je do kraja nedelje |
+| **Kasne** | rok je prošao, a zadatak nije završen |
+| **Na proveri** | ti si završio, čeka se potvrda šefa |
+
+Ispod tabova su filteri (vidi ispod). Dugme **Izvoz** pravi Excel, CSV ili PDF tačno od onoga što trenutno vidiš.
+
+### Filteri u listi zadataka
+
+Lista se sama osveži kad promeniš filter (a kad kucaš u polje **Naziv**, posle kratke pauze). Sve je u adresi, pa možeš da osvežiš stranu ili pošalješ link kolegi. Promena filtera vraća na prvu stranu.
+
+- **Naziv**: pretraga po nazivu zadatka. Ne razlikuje velika i mala slova ni kvačice („racun“ nalazi „Račun“, „dord“ nalazi „Đorđe“). **X** u polju briše pretragu.
+- **Posao**: iz kog posla je zadatak nastao, grupisano po kategoriji. Prva opcija **Samostalni zadaci (bez posla)** su zadaci koji nisu iz posla. Važi i za automatski napravljene i za ručne zadatke iz posla.
+- **Nastanak**: **Automatski generisani** ili **Ručno kreirani**.
+- **Klijent**, **Status**, **Prioritet** i **Rok** (od – do).
+- **Prikaži završene i otkazane**: podrazumevano vidiš samo otvorene zadatke. Tabovi vezani za status (npr. **Na proveri**) ne zavise od ovog prekidača.
+
+Dugme **Poništi** (sa brojem aktivnih filtera) vraća sve na početno. Na telefonu je dugme **Filteri** (sa brojem aktivnih) koje otvara filtere odozdo.
+
+Isti filteri i **Izvoz** postoje na kartici klijenta (tab **Zadaci**, vidi „Klijenti“) i na tvojoj strani **Moji zadaci** (dugme na **Moj profil**). Tamo vidiš samo zadatke koje inače smeš da vidiš.
+
+Na telefonu su zadaci grupisani po roku (**Kasni**, **Danas**, **Sutra**, **Ove nedelje**, **Kasnije**). Prevuci zadatak ulevo za brzo dugme **Moj deo je gotov**.
+
+[SLIKA: lista zadataka sa tabovima i filterima]
+
+### Šta znače statusi zadatka
+
+| Status | Značenje |
+|---|---|
+| **Novo** | zadatak je napravljen, niko još nije počeo |
+| **U radu** | neko je počeo (štiklirao stavku ili kliknuo Počinjem rad) |
+| **Čeka klijenta** | ne može dalje dok klijent ne pošalje dokumentaciju |
+| **Na proveri** | svi (ili jedan, zavisi od zadatka) su završili, čeka se potvrda šefa |
+| **Završeno** | šef je potvrdio |
+| **Otkazano** | zadatak se ne radi |
+
+Svaki učesnik ima i **svoj status** na zadatku: **Novo**, **U radu**, **Završio**.
+
+**Prioritet**: **Nizak**, **Normalan**, **Visok**, **Hitan**. Hitan zadatak stiže i sa jasnim obaveštenjem „Novi HITAN zadatak“.
+
+**PREUZETO** (plava oznaka): zadatak je trebalo da radi neko ko je na odsustvu, pa ga radiš ti kao zamena.
+
+### Rad na zadatku, korak po korak
+
+1. Otvori zadatak (klik na naslov).
+2. Ako još nisi počeo, klikni **Počinjem rad**. Status postaje **U radu**.
+3. Prolazi kroz **Checklist** i štikliraj stavke koje si uradio. Ispod stavke se upisuje ko ju je štiklirao i kada.
+   - Stavka sa tuđim avatarom je dodeljena tom kolegi i samo on je štiklira.
+   - Stavka bez avatara je zajednička i štiklira je bilo ko.
+4. Ako čekaš klijenta (nije poslao izvode, fakture...), klikni **Čeka klijenta**. Kad stigne, klikni **Nastavi rad**.
+5. Kad je tvoj deo gotov, po želji upiši **Napomenu** i klikni **Moj deo je gotov**.
+6. Kad svi završe (ili jedan, ako u **Detalji → Završetak** piše „Dovoljan jedan“), zadatak ide **Na proveri** i proveravač dobija obaveštenje. Ne proverava se svaki zadatak: na zadatku piše značka **Proverava: šef tima**, **Posebna potvrda: ime** ili **Bez provere**. Ako zadatak ne ide na proveru, dobićeš poruku „Zadatak će biti završen bez provere“ i on odmah postaje **Završeno**.
+7. Kad se proverava, šef (ili admin) ga **potvrdi** (status **Završeno**) ili **vrati na doradu** sa razlogom. Razlog vidiš u komentarima, označen narandžasto, a zadatak je opet **U radu**.
+
+[SLIKA: strana zadatka, Checklist, Učesnici i dugme Moj deo je gotov]
+
+> **Pažnja:** dugme **Moj deo je gotov** ne radi dok nisi štiklirao sve stavke koje su dodeljene **tebi**.
+
+Ako si slučajno javio da si gotov, klikni **Vrati moj deo u rad** (može dok proveravač ne potvrdi, a kod zadatka završenog bez provere dok ga niko ne otvori ponovo).
+
+### Komentari
+
+Na dnu zadatka je **Komentari**. Upiši tekst i klikni **Pošalji**. Ostali učesnici i onaj ko je napravio zadatak dobijaju obaveštenje. Svoj komentar možeš da izmeniš (ikonica olovke) samo u prvih 15 minuta.
+
+Ispod komentara je **Istorija**: ko je šta i kada menjao na zadatku.
+
+### Novi zadatak (samo sebi)
+
+1. **Zadaci → Novi zadatak** (ili **+** na telefonu, ili **Novi zadatak** na kartici klijenta).
+2. Izaberi **Za klijenta** ili **Interni (bez klijenta)**.
+3. Ako je za klijenta, izaberi **Klijenta**. Polje **Posao** je opciono: ako izabereš ugovoreni posao, sam se popune checklista i prioritet.
+4. Upiši **Naslov**, po želji **Opis**.
+5. Izaberi **Rok** (u kalendaru su vikendi i praznici prigušeni), **Prioritet** i **Završetak**.
+6. Po želji dodaj stavke u **Checklistu** (Enter dodaje novu stavku).
+7. Klikni **Sačuvaj**.
+
+Kao radnik možeš da napraviš zadatak samo sebi. Zadatak za kolegu pravi šef ili admin.
+
+Zadatak koji si sam napravio možeš da menjaš (**Izmeni**) i da ga **otkažeš** (**Otkaži zadatak**, uz razlog). Zadatke koje ti je dao neko drugi ne menjaš, samo radiš na njima.
+
+[SLIKA: forma Novi zadatak]
+
+## Zamena kolege (backup)
+
+Kad je kolega čiji si backup na **odobrenom odsustvu**:
+
+- dobijaš obaveštenje „Preuzimaš klijente za [ime] od [datum] do [datum]“,
+- njegovi otvoreni zadaci za te klijente se pojavljuju i kod tebe, sa oznakom **PREUZETO**,
+- novi automatski zadaci za te klijente stižu direktno tebi, sa oznakom **PREUZETO**.
+
+Na kolegin zadatak možeš da štikliraš stavke, komentarišeš i da klikneš **Završi deo kolege (zamena)**. Ne možeš da menjaš sam zadatak. U istoriji se vidi da si to uradio kao zamena.
+
+Kad se kolega vrati (ili se odsustvo otkaže), zamena prestaje sama.
+
+## Moja lista
+
+**Moja lista** je tvoja lična lista obaveza i podsetnika. Nije zadatak: nema provere, ne ulazi u statistiku i **vidiš je samo ti** (ni šef, ni administrator, ni superadministrator).
+
+### Gde je
+- Ikonica sa listom u gornjoj traci otvara panel sa strane (na telefonu iz dna ekrana). Broj na njoj je koliko stavki kasni ili ističe danas.
+- **Meni → Moja lista** (na telefonu **Više → Moja lista**) otvara celu stranu, sa pretragom.
+- Na **Početnoj** strani, na vrhu, je kartica **Moja lista** sa svim tvojim otvorenim stavkama (zakasnelo je crveno, pa danas, pa ostalo). Ispod je link **Završene**.
 
 ### Dodavanje
 1. Upiši obavezu u polje **Dodaj u moju listu…** i pritisni **Enter**.
@@ -241,11 +438,11 @@ Kad se kolega vrati (ili se odsustvo otkaže), zamena prestaje sama.
 > **Savet:** prvi put kad postaviš podsetnik, browser pita da li sme da ti šalje obaveštenja. Ako dozvoliš, podsetnik ćeš videti i kad je KontIT u drugom tabu.
 
 ### Sekcije
-**Zakasnelo** (crveno), **Danas**, **Predstojeće**, **Bez roka** i **Završeno** (poslednjih 20). Rok bez vremena važi ceo dan: stavka kasni tek posle ponoći. Zakačenu stavku (pribadača) držiš na vrhu njene sekcije. U **Bez roka** redosled menjaš prevlačenjem.
+**Zakasnelo** (crveno), **Danas**, **Predstojeće**, **Bez roka** i **Završene** (poslednjih 20). Rok bez vremena važi ceo dan: stavka kasni tek posle ponoći. Zakačenu stavku (pribadača) držiš na vrhu njene sekcije. U **Bez roka** redosled menjaš prevlačenjem.
 
 ### Rad sa stavkom
-- Štikliraj kružić da završiš stavku. U poruci dole imaš **Poništi** 5 sekundi.
-- Klikni na naslov za detalje: napomena, rok, podsetnik, **ponavljanje**, podsetnik na mail i **Pretvori u zadatak**.
+- Štikliraj kvadratić da završiš stavku (precrta se i izbledi). Klik na kvadratić u završenim vraća stavku. U poruci dole imaš **Poništi** 5 sekundi.
+- Klikni na tekst stavke: otvara se isti prozor kao za dodavanje, popunjen, sa dugmetom **Obriši** (crveno) i vezom **Pretvori u zadatak**.
 - Na telefonu povuci stavku ulevo: **Završi** ili **Obriši**.
 - Brisanje obične stavke ima **Poništi** 5 sekundi. Stavka koja se ponavlja traži potvrdu, jer brisanjem prestaje ponavljanje.
 

@@ -30,6 +30,7 @@ class TodoExtension extends AbstractExtension
             new TwigFunction('todo_due', $this->todo->dueLabel(...)),
             new TwigFunction('todo_remind', $this->todo->remindLabel(...)),
             new TwigFunction('todo_overdue', fn (TodoItem $item): bool => !$item->isDone() && 'overdue' === $this->todo->bucket($item)),
+            new TwigFunction('todo_repeat_options', static fn (): array => array_map(static fn (TodoRepeat $r): array => ['value' => $r->value, 'label' => $r->label()], TodoRepeat::cases())),
             new TwigFunction('todo_repeats', static fn (): array => TodoRepeat::cases()),
         ];
     }

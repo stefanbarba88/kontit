@@ -358,14 +358,32 @@
                     <p class="kt-text-sm text-muted mb-2">Panel iz topbara (bočni offcanvas na računaru, bottom sheet na telefonu), skraćeno.</p>
                     <div class="border rounded p-3" style="background: var(--kt-surface);">
                         <div class="d-flex align-items-center mb-3"><strong>{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Moja lista</strong><span class="kt-text-sm text-muted ms-auto">{{ ux_icon('lucide:lock', {class: 'kt-icon me-1'}) }}privatno</span></div>
-                        <div class="kt-todo-add">
-                            <div class="kt-todo-add-row"><div class="kt-todo-add-field">{{ ux_icon('lucide:plus', {class: 'kt-icon'}) }}<input type="text" class="form-control" placeholder="Dodaj u moju listu…" aria-label="Dodaj"></div><button type="button" class="btn btn-primary kt-todo-add-btn" disabled>{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button></div>
-                            <div class="kt-todo-chips"><button type="button" class="kt-tchip">Danas</button><button type="button" class="kt-tchip">Sutra 9:00</button><button type="button" class="kt-tchip">Ponedeljak 9:00</button><button type="button" class="kt-tchip">{{ ux_icon('lucide:calendar-clock', {class: 'kt-icon me-1'}) }}Izaberi…</button></div>
-                        </div>
+                        <div class="kt-todo-toolbar"><button type="button" class="btn btn-primary kt-todo-new">{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button><span class="kt-text-sm text-muted">ili pritisni <kbd>n</kbd></span></div>
                         <div class="kt-todo-head">Bez roka (2)</div>
                         <div class="kt-todo-item"><div class="kt-todo-row"><input type="checkbox" class="kt-check" aria-label="Završi"><div class="kt-todo-main"><button type="button" class="kt-todo-title kt-check-label">Srediti arhivu</button></div><span class="kt-todo-handle">{{ ux_icon('lucide:grip-vertical', {class: 'kt-icon'}) }}</span></div></div>
                         <div class="kt-todo-item"><div class="kt-todo-row"><input type="checkbox" class="kt-check" aria-label="Završi"><div class="kt-todo-main"><button type="button" class="kt-todo-title kt-check-label">Pročitati novi pravilnik</button></div><span class="kt-todo-handle">{{ ux_icon('lucide:grip-vertical', {class: 'kt-icon'}) }}</span></div></div>
                     </div>
+                </div>
+            </div>
+            <p class="kt-text-sm text-muted mb-2">SweetAlert prozor za dodavanje i izmenu (isti za panel, stranu, karticu i taster <kbd>n</kbd>). Napredna polja su iza "Više opcija"; u izmeni postoji i crveno "Obriši".</p>
+            <div class="swal2-popup kt-swal kt-todo-swal-popup mb-4" style="display: grid; position: static; width: min(460px, 100%);">
+                <h2 class="swal2-title" style="display: block;">Izmena stavke</h2>
+                <div class="swal2-html-container" style="display: block;">
+                    <div class="kt-todo-dialog text-start">
+                        <label class="form-label kt-text-sm">Naslov</label>
+                        <input type="text" class="form-control mb-3" value="Pozvati klijenta zbog PDV-a">
+                        <div class="row g-2">
+                            <div class="col-7"><label class="form-label kt-text-sm">Rok</label><input type="text" class="form-control" value="13.11.2026."></div>
+                            <div class="col-5"><label class="form-label kt-text-sm">Vreme</label><input type="time" class="form-control" value="14:30"></div>
+                        </div>
+                        <div class="kt-todo-chips mb-2"><button type="button" class="kt-tchip">Danas</button><button type="button" class="kt-tchip is-selected">Sutra</button><button type="button" class="kt-tchip">Ponedeljak</button></div>
+                        <button type="button" class="btn btn-link btn-sm px-0" aria-expanded="false">Više opcija</button>
+                    </div>
+                </div>
+                <div class="swal2-actions" style="display: flex;">
+                    <button type="button" class="btn kt-btn-confirm swal2-styled">Sačuvaj</button>
+                    <button type="button" class="btn kt-btn-danger swal2-styled">Obriši</button>
+                    <button type="button" class="btn swal2-styled">Otkaži</button>
                 </div>
             </div>
             <p class="kt-text-sm text-muted mb-2">Toast podsetnika sa dugmadima "Završeno" i "Odloži" i toast sa "Poništi" (5 s).</p>

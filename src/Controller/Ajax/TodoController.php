@@ -6,6 +6,8 @@ use App\Entity\Client;
 use App\Entity\Task;
 use App\Entity\TodoItem;
 use App\Enum\TodoRepeat;
+use App\Repository\ClientRepository;
+use App\Service\ClientService;
 use App\Repository\TodoItemRepository;
 use App\Service\TodoClock;
 use App\Service\TodoService;
@@ -25,7 +27,19 @@ class TodoController extends AbstractAjaxController
         private readonly TodoItemRepository $items,
         private readonly EntityManagerInterface $em,
         private readonly TodoClock $clock,
+        private readonly ClientRepository $clientRepository,
+        private readonly ClientService $clientService,
     ) {
+    }
+
+    /** Klijenti koje korisnik sme da vidi, za izbor veze u prozoru stavke (pretraga po nazivu). */
+    #[Route('/ajax/todo/clients', name: 'ajax_todo_clients', methods: ['GET'])]
+    public function clients(Request $request): JsonResponse
+    {
+        $me = $this->actor();
+        $qb = $this->clientRepository->createVisibleQueryBuilder($me, $this->clientService->canAssignAnyone($me), $request->query->getString('q'), 'active')->setMaxResults(30);
+
+        return $this->ok(array_map(static fn (Client $c): array => ['id' => $c->getId(), 'name' => $c->getShortName()], $qb->getQuery()->getResult()));
     }
 
     #[Route('/ajax/todo', name: 'ajax_todo', methods: ['GET'])]
@@ -74,12 +88,23 @@ class TodoController extends AbstractAjaxController
     public function add(Request $request): JsonResponse
     {
         $data = $this->payload($request);
+        $item = null;
         try {
             $item = $this->todo->add($this->actor(), (string) ($data['title'] ?? ''));
-            $this->todo->fill($item, array_intersect_key($data, array_flip(['dueDate', 'dueTime', 'remindDate', 'remindTime', 'remindByEmail'])));
+            $this->todo->fill($item, array_intersect_key($data, array_flip(['note', 'dueDate', 'dueTime', 'remindDate', 'remindTime', 'remindByEmail', 'repeat'])));
+            $this->applyClient($item, $data);
             $this->todo->save($item);
-        } catch (\DomainException $e) {
-            return $this->fail($e->getMessage());
+        } catch (\Throwable $e) {
+            // stavka je već upisana pre popunjavanja polja: neuspeo unos ne sme da ostavi praznu stavku
+            if (null !== $item) {
+                $this->em->remove($item);
+                $this->em->flush();
+            }
+            if ($e instanceof \DomainException) {
+                return $this->fail($e->getMessage());
+            }
+
+            throw $e;
         }
 
         return $this->ok($this->state() + ['id' => $item->getId(), 'hasReminder' => null !== $item->getRemindAt()], 'Dodato u tvoju listu.');
@@ -160,6 +185,7 @@ class TodoController extends AbstractAjaxController
         $data = $this->payload($request);
         try {
             $this->todo->fill($item, array_intersect_key($data, array_flip(['title', 'note', 'dueDate', 'dueTime', 'remindDate', 'remindTime', 'remindByEmail', 'repeat', 'pinned'])));
+            $this->applyClient($item, $data);
             $this->todo->save($item);
         } catch (\DomainException $e) {
             return $this->fail($e->getMessage());
@@ -211,6 +237,27 @@ class TodoController extends AbstractAjaxController
     /**
      * @return array{count: int, html: string}
      */
+    /** Veza na klijenta iz prozora stavke: prazno skida vezu, nova veza traži CLIENT_VIEW (inače 404), neizmenjena veza se ne dira. */
+    private function applyClient(TodoItem $item, array $data): void
+    {
+        if (!\array_key_exists('clientId', $data)) {
+            return;
+        }
+        if (null === $data['clientId'] || '' === $data['clientId']) {
+            $item->setClient(null);
+
+            return;
+        }
+        if ($item->getClient()?->getId() === (int) $data['clientId']) {
+            return;
+        }
+        $client = $this->em->find(Client::class, (int) $data['clientId']);
+        if (!$client || !$this->isGranted('CLIENT_VIEW', $client)) {
+            throw $this->createNotFoundException();
+        }
+        $item->setClient($client);
+    }
+
     private function state(string $query = ''): array
     {
         $me = $this->actor();

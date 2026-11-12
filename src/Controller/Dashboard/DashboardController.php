@@ -45,13 +45,10 @@ class DashboardController extends AbstractController
             ];
         }
 
-        // Moja lista danas: zakasnelo + danas, najviše 5 (privatno, samo moje stavke)
-        $sections = $this->todo->sections($me);
-        $todayItems = array_merge($sections['overdue'], $sections['today']);
+        // Moja lista: sve otvorene stavke u kartici (privatno, samo moje stavke)
 
         return $this->render('dashboard/index.html.twig', [
-            'todoToday' => array_slice($todayItems, 0, 5),
-            'todoTodayTotal' => \count($todayItems),
+            'todoSections' => $this->todo->sections($me),
             'special' => $special,
             'noReview' => $admin ? $this->stats->noReviewDecisions() : [],
             'me' => $this->stats->forWorker($me),

@@ -1,25 +1,14 @@
 {#
-    Telo Moje liste, isto u bočnom panelu i na /moja-lista: polje "Dodaj", čipovi za rok/podsetnik i sekcije.
-    Svaki koren [data-kt-todo] osvežava assets/js/todo.js posle svake akcije. Ulaz: sections, found, query.
+    Telo Moje liste, isto u bočnom panelu, na /moja-lista i u kartici na početnoj: dugme "+ Dodaj" (SweetAlert prozor) i sekcije.
+    Svaki koren [data-kt-todo] osvežava assets/js/todo.js posle svake akcije. Ulaz: sections, found, query, add (prikaži dugme "+ Dodaj").
 #}
 <div class="kt-todo" data-kt-todo data-url="{{ path('ajax_todo') }}" data-query="{{ query }}">
-    <form class="kt-todo-add" data-todo-add autocomplete="off">
-        <div class="kt-todo-add-row">
-            <div class="kt-todo-add-field">
-                {{ ux_icon('lucide:plus', {class: 'kt-icon'}) }}
-                <input type="text" class="form-control" maxlength="200" placeholder="Dodaj u moju listu…" aria-label="Dodaj u moju listu" enterkeyhint="done" data-todo-title>
-            </div>
-            <button type="submit" class="btn btn-primary kt-todo-add-btn" data-todo-submit disabled>{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button>
+    {% if add|default(true) %}
+        <div class="kt-todo-toolbar">
+            <button type="button" class="btn btn-primary kt-todo-new" data-todo-new>{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button>
+            <span class="kt-text-sm text-muted d-none d-md-inline">ili pritisni <kbd>n</kbd></span>
         </div>
-        <div class="kt-todo-chips" role="group" aria-label="Rok i podsetnik">
-            {% for chip in todo_chips() %}
-                <button type="button" class="kt-tchip" data-todo-chip data-date="{{ chip.date }}" data-time="{{ chip.time }}">{{ chip.label }}</button>
-            {% endfor %}
-            <button type="button" class="kt-tchip" data-todo-chip-pick>{{ ux_icon('lucide:calendar-clock', {class: 'kt-icon me-1'}) }}Izaberi…</button>
-            <input type="text" class="kt-todo-picker" data-todo-picker tabindex="-1" aria-hidden="true">
-            <span class="kt-tchip is-selected" data-todo-selected hidden><span data-todo-selected-label></span><button type="button" class="kt-tchip-x" data-todo-clear-chip aria-label="Ukloni rok">{{ ux_icon('lucide:x', {class: 'kt-icon'}) }}</button></span>
-        </div>
-    </form>
+    {% endif %}
     <div class="kt-todo-list" data-kt-todo-list>
         {% include 'todo/_sections.html.twig' with {sections: sections, found: found, query: query} only %}
     </div>

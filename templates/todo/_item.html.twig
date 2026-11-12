@@ -1,13 +1,14 @@
 {#
     Jedna stavka Moje liste. Ulaz: item, section (overdue|today|upcoming|nodue|done|found).
-    Telefon: prevlačenje ulevo otkriva "Završi" i "Obriši" (isti .kt-swipe kao lista zadataka). Klik na naslov otvara detalje.
+    Telefon: prevlačenje ulevo otkriva "Završi" i "Obriši" (isti .kt-swipe kao lista zadataka). Klik na naslov otvara SweetAlert prozor za izmenu (assets/js/todo.js, data-todo nosi vrednosti).
     Veza ka klijentu/zadatku je link samo ako vlasnik i dalje sme da ih vidi, inače običan tekst.
 #}
 {% set f = todo_fields(item) %}
 {% set due = todo_due(item) %}
 {% set remind = todo_remind(item) %}
 {% set repeating = item.repeat.value != 'NONE' %}
-<div class="kt-todo-item kt-swipe {{ item.done ? 'is-done' : '' }} {{ item.pinned ? 'is-pinned' : '' }}" data-todo-item data-id="{{ item.id }}" data-repeating="{{ repeating ? 1 : 0 }}" data-pinned="{{ item.pinned ? 1 : 0 }}">
+{% set payload = f|merge({id: item.id, title: item.title, note: item.note ?? '', repeat: item.repeat.value, remindByEmail: item.remindByEmail, clientId: item.client ? item.client.id : null, clientName: item.client ? item.client.shortName : null, repeating: repeating, convertUrl: (not item.done and not item.createdTask and is_granted('TASK_CREATE')) ? path('task_new', {fromTodo: item.id}) : null}) %}
+<div class="kt-todo-item kt-swipe {{ item.done ? 'is-done' : '' }} {{ item.pinned ? 'is-pinned' : '' }}" data-todo-item data-id="{{ item.id }}" data-todo="{{ payload|json_encode }}" data-repeating="{{ repeating ? 1 : 0 }}" data-pinned="{{ item.pinned ? 1 : 0 }}">
     <div class="kt-swipe-actions">
         {% if item.done %}
             <button type="button" class="btn btn-secondary" data-todo-act="reopen">{{ ux_icon('lucide:undo-2', {class: 'kt-icon'}) }}Vrati</button>
@@ -39,41 +40,4 @@
         {% if section == 'nodue' %}<span class="kt-todo-handle" aria-hidden="true">{{ ux_icon('lucide:grip-vertical', {class: 'kt-icon'}) }}</span>{% endif %}
     </div>
 
-    <form class="kt-todo-detail" data-todo-detail hidden>
-        <div class="mb-2">
-            <label class="form-label kt-text-sm">Naslov</label>
-            <input type="text" class="form-control" maxlength="200" value="{{ item.title }}" data-todo-field="title">
-        </div>
-        <div class="mb-2">
-            <label class="form-label kt-text-sm">Napomena</label>
-            <textarea class="form-control" rows="3" maxlength="5000" data-todo-field="note">{{ item.note }}</textarea>
-        </div>
-        <div class="row g-2 mb-2">
-            <div class="col-7"><label class="form-label kt-text-sm">Rok</label><input type="text" class="form-control" data-datepicker data-todo-field="dueDate" value="{{ f.dueDate }}" placeholder="Bez roka" autocomplete="off"></div>
-            <div class="col-5"><label class="form-label kt-text-sm">Vreme</label><input type="time" class="form-control" data-todo-field="dueTime" value="{{ f.dueTime }}"></div>
-        </div>
-        <div class="row g-2 mb-2">
-            <div class="col-7"><label class="form-label kt-text-sm">Podsetnik</label><input type="text" class="form-control" data-datepicker data-todo-field="remindDate" value="{{ f.remindDate }}" placeholder="Bez podsetnika" autocomplete="off"></div>
-            <div class="col-5"><label class="form-label kt-text-sm">Vreme</label><input type="time" class="form-control" data-todo-field="remindTime" value="{{ f.remindTime }}"></div>
-        </div>
-        <div class="row g-2 mb-2 align-items-end">
-            <div class="col-7">
-                <label class="form-label kt-text-sm">Ponavljanje</label>
-                <select class="form-select" data-native data-todo-field="repeat">
-                    {% for r in todo_repeats() %}<option value="{{ r.value }}" {{ item.repeat == r ? 'selected' }}>{{ r.label }}</option>{% endfor %}
-                </select>
-            </div>
-            <div class="col-5">
-                <div class="form-check"><input class="form-check-input" type="checkbox" data-todo-field="remindByEmail" id="rm-{{ item.id }}-{{ section }}" {{ item.remindByEmail ? 'checked' }}><label class="form-check-label kt-text-sm" for="rm-{{ item.id }}-{{ section }}">Podsetnik na mail</label></div>
-            </div>
-        </div>
-        <div class="d-flex gap-2 mt-3">
-            <button type="button" class="btn btn-primary btn-sm" data-todo-act="save">Sačuvaj</button>
-            <button type="button" class="btn btn-light btn-sm" data-todo-act="open">Zatvori</button>
-            {% if not item.done and not item.createdTask and is_granted('TASK_CREATE') %}
-                <a href="{{ path('task_new', {fromTodo: item.id}) }}" class="btn btn-light btn-sm" title="Otvara formu zadatka sa popunjenim podacima">{{ ux_icon('lucide:square-check-big', {class: 'kt-icon me-1'}) }}Pretvori u zadatak</a>
-            {% endif %}
-            <button type="button" class="btn btn-ghost btn-sm text-danger ms-auto" data-todo-act="delete">{{ ux_icon('lucide:trash-2', {class: 'kt-icon me-1'}) }}Obriši</button>
-        </div>
-    </form>
 </div>

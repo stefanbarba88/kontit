@@ -37,7 +37,8 @@ class TodoPagesTest extends DatabaseTestCase
         self::assertResponseIsSuccessful();
         $html = (string) $this->browser->getResponse()->getContent();
         self::assertStringContainsString('data-kt-todo-panel', $html, 'panel je na svakoj strani');
-        self::assertStringContainsString('Dodaj u moju listu', $html);
+        self::assertStringContainsString('data-todo-new', $html, 'dugme + Dodaj otvara SweetAlert prozor');
+        self::assertStringContainsString('data-chips=', $html, 'čipovi za prozor dolaze sa servera');
 
         $res = $this->api('POST', '/ajax/todo', ['title' => 'Pozvati klijenta', 'dueDate' => '2026-12-01', 'dueTime' => '09:00', 'remindDate' => '2026-12-01', 'remindTime' => '09:00']);
         self::assertTrue($res['success']);
@@ -75,16 +76,62 @@ class TodoPagesTest extends DatabaseTestCase
         self::assertStringContainsString('Pozvati klijenta', $res['data']['html']);
     }
 
-    public function testAddButtonIsRenderedDisabledWhileEmpty(): void
+    public function testAddWithAllFieldsAndClientLink(): void
+    {
+        $me = $this->user('Ja');
+        $stranger = $this->user('Strani');
+        $own = $this->client('Moja firma', $me);
+        $foreign = $this->client('Tuđa firma', $stranger);
+        $this->em->flush();
+        $this->login($me);
+
+        $res = $this->api('POST', '/ajax/todo', ['title' => 'Sa svim poljima', 'note' => 'Napomena', 'dueDate' => '2026-12-03', 'repeat' => 'WEEKLY', 'remindByEmail' => true, 'clientId' => $own->getId()]);
+        self::assertTrue($res['success']);
+        $itemId = $res['data']['id'];
+        $item = $this->em->getRepository(TodoItem::class)->find($itemId);
+        self::assertSame('WEEKLY', $item->getRepeat()->value);
+        self::assertSame($own->getId(), $item->getClient()->getId());
+        self::assertTrue($item->isRemindByEmail());
+        self::assertStringContainsString('Moja firma', $res['data']['html']);
+
+        // tuđi klijent: 404 i nikakva stavka ne ostaje
+        $before = $this->em->getRepository(TodoItem::class)->count(['owner' => $me]);
+        $this->api('POST', '/ajax/todo', ['title' => 'Tuđa veza', 'clientId' => $foreign->getId()]);
+        self::assertResponseStatusCodeSame(404);
+        // ponavljanje bez roka: greška i nikakva stavka ne ostaje
+        self::assertFalse($this->api('POST', '/ajax/todo', ['title' => 'Bez roka', 'repeat' => 'DAILY'])['success']);
+        $this->em->clear();
+        self::assertSame($before, $this->em->getRepository(TodoItem::class)->count(['owner' => $this->em->find(User::class, $me->getId())]), 'neuspeli unos ne ostavlja praznu stavku');
+
+        // izmena može da skine vezu
+        $res = $this->api('POST', '/ajax/todo/'.$itemId, ['clientId' => null]);
+        self::assertTrue($res['success']);
+        $this->em->clear();
+        self::assertNull($this->em->getRepository(TodoItem::class)->find($itemId)->getClient());
+    }
+
+    public function testClientPickerListsOnlyVisibleClients(): void
+    {
+        $me = $this->user('Ja');
+        $stranger = $this->user('Strani');
+        $this->client('Moja firma', $me);
+        $this->client('Tuđa firma', $stranger);
+        $this->em->flush();
+        $this->login($me);
+
+        $res = $this->api('GET', '/ajax/todo/clients?q=firma');
+        self::assertSame(['Moja firma'], array_column($res['data'], 'name'));
+    }
+
+    public function testItemCarriesValuesForDialog(): void
     {
         $me = $this->user('Ja');
         $this->em->flush();
-        $this->browser->loginUser($me);
-        $crawler = $this->browser->request('GET', '/moja-lista');
-        $button = $crawler->filter('.kt-todo-page [data-todo-add] button[type="submit"][data-todo-submit]');
-        self::assertCount(1, $button);
-        self::assertNotNull($button->attr('disabled'));
-        self::assertStringContainsString('Dodaj', $button->text());
+        $this->login($me);
+        $res = $this->api('POST', '/ajax/todo', ['title' => 'Za prozor', 'dueDate' => '2026-12-04', 'dueTime' => '10:30']);
+        self::assertStringContainsString('data-todo=', $res['data']['html']);
+        self::assertStringContainsString('&quot;dueTime&quot;:&quot;10:30&quot;', $res['data']['html']);
+        self::assertStringNotContainsString('data-todo-detail', $res['data']['html'], 'izmena je u SweetAlert prozoru, ne inline');
     }
 
     public function testReorderAndSearchOnlyOwnItems(): void

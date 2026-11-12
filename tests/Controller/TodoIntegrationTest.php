@@ -166,9 +166,10 @@ class TodoIntegrationTest extends DatabaseTestCase
         $this->browser->loginUser($me);
         $this->browser->request('GET', '/');
         $html = (string) $this->browser->getResponse()->getContent();
-        self::assertStringContainsString('Moja lista danas', $html);
+        self::assertStringContainsString('Moja lista', $html);
+        self::assertStringContainsString('data-todo-new', $html);
         self::assertStringContainsString('Moja danasnja', $html);
         self::assertStringNotContainsString('Tudja danasnja', $html);
-        self::assertStringNotContainsString('Za mesec dana', $html);
+        self::assertStringContainsString('Za mesec dana', $html, 'kartica prikazuje sve otvorene stavke, ne samo današnje');
     }
 }

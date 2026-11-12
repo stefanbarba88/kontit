@@ -25,11 +25,11 @@
         {% endif %}
     {% endfor %}
     {% if total == 0 %}
-        <div class="kt-todo-empty">{{ ux_icon('lucide:list-checks', {class: 'kt-icon kt-icon-lg d-block mb-2'}) }}Lista je prazna. Dodaj prvu stavku iznad.</div>
+        <div class="kt-todo-empty">{{ ux_icon('lucide:list-checks', {class: 'kt-icon kt-icon-lg d-block mb-2'}) }}Lista je prazna.<button type="button" class="btn btn-primary mt-3 d-block mx-auto" data-todo-new>{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button></div>
     {% endif %}
     {% if sections.done is not empty %}
         <details class="kt-todo-section kt-todo-done">
-            <summary class="kt-todo-head">Završeno <span class="text-muted">({{ sections.done|length }})</span></summary>
+            <summary class="kt-todo-head">Završene <span class="text-muted">({{ sections.done|length }})</span></summary>
             <div class="kt-todo-items">
                 {% for item in sections.done %}{% include 'todo/_item.html.twig' with {item: item, section: 'done'} only %}{% endfor %}
             </div>

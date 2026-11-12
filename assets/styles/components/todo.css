@@ -17,13 +17,6 @@
 }
 
 /* --- dodavanje i čipovi --- */
-.kt-todo-add { margin-bottom: 16px; position: relative; }
-.kt-todo-add-row { display: flex; gap: 8px; align-items: stretch; }
-.kt-todo-add-field { position: relative; flex: 1 1 auto; min-width: 0; }
-.kt-todo-add-btn { flex: 0 0 auto; display: inline-flex; align-items: center; min-height: 44px; }
-.kt-todo-add-field .form-control { min-height: 44px; }
-.kt-todo-add-field .kt-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--kt-text-3); pointer-events: none; }
-.kt-todo-add-field .form-control { padding-left: 38px; }
 .kt-todo-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .kt-tchip {
     display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; border-radius: 999px;
@@ -35,7 +28,6 @@
 .kt-tchip.is-selected { background: var(--kt-primary-soft); border-color: var(--kt-primary); color: var(--kt-primary); }
 .kt-tchip .kt-icon { font-size: 14px; }
 .kt-tchip-x { border: 0; background: transparent; color: inherit; padding: 0; margin-left: 6px; display: inline-flex; cursor: pointer; }
-.kt-todo-picker { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; border: 0; padding: 0; pointer-events: none; }
 
 /* --- sekcije --- */
 .kt-todo-section { margin-bottom: 16px; }
@@ -68,7 +60,6 @@
 .kt-todo-pin.is-on { color: var(--kt-primary); }
 .kt-todo-handle { color: var(--kt-text-3); cursor: grab; opacity: 0; padding-top: 2px; }
 .kt-todo-item:hover .kt-todo-handle { opacity: 1; }
-.kt-todo-detail { padding: 8px 4px 14px 30px; }
 .kt-todo-item.sortable-ghost { opacity: .4; }
 @media (min-width: 576px) {
     /* swipe radnje postoje samo na telefonu; na računaru su dugmad u detaljima */
@@ -78,7 +69,6 @@
     .kt-todo-pin, .kt-todo-handle { opacity: 1; }
     .kt-todo-row { padding: 12px 8px; }
     .kt-todo-item .kt-swipe-content { padding: 12px 8px; }
-    .kt-todo-detail { padding-left: 8px; }
 }
 
 /* poništi u toast-u */
@@ -86,3 +76,26 @@
 
 /* topbar dugme */
 .kt-todo-btn { position: relative; }
+
+/* --- "+ Dodaj" i kartica na početnoj --- */
+.kt-todo-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.kt-todo-new { display: inline-flex; align-items: center; min-height: 44px; }
+.kt-todo-card .card-header .kt-todo-new { min-height: 44px; }
+@media (min-width: 768px) { .kt-todo-card .card-header .kt-todo-new { min-height: 32px; } }
+.kt-todo-card .kt-todo-list { max-height: 420px; overflow-y: auto; overscroll-behavior: contain; }
+.kt-todo-card .kt-todo-done .kt-todo-item:nth-child(n+11) { display: none; }
+.kt-todo-card .kt-todo-section:last-child { margin-bottom: 0; }
+
+/* --- SweetAlert prozor stavke: stane u ekran, tastatura ne prekriva naslov --- */
+.kt-todo-swal-popup { max-width: 100%; }
+.kt-todo-swal-popup .swal2-html-container { max-height: 65dvh; overflow-y: auto; overflow-x: hidden; margin-left: 0; margin-right: 0; padding: 4px 2px; text-align: left; }
+.kt-todo-dialog .kt-todo-chips { margin-top: 8px; }
+.kt-todo-dialog .btn-link { text-decoration: none; min-height: 32px; }
+.kt-todo-dialog .btn-link[aria-expanded="true"]::after { content: " ▴"; }
+.kt-todo-dialog .btn-link[aria-expanded="false"]::after { content: " ▾"; }
+.ts-dropdown { z-index: 1090; }
+@media (max-width: 575.98px) {
+    .kt-todo-swal.swal2-container { align-items: flex-start; padding: 8px; }
+    .kt-todo-swal-popup { padding: 16px; margin: 0; }
+    .kt-todo-swal-popup .swal2-html-container { max-height: 50dvh; }
+}

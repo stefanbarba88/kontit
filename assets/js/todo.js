@@ -2,11 +2,12 @@
 // detalji stavke, prevlačenje redosleda i swipe na telefonu. Sve preko /ajax/todo, bez osvežavanja strane.
 // Vremena šalje i prima kao LOKALNA (Europe/Belgrade) "Y-m-d" i "H:i"; zonu računa server (TodoClock), ne ovaj fajl.
 import Sortable from 'sortablejs';
-import flatpickr from 'flatpickr';
+import TomSelect from 'tom-select';
+import Swal from 'sweetalert2';
 import { Modal, Offcanvas } from 'bootstrap';
 import { ajax } from './ajax.js';
-import { confirmDialog, reminderToast, snoozeDialog, toast, undoToast } from './confirm.js';
-import { initDatepickers, srLatn } from './datepicker.js';
+import { confirmDialog, reminderToast, snoozeDialog, swalFire, toast, undoToast } from './confirm.js';
+import { initDatepickers } from './datepicker.js';
 import { initSwipe } from './mobile.js';
 
 const roots = () => [...document.querySelectorAll('[data-kt-todo]')];
@@ -26,10 +27,6 @@ if (roots().length) {
         }
         roots().forEach((root) => {
             const list = root.querySelector('[data-kt-todo-list]');
-            // otvorene detalje ne diramo dok se kuca u njima
-            if (list.querySelector('[data-todo-detail]:not([hidden]) :focus')) {
-                return;
-            }
             list.innerHTML = data.html;
             initSwipe(list);
             list.querySelectorAll('[data-todo-sortable]').forEach((box) => {
@@ -57,23 +54,6 @@ if (roots().length) {
     };
     const reorder = (box) => call('POST', `${baseUrl}/reorder`, { ids: [...box.querySelectorAll('[data-todo-item]')].map((el) => Number(el.dataset.id)) });
 
-    // --- dodavanje: Enter dodaje, čip postavlja rok/podsetnik ---
-    const selection = new Map(); // root -> { date, time, label }
-    const setSelection = (root, value) => {
-        const chipBox = root.querySelector('[data-todo-selected]');
-        if (value) {
-            selection.set(root, value);
-            chipBox.hidden = false;
-            chipBox.querySelector('[data-todo-selected-label]').textContent = value.label;
-        } else {
-            selection.delete(root);
-            chipBox.hidden = true;
-        }
-        root.querySelectorAll('[data-todo-chip]').forEach((chip) => {
-            const on = value && chip.dataset.date === value.date && (chip.dataset.time || null) === (value.time || null) && !value.picked;
-            chip.classList.toggle('is-selected', Boolean(on));
-        });
-    };
     // Dozvola za browser obaveštenja se traži JEDNOM, tek kad korisnik prvi put postavi podsetnik (nikad pri učitavanju strane).
     // Poziva se sinhrono iz klika/slanja forme, jer neki browseri traže korisnikov gest.
     const NOTIF_KEY = 'kt-todo-notif-asked';
@@ -92,118 +72,207 @@ if (roots().length) {
         Notification.requestPermission();
     };
 
-    document.addEventListener('click', (e) => {
-        const chip = e.target.closest('[data-todo-chip]');
-        if (chip) {
-            const root = chip.closest('[data-kt-todo]');
-            const current = selection.get(root);
-            const same = current && current.date === chip.dataset.date && (current.time || null) === (chip.dataset.time || null);
-            setSelection(root, same ? null : { date: chip.dataset.date, time: chip.dataset.time || null, label: chip.textContent.trim() });
-            root.querySelector('[data-todo-title]').focus();
+    // --- jedan SweetAlert prozor za dodavanje i izmenu (panel, /moja-lista, kartica na početnoj, taster "n") ---
+    // Osnovni unos je samo naslov + Enter; rok je ispod, a napomena, podsetnik, ponavljanje, mail i klijent su iza "Više opcija".
+    // Čipovi (Danas / Sutra / Ponedeljak) dolaze sa servera (data-chips na panelu), da zonu računa samo TodoClock.
+    const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    const panelData = (name) => {
+        try {
+            return JSON.parse(document.querySelector('[data-kt-todo-panel]')?.dataset[name] || '[]');
+        } catch {
+            return [];
+        }
+    };
+    const dueNames = { today: 'Danas', tomorrow: 'Sutra', monday: 'Ponedeljak' };
+    const dialogHtml = (item, chips) => {
+        const dueChips = chips.map((c) => `<button type="button" class="kt-tchip" data-chip-due="${esc(c.date)}">${esc(dueNames[c.key] || c.label)}</button>`).join('');
+        const remindChips = chips.filter((c) => c.time).map((c) => `<button type="button" class="kt-tchip" data-chip-remind="${esc(c.date)}" data-time="${esc(c.time)}">${esc(c.label)}</button>`).join('');
+        const repeats = panelData('repeats')
+            .map((r) => `<option value="${esc(r.value)}" ${item.repeat === r.value ? 'selected' : ''}>${esc(r.label)}</option>`).join('');
+        const more = Boolean(item.note || item.remindDate || (item.repeat && item.repeat !== 'NONE') || item.remindByEmail || item.clientId);
 
+        return `
+        <div class="kt-todo-dialog text-start">
+            <label class="form-label kt-text-sm" for="kt-td-title">Naslov</label>
+            <input type="text" class="form-control mb-3" id="kt-td-title" maxlength="200" value="${esc(item.title)}" placeholder="Šta treba da uradiš?" autocomplete="off">
+            <div class="row g-2">
+                <div class="col-7"><label class="form-label kt-text-sm" for="kt-td-due">Rok</label><input type="text" class="form-control" id="kt-td-due" data-datepicker value="${esc(item.dueDate)}" placeholder="Bez roka" autocomplete="off"></div>
+                <div class="col-5"><label class="form-label kt-text-sm" for="kt-td-due-time">Vreme</label><input type="time" class="form-control" id="kt-td-due-time" value="${esc(item.dueTime)}"></div>
+            </div>
+            <div class="kt-todo-chips mb-2">${dueChips}</div>
+            <button type="button" class="btn btn-link btn-sm px-0" data-td-more aria-expanded="${more}">Više opcija</button>
+            <div class="kt-todo-more" ${more ? '' : 'hidden'}>
+                <label class="form-label kt-text-sm" for="kt-td-note">Napomena</label>
+                <textarea class="form-control mb-3" id="kt-td-note" rows="2" maxlength="5000">${esc(item.note)}</textarea>
+                <div class="row g-2">
+                    <div class="col-7"><label class="form-label kt-text-sm" for="kt-td-remind">Podsetnik</label><input type="text" class="form-control" id="kt-td-remind" data-datepicker value="${esc(item.remindDate)}" placeholder="Bez podsetnika" autocomplete="off"></div>
+                    <div class="col-5"><label class="form-label kt-text-sm" for="kt-td-remind-time">Vreme</label><input type="time" class="form-control" id="kt-td-remind-time" value="${esc(item.remindTime)}"></div>
+                </div>
+                <div class="kt-todo-chips mb-3">${remindChips}</div>
+                <div class="row g-2 mb-3 align-items-end">
+                    <div class="col-7"><label class="form-label kt-text-sm" for="kt-td-repeat">Ponavljanje</label><select class="form-select" id="kt-td-repeat" data-native>${repeats}</select></div>
+                    <div class="col-5"><div class="form-check"><input class="form-check-input" type="checkbox" id="kt-td-mail" ${item.remindByEmail ? 'checked' : ''}><label class="form-check-label kt-text-sm" for="kt-td-mail">Podsetnik na mail</label></div></div>
+                </div>
+                <label class="form-label kt-text-sm" for="kt-td-client">Klijent (veza)</label>
+                <select id="kt-td-client" placeholder="Bez veze">${item.clientId ? `<option value="${esc(item.clientId)}" selected>${esc(item.clientName)}</option>` : ''}</select>
+            </div>
+            ${item.convertUrl ? `<div class="mt-3"><a href="${esc(item.convertUrl)}" class="kt-text-sm">Pretvori u zadatak</a></div>` : ''}
+        </div>`;
+    };
+
+    const blank = { title: '', note: '', dueDate: '', dueTime: '', remindDate: '', remindTime: '', repeat: 'NONE', remindByEmail: false, clientId: null, clientName: null };
+    let dialogOpen = false;
+    const openDialog = async (item = null) => {
+        if (dialogOpen) {
             return;
         }
-        const pick = e.target.closest('[data-todo-chip-pick]');
-        if (pick) {
-            const root = pick.closest('[data-kt-todo]');
-            const input = root.querySelector('[data-todo-picker]');
-            if (!input._flatpickr) {
-                flatpickr(input, {
-                    locale: srLatn,
-                    enableTime: true,
-                    time_24hr: true,
-                    defaultHour: 9,
-                    minuteIncrement: 5,
-                    dateFormat: 'Y-m-d H:i',
-                    disableMobile: true,
-                    onChange: (dates, str) => {
-                        if (!dates.length) {
+        dialogOpen = true;
+        const editing = Boolean(item?.id);
+        const chips = panelData('chips');
+        let saved = '';
+        let result;
+        try {
+            result = await swalFire({
+                title: editing ? 'Izmena stavke' : 'Nova stavka',
+                html: dialogHtml(item || blank, chips),
+                showCancelButton: true,
+                showDenyButton: editing,
+                confirmButtonText: 'Sačuvaj',
+                cancelButtonText: 'Otkaži',
+                denyButtonText: 'Obriši',
+                focusCancel: false,
+                focusConfirm: false,
+                returnFocus: false,
+                customClass: { popup: 'kt-swal kt-todo-swal-popup', container: 'kt-todo-swal', confirmButton: 'btn kt-btn-confirm', cancelButton: 'btn', denyButton: 'btn kt-btn-danger' },
+                didOpen: (popup) => {
+                    initDatepickers(popup);
+                    const $ = (sel) => popup.querySelector(sel);
+                    const title = $('#kt-td-title');
+                    title.focus();
+                    title.setSelectionRange(title.value.length, title.value.length);
+                    $('[data-td-more]').addEventListener('click', (e) => {
+                        const box = $('.kt-todo-more');
+                        box.hidden = !box.hidden;
+                        e.currentTarget.setAttribute('aria-expanded', String(!box.hidden));
+                    });
+                    new TomSelect($('#kt-td-client'), {
+                        valueField: 'id',
+                        labelField: 'name',
+                        searchField: ['name'],
+                        maxItems: 1,
+                        create: false,
+                        plugins: ['clear_button'],
+                        dropdownParent: 'body',
+                        preload: 'focus',
+                        load: (q, cb) => ajax('GET', `${baseUrl}/clients?q=${encodeURIComponent(q)}`).then((r) => cb(r.data)).catch(() => cb()),
+                        render: { no_results: () => '<div class="no-results">Nema rezultata</div>' },
+                    });
+                    const syncChips = () => {
+                        popup.querySelectorAll('[data-chip-due]').forEach((c) => c.classList.toggle('is-selected', c.dataset.chipDue === $('#kt-td-due').value));
+                        popup.querySelectorAll('[data-chip-remind]').forEach((c) => c.classList.toggle('is-selected', c.dataset.chipRemind === $('#kt-td-remind').value && c.dataset.time === $('#kt-td-remind-time').value));
+                    };
+                    popup.addEventListener('click', (e) => {
+                        const due = e.target.closest('[data-chip-due]');
+                        const remind = e.target.closest('[data-chip-remind]');
+                        if (due) {
+                            const same = $('#kt-td-due').value === due.dataset.chipDue;
+                            $('#kt-td-due')._flatpickr.setDate(same ? null : due.dataset.chipDue, true);
+                            $('#kt-td-due-time').value = '';
+                        } else if (remind) {
+                            const same = $('#kt-td-remind').value === remind.dataset.chipRemind && $('#kt-td-remind-time').value === remind.dataset.time;
+                            $('#kt-td-remind')._flatpickr.setDate(same ? null : remind.dataset.chipRemind, true);
+                            $('#kt-td-remind-time').value = same ? '' : remind.dataset.time;
+                        } else {
                             return;
                         }
-                        const [date, time] = str.split(' ');
-                        const [y, m, d] = date.split('-');
-                        setSelection(root, { date, time, label: `${d}.${m}. ${time}`, picked: true });
-                        root.querySelector('[data-todo-title]').focus();
-                    },
-                });
-            }
-            input._flatpickr.open();
+                        syncChips();
+                    });
+                    popup.addEventListener('change', syncChips);
+                    syncChips();
+                    // Enter u običnom polju potvrđuje (u napomeni i u izboru klijenta ne)
+                    popup.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' && e.target.matches('input:not([type="checkbox"])') && !e.target.closest('.ts-wrapper')) {
+                            e.preventDefault();
+                            Swal.clickConfirm();
+                        }
+                    });
+                },
+                preConfirm: async () => {
+                    const popup = Swal.getPopup();
+                    const val = (sel) => popup.querySelector(sel).value.trim();
+                    const payload = {
+                        title: val('#kt-td-title'),
+                        note: val('#kt-td-note'),
+                        dueDate: val('#kt-td-due'),
+                        dueTime: val('#kt-td-due-time'),
+                        remindDate: val('#kt-td-remind'),
+                        remindTime: val('#kt-td-remind-time'),
+                        repeat: popup.querySelector('#kt-td-repeat').value,
+                        remindByEmail: popup.querySelector('#kt-td-mail').checked,
+                        clientId: popup.querySelector('#kt-td-client').value || null,
+                    };
+                    if (!payload.title) {
+                        Swal.showValidationMessage('Upiši naslov.');
+                        popup.querySelector('#kt-td-title').focus();
 
-            return;
+                        return false;
+                    }
+                    if (payload.dueTime && !payload.dueDate) {
+                        Swal.showValidationMessage('Izaberi datum roka ili obriši vreme.');
+
+                        return false;
+                    }
+                    if (payload.repeat !== 'NONE' && !payload.dueDate && !payload.remindDate) {
+                        Swal.showValidationMessage('Ponavljanje traži rok ili podsetnik.');
+
+                        return false;
+                    }
+                    if (payload.remindDate) {
+                        requestNotifications();
+                    }
+                    try {
+                        const res = await ajax('POST', editing ? `${baseUrl}/${item.id}` : baseUrl, payload);
+                        render(res.data);
+                        saved = res.message || 'Sačuvano.';
+
+                        return true;
+                    } catch (e) {
+                        // greška servera ili mreže ostaje u prozoru, da se unos ne izgubi
+                        Swal.showValidationMessage(e.message || 'Greška.');
+
+                        return false;
+                    }
+                },
+            });
+        } finally {
+            dialogOpen = false;
         }
-        if (e.target.closest('[data-todo-clear-chip]')) {
-            setSelection(e.target.closest('[data-kt-todo]'), null);
+        if (saved) {
+            toast(saved);
+        } else if (result.isDenied) {
+            remove({ dataset: { id: String(item.id), repeating: item.repeating ? '1' : '0' } });
+        }
+    };
+
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('[data-todo-new]')) {
+            openDialog();
         }
     });
-
-    document.addEventListener('submit', async (e) => {
-        const form = e.target.closest('[data-todo-add]');
-        if (!form) {
+    // taster "n" (kad fokus nije u polju) otvara prozor za dodavanje bilo gde u aplikaciji
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'n' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented || e.isComposing) {
+            return;
+        }
+        if (e.target.closest?.('input, textarea, select, [contenteditable="true"]') || document.body.classList.contains('swal2-shown') || document.querySelector('.modal.show')) {
             return;
         }
         e.preventDefault();
-        const root = form.closest('[data-kt-todo]');
-        const input = form.querySelector('[data-todo-title]');
-        const title = input.value.trim();
-        if (!title) {
-            return;
-        }
-        const sel = selection.get(root);
-        const payload = { title };
-        if (sel) {
-            payload.dueDate = sel.date;
-            payload.dueTime = sel.time;
-            if (sel.time) {
-                payload.remindDate = sel.date;
-                payload.remindTime = sel.time;
-            }
-        }
-        if (payload.remindDate) {
-            requestNotifications();
-        }
-        const button = form.querySelector('[data-todo-submit]');
-        input.readOnly = true; // ne disabled: disabled polje gubi fokus (tastatura na telefonu bi se zatvorila)
-        button.disabled = true;
-        const res = await call('POST', baseUrl, payload);
-        input.readOnly = false;
-        if (res) {
-            input.value = '';
-            setSelection(root, null);
-        }
-        syncAddButton(form);
-        input.focus();
-    });
-
-    // dugme "Dodaj" je isključeno dok je polje prazno
-    const syncAddButton = (form) => {
-        const button = form.querySelector('[data-todo-submit]');
-        if (button) {
-            button.disabled = form.querySelector('[data-todo-title]').value.trim() === '';
-        }
-    };
-    // na telefonu tastatura ne sme da prekrije polje
-    document.addEventListener('focusin', (e) => {
-        if (e.target.matches?.('[data-todo-title]')) {
-            setTimeout(() => e.target.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 300);
-        }
-    });
-    document.addEventListener('input', (e) => {
-        const form = e.target.closest?.('[data-todo-add]');
-        if (form) {
-            syncAddButton(form);
-        }
+        openDialog();
     });
 
     // --- akcije nad stavkom ---
     const itemOf = (el) => el.closest('[data-todo-item]');
-    const fieldsOf = (item) => {
-        const out = {};
-        item.querySelectorAll('[data-todo-field]').forEach((el) => {
-            out[el.dataset.todoField] = el.type === 'checkbox' ? el.checked : el.value;
-        });
-
-        return out;
-    };
 
     const complete = async (item) => {
         const id = item.dataset.id;
@@ -261,21 +330,7 @@ if (roots().length) {
         const item = itemOf(btn);
         const act = btn.dataset.todoAct;
         if (act === 'open') {
-            const detail = item.querySelector('[data-todo-detail]');
-            detail.hidden = !detail.hidden;
-            if (!detail.hidden) {
-                initDatepickers(detail);
-                detail.querySelector('[data-todo-field="title"]').focus();
-            }
-        } else if (act === 'save') {
-            const fields = fieldsOf(item);
-            if (fields.remindDate) {
-                requestNotifications();
-            }
-            const res = await call('POST', `${baseUrl}/${item.dataset.id}`, fields);
-            if (res) {
-                toast('Sačuvano.');
-            }
+            openDialog(JSON.parse(item.dataset.todo));
         } else if (act === 'done') {
             complete(item);
         } else if (act === 'reopen') {
@@ -287,19 +342,10 @@ if (roots().length) {
         }
     });
 
-    // detalji: Enter u naslovu čuva
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && e.target.matches('[data-todo-field="title"]')) {
-            e.preventDefault();
-            e.target.closest('[data-todo-item]').querySelector('[data-todo-act="save"]').click();
-        }
-    });
-
     // panel: sadržaj se učitava pri prvom otvaranju, a na svako otvaranje osvežava
     const panel = document.querySelector('[data-kt-todo-panel]');
     if (panel) {
         panel.addEventListener('show.bs.offcanvas', refresh);
-        panel.addEventListener('shown.bs.offcanvas', () => panel.querySelector('[data-todo-title]')?.focus());
     }
     // --- "Podseti me" sa zadatka / klijenta: mali formular koji pravi stavku vezanu za njih ---
     const remindModal = document.getElementById('kt-remind-modal');
@@ -393,5 +439,5 @@ if (roots().length) {
     });
     poll();
 
-    window.ktTodo = { refresh, panel: () => (panel ? Offcanvas.getOrCreateInstance(panel) : null) };
+    window.ktTodo = { refresh, add: () => openDialog(), panel: () => (panel ? Offcanvas.getOrCreateInstance(panel) : null) };
 }

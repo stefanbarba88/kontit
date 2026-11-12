@@ -8,18 +8,15 @@
 {% macro pct(value) %}{{ value is null ? '—' : value ~ '%' }}{% endmacro %}
 
 {% block content %}
-    <div class="card mb-4">
-        <div class="card-header d-flex align-items-center"><h5 class="mb-0">{{ ux_icon('lucide:notebook-pen', {class: 'kt-icon me-2'}) }}Moja lista danas</h5><a href="{{ path('todo_index') }}" class="btn btn-ghost btn-sm ms-auto">Sve{% if todoTodayTotal > 5 %} ({{ todoTodayTotal }}){% endif %}{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</a></div>
+    {# Moja lista: uvek vidljiv "notes" na vrhu, sve otvorene stavke (privatno, samo moje); osvežava se kroz assets/js/todo.js #}
+    <div class="card mb-4 kt-todo-card">
+        <div class="card-header d-flex align-items-center gap-2 flex-wrap">
+            <h5 class="mb-0">{{ ux_icon('lucide:notebook-pen', {class: 'kt-icon me-2'}) }}Moja lista</h5>
+            <button type="button" class="btn btn-primary btn-sm ms-auto kt-todo-new" data-todo-new>{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button>
+            <a href="{{ path('todo_index') }}" class="btn btn-ghost btn-sm">Otvori celu listu{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</a>
+        </div>
         <div class="card-body border-top py-2">
-            {% for item in todoToday %}
-                <div class="d-flex align-items-center gap-2 py-1">
-                    {{ ux_icon('lucide:circle', {class: 'kt-icon text-muted'}) }}
-                    <span class="flex-fill text-truncate">{{ item.title }}</span>
-                    {% set due = todo_due(item) %}{% if due %}<span class="kt-text-sm {{ todo_overdue(item) ? 'text-danger fw-semibold' : 'text-muted' }}">{{ due }}</span>{% endif %}
-                </div>
-            {% else %}
-                <div class="kt-text-sm text-muted py-2">Nema stavki za danas.</div>
-            {% endfor %}
+            {% include 'todo/_body.html.twig' with {sections: todoSections, found: [], query: '', add: false} only %}
         </div>
     </div>
     {% if special is not null %}
