@@ -206,7 +206,7 @@ OTKAZANO (iz bilo kog statusa, radi kreator / šef / admin)
   - generisani zadaci su uvek AUTO, osim kad posao traži potvrdu (SPECIAL).
 - **Proveravač koji više nije važeći** (neaktivan ili bez admin prava) ne računa se; ako nijedan ne preostane, potvrđuje superadmin. Pri deaktivaciji ili spuštanju prava jedinog proveravača admin dobija upozorenje sa brojem posebnih poslova i otvorenih zadataka (`SpecialApprovalService::soleApproverWarning`).
 - **Stranica** `/tasks/special-approvals` (samo admin i superadmin, `SPECIAL_APPROVALS_VIEW`, stavka „Posebne potvrde“ u meniju sa brojačem): admin vidi zadatke gde je proveravač, superadmin svoje + prekidač „Sve posebne potvrde“. Tabovi: Čeka potvrdu (najstariji prvi, „čeka N radna dana“, crveno preko 2 radna dana), U radu, Potvrđeno (period se odnosi na datum potvrde, izvoz Excel/CSV/PDF). Filteri: klijent, posao, radnik, rok. Akcije u listi „Potvrdi“ i „Vrati na doradu“ (obavezan razlog), na telefonu prevlačenjem.
-- **Dashboard**: kartica „Posebne potvrde“ u uskoj koloni (brojač u zaglavlju, najviše 5 najstarijih sa klijentom i datumom slanja, „Najstariji od…“, dugme „Pregledaj“ ka punoj strani; „Nema posebnih potvrda.“ kad je prazno). Admin vidi i broj zadataka „Bez provere“ po odlučivaču (90 dana).
+- **Dashboard**: kartica „Posebne potvrde“ (broj, najstariji, link „Pregledaj“; „Nema posebnih potvrda.“ kad je prazno).
 - **Obaveštenja**: `SPECIAL_APPROVAL_SUBMITTED` svim proveravačima (in-app + mail, podrazumevano uključen, korisnik ga isključuje u profilu); `TASK_SUBMITTED` samo onima koji smeju da potvrde; upozorenje `SPECIAL_APPROVAL_REMINDER` jednom dnevno za posebne potvrde koje čekaju duže od 2 radna dana (`app:notifications:due`).
 - **Automatsko odobravanje** se nikad ne primenjuje na posebne potvrde.
 - **Statistika**: „% vraćenih na doradu“ i „prosečno vreme do potvrde“ računaju samo zadatke koji su išli na proveru; zadaci završeni bez provere se broje kao završeni i „na vreme“ (po `finished_at`).
@@ -706,35 +706,13 @@ ABSENCE_REQUESTED (postoji), ABSENCE_APPROVED, ABSENCE_REJECTED (zamenjuju ABSEN
 - **"Dodaj u podsetnik"** na zadatku i klijentu: modal sa unapred popunjenim naslovom i izborom vremena; pravi stavku vezanu za zadatak/klijenta (potreban `TASK_VIEW` / `CLIENT_VIEW`, inače 404). U listi je veza link samo dok vlasnik sme da vidi zadatak/klijenta, inače običan tekst.
 - **Kalendar:** tip "Podsetnik" (filter) prikazuje vlasniku njegove stavke sa rokom, bez obzira na opseg. Ne ulaze u ICS ni u Google kalendar.
 - **Pretvori u zadatak:** `task_new?fromTodo=ID` popunjava naslov, opis, rok i klijenta (ako ga vlasnik vidi); važe sva pravila kreiranja zadatka. Posle čuvanja stavka se završava i dobija link na zadatak.
-- **Dashboard:** kartica "Podsetnik" je uska kolona (3/12) desno od Zadataka i Kalendara: u zaglavlju naslov i "+ Dodaj", SVE otvorene stavke preko cele širine kolone (zakasnelo crveno, pa danas, pa ostale; dugi naslovi se prelamaju, rok ide ispod naslova), link "Završene" i "Otvori ceo Podsetnik" u podnožju. Visina kartice prati levu kolonu (najmanje 320 px), a stavke se skrolaju unutar kartice. Osvežava se kao i panel (isti `[data-kt-todo]` koren). Raspored cele početne je u 8p.5.
+- **Dashboard:** kartica "Podsetnik" je preko cele širine: u zaglavlju naslov, "+ Dodaj" i "Otvori ceo podsetnik", SVE otvorene stavke (zakasnelo crveno, pa danas, pa ostale; rok u istom redu sa naslovom), unutrašnji skrol posle ~8 stavki, "Završene" (poslednjih 10). Osvežava se kao i panel (isti `[data-kt-todo]` koren). Raspored cele početne je u 8p.5.
 
 ---
 ### 8p.5 Raspored početne strane
-- **Od lg (992 px) nagore** (CSS grid, `assets/styles/components/dashboard.css`): **admin i superadmin** 6/12 Zadaci + Kalendar (jedno ispod drugog), 3/12 Podsetnik, 3/12 Zadaci sa posebnom potvrdom. **Šef i radnik** 9/12 Zadaci + Kalendar, 3/12 Podsetnik (njihove dodatne kartice ostaju u levoj koloni; posebne potvrde, ako ih korisnik vidi, idu iznad Zadataka).
-- **Ispod lg** sve ide jedno ispod drugog, ovim redom: Zadaci, Podsetnik, Kalendar, Zadaci sa posebnom potvrdom. Redosled je redosled odvojenih blokova u DOM-u (bez dupliranja sadržaja).
-- „Zadaci“ su kartice „Moj pregled“ (automatski se slažu u 2 do 4 u redu zavisno od širine kolone). Kalendar je „Naredna nedelja“.
-- Posebne potvrde u uskoj koloni nisu tabela nego brojač, najviše 5 najstarijih stavki i link na punu stranu (`TaskRepository::awaitingSpecialApproval`, isti upit kao brojač).
-- Blokovi **Moj tim** (šef) i **Svi radnici / Cela firma** (admin) ostaju ispod mreže, preko cele širine, jer grafikoni i tabele ne staju u uske kolone.
-
-### 8q. Rečnik i pravila teksta u aplikaciji
-Jedna reč po pojmu (UI, mailovi, flash i validacione poruke). Obraćanje je svuda **ti** (interna aplikacija).
-| Pojam | Pravilo |
-|---|---|
-| zadatak, klijent, rok | nikad "task", "komitent", "termin" |
-| **usluga** / **posao** | usluga = ono što klijent plaća (paket usluga, cenovnik, ugovorene usluge); posao = katalog i rad (katalog poslova, poslovi klijenta, zadaci iz posla) |
-| **Sačuvaj** / **Pošalji** | Sačuvaj čuva formu; Pošalji šalje (na proveru, predlog) |
-| **Odustani** / **Otkaži** / **Zatvori** / **Poništi** | Odustani = izlaz iz forme ili prozora bez čuvanja; Otkaži samo poslovna radnja (zadatak, odsustvo); Zatvori = prozor samo za čitanje; Poništi = undo i reset filtera |
-| **Obriši** / **Ukloni** / **Deaktiviraj** / **Isključi** | Obriši = trajno; Ukloni = raskidanje veze (iz paketa, tima, klijenta); Deaktiviraj = soft delete (korisnik, klijent, tim); Isključi = prekidači i podešavanja obaveštenja |
-| **Izmeni** / **Promeni** | Izmeni = radnja nad zapisom; Promeni = samo vrednost (lozinka, rok, status) |
-| **Dodaj** / **Novi X** | Dodaj = stavka u postojeću listu ili vezu; Novi X = zaglavlje liste; "Kreiraj" i "Napravi" se ne koriste |
-| **Pretraži** / **Zatraži potvrdu** | dugme pretrage i filtera je Pretraži; posao koji traži proveru ima "Zatraži potvrdu" |
-| **Odobri** / **Potvrdi** | Odobri = odsustvo i predlog posla; Potvrdi = provera zadatka |
-| **Obaveštenja** | zvono, meni i stranica; "notifikacija" se ne koristi |
-| **Podsetnik** | veliko P samo kao naziv modula (meni, naslov, kartica); u rečenici malo ("u tvoj podsetnik") |
-| **mejl** / **Email** | u rečenicama "mejl" ("pošalji i na mejl"), u nazivu polja i kolone "Email" |
-| prazna stanja | "Još nema X." kad korisnik može da doda; "Nema X." kad je rezultat filtera ili sistema |
-| poruke | flash: "<Entitet> je sačuvan/obrisan/uklonjen/deaktiviran."; validacija: "Unesi …." / "Izaberi …." sa tačkom |
-| dugmad | primarna radnja je prva (levo na računaru, gore na telefonu), Odustani iza nje (`btn-outline-secondary`); isto u SweetAlert prozorima |
+- Sve kartice su **jedna ispod druge, svaka preko cele širine kontejnera, na svim širinama ekrana** i za admina, šefa i radnika (nema kolona). Redosled odozgo nadole: **Podsetnik**, **Posebne potvrde** (samo ko ima pravo `SPECIAL_APPROVALS_VIEW`: admin i superadmin), **Naredna nedelja** (Kalendar), **Zadaci** (kartice „Moj pregled“), pa „Moj tim“ (šef) ili „Svi radnici“ i „Cela firma“ (admin).
+- Posebne potvrde su kartica sa brojačem, datumom najstarije i dugmetom „Pregledaj“ ka punoj strani.
+- Grafikoni i tabele u „Moj tim“ i „Cela firma“ ostaju kao i do sada.
 
 ## 9. Planirano za kasnije (NE implementirati sada, ali ne blokirati)
 - **Praćenje vremena**: neće biti start/stop tajmer, a način ćemo definisati kasnije.

@@ -453,15 +453,4 @@ class TaskRepository extends ServiceEntityRepository
         return null === $value ? null : new \DateTimeImmutable((string) $value);
     }
 
-    /**
-     * Najstarije posebne potvrde koje čekaju $user (lista na dashboardu); isti upit kao tab "Čeka potvrdu".
-     *
-     * @return list<Task>
-     */
-    public function awaitingSpecialApproval(User $user, int $limit = 5): array
-    {
-        $f = new TaskFilter(viewerAdmin: true, viewerLeader: true, scope: 'all', tab: 'special_waiting', specialApprovalFor: $user, specialAll: false);
-
-        return $this->createFilteredQueryBuilder($f, $user)->setMaxResults($limit)->getQuery()->getResult();
-    }
 }

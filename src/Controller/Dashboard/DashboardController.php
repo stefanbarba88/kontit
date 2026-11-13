@@ -41,7 +41,6 @@ class DashboardController extends AbstractController
             $special = [
                 'count' => $this->taskRepository->countAwaitingSpecialApproval($me, false),
                 'oldest' => $oldest,
-                'items' => $this->taskRepository->awaitingSpecialApproval($me),
                 'overdue' => null !== $oldest && $this->specialApprovals->waitingWorkingDaysSince($oldest) > SpecialApprovalService::REMIND_AFTER_WORKING_DAYS,
             ];
         }

@@ -11,6 +11,8 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-13: **Početna: vraćen raspored jedna kartica ispod druge**
+  - Uklonjena kolonska mreža iz 750458a (`dashboard.css`, `kt-dash*` klase, upit `awaitingSpecialApproval`). Redosled kao pre 750458a: Podsetnik, Posebne potvrde, Naredna nedelja, Zadaci, pa Moj tim / Cela firma. Zadržano: naziv „Zadaci“, „+ Dodaj“ u zaglavlju Podsetnika, preimenovanje, ikonice, SweetAlert. SPEC 8p.5 i /_design ažurirani.
 - 2026-11-13: **UI revizija (Faza B, docs/UI-AUDIT.md)**
   - a) SweetAlert: dugmad su Bootstrap preko jednog mapiranja u `confirm.js` (`btn-primary` / `btn-danger` / `btn-outline-secondary`), primarna prva, bez `reverseButtons`; stilovi polja u prozorima (`swal.css`), na telefonu dugmad jedno ispod drugog. `comments.js` ispravljen.
   - b) Ikonice: jedna po radnji (tabela u DESIGN.md 9), Podsetnik `notebook-pen`, `upload`, `badge-check` / `check-check` / `circle-check-big` / `square-check`; ručni `<svg>` zamenjen Lucide ikonicama preko `assets/js/icons.js` + `<template id="kt-js-icons">`; ▲▼ zamenjeno sa `trending-up/down`.

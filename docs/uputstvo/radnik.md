@@ -87,7 +87,7 @@ Meni sa strane ne postoji, nego je **traka na dnu**: **Početna**, **Zadaci**, v
 
 ## Početna strana
 
-Na računaru je Početna podeljena u kolone: levo (veća) su **Zadaci** i **Kalendar** (jedno ispod drugog), desno je uska kartica **Podsetnik**. Na telefonu je redosled: Zadaci, Podsetnik, Kalendar.
+Kartice na Početnoj su jedna ispod druge, preko cele širine: **Podsetnik**, **Naredna nedelja** i **Zadaci**.
 
 Blok **Zadaci** pokazuje brojke samo za tebe:
 
@@ -234,7 +234,7 @@ Kad se kolega vrati (ili se odsustvo otkaže), zamena prestaje sama.
 ### Gde je
 - Ikonica sa listom u gornjoj traci otvara panel sa strane (na telefonu iz dna ekrana). Broj na njoj je koliko stavki kasni ili ističe danas.
 - **Meni → Podsetnik** (na telefonu **Više → Podsetnik**) otvara celu stranu, sa pretragom.
-- Na **Početnoj** strani, desno (na telefonu odmah ispod Zadataka), je kartica **Podsetnik** sa svim tvojim otvorenim stavkama (zakasnelo je crveno, pa danas, pa ostalo). Dugme **+ Dodaj** je u njenom zaglavlju, a stavke se skrolaju unutar kartice.
+- Na **Početnoj** strani, na vrhu, je kartica **Podsetnik** sa svim tvojim otvorenim stavkama (zakasnelo je crveno, pa danas, pa ostalo). Dugme **+ Dodaj** je u njenom zaglavlju, a stavke se skrolaju unutar kartice.
 
 ### Dodavanje
 1. Klikni **+ Dodaj** (na kartici, u panelu ili na strani Podsetnika) ili pritisni taster **n** bilo gde u aplikaciji (dok ne kucaš u nekom polju).
@@ -286,7 +286,7 @@ Meni sa strane ne postoji, nego je **traka na dnu**: **Početna**, **Zadaci**, v
 
 ## Početna strana
 
-Na računaru je Početna podeljena u kolone: levo (veća) su **Zadaci** i **Kalendar** (jedno ispod drugog), desno je uska kartica **Podsetnik**. Na telefonu je redosled: Zadaci, Podsetnik, Kalendar.
+Kartice na Početnoj su jedna ispod druge, preko cele širine: **Podsetnik**, **Naredna nedelja** i **Zadaci**.
 
 Blok **Zadaci** pokazuje brojke samo za tebe:
 

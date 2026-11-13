@@ -42,7 +42,7 @@ Brojevi u meniju:
 
 ## Početna strana šefa
 
-Ispod mreže sa **Zadacima**, **Podsetnikom** i **Kalendarom** je blok **Moj tim**:
+Ispod kartica **Podsetnik**, **Naredna nedelja** i **Zadaci** je blok **Moj tim**:
 
 - **Opterećenje po radniku**: koliko klijenata i otvorenih zadataka ima svaki član. Tu vidiš ko je preopterećen.
 - **Čeka potvrdu**: koliko zadataka čeka tvoju potvrdu i koliko dugo.
