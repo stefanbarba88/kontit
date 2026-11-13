@@ -1,10 +1,10 @@
 {#
-    Bočni panel "Moja lista" (offcanvas desno; na telefonu bottom sheet). Sadržaj se učitava AJAX-om pri prvom otvaranju (assets/js/todo.js).
+    Bočni panel "Podsetnik" (offcanvas desno; na telefonu bottom sheet). Sadržaj se učitava AJAX-om pri prvom otvaranju (assets/js/todo.js).
 #}
 <div class="offcanvas offcanvas-end kt-sheet kt-todo-panel" tabindex="-1" id="kt-todo-panel" aria-labelledby="kt-todo-panel-title" data-kt-todo-panel data-chips="{{ todo_chips()|json_encode }}" data-repeats="{{ todo_repeat_options()|json_encode }}">
     <div class="kt-sheet-handle"></div>
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="kt-todo-panel-title">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Moja lista</h5>
+        <h5 class="offcanvas-title" id="kt-todo-panel-title">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Podsetnik</h5>
         <a href="{{ path('todo_index') }}" class="btn btn-ghost btn-sm ms-auto me-1" title="Otvori na celoj strani">{{ ux_icon('lucide:maximize-2', {class: 'kt-icon'}) }}</a>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Zatvori"></button>
     </div>

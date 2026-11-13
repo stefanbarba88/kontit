@@ -79,11 +79,11 @@ class UserAbsence implements ApprovableInterface
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $approvalDeadline = null;
 
-    /** Podsetnik odobravaocu 24 h pre isteka roka je poslat */
+    /** Upozorenje odobravaocu 24 h pre isteka roka je poslat */
     #[ORM\Column(options: ['default' => false])]
     private bool $reminderSent = false;
 
-    /** Podsetnik da nedostaje dokument (doznaka) je poslat (SPEC 8j.3: rok 3 dana) */
+    /** Obaveštenje da nedostaje dokument (doznaka) je poslat (SPEC 8j.3: rok 3 dana) */
     #[ORM\Column(options: ['default' => false])]
     private bool $documentReminderSent = false;
 

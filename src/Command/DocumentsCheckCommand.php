@@ -18,9 +18,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Dnevna provera dokumenata (SPEC 8l, 8j.3): adminima obaveštenje 30 i 7 dana pre isteka dokumenta (validUntil),
- * a za odsustvo koje traži dokument (doznaka) i posle 3 dana ga nema, podsetnik korisniku i adminima (jednom).
+ * a za odsustvo koje traži dokument (doznaka) i posle 3 dana ga nema, obaveštenje korisniku i adminima (jednom).
  */
-#[AsCommand(name: 'app:documents:check', description: 'Obaveštenja o dokumentima koji ističu i podsetnik za doznaku (cron jednom dnevno)')]
+#[AsCommand(name: 'app:documents:check', description: 'Obaveštenja o dokumentima koji ističu i obaveštenje za doznaku (cron jednom dnevno)')]
 class DocumentsCheckCommand extends Command
 {
     private const STEPS = [30, 7];
@@ -83,7 +83,7 @@ class DocumentsCheckCommand extends Command
         }
         $this->em->flush();
 
-        (new SymfonyStyle($input, $output))->success(sprintf('Obaveštenja o isteku: %d, podsetnika za dokument: %d.', $expiring, $reminders));
+        (new SymfonyStyle($input, $output))->success(sprintf('Obaveštenja o isteku: %d, obaveštenja za dokument: %d.', $expiring, $reminders));
 
         return Command::SUCCESS;
     }

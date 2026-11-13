@@ -9,10 +9,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Šalje podsetnike iz Moje liste čije je vreme stiglo. Bezbedno za preklapanje i višestruko pokretanje (svaki podsetnik tačno jednom).
+ * Šalje obaveštenja iz Podsetnika čije je vreme stiglo. Bezbedno za preklapanje i višestruko pokretanje (svaki podsetnik tačno jednom).
  * Raspored: svakog minuta, cron "* * * * * php bin/console app:todo:send-reminders".
  */
-#[AsCommand(name: 'app:todo:send-reminders', description: 'Šalje podsetnike iz Moje liste čije je vreme stiglo')]
+#[AsCommand(name: 'app:todo:send-reminders', description: 'Šalje obaveštenja iz Podsetnika čije je vreme stiglo')]
 class TodoSendRemindersCommand extends Command
 {
     public function __construct(private readonly TodoReminderService $reminders)
@@ -24,7 +24,7 @@ class TodoSendRemindersCommand extends Command
     {
         $sent = $this->reminders->sendDue();
         if ($sent > 0 || $output->isVerbose()) {
-            $output->writeln(sprintf('Poslato podsetnika: %d', $sent));
+            $output->writeln(sprintf('Poslato obaveštenja: %d', $sent));
         }
 
         return Command::SUCCESS;

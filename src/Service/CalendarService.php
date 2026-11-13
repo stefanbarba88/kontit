@@ -87,7 +87,7 @@ class CalendarService
                 }
             }
         }
-        // Moja lista: samo stavke OVOG korisnika (privatno), bez obzira na izabrani opseg; ne ulaze u ICS ni Google kalendar
+        // Podsetnik: samo stavke OVOG korisnika (privatno), bez obzira na izabrani opseg; ne ulaze u ICS ni Google kalendar
         if (\in_array('todo', $types, true) && empty($filters['client']) && empty($filters['user'])) {
             $fromUtc = $this->todoClock->startOfDay($from->format('Y-m-d'));
             $toUtc = $this->todoClock->startOfDay($to->modify('+1 day')->format('Y-m-d'));

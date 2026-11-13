@@ -377,7 +377,7 @@ Neradni dani pomeraju rokove zadataka i ne računaju se u dane odsustva.
 | **Naziv**, **Boja**, **Ikonica** | kako se vrsta prikazuje u listama i kalendaru |
 | **Traži odobrenje** | bez odobrenja = samo evidencija, odmah važi (npr. bolovanje) |
 | **Troši dane godišnjeg odmora** | samo za godišnji odmor |
-| **Traži dokument (npr. doznaka)** | radnik dobija podsetnik ako ga ne doda u roku od 3 dana |
+| **Traži dokument (npr. doznaka)** | radnik dobija obaveštenje ako ga ne doda u roku od 3 dana |
 | **Najviše dana godišnje** | prazno = bez ograničenja |
 | **Redosled**, **Aktivna** | vrsta koja se više ne koristi se deaktivira, a stara odsustva je zadržavaju |
 
@@ -458,9 +458,9 @@ Liste **Klijenti**, **Zadaci**, **Korisnici** i **Odsustva → Evidencija** imaj
 
 Ako se posle 5 pokušaja događaji ne upišu, korisnik dobija obaveštenje i vidi grešku na profilu, a obično je dovoljno da ponovo poveže nalog.
 
-## Moja lista i privatnost
+## Podsetnik i privatnost
 
-Svako (i admin) ima **Moju listu**, ličnu listu obaveza i podsetnika (vidi uputstvo za radnika). Stavke vidi **samo vlasnik**: ni admin ni superadmin ne mogu da ih otvore, izmene, pretraže ni izvezu, a pokušaj pristupa tuđoj stavci vraća „nije pronađeno“. Stavke se ne beleže u istoriji izmena i ne ulaze u statistiku. Za podsetnike mora da radi cron `app:todo:send-reminders` (svakog minuta, vidi `DEPLOY.md`).
+Svako (i admin) ima **Podsetnik**, ličnu listu obaveza i obaveštenja (vidi uputstvo za radnika). Stavke vidi **samo vlasnik**: ni admin ni superadmin ne mogu da ih otvore, izmene, pretraže ni izvezu, a pokušaj pristupa tuđoj stavci vraća „nije pronađeno“. Stavke se ne beleže u istoriji izmena i ne ulaze u statistiku. Za obaveštenja mora da radi cron `app:todo:send-reminders` (svakog minuta, vidi `DEPLOY.md`).
 ## Samo za superadmina
 
 Superadmin ima sve što i admin, plus:
@@ -516,7 +516,7 @@ Neki poslovi traže da zadatak potvrdi tačno određeni admin, bez obzira na poz
 2. Zadatak nastao iz tog posla pamti proveravače u trenutku kreiranja. Kasnija izmena posla ne menja već napravljene zadatke.
 3. Pregled je u meniju **Posebne potvrde** (brojač pokazuje koliko čeka tebe). Tabovi: **Čeka potvrdu** (najstariji prvi, crveno posle 2 radna dana), **U radu** i **Potvrđeno** (sa izvozom). Superadmin ima prekidač **Sve posebne potvrde**.
 4. U listi su dugmad **Potvrdi** i **Vrati na doradu** (razlog je obavezan); na telefonu se prevlači red.
-5. Obaveštenja (u aplikaciji i mailom, mail se isključuje u profilu) stižu pri slanju na potvrdu, a podsetnik jednom dnevno za zadatke koji čekaju duže od 2 radna dana. Automatsko odobravanje se ne primenjuje.
+5. Obaveštenja (u aplikaciji i mailom, mail se isključuje u profilu) stižu pri slanju na potvrdu, a upozorenje jednom dnevno za zadatke koji čekaju duže od 2 radna dana. Automatsko odobravanje se ne primenjuje.
 6. Pri deaktivaciji admina (ili skidanju prava) koji je jedini proveravač nekog posla, dobijaš upozorenje sa brojem poslova i otvorenih zadataka. Dok ne izabereš novog proveravača, zadatke potvrđuje superadmin.
 
 U formi zadatka polje **Provera** (Automatski / Bez provere / Posebna potvrda) možeš da menjaš dok zadatak nije poslat na proveru. Na početnoj strani vidiš i koliko je zadataka „Bez provere“ ko odlučio u poslednjih 90 dana.

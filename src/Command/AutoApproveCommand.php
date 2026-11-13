@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'app:approvals:auto-approve', description: 'Automatski odobrava zahteve kojima je istekao rok i šalje podsetnike (cron na 15 minuta)')]
+#[AsCommand(name: 'app:approvals:auto-approve', description: 'Automatski odobrava zahteve kojima je istekao rok i šalje obaveštenja (cron na 15 minuta)')]
 class AutoApproveCommand extends Command
 {
     public function __construct(private readonly ApprovalService $approvals)
@@ -27,7 +27,7 @@ class AutoApproveCommand extends Command
     {
         $now = $input->getOption('now') ? new \DateTimeImmutable((string) $input->getOption('now')) : null;
         $result = $this->approvals->run($now);
-        (new SymfonyStyle($input, $output))->success(sprintf('Automatski odobreno odsustava: %d, podsetnika: %d, potvrđenih zadataka: %d.', $result['approved'], $result['reminded'], $result['tasks']));
+        (new SymfonyStyle($input, $output))->success(sprintf('Automatski odobreno odsustava: %d, obaveštenja: %d, potvrđenih zadataka: %d.', $result['approved'], $result['reminded'], $result['tasks']));
 
         return Command::SUCCESS;
     }

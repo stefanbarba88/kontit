@@ -15,7 +15,7 @@ use App\Service\WorkingDayService;
 use App\Tests\Support\DatabaseTestCase;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
-/** Moja lista: privatnost, UTC/Belgrade, ponavljanje i "Poništi". */
+/** Podsetnik: privatnost, UTC/Belgrade, ponavljanje i "Poništi". */
 class TodoTest extends DatabaseTestCase
 {
     private TodoClock $clock;

@@ -26,7 +26,7 @@ const swal = Swal.mixin({
     customClass: { cancelButton: 'btn', confirmButton: '', popup: 'kt-swal text-start' },
 });
 
-/** Dijalog sa istim izgledom (mixin) za module koji grade svoj sadržaj, npr. prozor stavke Moje liste. */
+/** Dijalog sa istim izgledom (mixin) za module koji grade svoj sadržaj, npr. prozor stavke Podsetnika. */
 export const swalFire = (options) => swal.fire(options);
 
 const toaster = Swal.mixin({
@@ -100,7 +100,7 @@ export function reminderToast(title) {
 export function snoozeDialog() {
     return swal
         .fire({
-            title: 'Odloži podsetnik',
+            title: 'Odloži obaveštenje',
             input: 'select',
             inputOptions: { '10m': '10 minuta', '1h': '1 sat', tomorrow: 'Sutra u 9:00 (sledeći radni dan)' },
             inputValue: '10m',

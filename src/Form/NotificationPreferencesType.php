@@ -18,7 +18,7 @@ class NotificationPreferencesType extends AbstractType
     {
         $choices = [];
         foreach (NotificationType::cases() as $type) {
-            // podsetnik iz Moje liste ide na mail po izboru na samoj stavci, ne preko podešavanja profila
+            // podsetnik iz Podsetnika ide na mail po izboru na samoj stavci, ne preko podešavanja profila
             if (NotificationType::TODO_REMINDER === $type) {
                 continue;
             }

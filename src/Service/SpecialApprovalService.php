@@ -12,11 +12,11 @@ use App\Repository\TaskRepository;
 use Doctrine\DBAL\Connection;
 
 /**
- * Posebne potvrde: koliko zadatak čeka, dnevni podsetnik proveravačima i uticaj deaktivacije/promene prava proveravača.
+ * Posebne potvrde: koliko zadatak čeka, dnevno upozorenje proveravačima i uticaj deaktivacije/promene prava proveravača.
  */
 class SpecialApprovalService
 {
-    /** Posle koliko radnih dana čekanja posebna potvrda postaje crvena i šalje se podsetnik */
+    /** Posle koliko radnih dana čekanja posebna potvrda postaje crvena i šalje se upozorenje */
     public const REMIND_AFTER_WORKING_DAYS = 2;
 
     public function __construct(
@@ -54,14 +54,14 @@ class SpecialApprovalService
         return $from > $to ? 0 : $this->workingDays->countWorkingDays($from, $to);
     }
 
-    /** Čeka duže od dozvoljenog (crveno u listi, uslov za podsetnik) */
+    /** Čeka duže od dozvoljenog (crveno u listi, uslov za upozorenje) */
     public function isOverdue(Task $task, ?\DateTimeImmutable $now = null): bool
     {
         return $this->waitingWorkingDays($task, $now) > self::REMIND_AFTER_WORKING_DAYS;
     }
 
     /**
-     * Podsetnik jednom dnevno svim proveravačima zadataka koji posebnu potvrdu čekaju duže od 2 radna dana.
+     * Upozorenje jednom dnevno svim proveravačima zadataka koji posebnu potvrdu čekaju duže od 2 radna dana.
      *
      * @return int broj poslatih obaveštenja
      */

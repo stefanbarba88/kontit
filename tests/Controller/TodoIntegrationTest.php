@@ -9,7 +9,7 @@ use App\Service\TodoClock;
 use App\Service\TodoService;
 use App\Tests\Support\DatabaseTestCase;
 
-/** Moja lista u ostatku aplikacije: "Podseti me", "Pretvori u zadatak", kalendar, dashboard i veze bez prava. */
+/** Podsetnik u ostatku aplikacije: "Dodaj u podsetnik", "Pretvori u zadatak", kalendar, dashboard i veze bez prava. */
 class TodoIntegrationTest extends DatabaseTestCase
 {
     private string $csrf = '';
@@ -17,7 +17,7 @@ class TodoIntegrationTest extends DatabaseTestCase
     private function login(User $user): void
     {
         $this->browser->loginUser($user);
-        $crawler = $this->browser->request('GET', '/moja-lista');
+        $crawler = $this->browser->request('GET', '/podsetnik');
         $this->csrf = (string) $crawler->filter('meta[name="csrf-token"]')->attr('content');
     }
 
@@ -60,7 +60,7 @@ class TodoIntegrationTest extends DatabaseTestCase
 
         // veza na klijenta radi i bez zadatka; link se vidi samo uz pravo
         $this->api('POST', '/ajax/todo/remind', ['clientId' => $client->getId(), 'title' => 'Pozvati', 'date' => '2026-12-02']);
-        $this->browser->request('GET', '/moja-lista');
+        $this->browser->request('GET', '/podsetnik');
         $html = (string) $this->browser->getResponse()->getContent();
         self::assertStringContainsString('href="/tasks/'.$own->getId().'"', $html);
     }
@@ -76,7 +76,7 @@ class TodoIntegrationTest extends DatabaseTestCase
         $this->todo()->save($item);
 
         $this->login($me);
-        $this->browser->request('GET', '/moja-lista');
+        $this->browser->request('GET', '/podsetnik');
         $html = (string) $this->browser->getResponse()->getContent();
         self::assertStringContainsString('Skriveni zadatak', $html, 'naslov je tekst');
         self::assertStringNotContainsString('href="/tasks/'.$task->getId().'"', $html, 'ali bez linka');
@@ -166,7 +166,7 @@ class TodoIntegrationTest extends DatabaseTestCase
         $this->browser->loginUser($me);
         $this->browser->request('GET', '/');
         $html = (string) $this->browser->getResponse()->getContent();
-        self::assertStringContainsString('Moja lista', $html);
+        self::assertStringContainsString('Podsetnik', $html);
         self::assertStringContainsString('data-todo-new', $html);
         self::assertStringContainsString('Moja danasnja', $html);
         self::assertStringNotContainsString('Tudja danasnja', $html);

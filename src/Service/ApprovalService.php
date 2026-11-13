@@ -14,7 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 /**
  * Automatsko odobravanje posle roka (SPEC 8m), pokreće ga app:approvals:auto-approve na 15 minuta.
  *  - zahtev za odsustvo na odobrenju čiji je rok istekao postaje AUTOMATSKI_ODOBRENO (istorija: "Sistem"),
- *    a podnosilac i odobravaoci dobijaju obaveštenje; 24 h pre isteka odobravalac dobija podsetnik;
+ *    a podnosilac i odobravaoci dobijaju obaveštenje; 24 h pre isteka odobravalac dobija upozorenje;
  *  - potvrda zadatka (NA_PROVERI) samo ako je uključena u Podešavanjima, posle N radnih dana od predaje.
  */
 class ApprovalService
@@ -63,7 +63,7 @@ class ApprovalService
     }
 
     /**
-     * Podsetnik odobravaocima 24 h pre isteka roka (jednom po zahtevu).
+     * Upozorenje odobravaocima 24 h pre isteka roka (jednom po zahtevu).
      */
     public function remind(\DateTimeImmutable $now): int
     {

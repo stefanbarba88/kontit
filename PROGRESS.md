@@ -11,6 +11,10 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-13: **Moja lista → Podsetnik**
+  - Naziv u UI svuda je „Podsetnik“; URL `/podsetnik`, stari `/moja-lista` vraća 301. Kod (TodoItem, TodoService, nazivi ruta, tabela) nepromenjen.
+  - Vremensko obaveštenje se zove „Obavesti me“ / „Obaveštenje“ (notifikacija u zvonu: „Podsetnik: <naslov>“); dugme na zadatku i klijentu je „Dodaj u podsetnik“. U ostalim modulima (dokumenti, odsustva, čekanje potvrde) umesto „podsetnik“ je „obaveštenje“, a „upozorenje“ gde je stvarno upozorenje. „Podsetnik“ znači samo listu.
+  - SPEC 8p, uputstva, /_design i testovi usklađeni. Sledeće: raspored početne strane (commit 2).
 - 2026-11-12: **Test baza, reindeks pretrage, uputstva**
   - `composer test`: pravi `kontit_test` ako ne postoji, `doctrine:schema:update --env=test --force`, pa `php bin/phpunit`. Pravilo upisano u CLAUDE.md (kraj svakog zadatka).
   - Provera: nigde u `src` nema DQL/SQL UPDATE-a koji menja `task.title` (jedini UPDATE je migracija popune). Napomena u `TaskTitleSearchListener`; nova komanda `app:tasks:reindex-search [--dry-run]` ponovo popunjava `title_search` direktnim upisom (bez `updated_at`).
@@ -353,11 +357,11 @@ mpp\htdocs\kontit_template_backup` (nije bio u git-u; obrisati ručno kad više 
 - Nije proveravano u pregledaču: ceo novi JS (`schedule-customize.js`, `task-due.js`, izmene `client-services.js`, `job-picker.js`), prozori na 390 px, flatpickr u SweetAlert-u. Serverska strana i renderovanje šablona su pokriveni testovima, a JS je samo sintaksno proveren.
 - Dokumentacija: SPEC 8g.5, `/_design` (red posla, znak ručnog roka), uputstva (admin, šef).
 
-### Moja lista (lična to-do lista i podsetnici)
+### Podsetnik (lična to-do lista i podsetnici)
 - `TodoItem` (UTC tip `utc_datetime_immutable`, `TodoClock` kao jedino mesto za zonu), `TodoVoter` (samo vlasnik, 404 za tuđe), `TodoItemRepository` (svi upiti po vlasniku), `TodoService`, `TodoRepeatCalculator`, `TodoReminderService` + komanda `app:todo:send-reminders` (cron svakog minuta, DEPLOY.md). Migracija `Version20261112141323`.
-- UI: ikonica u topbaru + panel (offcanvas / bottom sheet), `/moja-lista`, sekcije, Poništi, prevlačenje (SortableJS), swipe (`initSwipe` izdvojen u `mobile.js`), `assets/js/todo.js`, `assets/styles/components/todo.css`. Dodavanje i izmena idu kroz JEDAN SweetAlert prozor (dugme "+ Dodaj", taster `n`, klik na stavku); brzo polje i inline detalji su uklonjeni. Kartica "Moja lista" na vrhu početne prikazuje sve otvorene stavke (skrol posle ~8, "Završene" 10). Novo: `GET /ajax/todo/clients`, `add`/`update` primaju note, repeat, clientId; neuspeo unos ne ostavlja praznu stavku.
+- UI: ikonica u topbaru + panel (offcanvas / bottom sheet), `/podsetnik`, sekcije, Poništi, prevlačenje (SortableJS), swipe (`initSwipe` izdvojen u `mobile.js`), `assets/js/todo.js`, `assets/styles/components/todo.css`. Dodavanje i izmena idu kroz JEDAN SweetAlert prozor (dugme "+ Dodaj", taster `n`, klik na stavku); brzo polje i inline detalji su uklonjeni. Kartica "Podsetnik" na vrhu početne prikazuje sve otvorene stavke (skrol posle ~8, "Završene" 10). Novo: `GET /ajax/todo/clients`, `add`/`update` primaju note, repeat, clientId; neuspeo unos ne ostavlja praznu stavku.
 - Podsetnici: zvono (`TODO_REMINDER`), mail po stavci, toast Završeno/Odloži, browser obaveštenje, poll `/ajax/todo/due` na 15 s; Odloži (10 min, 1 h, sutra 9:00 radni dan).
-- Podseti me (zadatak, klijent), Pretvori u zadatak (`?fromTodo=`), tip „Moja lista“ u kalendaru, kartica na dashboardu, `/_design`, SPEC 8p, uputstva.
+- Dodaj u podsetnik (zadatak, klijent), Pretvori u zadatak (`?fromTodo=`), tip „Podsetnik“ u kalendaru, kartica na dashboardu, `/_design`, SPEC 8p, uputstva.
 - Testovi: `TodoTest`, `TodoReminderTest`, `TodoPagesTest`, `TodoIntegrationTest`.
 - Nije proveravano u pregledaču: ceo JS (`todo.js`), panel i swipe na telefonu, Notification API, flatpickr sa vremenom, drag redosleda. Serverska strana je pokrivena testovima.
 - Odluke: Ctrl K paleta ne postoji, pa pravilo „pretraga samo svoje“ je upisano u SPEC kao uslov za budućnost; stavke nisu u ICS/Google kalendaru.

@@ -10,7 +10,7 @@ Kao **radnik** ti:
 
 - vidiš **svoje klijente**: one na kojima si **glavni zadužen** i one na kojima si **backup (zamena)**,
 - vidiš **svoje zadatke**, radiš na njima i javljaš kad je tvoj deo gotov,
-- praviš zadatke **samo sebi** (npr. podsetnik),
+- praviš zadatke **samo sebi** (npr. interni zadatak),
 - podnosiš **zahteve za odsustvo** (godišnji odmor, slava, bolovanje...),
 - čuvaš svoje **dokumente** (ugovor, doznaka za bolovanje...),
 - dobijaš **obaveštenja** kad ti neko dodeli zadatak, vrati ga na doradu ili odobri odsustvo.
@@ -225,20 +225,20 @@ Na kolegin zadatak možeš da štikliraš stavke, komentarišeš i da klikneš *
 
 Kad se kolega vrati (ili se odsustvo otkaže), zamena prestaje sama.
 
-## Moja lista
+## Podsetnik
 
-**Moja lista** je tvoja lična lista obaveza i podsetnika. Nije zadatak: nema provere, ne ulazi u statistiku i **vidiš je samo ti** (ni šef, ni administrator, ni superadministrator).
+**Podsetnik** je tvoja lična lista obaveza i obaveštenja. Nije zadatak: nema provere, ne ulazi u statistiku i **vidiš je samo ti** (ni šef, ni administrator, ni superadministrator).
 
 ### Gde je
 - Ikonica sa listom u gornjoj traci otvara panel sa strane (na telefonu iz dna ekrana). Broj na njoj je koliko stavki kasni ili ističe danas.
-- **Meni → Moja lista** (na telefonu **Više → Moja lista**) otvara celu stranu, sa pretragom.
-- Na **Početnoj** strani, na vrhu, je kartica **Moja lista** sa svim tvojim otvorenim stavkama (zakasnelo je crveno, pa danas, pa ostalo). Ispod je link **Završene**.
+- **Meni → Podsetnik** (na telefonu **Više → Podsetnik**) otvara celu stranu, sa pretragom.
+- Na **Početnoj** strani, na vrhu, je kartica **Podsetnik** sa svim tvojim otvorenim stavkama (zakasnelo je crveno, pa danas, pa ostalo). Ispod je link **Završene**.
 
 ### Dodavanje
-1. Klikni **+ Dodaj** (na kartici, u panelu ili na strani Moje liste) ili pritisni taster **n** bilo gde u aplikaciji (dok ne kucaš u nekom polju).
+1. Klikni **+ Dodaj** (na kartici, u panelu ili na strani Podsetnika) ili pritisni taster **n** bilo gde u aplikaciji (dok ne kucaš u nekom polju).
 2. Upiši naslov i pritisni **Enter**. To je dovoljno.
 3. Ako treba, izaberi **Rok** (čipovi **Danas**, **Sutra**, **Ponedeljak** ili datum, uz vreme po želji).
-4. Klikom na **Više opcija** dobijaš: napomenu, **podsetnik** (datum i vreme ili čip **Sutra 9:00**, **Ponedeljak 9:00**), **ponavljanje**, **podsetnik na mail** i vezu sa **klijentom**.
+4. Klikom na **Više opcija** dobijaš: napomenu, **obaveštenje** (datum i vreme ili čip **Sutra 9:00**, **Ponedeljak 9:00**), **ponavljanje**, **obaveštenje na mail** i vezu sa **klijentom**.
 
 > **Savet:** ako mail ne stigne za par minuta, proveri folder za neželjenu poštu (spam). Ako ni tada nema, javi se administratoru.
 
@@ -422,44 +422,6 @@ Na kolegin zadatak možeš da štikliraš stavke, komentarišeš i da klikneš *
 
 Kad se kolega vrati (ili se odsustvo otkaže), zamena prestaje sama.
 
-## Moja lista
-
-**Moja lista** je tvoja lična lista obaveza i podsetnika. Nije zadatak: nema provere, ne ulazi u statistiku i **vidiš je samo ti** (ni šef, ni administrator, ni superadministrator).
-
-### Gde je
-- Ikonica sa listom u gornjoj traci otvara panel sa strane (na telefonu iz dna ekrana). Broj na njoj je koliko stavki kasni ili ističe danas.
-- **Meni → Moja lista** (na telefonu **Više → Moja lista**) otvara celu stranu, sa pretragom.
-- Na **Početnoj** strani, na vrhu, je kartica **Moja lista** sa svim tvojim otvorenim stavkama (zakasnelo je crveno, pa danas, pa ostalo). Ispod je link **Završene**.
-
-### Dodavanje
-1. Upiši obavezu u polje **Dodaj u moju listu…** i pritisni **Enter**.
-2. Pre Entera možeš da klikneš čip: **Danas** (rok je danas, ceo dan), **Sutra 9:00**, **Ponedeljak 9:00** ili **Izaberi…** (datum i vreme). Čip sa vremenom postavlja i rok i **podsetnik** na to vreme.
-
-> **Savet:** prvi put kad postaviš podsetnik, browser pita da li sme da ti šalje obaveštenja. Ako dozvoliš, podsetnik ćeš videti i kad je KontIT u drugom tabu.
-
-### Sekcije
-**Zakasnelo** (crveno), **Danas**, **Predstojeće**, **Bez roka** i **Završene** (poslednjih 20). Rok bez vremena važi ceo dan: stavka kasni tek posle ponoći. Zakačenu stavku (pribadača) držiš na vrhu njene sekcije. U **Bez roka** redosled menjaš prevlačenjem.
-
-### Rad sa stavkom
-- Štikliraj kvadratić da završiš stavku (precrta se i izbledi). Klik na kvadratić u završenim vraća stavku. U poruci dole imaš **Poništi** 5 sekundi.
-- Klikni na tekst stavke: otvara se isti prozor kao za dodavanje, popunjen, sa dugmetom **Obriši** (crveno) i vezom **Pretvori u zadatak**.
-- Na telefonu povuci stavku ulevo: **Završi** ili **Obriši**.
-- Brisanje obične stavke ima **Poništi** 5 sekundi. Stavka koja se ponavlja traži potvrdu, jer brisanjem prestaje ponavljanje.
-
-### Ponavljanje
-Možeš da izabereš: svaki dan, svaki radni dan (preskače vikende i neradne dane), svake nedelje ili svakog meseca (31. u kraćem mesecu postaje poslednji dan tog meseca). Kad završiš stavku, odmah nastaje sledeća. Ako je stavka kasnila, sledeći rok se računa od danas. Ako završiš greškom i klikneš **Poništi**, nova stavka se briše. Ponavljanje prekidaš izborom **Ne ponavlja se** ili brisanjem.
-
-### Podsetnici
-U zadato vreme dobijaš obaveštenje u **zvoncu**, a ako je uključeno **Podsetnik na mail**, i mail. Dok je KontIT otvoren, pojavi se poruka sa dugmadima **Završeno** i **Odloži** (10 minuta, 1 sat ili sutra u 9:00, sledeći radni dan). Podsetnik se ne šalje sam od roka: samo ako ga ti postaviš.
-
-### Podseti me
-Na strani **zadatka** i **klijenta** je dugme **Podseti me**. Otvara mali formular (naslov je već upisan, ti biraš datum i vreme) i pravi stavku u tvojoj listi vezanu za taj zadatak ili klijenta. Ako kasnije izgubiš pravo da vidiš taj zadatak ili klijenta, u listi ostaje samo naziv, bez linka.
-
-### Kalendar
-U **Kalendaru** uključi **Moja lista** da vidiš svoje stavke sa rokom. Druge osobe ih ne vide, a ne šalju se ni u Google kalendar.
-
-### Pretvori u zadatak
-U detaljima stavke klikni **Pretvori u zadatak**. Otvara se forma novog zadatka sa naslovom, opisom, rokom i klijentom iz stavke. Posle čuvanja stavka je završena, uz link na zadatak. Važe sva uobičajena pravila za pravljenje zadataka.
 ## Kalendar
 
 Meni **Kalendar** prikazuje u jednom kalendaru:

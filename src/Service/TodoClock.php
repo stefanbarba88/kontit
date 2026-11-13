@@ -3,7 +3,7 @@
 namespace App\Service;
 
 /**
- * JEDINO mesto koje računa vremensku zonu Moje liste. U bazi je sve UTC, korisnik vidi i bira Europe/Belgrade.
+ * JEDINO mesto koje računa vremensku zonu Podsetnika. U bazi je sve UTC, korisnik vidi i bira Europe/Belgrade.
  * Kontroleri, Twig i servisi ne računaju zonu ručno: traže ovde "sada", "početak dana", "lokalni datum + vreme u UTC".
  * Poređenja ("zakasnelo", "danas", "stiglo za slanje") rade u PHP-u sa ovim UTC vrednostima, nikad NOW() iz baze.
  */

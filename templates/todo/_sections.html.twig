@@ -1,5 +1,5 @@
 {#
-    Sadržaj liste Moje liste (panel i /moja-lista). Iscrtava se i iz AJAX odgovora (Ajax\TodoController::state).
+    Sadržaj liste Podsetnika (panel i /podsetnik). Iscrtava se i iz AJAX odgovora (Ajax\TodoController::state).
     sections: overdue, today, upcoming, nodue, done (ili null kad se traži), found: rezultati pretrage, query: upit.
 #}
 {% set titles = {overdue: 'Zakasnelo', today: 'Danas', upcoming: 'Predstojeće', nodue: 'Bez roka'} %}
@@ -25,7 +25,7 @@
         {% endif %}
     {% endfor %}
     {% if total == 0 %}
-        <div class="kt-todo-empty">{{ ux_icon('lucide:list-checks', {class: 'kt-icon kt-icon-lg d-block mb-2'}) }}Lista je prazna.<button type="button" class="btn btn-primary mt-3 d-block mx-auto" data-todo-new>{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button></div>
+        <div class="kt-todo-empty">{{ ux_icon('lucide:list-checks', {class: 'kt-icon kt-icon-lg d-block mb-2'}) }}Podsetnik je prazan.<button type="button" class="btn btn-primary mt-3 d-block mx-auto" data-todo-new>{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button></div>
     {% endif %}
     {% if sections.done is not empty %}
         <details class="kt-todo-section kt-todo-done">

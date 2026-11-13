@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Stavka lične liste ("Moja lista"). PRIVATNO: vidi i menja je samo vlasnik (TodoVoter), ni admin ni superadmin.
+ * Stavka lične liste ("Podsetnik"). PRIVATNO: vidi i menja je samo vlasnik (TodoVoter), ni admin ni superadmin.
  * Nije zadatak: nema provere, nema klijenta u statistici, ne beleži se u ActivityLog, ne ulazi u izvoz.
  * Sva vremena su UTC (tip utc_datetime_immutable); konverziju radi {@see \App\Service\TodoClock}.
  */

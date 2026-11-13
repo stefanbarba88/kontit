@@ -1,4 +1,4 @@
-// Moja lista (SPEC 8p): bočni panel, cela strana /moja-lista, brzo dodavanje sa čipovima, štikliranje sa "Poništi",
+// Podsetnik (SPEC 8p): bočni panel, cela strana /podsetnik, brzo dodavanje sa čipovima, štikliranje sa "Poništi",
 // detalji stavke, prevlačenje redosleda i swipe na telefonu. Sve preko /ajax/todo, bez osvežavanja strane.
 // Vremena šalje i prima kao LOKALNA (Europe/Belgrade) "Y-m-d" i "H:i"; zonu računa server (TodoClock), ne ovaj fajl.
 import Sortable from 'sortablejs';
@@ -72,7 +72,7 @@ if (roots().length) {
         Notification.requestPermission();
     };
 
-    // --- jedan SweetAlert prozor za dodavanje i izmenu (panel, /moja-lista, kartica na početnoj, taster "n") ---
+    // --- jedan SweetAlert prozor za dodavanje i izmenu (panel, /podsetnik, kartica na početnoj, taster "n") ---
     // Osnovni unos je samo naslov + Enter; rok je ispod, a napomena, podsetnik, ponavljanje, mail i klijent su iza "Više opcija".
     // Čipovi (Danas / Sutra / Ponedeljak) dolaze sa servera (data-chips na panelu), da zonu računa samo TodoClock.
     const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -105,13 +105,13 @@ if (roots().length) {
                 <label class="form-label kt-text-sm" for="kt-td-note">Napomena</label>
                 <textarea class="form-control mb-3" id="kt-td-note" rows="2" maxlength="5000">${esc(item.note)}</textarea>
                 <div class="row g-2">
-                    <div class="col-7"><label class="form-label kt-text-sm" for="kt-td-remind">Podsetnik</label><input type="text" class="form-control" id="kt-td-remind" data-datepicker value="${esc(item.remindDate)}" placeholder="Bez podsetnika" autocomplete="off"></div>
+                    <div class="col-7"><label class="form-label kt-text-sm" for="kt-td-remind">Obavesti me</label><input type="text" class="form-control" id="kt-td-remind" data-datepicker value="${esc(item.remindDate)}" placeholder="Bez obaveštenja" autocomplete="off"></div>
                     <div class="col-5"><label class="form-label kt-text-sm" for="kt-td-remind-time">Vreme</label><input type="time" class="form-control" id="kt-td-remind-time" value="${esc(item.remindTime)}"></div>
                 </div>
                 <div class="kt-todo-chips mb-3">${remindChips}</div>
                 <div class="row g-2 mb-3 align-items-end">
                     <div class="col-7"><label class="form-label kt-text-sm" for="kt-td-repeat">Ponavljanje</label><select class="form-select" id="kt-td-repeat" data-native>${repeats}</select></div>
-                    <div class="col-5"><div class="form-check"><input class="form-check-input" type="checkbox" id="kt-td-mail" ${item.remindByEmail ? 'checked' : ''}><label class="form-check-label kt-text-sm" for="kt-td-mail">Podsetnik na mail</label></div></div>
+                    <div class="col-5"><div class="form-check"><input class="form-check-input" type="checkbox" id="kt-td-mail" ${item.remindByEmail ? 'checked' : ''}><label class="form-check-label kt-text-sm" for="kt-td-mail">Obaveštenje na mail</label></div></div>
                 </div>
                 <label class="form-label kt-text-sm" for="kt-td-client">Klijent (veza)</label>
                 <select id="kt-td-client" placeholder="Bez veze">${item.clientId ? `<option value="${esc(item.clientId)}" selected>${esc(item.clientName)}</option>` : ''}</select>
@@ -223,7 +223,7 @@ if (roots().length) {
                         return false;
                     }
                     if (payload.repeat !== 'NONE' && !payload.dueDate && !payload.remindDate) {
-                        Swal.showValidationMessage('Ponavljanje traži rok ili podsetnik.');
+                        Swal.showValidationMessage('Ponavljanje traži rok ili vreme obaveštenja.');
 
                         return false;
                     }
@@ -347,7 +347,7 @@ if (roots().length) {
     if (panel) {
         panel.addEventListener('show.bs.offcanvas', refresh);
     }
-    // --- "Podseti me" sa zadatka / klijenta: mali formular koji pravi stavku vezanu za njih ---
+    // --- "Dodaj u podsetnik" sa zadatka / klijenta: mali formular koji pravi stavku vezanu za njih ---
     const remindModal = document.getElementById('kt-remind-modal');
     if (remindModal) {
         const form = remindModal.querySelector('form');
@@ -372,7 +372,7 @@ if (roots().length) {
             const data = Object.fromEntries(new FormData(form).entries());
             const payload = { ...context, title: data.title, date: data.date, time: data.time, remindByEmail: form.querySelector('[name="remindByEmail"]').checked };
             if (!payload.date) {
-                toast('Izaberi datum podsetnika.', 'danger');
+                toast('Izaberi datum obaveštenja.', 'danger');
 
                 return;
             }
@@ -406,7 +406,7 @@ if (roots().length) {
         } else if (choice === 'snooze') {
             const preset = await snoozeDialog();
             if (preset && await call('POST', `${baseUrl}/${reminder.id}/snooze`, { preset })) {
-                toast('Podsetnik je odložen.');
+                toast('Obaveštenje je odloženo.');
             }
         }
     };

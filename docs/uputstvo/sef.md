@@ -168,7 +168,7 @@ Zahtevi koji čekaju **tvoju** odluku, kao kartice. Za svaki vidiš ko, period, 
 
 Na telefonu prevuci karticu ulevo za **Odobri** / **Odbij**.
 
-> **Pažnja:** ako ne odgovoriš u roku (podrazumevano 48 radnih sati, a najkasnije dan pre početka odsustva), zahtev se **automatski odobrava**. 24 sata pre isteka roka dobijaš podsetnik.
+> **Pažnja:** ako ne odgovoriš u roku (podrazumevano 48 radnih sati, a najkasnije dan pre početka odsustva), zahtev se **automatski odobrava**. 24 sata pre isteka roka dobijaš upozorenje.
 
 [SLIKA: tab Na odobrenju sa karticama zahteva]
 
@@ -201,9 +201,9 @@ U **Kalendaru** gore biraš **Moji** ili **Moj tim**. **Moj tim** prikazuje zada
 
 Ako je administrator uključio „Šefovi dobijaju i odsustva svog tima“, a ti si povezao Google kalendar, odobrena odsustva članova tima stižu i u tvoj Google kalendar „KontIT“.
 
-## Moja lista
+## Podsetnik
 
-Imaš i **Moju listu**: ličnu listu obaveza i podsetnika (opis je u uputstvu za radnika). Vidiš samo svoju, a tvoju ne vidi niko, ni administrator. Nije zadatak, pa tvoj tim ne vidi šta je u njoj.
+Imaš i **Podsetnik**: ličnu listu obaveza i obaveštenja (opis je u uputstvu za radnika). Vidiš samo svoju, a tvoju ne vidi niko, ni administrator. Nije zadatak, pa tvoj tim ne vidi šta je u njoj.
 ## Česta pitanja
 
 **Zašto ne vidim zadatak koji je napravio kolega iz drugog tima?**

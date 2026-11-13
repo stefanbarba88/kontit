@@ -28,7 +28,7 @@ class TaskDueTest extends DatabaseTestCase
     private function login(User $user): void
     {
         $this->browser->loginUser($user);
-        $crawler = $this->browser->request('GET', '/moja-lista');
+        $crawler = $this->browser->request('GET', '/podsetnik');
         $this->csrf = (string) $crawler->filter('meta[name="csrf-token"]')->attr('content');
     }
 

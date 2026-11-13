@@ -55,8 +55,8 @@ enum NotificationType: string
             self::CALENDAR_SYNC_FAILED => 'Google kalendar ne može da se osveži',
             self::EXPORT_READY => 'Izvoz je spreman za preuzimanje',
             self::SPECIAL_APPROVAL_SUBMITTED => 'Posebna potvrda čeka moje odobrenje',
-            self::SPECIAL_APPROVAL_REMINDER => 'Podsetnik: posebna potvrda čeka duže od 2 radna dana',
-            self::TODO_REMINDER => 'Podsetnik iz Moje liste',
+            self::SPECIAL_APPROVAL_REMINDER => 'Upozorenje: posebna potvrda čeka duže od 2 radna dana',
+            self::TODO_REMINDER => 'Obaveštenje iz Podsetnika',
         };
     }
 

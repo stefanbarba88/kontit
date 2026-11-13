@@ -10,7 +10,7 @@ use App\Repository\TodoItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Moja lista: dodavanje, završavanje (sa ponavljanjem i poništavanjem), brisanje, razvrstavanje u sekcije.
+ * Podsetnik: dodavanje, završavanje (sa ponavljanjem i poništavanjem), brisanje, razvrstavanje u sekcije.
  * Sve radi nad stavkama JEDNOG vlasnika; autorizaciju (TODO_* voter + findOwned → 404) rade kontroleri.
  */
 class TodoService
@@ -26,7 +26,7 @@ class TodoService
     ) {
     }
 
-    /** Brza stavka bez roka (polje "Dodaj u moju listu…") */
+    /** Brza stavka bez roka */
     public function add(User $owner, string $title): TodoItem
     {
         $title = trim($title);
@@ -210,7 +210,7 @@ class TodoService
             $item->setRepeat($repeat);
         }
         if (TodoRepeat::NONE !== $item->getRepeat() && null === $item->getDueAt() && null === $item->getRemindAt()) {
-            throw new \DomainException('Ponavljanje traži rok ili podsetnik.');
+            throw new \DomainException('Ponavljanje traži rok ili vreme obaveštenja.');
         }
     }
 
@@ -331,7 +331,7 @@ class TodoService
     public const SNOOZE_PRESETS = ['10m', '1h', 'tomorrow'];
 
     /**
-     * Odloži podsetnik: 10 min, 1 h ili sutra u 9:00 (sutra = sledeći radni dan). Ponovo se šalje i ponovo prikazuje.
+     * Odloži obaveštenje: 10 min, 1 h ili sutra u 9:00 (sutra = sledeći radni dan). Ponovo se šalje i ponovo prikazuje.
      * Rok stavke se ne menja.
      */
     public function snooze(TodoItem $item, string $preset): void

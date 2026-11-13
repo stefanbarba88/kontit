@@ -2,7 +2,7 @@
 
 namespace App\Enum;
 
-/** Ponavljanje stavke u "Mojoj listi" */
+/** Ponavljanje stavke u "Podsetniku" */
 enum TodoRepeat: string
 {
     case NONE = 'NONE';

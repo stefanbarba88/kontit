@@ -100,7 +100,7 @@ if (el && window.FullCalendar) {
                     return;
                 }
                 if (p.kind === 'todo') {
-                    popover = new Popover(arg.el, { title: escape(e.title), content: `<div class="kt-text-sm"><div>Moja lista${p.time ? ` · ${escape(p.time)}` : ''}</div><a href="${escape(p.todoUrl)}" class="btn btn-primary btn-sm mt-2">Otvori Moju listu</a></div>`, html: true, trigger: 'manual', placement: 'auto', customClass: 'kt-fc-popover', sanitize: false });
+                    popover = new Popover(arg.el, { title: escape(e.title), content: `<div class="kt-text-sm"><div>Podsetnik${p.time ? ` · ${escape(p.time)}` : ''}</div><a href="${escape(p.todoUrl)}" class="btn btn-primary btn-sm mt-2">Otvori Podsetnik</a></div>`, html: true, trigger: 'manual', placement: 'auto', customClass: 'kt-fc-popover', sanitize: false });
                     popover.show();
 
                     return;

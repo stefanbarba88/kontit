@@ -7,7 +7,7 @@ use App\Repository\TodoItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Šalje podsetnike iz Moje liste (komanda app:todo:send-reminders, cron svakog minuta).
+ * Šalje podsetnike iz Podsetnika (komanda app:todo:send-reminders, cron svakog minuta).
  * Tačno jednom po podsetniku: pre slanja se atomski postavlja reminder_sent_at (UPDATE ... WHERE reminder_sent_at IS NULL),
  * pa preklopljena ili dupla pokretanja ne mogu da pošalju isti podsetnik dvaput. Vreme dolazi iz TodoClock (UTC), ne iz baze.
  */
@@ -42,7 +42,7 @@ class TodoReminderService
                 $item->getOwner(),
                 NotificationType::TODO_REMINDER,
                 'Podsetnik: '.$item->getTitle(),
-                $due ?? 'Podsetnik iz tvoje liste.',
+                $due ?? 'Obaveštenje iz tvog Podsetnika.',
                 ['todo_index'],
                 null,
                 $item->isRemindByEmail(),

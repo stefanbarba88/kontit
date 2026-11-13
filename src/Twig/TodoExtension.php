@@ -11,7 +11,7 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
- * Moja lista u šablonima. Vremena i zonu računa isključivo TodoService/TodoClock; Twig samo prikazuje gotove vrednosti.
+ * Podsetnik u šablonima. Vremena i zonu računa isključivo TodoService/TodoClock; Twig samo prikazuje gotove vrednosti.
  */
 class TodoExtension extends AbstractExtension
 {

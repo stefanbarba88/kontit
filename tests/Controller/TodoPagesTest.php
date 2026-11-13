@@ -8,7 +8,7 @@ use App\Enum\Role;
 use App\Service\TodoService;
 use App\Tests\Support\DatabaseTestCase;
 
-/** Moja lista kroz HTTP: strana, AJAX API i privatnost (tuđa stavka je 404 i za admina i za superadmina). */
+/** Podsetnik kroz HTTP: strana, AJAX API i privatnost (tuđa stavka je 404 i za admina i za superadmina). */
 class TodoPagesTest extends DatabaseTestCase
 {
     private string $csrf = '';
@@ -17,7 +17,7 @@ class TodoPagesTest extends DatabaseTestCase
     private function login(User $user): void
     {
         $this->browser->loginUser($user);
-        $crawler = $this->browser->request('GET', '/moja-lista');
+        $crawler = $this->browser->request('GET', '/podsetnik');
         $this->csrf = (string) $crawler->filter('meta[name="csrf-token"]')->attr('content');
     }
 
@@ -27,6 +27,16 @@ class TodoPagesTest extends DatabaseTestCase
         $this->browser->request($method, $url, [], [], ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $this->csrf], 'GET' === $method ? null : json_encode($payload));
 
         return json_decode((string) $this->browser->getResponse()->getContent(), true) ?? [];
+    }
+
+    public function testOldUrlRedirectsPermanentlyToPodsetnik(): void
+    {
+        $me = $this->user('Ja');
+        $this->em->flush();
+        $this->browser->loginUser($me);
+        $this->browser->request('GET', '/moja-lista?q=klijent');
+        self::assertResponseStatusCodeSame(301);
+        self::assertSame('/podsetnik?q=klijent', $this->browser->getResponse()->headers->get('Location'));
     }
 
     public function testPageAndPanelRenderAndAddCompleteUndoDelete(): void
@@ -152,7 +162,7 @@ class TodoPagesTest extends DatabaseTestCase
         $res = $this->api('GET', '/ajax/todo?q=stavka');
         self::assertStringContainsString('Prva stavka', $res['data']['html']);
         self::assertStringNotContainsString('Tudja', $res['data']['html']);
-        $this->browser->request('GET', '/moja-lista?q=tajna');
+        $this->browser->request('GET', '/podsetnik?q=tajna');
         self::assertStringNotContainsString('Tudja stavka', (string) $this->browser->getResponse()->getContent());
     }
 
@@ -174,7 +184,7 @@ class TodoPagesTest extends DatabaseTestCase
             }
             $res = $this->api('GET', '/ajax/todo');
             self::assertStringNotContainsString('Privatna', $res['data']['html']);
-            $this->browser->request('GET', '/moja-lista');
+            $this->browser->request('GET', '/podsetnik');
             self::assertStringNotContainsString('Privatna', (string) $this->browser->getResponse()->getContent());
         }
         $this->em->clear();
@@ -218,6 +228,6 @@ class TodoPagesTest extends DatabaseTestCase
         self::assertStringContainsString("kt-tone-primary", $menu);
         self::assertStringContainsString("<svg", $menu);
         $this->browser->request("GET", "/profile");
-        self::assertStringNotContainsString("Podsetnik iz Moje liste", (string) $this->browser->getResponse()->getContent());
+        self::assertStringNotContainsString("Obaveštenje iz Podsetnika", (string) $this->browser->getResponse()->getContent());
     }
 }

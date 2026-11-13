@@ -14,7 +14,7 @@ use App\Tests\Support\DatabaseTestCase;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
-/** Podsetnici Moje liste: tačno jednom, odlaganje, zimsko/letnje vreme, bez automatskog podsetnika za rok. */
+/** Podsetnici Podsetnika: tačno jednom, odlaganje, zimsko/letnje vreme, bez automatskog podsetnika za rok. */
 class TodoReminderTest extends DatabaseTestCase
 {
     private TodoClock $clock;
@@ -62,7 +62,7 @@ class TodoReminderTest extends DatabaseTestCase
         $item = $this->item($owner, '2026-11-13');
         $this->clock->setNow($this->clock->fromLocal('2026-11-13', '09:00:30'));
 
-        self::assertStringContainsString('Poslato podsetnika: 1', $this->runCommand());
+        self::assertStringContainsString('Poslato obaveštenja: 1', $this->runCommand());
         self::assertSame('', trim($this->runCommand()), 'drugo pokretanje ne šalje ništa');
         self::assertSame(1, $this->reminders($owner));
 

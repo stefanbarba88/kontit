@@ -65,10 +65,10 @@ class NotificationsDueCommand extends Command
             }
         }
 
-        // podsetnik proveravačima: posebna potvrda koja čeka duže od 2 radna dana (jednom dnevno po proveravaču)
+        // upozorenje proveravačima: posebna potvrda koja čeka duže od 2 radna dana (jednom dnevno po proveravaču)
         $reminded = $this->specialApprovals->remind();
 
-        $io->success(sprintf('Poslato notifikacija: %d, podsetnika za posebne potvrde: %d.', $sent, $reminded));
+        $io->success(sprintf('Poslato notifikacija: %d, upozorenja za posebne potvrde: %d.', $sent, $reminded));
 
         return Command::SUCCESS;
     }

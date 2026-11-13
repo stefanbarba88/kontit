@@ -1,5 +1,5 @@
 {#
-    Jedna stavka Moje liste. Ulaz: item, section (overdue|today|upcoming|nodue|done|found).
+    Jedna stavka Podsetnika. Ulaz: item, section (overdue|today|upcoming|nodue|done|found).
     Telefon: prevlačenje ulevo otkriva "Završi" i "Obriši" (isti .kt-swipe kao lista zadataka). Klik na naslov otvara SweetAlert prozor za izmenu (assets/js/todo.js, data-todo nosi vrednosti).
     Veza ka klijentu/zadatku je link samo ako vlasnik i dalje sme da ih vidi, inače običan tekst.
 #}
@@ -23,7 +23,7 @@
             <button type="button" class="kt-todo-title kt-check-label" data-todo-act="open">{{ item.title }}</button>
             <div class="kt-todo-meta">
                 {% if due %}<span class="{{ todo_overdue(item) ? 'text-danger fw-semibold' : '' }}">{{ ux_icon('lucide:calendar', {class: 'kt-icon'}) }}{{ due }}</span>{% endif %}
-                {% if remind %}<span title="Podsetnik">{{ ux_icon('lucide:bell', {class: 'kt-icon'}) }}{{ remind }}{% if item.remindByEmail %} {{ ux_icon('lucide:mail', {class: 'kt-icon'}) }}{% endif %}</span>{% endif %}
+                {% if remind %}<span title="Obavesti me">{{ ux_icon('lucide:bell', {class: 'kt-icon'}) }}{{ remind }}{% if item.remindByEmail %} {{ ux_icon('lucide:mail', {class: 'kt-icon'}) }}{% endif %}</span>{% endif %}
                 {% if repeating %}<span title="{{ item.repeat.label }}">{{ ux_icon('lucide:repeat', {class: 'kt-icon'}) }}{{ item.repeat.label }}</span>{% endif %}
                 {% if item.client %}
                     <span>{{ ux_icon('lucide:building-2', {class: 'kt-icon'}) }}{% if is_granted('CLIENT_VIEW', item.client) %}<a href="{{ path('client_show', {id: item.client.id}) }}">{{ item.client.shortName }}</a>{% else %}{{ item.client.shortName }}{% endif %}</span>

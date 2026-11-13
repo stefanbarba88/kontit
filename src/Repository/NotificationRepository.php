@@ -68,7 +68,7 @@ class NotificationRepository extends ServiceEntityRepository
     /**
      * Da li korisnik već ima notifikaciju ovog tipa za isti link (da se rokovi ne ponavljaju).
      */
-    /** Obaveštenje iste vrste za isti link već postoji od zadatog trenutka (npr. od početka dana, za dnevni podsetnik) */
+    /** Obaveštenje iste vrste za isti link već postoji od zadatog trenutka (npr. od početka dana, za dnevno upozorenje) */
     public function existsSince(User $user, NotificationType $type, string $link, \DateTimeImmutable $since): bool
     {
         return (int) $this->createQueryBuilder('n')

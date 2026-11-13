@@ -76,7 +76,7 @@ class TaskController extends AbstractController
         if (!$request->isMethod('POST') && false !== ($due = \DateTimeImmutable::createFromFormat('!Y-m-d', (string) $request->query->get('due')))) {
             $task->setDueDate($due);
         }
-        // "Pretvori u zadatak" iz Moje liste: ?fromTodo=ID. Samo VLASNIK stavke (tuđa ili nepostojeća daje 404, i za admina)
+        // "Pretvori u zadatak" iz Podsetnika: ?fromTodo=ID. Samo VLASNIK stavke (tuđa ili nepostojeća daje 404, i za admina)
         $fromTodo = null;
         if ($request->query->getInt('fromTodo')) {
             $fromTodo = $this->todoItems->findOwned($request->query->getInt('fromTodo'), $me);

@@ -45,7 +45,7 @@ class DashboardController extends AbstractController
             ];
         }
 
-        // Moja lista: sve otvorene stavke u kartici (privatno, samo moje stavke)
+        // Podsetnik: sve otvorene stavke u kartici (privatno, samo moje stavke)
 
         return $this->render('dashboard/index.html.twig', [
             'todoSections' => $this->todo->sections($me),

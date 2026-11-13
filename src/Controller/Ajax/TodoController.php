@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Moja lista (AJAX). PRIVATNO: svaka stavka se učitava kroz TodoItemRepository::findOwned, pa tuđa stavka daje 404 (nikad 403),
+ * Podsetnik (AJAX). PRIVATNO: svaka stavka se učitava kroz TodoItemRepository::findOwned, pa tuđa stavka daje 404 (nikad 403),
  * a TODO_* voter je dodatna provera. Svaki odgovor nosi novo stanje liste: { count, html }.
  */
 class TodoController extends AbstractAjaxController
@@ -81,7 +81,7 @@ class TodoController extends AbstractAjaxController
             return $this->fail($e->getMessage());
         }
 
-        return $this->ok($this->state(), 'Podsetnik je odložen.');
+        return $this->ok($this->state(), 'Obaveštenje je odloženo.');
     }
 
     #[Route('/ajax/todo', name: 'ajax_todo_add', methods: ['POST'])]
@@ -107,7 +107,7 @@ class TodoController extends AbstractAjaxController
             throw $e;
         }
 
-        return $this->ok($this->state() + ['id' => $item->getId(), 'hasReminder' => null !== $item->getRemindAt()], 'Dodato u tvoju listu.');
+        return $this->ok($this->state() + ['id' => $item->getId(), 'hasReminder' => null !== $item->getRemindAt()], 'Dodato u tvoj Podsetnik.');
     }
 
     #[Route('/ajax/todo/reorder', name: 'ajax_todo_reorder', methods: ['POST'])]
@@ -142,7 +142,7 @@ class TodoController extends AbstractAjaxController
     }
 
     /**
-     * "Podseti me" sa zadatka ili klijenta: pravi stavku vezanu za njih (rok i podsetnik u isto vreme).
+     * "Dodaj u podsetnik" sa zadatka ili klijenta: pravi stavku vezanu za njih (rok i podsetnik u isto vreme).
      * Zadatak/klijent se moraju smeti videti (TASK_VIEW / CLIENT_VIEW), inače 404.
      */
     #[Route('/ajax/todo/remind', name: 'ajax_todo_remind', methods: ['POST'])]
@@ -160,7 +160,7 @@ class TodoController extends AbstractAjaxController
         $item = null;
         try {
             if (empty($data['date'])) {
-                throw new \DomainException('Izaberi datum podsetnika.');
+                throw new \DomainException('Izaberi datum obaveštenja.');
             }
             $item = $this->todo->add($this->actor(), (string) ($data['title'] ?? ''));
             $time = $data['time'] ?? '09:00';
@@ -175,7 +175,7 @@ class TodoController extends AbstractAjaxController
             return $this->fail($e->getMessage());
         }
 
-        return $this->ok($this->state(), 'Podsetnik je dodat u tvoju listu.');
+        return $this->ok($this->state(), 'Dodato u tvoj Podsetnik.');
     }
 
     #[Route('/ajax/todo/{id}', name: 'ajax_todo_update', requirements: ['id' => '\d+'], methods: ['POST'])]
