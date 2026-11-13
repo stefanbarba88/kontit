@@ -54,6 +54,21 @@ class ActivityLogger
     }
 
     /**
+     * Promena rasporeda posla klijenta u istoriji klijenta: stari i novi raspored rečima i koliko je otvorenih zadataka zahvaćeno.
+     *
+     * @return array<string, array{0: ?string, 1: ?string}>
+     */
+    public function scheduleChange(string $jobName, string $old, string $new, int $moved, int $untouched = 0): array
+    {
+        $changes = [sprintf('Raspored: %s', $this->excerpt($jobName, 80)) => [$old, $new], 'Zadataka sa novim rokom' => [null, (string) $moved]];
+        if ($untouched > 0) {
+            $changes['Otvoreno ostalo na starom roku'] = [null, (string) $untouched];
+        }
+
+        return $changes;
+    }
+
+    /**
      * Pretvara changeset u [naziv polja => [staro, novo]] za zadata polja i izbacuje ona gde se prikaz nije promenio
      * (npr. isti datum u novoj instanci).
      *

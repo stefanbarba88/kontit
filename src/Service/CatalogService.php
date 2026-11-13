@@ -18,14 +18,18 @@ class CatalogService
         private readonly EntityManagerInterface $em,
         private readonly ClientPackageRepository $clientPackages,
         private readonly ClientPackageService $packages,
+        private readonly ScheduleChangeService $scheduleChanges,
     ) {
     }
 
     /**
-     * Čuva posao. Stavke checkliste dolaze iz editora (ChecklistCollectionType), pa se samo ponovo numerišu redom.
+     * Čuva posao i vraća šta je promena rasporeda uradila zadacima. Stavke checkliste dolaze iz editora (ChecklistCollectionType), pa se samo ponovo numerišu redom.
      */
-    public function saveJob(JobTemplate $job): void
+    public function saveJob(JobTemplate $job, ?User $actor = null): ScheduleImpact
     {
+        // izmena podrazumevanog rasporeda preračunava otvorene zadatke klijenata koji nisu prilagođeni (SPEC 8g.4)
+        $before = null === $job->getId() ? null : $this->scheduleChanges->persistedSchedule($job);
+
         $items = $job->getChecklistItems()->toArray();
         usort($items, static fn (JobTemplateChecklistItem $a, JobTemplateChecklistItem $b) => $a->getPosition() <=> $b->getPosition());
         foreach ($items as $position => $item) {
@@ -34,6 +38,8 @@ class CatalogService
 
         $this->em->persist($job);
         $this->em->flush();
+
+        return null === $before ? new ScheduleImpact() : $this->scheduleChanges->templateChanged($job, $before, $actor);
     }
 
     /**

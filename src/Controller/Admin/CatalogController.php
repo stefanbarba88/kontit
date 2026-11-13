@@ -71,8 +71,15 @@ class CatalogController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->catalog->saveJob($job);
+            $user = $this->getUser();
+            $impact = $this->catalog->saveJob($job, $user instanceof \App\Entity\User ? $user : null);
             $this->addFlash('success', sprintf('Posao „%s“ je sačuvan.', $job->getName()));
+            if ($impact->movedCount() > 0) {
+                $this->addFlash('info', sprintf('Rok je preračunat na %d otvorenih zadataka.', $impact->movedCount()));
+            }
+            if ([] !== $impact->stranded) {
+                $this->addFlash('warning', sprintf('%d otvorenih zadataka ostaje na starom roku jer njihov period ne postoji u novom rasporedu. Otkaži ih ili završi ručno.', \count($impact->stranded)));
+            }
             if ($job->requiresApproval() && 1 === \count(array_filter($job->getApprovers()->toArray(), static fn (\App\Entity\User $u) => \App\Service\TaskReviewPolicy::isEligibleApprover($u)))) {
                 $this->addFlash('warning', 'Izabran je samo jedan proveravač. Ako je on i učesnik zadatka, zadatak potvrđuje superadmin.');
             }

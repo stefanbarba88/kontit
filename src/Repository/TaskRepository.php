@@ -371,6 +371,33 @@ class TaskRepository extends ServiceEntityRepository
     }
 
     /**
+     * Otvoreni generisani zadaci poslova čiji rok sme da se preračuna po novom rasporedu (SPEC 8g.4):
+     * status NOVO (u radu, na proveri i završeni se ne diraju) i rok nije ručno promenjen.
+     *
+     * @param list<\App\Entity\ClientJob> $jobs
+     *
+     * @return list<\App\Entity\Task>
+     */
+    public function findRecalculable(array $jobs): array
+    {
+        if ([] === $jobs) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('t')
+            ->addSelect('j', 'c')
+            ->join('t.clientJob', 'j')
+            ->leftJoin('t.client', 'c')
+            ->andWhere('t.clientJob IN (:jobs) AND t.periodKey IS NOT NULL')
+            ->andWhere('t.status = :new AND t.dueDateManuallySet = false')
+            ->setParameter('jobs', $jobs)
+            ->setParameter('new', \App\Enum\TaskStatus::NOVO)
+            ->orderBy('t.dueDate')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Posebne potvrde (SPEC: Posebne potvrde). Samo zadaci sa reviewMode SPECIAL. Proveravač vidi zadatke gde je u snapshot-u;
      * superadmin i one kojima nijedan izabrani proveravač nije više aktivan admin, a sa prekidačem "all" sve.
      * Tabovi: special_waiting (NA_PROVERI, najstariji prvi), special_progress (još nisu poslati), special_done (potvrđeni).
