@@ -9,7 +9,7 @@ use App\Enum\ScheduleType;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Rok zadatka i raspored (SPEC 8g.4, nivo zadatka).
+ * Rok zadatka i raspored (SPEC 8g.5, nivo zadatka).
  *  - Promena roka samo za ovaj zadatak postavlja `dueDateManuallySet`, pa ga ni generator ni izmena rasporeda ne preračunavaju.
  *  - "Primeni i na buduće periode": iz novog roka se izvodi prilagođen raspored posla klijenta. Uzima se raspored koji sada važi
  *    (leadDays, nonWorkingDayShift i razmak ostaju), a menja se samo dan u mesecu (ili dan u nedelji). Ide kroz ScheduleChangeService,

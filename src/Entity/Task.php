@@ -81,7 +81,7 @@ class Task
     #[ORM\Column]
     private bool $generatedAutomatically = false;
 
-    /** Rok je ručno promenjen samo za ovaj zadatak: ni generator ni izmena rasporeda (posla, klijenta) ga ne preračunavaju (SPEC 8g.4) */
+    /** Rok je ručno promenjen samo za ovaj zadatak: ni generator ni izmena rasporeda (posla, klijenta) ga ne preračunavaju (SPEC 8g.5) */
     #[ORM\Column(options: ['default' => false])]
     private bool $dueDateManuallySet = false;
 

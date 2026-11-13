@@ -5,7 +5,7 @@ namespace App\Service;
 use App\Entity\Task;
 
 /**
- * Šta bi promena rasporeda uradila otvorenim zadacima (SPEC 8g.4): kojima se menja rok, a koji ostaju na starom
+ * Šta bi promena rasporeda uradila otvorenim zadacima (SPEC 8g.5): kojima se menja rok, a koji ostaju na starom
  * jer njihov period više ne postoji u novom rasporedu (npr. mesečno -> kvartalno).
  */
 final class ScheduleImpact

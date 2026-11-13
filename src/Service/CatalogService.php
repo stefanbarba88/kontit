@@ -27,7 +27,7 @@ class CatalogService
      */
     public function saveJob(JobTemplate $job, ?User $actor = null): ScheduleImpact
     {
-        // izmena podrazumevanog rasporeda preračunava otvorene zadatke klijenata koji nisu prilagođeni (SPEC 8g.4)
+        // izmena podrazumevanog rasporeda preračunava otvorene zadatke klijenata koji nisu prilagođeni (SPEC 8g.5)
         $before = null === $job->getId() ? null : $this->scheduleChanges->persistedSchedule($job);
 
         $items = $job->getChecklistItems()->toArray();

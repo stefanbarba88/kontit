@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * Prilagođen raspored posla za klijenta (SPEC 8g.4): pregled uticaja na otvorene zadatke pa primena, i vraćanje na podrazumevani.
+ * Prilagođen raspored posla za klijenta (SPEC 8g.5): pregled uticaja na otvorene zadatke pa primena, i vraćanje na podrazumevani.
  * Pravo imaju oni koji upravljaju poslovima klijenta (CATALOG_MANAGE), isto kao izmena posla i paketa.
  * Telo: { "schedule": { ...polja rasporeda } } ili { "schedule": null } za vraćanje na podrazumevani.
  */

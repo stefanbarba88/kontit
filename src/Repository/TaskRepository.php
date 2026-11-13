@@ -371,7 +371,7 @@ class TaskRepository extends ServiceEntityRepository
     }
 
     /**
-     * Otvoreni generisani zadaci poslova čiji rok sme da se preračuna po novom rasporedu (SPEC 8g.4):
+     * Otvoreni generisani zadaci poslova čiji rok sme da se preračuna po novom rasporedu (SPEC 8g.5):
      * status NOVO (u radu, na proveri i završeni se ne diraju) i rok nije ručno promenjen.
      *
      * @param list<\App\Entity\ClientJob> $jobs

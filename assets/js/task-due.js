@@ -1,4 +1,4 @@
-// "Rok i raspored" na zadatku (SPEC 8g.4): promena roka samo za ovaj zadatak, opciono i za buduće periode posla klijenta,
+// "Rok i raspored" na zadatku (SPEC 8g.5): promena roka samo za ovaj zadatak, opciono i za buduće periode posla klijenta,
 // sa prikazom šta će tačno postati pre čuvanja. Povratak na podrazumevani rok.
 import Swal from 'sweetalert2';
 import { ajax } from './ajax.js';

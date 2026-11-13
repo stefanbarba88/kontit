@@ -16,7 +16,7 @@ use App\Service\TaskGenerationService;
 use App\Tests\Support\DatabaseTestCase;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
-/** Preračun rokova otvorenih zadataka pri promeni rasporeda (SPEC 8g.4). */
+/** Preračun rokova otvorenih zadataka pri promeni rasporeda (SPEC 8g.5). */
 class ScheduleChangeServiceTest extends DatabaseTestCase
 {
     private ScheduleChangeService $changes;

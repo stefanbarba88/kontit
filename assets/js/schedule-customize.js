@@ -1,4 +1,4 @@
-// Prilagođen raspored posla za klijenta (SPEC 8g.4): prozor sa istim poljima rasporeda kao u katalogu poslova,
+// Prilagođen raspored posla za klijenta (SPEC 8g.5): prozor sa istim poljima rasporeda kao u katalogu poslova,
 // red posla pri dodeli ("Podrazumevano: ... Prilagodi za ovog klijenta") i izmena na postojećem poslu, sa brojem zahvaćenih zadataka.
 import Swal from 'sweetalert2';
 import { ajax } from './ajax.js';

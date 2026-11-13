@@ -13,7 +13,7 @@ use App\Service\ClientPackageService;
 use App\Service\TaskGenerationService;
 use App\Tests\Support\DatabaseTestCase;
 
-/** Prilagođen raspored posla za klijenta: ekran, AJAX pregled/primena/vraćanje, dodela paketa i prava (SPEC 8g.4). */
+/** Prilagođen raspored posla za klijenta: ekran, AJAX pregled/primena/vraćanje, dodela paketa i prava (SPEC 8g.5). */
 class ClientJobScheduleTest extends DatabaseTestCase
 {
     private string $csrf = '';

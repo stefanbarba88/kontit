@@ -77,7 +77,7 @@ class CalendarController extends AbstractController
         if (false === $date) {
             return new JsonResponse(['success' => false, 'data' => null, 'message' => 'Neispravan datum.'], 400);
         }
-        // ručno pomeren rok važi samo za ovaj zadatak (SPEC 8g.4)
+        // ručno pomeren rok važi samo za ovaj zadatak (SPEC 8g.5)
         $due->setDue($task, $date, false, false, null);
 
         return new JsonResponse(['success' => true, 'data' => ['due' => $date->format('Y-m-d'), 'nonWorking' => $workingDays->reason($date)], 'message' => 'Rok je promenjen na '.$date->format('d.m.Y.').'.']);

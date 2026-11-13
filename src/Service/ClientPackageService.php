@@ -33,7 +33,7 @@ class ClientPackageService
      * čuvaju se kao isključeni, da se zna da su svesno izostavljeni (SPEC 8h.3).
      *
      * @param array<int, string>   $excluded
-     * @param array<int, Schedule> $schedules id posla => prilagođen raspored za ovog klijenta (SPEC 8g.4)
+     * @param array<int, Schedule> $schedules id posla => prilagođen raspored za ovog klijenta (SPEC 8g.5)
      *
      * @return list<string> upozorenja (npr. posao koji klijent već ima)
      */

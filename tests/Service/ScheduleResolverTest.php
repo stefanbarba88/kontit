@@ -11,7 +11,7 @@ use App\Service\ScheduleResolver;
 use App\Service\TaskGenerationService;
 use App\Tests\Support\DatabaseTestCase;
 
-/** ScheduleResolver (SPEC 8g.4): Task (ručni rok) > ClientJob (prilagođeno) > JobTemplate (podrazumevano) i generator nad njim. */
+/** ScheduleResolver (SPEC 8g.5): Task (ručni rok) > ClientJob (prilagođeno) > JobTemplate (podrazumevano) i generator nad njim. */
 class ScheduleResolverTest extends DatabaseTestCase
 {
     private ScheduleResolver $resolver;

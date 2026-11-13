@@ -91,7 +91,7 @@ class TaskService
         $added = array_values(array_filter($assignees, fn (User $u) => !$task->hasAssignee($u)));
         $before = $task->getStatus();
 
-        // rok generisanog zadatka izmenjen u formi važi samo za njega: generator i izmena rasporeda ga ne preračunavaju (SPEC 8g.4)
+        // rok generisanog zadatka izmenjen u formi važi samo za njega: generator i izmena rasporeda ga ne preračunavaju (SPEC 8g.5)
         $originalDue = $this->em->getUnitOfWork()->getOriginalEntityData($task)['dueDate'] ?? null;
         if (null !== $task->getClientJob() && null !== $task->getPeriodKey() && $task->getDueDate() != $originalDue) {
             $task->setDueDateManuallySet(true);

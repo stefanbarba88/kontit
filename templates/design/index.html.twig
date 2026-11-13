@@ -226,6 +226,25 @@
                     {{ ce.editor(jobForm.checklistItems) }}
                 </div>
             </div>
+            <div class="kt-overline mt-4 mb-2">Red posla klijenta: podrazumevani i prilagođeni raspored, ručno promenjen rok</div>
+            <div class="row">
+                <div class="col-lg-7">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <div class="fw-semibold">PDV prijava</div>
+                            <div class="kt-sched-row"><span class="text-muted">Podrazumevano: Mesečno, 3.</span> <button type="button" class="btn btn-link btn-sm p-0">Prilagodi za ovog klijenta</button></div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="fw-semibold">Bilans stanja</div>
+                            <div class="kt-sched-row is-customized"><span class="kt-badge kt-badge-info" title="Raspored za ovog klijenta">Prilagođeno: Mesečno, 6.</span> <button type="button" class="btn btn-link btn-sm p-0">Izmeni</button> <button type="button" class="btn btn-link btn-sm p-0">Vrati na podrazumevano</button></div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-5 mt-3 mt-lg-0">
+                    <div class="kt-text-sm">Rok zadatka: 17.03.2027. <span class="kt-due-manual text-muted ms-1" data-bs-toggle="tooltip" title="Rok ručno promenjen, podrazumevano je 3." aria-label="Rok ručno promenjen">{{ ux_icon('lucide:pencil-line', {class: 'kt-icon'}) }}</span></div>
+                    <div class="kt-text-xs text-muted mt-1">Znak pencil-line stoji uz rok koji je ručno promenjen; tooltip kaže šta je podrazumevano.</div>
+                </div>
+            </div>
             <div class="kt-overline mt-4 mb-2">Filteri (mala segmentirana dugmad, čipovi-prekidači sa tačkom u boji)</div>
             <div class="d-flex flex-wrap align-items-center gap-3">
                 <div class="kt-segmented kt-segmented-sm" role="radiogroup" aria-label="Primer opsega">

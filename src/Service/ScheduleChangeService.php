@@ -14,7 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Promena rasporeda i šta ona radi već generisanim zadacima (SPEC 8g.4).
+ * Promena rasporeda i šta ona radi već generisanim zadacima (SPEC 8g.5).
  *
  *  - Preračunava se samo rok otvorenih (NOVO) zadataka čiji rok nije ručno promenjen, i to za isti period (period se ne preskače i ne duplira;
  *    jedinstvenost (client_job_id, period_key) ostaje jer se ključ ne menja).

@@ -72,7 +72,7 @@
 .kt-assignees { max-height: 320px; overflow: auto; }
 .kt-assignees.kt-is-locked { opacity: .5; }
 
-/* Red posla pri dodeli: podrazumevani raspored i prilagođavanje za klijenta (SPEC 8g.4) */
+/* Red posla pri dodeli: podrazumevani raspored i prilagođavanje za klijenta (SPEC 8g.5) */
 .kt-sched-row { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; font-size: 13px; }
 .kt-sched-row .btn-link { font-size: 13px; text-decoration: none; min-height: 0; }
 .kt-sched-row .btn-link:hover { text-decoration: underline; }

@@ -128,7 +128,7 @@ Ovo smeš samo za članove svog tima na nivou radnika (i za sebe). Za člana tu�
 
 Zadatke tima možeš da menjaš (**Izmeni**: naslov, rok, prioritet, učesnici, checklista) dok nisu završeni. **Otkaži zadatak** traži razlog i otkazuje ga za sve učesnike. Zadatak se nikad ne briše, samo otkazuje, pa istorija ostaje.
 
-Rok možeš da promeniš i u **Kalendaru**, prevlačenjem zadatka na drugi dan.
+Rok možeš da promeniš i u **Kalendaru**, prevlačenjem zadatka na drugi dan, ili na strani zadatka, kartica **Rok i raspored**, dugme **Promeni rok**. Rok tada važi samo za taj zadatak (pored roka je znak olovke) i raspored ga ne preračunava. **Vrati na podrazumevani rok** vraća rok po rasporedu. Raspored posla za klijenta (za sve buduće periode) menja admin.
 
 ### Potvrda i vraćanje na doradu
 

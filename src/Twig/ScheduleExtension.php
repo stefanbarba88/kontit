@@ -13,7 +13,7 @@ use Twig\TwigFunction;
 
 /**
  * schedule_describe(schedule, short): opis rasporeda rečima (SPEC 8g.3), npr. "Mesečno, 15.".
- * schedule_data(schedule) i schedule_dialog_form(): podaci i polja za prozor "Prilagodi za ovog klijenta" (SPEC 8g.4).
+ * schedule_data(schedule) i schedule_dialog_form(): podaci i polja za prozor "Prilagodi za ovog klijenta" (SPEC 8g.5).
  */
 class ScheduleExtension extends AbstractExtension
 {

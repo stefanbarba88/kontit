@@ -3,6 +3,7 @@
 > Claude ažurira ovaj fajl na kraju svakog zadatka. Najnovije ide na vrh.
 
 ## Trenutno stanje
+- Poslednje: **raspored posla po klijentu i po zadatku** (SPEC 8g.5). Sledeće: po dogovoru; 3c „Pretvori u ponavljajući posao“ je odložen.
 - Faza: **UPDATE-POSLOVI-KALENDAR završen** (P1-P11, SPEC 8f-8n): kraći naziv i aktivnosti, neradni dani, kategorije i raspored posla, ugovorene usluge, generisanje sa zamenom, odsustva sa automatskim odobravanjem, dokumenti, kalendar, Google kalendar. Uz faze 0-7, 2b, 3b, 7b i UPDATE-DIZAJN.
 - Sledeće: po dogovoru. **Faza 8 (praćenje vremena) je odložena.** Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
 - Za pravi Google kalendar treba uraditi korake iz `docs/google-calendar-setup.md` (Client ID i Secret u `.env.local`).
@@ -341,6 +342,17 @@ mpp\htdocs\kontit_template_backup` (nije bio u git-u; obrisati ručno kad više 
 - Cron `app:notifications:due` sada šalje i podsetnike za posebne potvrde.
 - Testovi: `TaskReviewTest`, `SpecialApprovalServiceTest`, `SpecialApprovalsPageTest`, `ReviewFormsRenderTest`. Nije proveravano u pregledaču: review.js (forma zadatka/posla), swipe na stranici posebnih potvrda.
 - Sledeće: pregled u pregledaču na 390px i `/_design` (značka provere, „Traži potvrdu“).
+### Raspored posla po klijentu i po zadatku (SPEC 8g.5)
+- `ScheduleResolver` je jedino mesto prioriteta: ručni rok zadatka > `ClientJob.scheduleOverride` > `JobTemplate.schedule`. `ClientJob::getSchedule()` i `ScheduleCalculator::forClientJob()` su uklonjeni; generator, pregled ugovorenih usluga, finansije i opcije zadatka koriste resolver. `ScheduleCalculator` se u računanju nije menjao. Flag `scheduleCustomized` se namerno ne dodaje (`Schedule::isEmpty()` je izvor istine, override je celovit).
+- Migracija `Version20261113101004`: `task.due_date_manually_set`.
+- `ScheduleChangeService` (pregled uticaja, preračun roka otvorenih NOVO zadataka bez ručnog roka za isti period, zadaci čiji period nestaje ostaju na starom roku i navode se u upozorenju, upis u ActivityLog klijenta preko `ActivityLogger::scheduleChange`), `ScheduleImpact`. `CatalogService::saveJob` preračunava klijente koji nisu prilagođeni.
+- UI klijent: zajednički prozor (`#kt-schedule-dialog` + `assets/js/schedule-customize.js`, `schedule-form.js` izvozi `initSchedule`), red posla sa „Podrazumevano / Prilagodi / Prilagođeno / Vrati“ pri dodeli paketa i poslova, meni ⋯ na tabu usluga i stranica izmene posla (forma više nema ugrađen raspored). AJAX `ClientJobScheduleController` (impact + primena), pravo `CATALOG_MANAGE` (bez novog atributa).
+- UI zadatak: kartica „Rok i raspored“ (`TaskDueService`, `TaskDueController`, `assets/js/task-due.js`), kvačica „Primeni i na buduće periode“ (menja samo dan; „poslednji dan u mesecu“ za 29-31), vraćanje na podrazumevani rok, znak `pencil-line` u `ui.due_date`. Ručni rok postavljaju i izmena u formi zadatka i prevlačenje u kalendaru. Rute: `ajax_task_due_preview` i `ajax_task_due_change` (stara `ajax_task_due` je kalendarska).
+- Nije urađeno (odlučeno): ponavljanje ručno napravljenog zadatka (3c); kasnije kao „Pretvori u ponavljajući posao“ sa zadatka (pravi individualni posao klijenta).
+- Testovi: `ScheduleResolverTest`, `ScheduleChangeServiceTest`, `ClientJobScheduleTest`, `TaskDueTest` (prioritet, dva klijenta 3./6., izmena šablona, ručni rok preživljava, „na buduće“ ne dira prošle ni završene, bez duplikata, promena ključa perioda + generator, neradni dan u prilagođenom rasporedu, februar i poslednji dan, prava).
+- Nije proveravano u pregledaču: ceo novi JS (`schedule-customize.js`, `task-due.js`, izmene `client-services.js`, `job-picker.js`), prozori na 390 px, flatpickr u SweetAlert-u. Serverska strana i renderovanje šablona su pokriveni testovima, a JS je samo sintaksno proveren.
+- Dokumentacija: SPEC 8g.5, `/_design` (red posla, znak ručnog roka), uputstva (admin, šef).
+
 ### Moja lista (lična to-do lista i podsetnici)
 - `TodoItem` (UTC tip `utc_datetime_immutable`, `TodoClock` kao jedino mesto za zonu), `TodoVoter` (samo vlasnik, 404 za tuđe), `TodoItemRepository` (svi upiti po vlasniku), `TodoService`, `TodoRepeatCalculator`, `TodoReminderService` + komanda `app:todo:send-reminders` (cron svakog minuta, DEPLOY.md). Migracija `Version20261112141323`.
 - UI: ikonica u topbaru + panel (offcanvas / bottom sheet), `/moja-lista`, sekcije, Poništi, prevlačenje (SortableJS), swipe (`initSwipe` izdvojen u `mobile.js`), `assets/js/todo.js`, `assets/styles/components/todo.css`. Dodavanje i izmena idu kroz JEDAN SweetAlert prozor (dugme "+ Dodaj", taster `n`, klik na stavku); brzo polje i inline detalji su uklonjeni. Kartica "Moja lista" na vrhu početne prikazuje sve otvorene stavke (skrol posle ~8, "Završene" 10). Novo: `GET /ajax/todo/clients`, `add`/`update` primaju note, repeat, clientId; neuspeo unos ne ostavlja praznu stavku.

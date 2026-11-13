@@ -13,7 +13,7 @@ use App\Service\ScheduleCalculator;
 use App\Service\TaskGenerationService;
 use App\Tests\Support\DatabaseTestCase;
 
-/** "Rok i raspored" na zadatku (SPEC 8g.4): ručni rok, primena na buduće periode, prava i oznaka. */
+/** "Rok i raspored" na zadatku (SPEC 8g.5): ručni rok, primena na buduće periode, prava i oznaka. */
 class TaskDueTest extends DatabaseTestCase
 {
     private string $csrf = '';

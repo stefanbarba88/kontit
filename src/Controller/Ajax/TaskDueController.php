@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * "Rok i raspored" na zadatku (SPEC 8g.4). Rok menja ko sme da menja zadatak (TASK_EDIT).
+ * "Rok i raspored" na zadatku (SPEC 8g.5). Rok menja ko sme da menja zadatak (TASK_EDIT).
  * Prilagođavanje rasporeda posla za buduće periode traži i pravo upravljanja poslovima klijenta (CATALOG_MANAGE).
  * Telo: { dueDate: "Y-m-d", future: bool, lastDay: bool } ili { reset: true } za povratak na podrazumevani rok.
  */

@@ -8,7 +8,7 @@ use App\Entity\Task;
 use App\Enum\ScheduleType;
 
 /**
- * Jedino mesto koje odlučuje koji raspored važi (SPEC 8g.4): Task (ručno postavljen rok) > ClientJob (prilagođeno za klijenta) > JobTemplate (podrazumevano).
+ * Jedino mesto koje odlučuje koji raspored važi (SPEC 8g.5): Task (ručno postavljen rok) > ClientJob (prilagođeno za klijenta) > JobTemplate (podrazumevano).
  *
  * Raspored sam po sebi postoji samo na šablonu i na ClientJob-u (override je celovit, prazan = nasleđuje šablon; `isEmpty()` je izvor istine).
  * Zadatak nema raspored nego ručno postavljen rok (`dueDateManuallySet`), koji pobeđuje sve što bi raspored izračunao.

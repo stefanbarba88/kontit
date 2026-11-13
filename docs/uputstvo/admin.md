@@ -284,6 +284,7 @@ Na kartici klijenta, tab **Ugovorene usluge**: šta se radi za klijenta, po kom 
 1. **Dodaj paket**.
 2. Izaberi **Paket**. Odmah se prikažu svi poslovi paketa, štiklirani.
 3. **Odštikliraj** poslove koji ne trebaju ovom klijentu i po želji upiši razlog.
+   Ispod svakog posla piše **Podrazumevano: …** (raspored iz kataloga). Ako ovaj klijent treba drugačiji rok, klikni **Prilagodi za ovog klijenta**, izaberi raspored i **Primeni**. U redu se tada vidi **Prilagođeno: …** i link **Vrati na podrazumevano**. Prilagođavanje važi samo za ovog klijenta, a paket za druge klijente se ne menja.
 4. Upiši **Mesečnu cenu paketa za ovog klijenta**, po želji **Popust (%)**, **Početak** i **Napomenu**.
 5. Klikni **Dodaj paket**.
 
@@ -292,15 +293,29 @@ Na kartici klijenta, tab **Ugovorene usluge**: šta se radi za klijenta, po kom 
 ### Dodaj pojedinačan posao
 
 1. **Dodaj pojedinačan posao**.
-2. Štikliraj jedan ili više poslova. Za svaki upiši **Cenu**, po želji drugog **zaduženog** (podrazumevano je glavni radnik) i **Napomenu**.
+2. Štikliraj jedan ili više poslova. Za svaki upiši **Cenu**, po želji drugog **zaduženog** (podrazumevano je glavni radnik) i **Napomenu**. Isto kao kod paketa, **Prilagodi za ovog klijenta** menja raspored samo za ovog klijenta.
 3. Izaberi **Početak** i klikni **Dodaj**.
 
 ### Meni ⋯ pored posla
 
-- **Izmeni**: cena, napomena, **Zaduženi** za taj posao, procenjeno trajanje, početak i kraj, i **Raspored za ovog klijenta** (ako ovaj klijent ima drugačiji rok nego što piše u katalogu; „Kao u poslu“ vraća raspored iz kataloga).
+- **Izmeni**: cena, napomena, **Zaduženi** za taj posao, procenjeno trajanje, početak i kraj. Na toj strani vidiš i raspored: podrazumevani i, ako postoji, prilagođeni.
+- **Prilagodi za ovog klijenta** / **Izmeni raspored za klijenta**: drugačiji rok samo za ovog klijenta. Pre primene piše koliko otvorenih zadataka menja rok (npr. „Menja rok na 3 otvorena zadatka“) i traži potvrdu. Zadaci u radu, na proveri i završeni se ne diraju, kao ni zadaci kojima je rok ručno promenjen.
+- **Vrati na podrazumevano**: klijent opet prati raspored iz kataloga (i njegove buduće izmene), uz isto pitanje o zadacima.
+
+Kod posla koji je prilagođen stoji bedž **Prilagođeno**, a tooltip pokazuje podrazumevani raspored. Lista uvek prikazuje raspored koji stvarno važi.
+
+> **Kad promeniš raspored posla u katalogu:** rok se preračunava samo za klijente koji nisu prilagođeni i samo za otvorene zadatke (status Novo). Posle čuvanja piše na koliko zadataka je rok promenjen. Ako se promeni vrsta rasporeda (npr. mesečno u kvartalno), stari otvoreni zadaci ostaju na starom roku i dobiješ upozorenje da ih sam otkažeš ili završiš; novi zadaci se prave po novom rasporedu.
 - **Kreiraj zadatak sada**: odmah pravi zadatak iz tog posla (npr. za posao „Po potrebi“).
 - **Isključi** (posao iz paketa): zadaci se više ne prave, a otvoreni se otkazuju. Traži razlog. Isključen posao je precrtan i može da se **Uključi**.
 - **Završi (zadaci ostaju)** ili **Završi i otkaži zadatke** (pojedinačan posao): posao se završava danas.
+
+### Rok jednog zadatka
+
+Na strani zadatka, kartica **Rok i raspored**:
+
+- **Promeni rok** menja rok samo tom zadatku. Pored roka se pojavi znak olovke (rok ručno promenjen, tooltip pokazuje podrazumevani). Raspored i generator taj rok više ne diraju. Isto važi kad rok promeniš u formi zadatka ili prevlačenjem u kalendaru.
+- Kvačica **Primeni i na buduće periode za ovog klijenta** (samo admin) upisuje prilagođen raspored iz novog roka: menja se samo dan (u mesecu ili u nedelji), a „zadatak nastaje dana pre roka“ i pomeranje zbog neradnog dana ostaju kao u rasporedu posla. Pre čuvanja piše šta tačno postaje („Od sledećeg perioda: svakog 6. u mesecu“) i koliko drugih otvorenih zadataka menja rok. Za 29., 30., 31. ili poslednji dan meseca možeš da izabereš **Poslednji dan u mesecu**; inače se u kraćim mesecima rok pomera na poslednji dan.
+- **Vrati na podrazumevani rok** vraća rok po rasporedu.
 
 ### Meni ⋯ pored paketa
 
