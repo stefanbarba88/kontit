@@ -52,7 +52,9 @@ Prijava i profil su isti kao za radnika. Kad aplikacija tek počinje da se koris
 
 ## Početna strana admina
 
-Pored **Moj pregled**, admin vidi:
+Na računaru su na vrhu tri kolone: **Zadaci** i **Kalendar** (levo), **Podsetnik** (sredina) i **Posebne potvrde** (desno, brojač i do 5 najstarijih stavki sa dugmetom **Pregledaj**). Na telefonu ide jedno ispod drugog tim redom: Zadaci, Podsetnik, Kalendar, Posebne potvrde.
+
+Pored bloka **Zadaci**, admin ispod vidi:
 
 - **Svi timovi**: isto što šef vidi za svoj tim (opterećenje, čeka potvrdu, čeka klijenta, učinak), ali za sve,
 - **Cela firma**:

@@ -3,7 +3,7 @@
 > Claude ažurira ovaj fajl na kraju svakog zadatka. Najnovije ide na vrh.
 
 ## Trenutno stanje
-- Poslednje: **raspored posla po klijentu i po zadatku** (SPEC 8g.5). Sledeće: po dogovoru; 3c „Pretvori u ponavljajući posao“ je odložen.
+- Poslednje: **Podsetnik (preimenovanje) i raspored početne strane** (SPEC 8p, 8p.5); pre toga raspored posla po klijentu i po zadatku (SPEC 8g.5). Sledeće: po dogovoru; 3c „Pretvori u ponavljajući posao“ je odložen.
 - Faza: **UPDATE-POSLOVI-KALENDAR završen** (P1-P11, SPEC 8f-8n): kraći naziv i aktivnosti, neradni dani, kategorije i raspored posla, ugovorene usluge, generisanje sa zamenom, odsustva sa automatskim odobravanjem, dokumenti, kalendar, Google kalendar. Uz faze 0-7, 2b, 3b, 7b i UPDATE-DIZAJN.
 - Sledeće: po dogovoru. **Faza 8 (praćenje vremena) je odložena.** Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
 - Za pravi Google kalendar treba uraditi korake iz `docs/google-calendar-setup.md` (Client ID i Secret u `.env.local`).
@@ -11,6 +11,11 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-13: **Raspored početne strane (SPEC 8p.5)**
+  - CSS grid (`assets/styles/components/dashboard.css`): admin 6/3/3 (Zadaci + Kalendar, Podsetnik, Posebne potvrde), šef i radnik 9/3. Telefon: Zadaci, Podsetnik, Kalendar, Posebne potvrde (redosled blokova u DOM-u). Podsetnik: "+ Dodaj" u zaglavlju, visina prati levu kolonu (min. 320 px), skrol unutar kartice.
+  - Posebne potvrde u uskoj koloni: brojač + do 5 najstarijih (`TaskRepository::awaitingSpecialApproval`) + link. "Moj tim" i "Cela firma" ostaju ispod mreže preko cele širine.
+  - Test: `SpecialApprovalsPageTest` (klase rasporeda, redosled blokova). /_design, SPEC i uputstva ažurirani.
+  - **Neproveren izgled na 390/768/1280/1920 px:** Playwright 1.65 radi kroz `npx`, ali browseri nisu instalirani i nema test naloga za prijavu, pa pregled ostaje za ručnu proveru.
 - 2026-11-13: **Moja lista → Podsetnik**
   - Naziv u UI svuda je „Podsetnik“; URL `/podsetnik`, stari `/moja-lista` vraća 301. Kod (TodoItem, TodoService, nazivi ruta, tabela) nepromenjen.
   - Vremensko obaveštenje se zove „Obavesti me“ / „Obaveštenje“ (notifikacija u zvonu: „Podsetnik: <naslov>“); dugme na zadatku i klijentu je „Dodaj u podsetnik“. U ostalim modulima (dokumenti, odsustva, čekanje potvrde) umesto „podsetnik“ je „obaveštenje“, a „upozorenje“ gde je stvarno upozorenje. „Podsetnik“ znači samo listu.

@@ -82,7 +82,16 @@ class SpecialApprovalsPageTest extends DatabaseTestCase
         self::assertResponseIsSuccessful();
         $html = (string) $this->browser->getResponse()->getContent();
         self::assertStringContainsString('Posebne potvrde', $html);
-        self::assertStringContainsString('Čeka tvoju potvrdu: <strong>2</strong>', $html);
+        self::assertStringContainsString('badge bg-danger ms-auto">2</span>', $html);
+        self::assertStringContainsString('Prvi', $html);
+        self::assertStringContainsString('Drugi', $html);
+        // admin: tri kolone; redosled blokova u DOM-u je redosled na telefonu
+        self::assertStringContainsString('kt-dash kt-dash--wide', $html);
+        $order = array_map(static fn (string $c) => strpos($html, '<section class="'.$c), ['kt-dash-tasks', 'kt-dash-todo', 'kt-dash-calendar', 'kt-dash-special']);
+        self::assertNotContains(false, $order);
+        $sorted = $order;
+        sort($sorted);
+        self::assertSame($sorted, $order);
         self::assertStringContainsString('/tasks/special-approvals', $html);
 
         $this->browser->request('GET', '/tasks/special-approvals');

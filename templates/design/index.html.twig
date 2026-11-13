@@ -384,6 +384,13 @@
                     </div>
                 </div>
             </div>
+            <p class="kt-text-sm text-muted mb-2">Raspored početne (<code>.kt-dash</code>): admin ima tri kolone 6/3/3, šef i radnik dve kolone 9/3 (od 992 px); na telefonu redom Zadaci, Podsetnik, Kalendar, Posebne potvrde. Podsetnik prati visinu leve kolone i skroluje stavke unutar kartice.</p>
+            <div class="kt-dash kt-dash--wide mb-4">
+                <section class="kt-dash-tasks"><div class="card mb-0"><div class="card-body kt-text-sm">Zadaci (6/12)</div></div></section>
+                <section class="kt-dash-todo"><div class="card kt-todo-card mb-0"><div class="card-header d-flex align-items-center gap-2"><h5 class="mb-0">{{ ux_icon('lucide:notebook-pen', {class: 'kt-icon me-2'}) }}Podsetnik</h5><button type="button" class="btn btn-primary btn-sm ms-auto">{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button></div><div class="card-body border-top py-2 kt-dash-todo-body kt-text-sm text-muted">Uska kolona (3/12), unutrašnji skrol</div></div></section>
+                <section class="kt-dash-calendar"><div class="card mb-0"><div class="card-body kt-text-sm">Kalendar</div></div></section>
+                <section class="kt-dash-special"><div class="card mb-0"><div class="card-header d-flex align-items-center gap-2"><h5 class="mb-0">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-2'}) }}Posebne potvrde</h5><span class="badge bg-warning ms-auto">2</span></div><div class="card-body border-top kt-text-sm text-muted">Brojač i kratka lista (3/12)</div></div></section>
+            </div>
             <p class="kt-text-sm text-muted mb-2">SweetAlert prozor za dodavanje i izmenu (isti za panel, stranu, karticu i taster <kbd>n</kbd>). Napredna polja su iza "Više opcija"; u izmeni postoji i crveno "Obriši".</p>
             <div class="swal2-popup kt-swal kt-todo-swal-popup mb-4" style="display: grid; position: static; width: min(460px, 100%);">
                 <h2 class="swal2-title" style="display: block;">Izmena stavke</h2>
