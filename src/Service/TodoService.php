@@ -114,6 +114,12 @@ class TodoService
         return $this->items->countDueBefore($owner, $this->clock->startOfTomorrow());
     }
 
+    /** Broj svih otvorenih stavki: ikonica u topbaru ima tačku kad je veći od 0 */
+    public function openCount(User $owner): int
+    {
+        return $this->items->countOpen($owner);
+    }
+
     /** overdue | today | upcoming | nodue za nezavršenu stavku */
     public function bucket(TodoItem $item): string
     {

@@ -46,6 +46,14 @@
 @keyframes kt-ping { 0% { transform: scale(.6); opacity: .7; } 80%, 100% { transform: scale(1.5); opacity: 0; } }
 .kt-notification-menu { width: min(400px, calc(100vw - 24px)); }
 
+/* ikonica Podsetnika u topbaru je signal: tačka (ima otvorenih) ili crveni broj (zakasnelo / danas) */
+.kt-todo-dot { position: absolute; top: 8px; right: 9px; width: 8px; height: 8px; border-radius: 999px; background: var(--kt-primary); box-shadow: 0 0 0 2px var(--kt-bg); }
+.kt-todo-badge {
+    position: absolute; top: 3px; right: 2px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px;
+    background: var(--kt-danger); color: #fff; font-size: 10px; font-weight: 600; line-height: 16px; text-align: center; box-shadow: 0 0 0 2px var(--kt-bg);
+}
+:root[data-bs-theme="dark"] .kt-todo-badge { color: #1a0505; }
+
 /* zaglavlje strane i sadržaj */
 .kt-page-header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 24px 24px 16px; }
 .kt-page-title { margin: 0; font-family: var(--kt-font-display); font-size: 24px; line-height: 32px; font-weight: 700; letter-spacing: -.015em; color: var(--kt-text); }

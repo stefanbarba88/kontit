@@ -25,6 +25,7 @@ class TodoExtension extends AbstractExtension
     {
         return [
             new TwigFunction('todo_count', $this->count(...)),
+            new TwigFunction('todo_open_count', $this->openCount(...)),
             new TwigFunction('todo_chips', $this->todo->chips(...)),
             new TwigFunction('todo_fields', $this->todo->formValues(...)),
             new TwigFunction('todo_due', $this->todo->dueLabel(...)),
@@ -41,5 +42,13 @@ class TodoExtension extends AbstractExtension
         $user = $this->security->getUser();
 
         return $user instanceof User ? $this->todo->dueCount($user) : 0;
+    }
+
+    /** Da li postoji bilo koja otvorena stavka (tačka na ikonici) */
+    public function openCount(): int
+    {
+        $user = $this->security->getUser();
+
+        return $user instanceof User ? $this->todo->openCount($user) : 0;
     }
 }

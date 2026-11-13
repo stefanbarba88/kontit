@@ -6,7 +6,6 @@ use App\Entity\User;
 use App\Repository\TaskRepository;
 use App\Service\SpecialApprovalService;
 use App\Service\StatisticsService;
-use App\Service\TodoService;
 use App\Service\CalendarService;
 use App\Service\TaskService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,7 +20,6 @@ class DashboardController extends AbstractController
         private readonly CalendarService $calendar,
         private readonly TaskRepository $taskRepository,
         private readonly SpecialApprovalService $specialApprovals,
-        private readonly TodoService $todo,
     ) {
     }
 
@@ -45,10 +43,7 @@ class DashboardController extends AbstractController
             ];
         }
 
-        // Podsetnik: sve otvorene stavke u kartici (privatno, samo moje stavke)
-
         return $this->render('dashboard/index.html.twig', [
-            'todoSections' => $this->todo->sections($me),
             'special' => $special,
             'noReview' => $admin ? $this->stats->noReviewDecisions() : [],
             'me' => $this->stats->forWorker($me),

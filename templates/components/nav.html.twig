@@ -14,3 +14,12 @@
         {% if count > 0 %}<span class="kt-nav-count">{{ count }}</span>{% endif %}
     </a>
 {% endmacro %}
+
+{# Stavka koja otvara bočni panel umesto stranice (Podsetnik): assets/js/todo.js [data-kt-open-todo-panel]; broj se osvežava preko .todo-count #}
+{% macro panel_link(target, icon, label, active = false, count = 0) %}
+    <button type="button" class="kt-nav-link {{ active ? 'is-active' : '' }}" data-kt-open-todo-panel data-bs-target="{{ target }}" data-bs-title="{{ label }}">
+        {{ ux_icon('lucide:' ~ icon, {class: 'kt-icon'}) }}
+        <span class="kt-nav-label">{{ label }}</span>
+        <span class="kt-nav-count todo-count {{ count > 0 ? '' : 'd-none' }}">{{ count }}</span>
+    </button>
+{% endmacro %}

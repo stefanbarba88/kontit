@@ -61,6 +61,14 @@ class TodoItemRepository extends ServiceEntityRepository
             ->getQuery()->getSingleScalarResult();
     }
 
+    /** Broj svih nezavršenih stavki (tačka na ikonici u topbaru) */
+    public function countOpen(User $owner): int
+    {
+        return (int) $this->createQueryBuilder('t')->select('COUNT(t.id)')
+            ->andWhere('t.owner = :owner AND t.isDone = false')->setParameter('owner', $owner)
+            ->getQuery()->getSingleScalarResult();
+    }
+
     /** Pozicija za novu stavku (na kraj "Bez roka") */
     public function nextPosition(User $owner): int
     {

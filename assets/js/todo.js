@@ -22,6 +22,8 @@ if (roots().length) {
             el.textContent = data.count;
             el.classList.toggle('d-none', data.count === 0);
         });
+        // tačka na ikonici: ima otvorenih stavki, a nema zakasnelih ni današnjih (njih pokazuje crveni broj)
+        document.querySelectorAll('.todo-dot').forEach((el) => el.classList.toggle('d-none', !(data.open > 0 && data.count === 0)));
         if (typeof data.html !== 'string') {
             return;
         }
@@ -357,6 +359,21 @@ if (roots().length) {
         }
     });
 
+    // stavka "Podsetnik" u meniju i ikonica u topbaru otvaraju isti panel; ako je otvoren drugi panel (npr. "Više" na telefonu), prvo se on zatvori
+    document.addEventListener('click', (e) => {
+        const opener = e.target.closest('[data-kt-open-todo-panel]');
+        if (!opener || !panel) {
+            return;
+        }
+        const other = document.querySelector('.offcanvas.show:not([data-kt-todo-panel])');
+        if (other) {
+            other.addEventListener('hidden.bs.offcanvas', () => Offcanvas.getOrCreateInstance(panel).show(), { once: true });
+            Offcanvas.getOrCreateInstance(other).hide();
+
+            return;
+        }
+        Offcanvas.getOrCreateInstance(panel).toggle();
+    });
     // panel: sadržaj se učitava pri prvom otvaranju, a na svako otvaranje osvežava
     if (panel) {
         panel.addEventListener('show.bs.offcanvas', refresh);

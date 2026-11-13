@@ -21,6 +21,7 @@
 .kt-nav-group { padding: 20px 12px 6px; font-size: 11px; line-height: 16px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--kt-text-3); white-space: nowrap; }
 .kt-nav-group:first-child { padding-top: 8px; }
 
+button.kt-nav-link { width: 100%; border: 0; background: transparent; text-align: left; font: inherit; font-weight: 500; }
 .kt-nav-link {
     position: relative; display: flex; align-items: center; gap: 12px;
     min-height: 40px; padding: 8px 12px; margin: 1px 0;

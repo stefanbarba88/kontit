@@ -8,17 +8,6 @@
 {% macro pct(value) %}{{ value is null ? '—' : value ~ '%' }}{% endmacro %}
 
 {% block content %}
-    {# Podsetnik: uvek vidljiv "notes" na vrhu, sve otvorene stavke (privatno, samo moje); osvežava se kroz assets/js/todo.js #}
-    <div class="card mb-4 kt-todo-card">
-        <div class="card-header d-flex align-items-center gap-2 flex-wrap">
-            <h5 class="mb-0">{{ ux_icon('lucide:notebook-pen', {class: 'kt-icon me-2'}) }}Podsetnik</h5>
-            <button type="button" class="btn btn-primary btn-sm kt-todo-new ms-auto" data-todo-new>{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button>
-            <a href="{{ path('todo_index') }}" class="btn btn-ghost btn-sm">Otvori ceo podsetnik{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</a>
-        </div>
-        <div class="card-body border-top py-2">
-            {% include 'todo/_body.html.twig' with {sections: todoSections, found: [], query: '', add: false} only %}
-        </div>
-    </div>
     {% if special is not null %}
         <div class="card mb-4">
             <div class="card-body d-flex align-items-center gap-3 flex-wrap">

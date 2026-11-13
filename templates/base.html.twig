@@ -53,7 +53,7 @@
 			{{ nav.link(path('absence_index'), 'plane', 'Odsustva', route starts with 'absence_', pending_absence_count()) }}
 			{{ nav.link(path('task_index'), 'list-checks', 'Zadaci', route starts with 'task_', awaiting_approval_count()) }}
 			{% if is_granted('SPECIAL_APPROVALS_VIEW') %}{{ nav.link(path('special_approvals_index'), 'shield-check', 'Posebne potvrde', route starts with 'special_approvals', special_approval_count()) }}{% endif %}
-			{{ nav.link(path('todo_index'), 'notebook-pen', 'Podsetnik', route starts with 'todo_', todo_count()) }}
+			{{ nav.panel_link('#kt-todo-panel', 'notebook-pen', 'Podsetnik', route starts with 'todo_', todo_count()) }}
 			{{ nav.link(path('calendar_index'), 'calendar-days', 'Kalendar', route starts with 'calendar_') }}
 
 			{% if is_granted('ROLE_SEF') %}
@@ -130,10 +130,13 @@
 					</div>
 				</div>
 
+				{# ikonica je samo signal: tačka = ima otvorenih stavki, crveni broj = zakasnelo ili danas; klik otvara isti panel kao stavka u meniju #}
 				{% set todoCount = todo_count() %}
-				<button type="button" class="kt-icon-btn kt-todo-btn" data-bs-toggle="offcanvas" data-bs-target="#kt-todo-panel" aria-label="Podsetnik" title="Podsetnik">
+				{% set todoOpen = todo_open_count() %}
+				<button type="button" class="kt-icon-btn kt-todo-btn" data-kt-open-todo-panel data-bs-target="#kt-todo-panel" aria-label="Podsetnik" title="Podsetnik">
 					{{ ux_icon('lucide:notebook-pen', {class: 'kt-icon'}) }}
-					<span class="kt-bell-dot todo-count {{ todoCount > 0 ? '' : 'd-none' }}">{{ todoCount }}</span>
+					<span class="kt-todo-dot todo-dot {{ todoOpen > 0 and todoCount == 0 ? '' : 'd-none' }}"></span>
+					<span class="kt-todo-badge todo-count {{ todoCount > 0 ? '' : 'd-none' }}">{{ todoCount }}</span>
 				</button>
 
 				<div class="dropdown" id="notification-bell" data-url="{{ path('ajax_notifications') }}" data-read-all-url="{{ path('ajax_notifications_read_all') }}">

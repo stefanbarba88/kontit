@@ -17,6 +17,7 @@
 .kt-sheet-title { padding: 8px 20px 12px; font-family: var(--kt-font-display); font-weight: 650; font-size: 17px; }
 .kt-sheet-title span { display: block; font-family: var(--kt-font-ui); font-weight: 400; font-size: 13px; color: var(--kt-text-3); }
 .kt-sheet-body { padding: 0 8px 12px; }
+button.kt-sheet-item { width: 100%; border: 0; background: transparent; text-align: left; font: inherit; font-weight: 500; }
 .kt-sheet-item { display: flex; align-items: center; gap: 14px; min-height: 48px; padding: 10px 12px; border-radius: var(--kt-radius-md); color: var(--kt-text); font-weight: 500; }
 .kt-sheet-item .kt-icon { font-size: 20px; color: var(--kt-text-2); }
 .kt-sheet-item:hover { background: var(--kt-surface-3); color: var(--kt-text); }

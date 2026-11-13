@@ -148,7 +148,7 @@ class TodoIntegrationTest extends DatabaseTestCase
         self::assertNotNull($clock);
     }
 
-    public function testDashboardCardShowsOnlyOwnTodayItems(): void
+    public function testDashboardHasNoPodsetnikCardAndTopbarIconIsOnlySignal(): void
     {
         $me = $this->user('Ja');
         $other = $this->user('Drugi');
@@ -159,6 +159,30 @@ class TodoIntegrationTest extends DatabaseTestCase
             $this->todo()->fill($item, ['dueDate' => $clock->today()]);
             $this->todo()->save($item);
         }
+
+        $this->browser->loginUser($me);
+        $this->browser->request('GET', '/');
+        $html = (string) $this->browser->getResponse()->getContent();
+        // nema kartice Podsetnik na početnoj; stavke se vide samo u panelu koji se učitava AJAX-om
+        self::assertStringNotContainsString('kt-todo-card', $html);
+        self::assertStringNotContainsString('Moja danasnja', $html);
+        self::assertStringNotContainsString('Tudja danasnja', $html);
+        // jedna stavka "Podsetnik" u meniju (dugme koje otvara panel), bez linka na stranicu u meniju
+        self::assertSame(1, substr_count($html, 'class="kt-nav-link  "') + substr_count($html, 'class="kt-nav-link is-active"') - substr_count($html, 'href="/podsetnik" class="kt-nav-link'));
+        self::assertSame(1, preg_match_all('/<button[^>]*kt-nav-link[^>]*data-kt-open-todo-panel/', $html));
+        self::assertStringNotContainsString('href="/podsetnik" class="kt-nav-link', $html);
+        self::assertStringContainsString('Otvori celu stranicu', $html);
+        // signal: jedna stavka za danas = crveni broj 1, bez tačke
+        self::assertMatchesRegularExpression('/kt-todo-dot todo-dot d-none/', $html);
+        self::assertMatchesRegularExpression('/kt-todo-badge todo-count\s*">1</', $html);
+    }
+
+    public function testTopbarSignalDotWhenOnlyFutureItemsAndNothingWhenEmpty(): void
+    {
+        $me = $this->user('Ja');
+        $empty = $this->user('Prazan');
+        $this->em->flush();
+        $clock = self::getContainer()->get(TodoClock::class);
         $later = $this->todo()->add($me, 'Za mesec dana');
         $this->todo()->fill($later, ['dueDate' => (new \DateTimeImmutable($clock->today().' +30 days'))->format('Y-m-d')]);
         $this->todo()->save($later);
@@ -166,10 +190,13 @@ class TodoIntegrationTest extends DatabaseTestCase
         $this->browser->loginUser($me);
         $this->browser->request('GET', '/');
         $html = (string) $this->browser->getResponse()->getContent();
-        self::assertStringContainsString('Podsetnik', $html);
-        self::assertStringContainsString('data-todo-new', $html);
-        self::assertStringContainsString('Moja danasnja', $html);
-        self::assertStringNotContainsString('Tudja danasnja', $html);
-        self::assertStringContainsString('Za mesec dana', $html, 'kartica prikazuje sve otvorene stavke, ne samo današnje');
+        self::assertMatchesRegularExpression('/kt-todo-dot todo-dot\s*">/', $html, 'tačka kad ima otvorenih, a nema zakasnelih ni današnjih');
+        self::assertMatchesRegularExpression('/kt-todo-badge todo-count d-none"/', $html);
+
+        $this->browser->loginUser($empty);
+        $this->browser->request('GET', '/');
+        $html = (string) $this->browser->getResponse()->getContent();
+        self::assertMatchesRegularExpression('/kt-todo-dot todo-dot d-none/', $html);
+        self::assertMatchesRegularExpression('/kt-todo-badge todo-count d-none"/', $html);
     }
 }

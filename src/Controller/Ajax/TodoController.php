@@ -265,6 +265,7 @@ class TodoController extends AbstractAjaxController
 
         return [
             'count' => $this->todo->dueCount($me),
+            'open' => $this->todo->openCount($me),
             'html' => $this->renderView('todo/_sections.html.twig', [
                 'sections' => '' === $query ? $this->todo->sections($me) : null,
                 'found' => '' === $query ? [] : $this->todo->search($me, $query),

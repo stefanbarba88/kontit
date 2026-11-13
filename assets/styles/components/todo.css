@@ -80,11 +80,6 @@
 /* --- "+ Dodaj" i kartica na početnoj --- */
 .kt-todo-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .kt-todo-new { display: inline-flex; align-items: center; min-height: 44px; }
-.kt-todo-card .card-header .kt-todo-new { min-height: 44px; }
-@media (min-width: 768px) { .kt-todo-card .card-header .kt-todo-new { min-height: 32px; } }
-.kt-todo-card .kt-todo-list { max-height: 420px; overflow-y: auto; overscroll-behavior: contain; }
-.kt-todo-card .kt-todo-done .kt-todo-item:nth-child(n+11) { display: none; }
-.kt-todo-card .kt-todo-section:last-child { margin-bottom: 0; }
 
 /* --- SweetAlert prozor stavke: stane u ekran, tastatura ne prekriva naslov --- */
 .kt-todo-swal-popup { max-width: 100%; }

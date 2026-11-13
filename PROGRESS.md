@@ -11,6 +11,11 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-13: **Podsetnik: ispravke (bug prozora, navigacija, bez kartice na početnoj)**
+  - Bug: SweetAlert prozor otvoren iz offcanvas panela nije primao unos (Bootstrap focus trap vraćao fokus u panel). Panel se pre prozora zatvara i posle njega vraća (`assets/js/todo.js`, `closePanelIfOpen`). "Dodaj u podsetnik" sa zadatka/klijenta je Bootstrap modal, pa ga bug nije pogađao.
+  - Navigacija: jedna stavka "Podsetnik" u meniju i u "Više" otvara panel (`data-kt-open-todo-panel`); ikonica u topbaru je signal (tačka kad ima otvorenih, crveni broj za zakasnelo + danas, ništa kad je prazno); u panelu je link "Otvori celu stranicu". `/podsetnik` ostaje. `todo_open_count`, `open` u AJAX stanju.
+  - Početna: kartica Podsetnik uklonjena (šablon, kontroler, CSS). Test zamenjen (nema kartice, signal u topbaru).
+  - Provera u pravom browseru (Chromium/Playwright van projekta, privremeni korisnik obrisan posle, skripte nisu u repozitorijumu): na 1280 px i 390 px otvaranje panela iz menija (390 px preko Više) i iz topbara, dodavanje stavke sa naslovom, izmena stavke, Odustani vraća panel, panel se vraća otvoren i lista se osvežava, "Dodaj u podsetnik" sa zadatka, tačka signala i link "Otvori celu stranicu"; bez grešaka u konzoli. Dark tema nije proverena.
 - 2026-11-13: **Početna: vraćen raspored jedna kartica ispod druge**
   - Uklonjena kolonska mreža iz 750458a (`dashboard.css`, `kt-dash*` klase, upit `awaitingSpecialApproval`). Redosled kao pre 750458a: Podsetnik, Posebne potvrde, Naredna nedelja, Zadaci, pa Moj tim / Cela firma. Zadržano: naziv „Zadaci“, „+ Dodaj“ u zaglavlju Podsetnika, preimenovanje, ikonice, SweetAlert. SPEC 8p.5 i /_design ažurirani.
 - 2026-11-13: **UI revizija (Faza B, docs/UI-AUDIT.md)**
