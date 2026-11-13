@@ -11,6 +11,12 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-13: **UI revizija (Faza B, docs/UI-AUDIT.md)**
+  - a) SweetAlert: dugmad su Bootstrap preko jednog mapiranja u `confirm.js` (`btn-primary` / `btn-danger` / `btn-outline-secondary`), primarna prva, bez `reverseButtons`; stilovi polja u prozorima (`swal.css`), na telefonu dugmad jedno ispod drugog. `comments.js` ispravljen.
+  - b) Ikonice: jedna po radnji (tabela u DESIGN.md 9), Podsetnik `notebook-pen`, `upload`, `badge-check` / `check-check` / `circle-check-big` / `square-check`; ručni `<svg>` zamenjen Lucide ikonicama preko `assets/js/icons.js` + `<template id="kt-js-icons">`; ▲▼ zamenjeno sa `trending-up/down`.
+  - c) Rečnik (SPEC 8q): Odustani/Otkaži, Obaveštenja (meni, zvono, stranica), Pretraži, Zatraži potvrdu, mejl, ti umesto vi (tim, prijava, mejl za reset lozinke, servisne poruke), jedan obrazac flash i validacionih poruka, `btn-light` svuda u `btn-outline-secondary`, primarna dugmad prva u svim formama.
+  - d) `tests/Ui/UiRulesTest.php`: pada za `<button>` bez btn klase, polje bez form-control, "Otkaži" van poslovnih radnji, "Odustani" bez `btn-outline-secondary`.
+  - Neproveren izgled (nema browsera): sve u e) tački izveštaja, dark tema i 390 px.
 - 2026-11-13: **Raspored početne strane (SPEC 8p.5)**
   - CSS grid (`assets/styles/components/dashboard.css`): admin 6/3/3 (Zadaci + Kalendar, Podsetnik, Posebne potvrde), šef i radnik 9/3. Telefon: Zadaci, Podsetnik, Kalendar, Posebne potvrde (redosled blokova u DOM-u). Podsetnik: "+ Dodaj" u zaglavlju, visina prati levu kolonu (min. 320 px), skrol unutar kartice.
   - Posebne potvrde u uskoj koloni: brojač + do 5 najstarijih (`TaskRepository::awaitingSpecialApproval`) + link. "Moj tim" i "Cela firma" ostaju ispod mreže preko cele širine.
