@@ -82,7 +82,7 @@
                             <td>{{ user.lastLoginAt ? user.lastLoginAt|date('d.m.Y. H:i') : '—' }}</td>
                             <td class="text-center">
                                 {% if is_granted('USER_EDIT', user) %}
-                                    <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a>
+                                    <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn btn-ghost kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a>
                                 {% endif %}
                             </td>
                         </tr>

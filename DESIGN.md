@@ -249,7 +249,7 @@ Jedna serija je uvek plava. "Plan naspram ostvarenog": plan je neutralna ispreki
   **Fokus**: plava ivica + **prsten od 3px** (`--kt-focus`), sa animacijom od 120 ms.
 - Greška: crvena ivica, crveni prsten i poruka ispod sa ikonicom. Validacija se prikazuje posle napuštanja polja, ne dok se kuca.
 - Duge forme su podeljene u **sekcije sa naslovom levo i poljima desno** (na desktopu), sa lepljivom trakom
-  "Sačuvaj / Otkaži" dole kad ima nesačuvanih izmena.
+  "Sačuvaj / Odustani" dole kad ima nesačuvanih izmena.
 - Select: **Tom Select**, stilizovan istim tokenima (visina, ivica, radius i fokus kao input). PIB, matični broj i broj računa su u monospace fontu.
 
 ### 7.7 Dugmad
@@ -355,6 +355,14 @@ Sve animacije se isključuju za `prefers-reduced-motion: reduce`.
 | Uvoz iz NBS | `cloud-download` |
 | Promena u KPI kartici | `trending-up` / `trending-down` |
 | Izuzetak: naslov događaja u Google kalendaru i ICS koristi znak ✓ jer je tekst u tuđem kalendaru | |
+
+---
+
+## 9a. Dugmad i polja (pravilo, proverava `tests/Ui/UiRulesTest.php`)
+- Svako `<button>` ima `btn` + varijantu (`btn-primary`, `btn-outline-secondary`, `btn-danger`, `btn-ghost`, `btn-link`) ili je dokumentovana komponenta (`kt-icon-btn`, `kt-tchip`, `dropdown-item`...); polja imaju `form-control` / `form-select` / `form-check-input`. Novi izuzetak se upisuje u listu u testu.
+- **Redosled:** primarna radnja je prva (levo na računaru, gore na telefonu, puna širina u bottom sheet-u), "Odustani" (`btn-outline-secondary`) iza nje. Isto važi za forme i SweetAlert prozore (bez `reverseButtons`).
+- "Odustani" izlazi iz forme ili prozora; "Otkaži" samo za poslovne radnje (zadatak, odsustvo). Rečnik: SPEC 8q.
+- SweetAlert: `assets/js/confirm.js` mapira dugmad na Bootstrap klase (`confirmButton: btn btn-primary`, `denyButton: btn btn-danger`, `cancelButton: btn btn-outline-secondary`), a poziv samo dodaje svoje (`confirmButton: 'btn btn-danger'` za opasnu radnju). Polja u HTML-u prozora su obični Bootstrap (`.kt-swal .swal2-html-container .form-control`).
 
 ---
 
@@ -486,7 +494,7 @@ Prelomne tačke: **telefon < 576px**, tablet 576–991px, desktop ≥ 992px. Tes
 ### 16.5 Forme i modali
 - Forme u jednoj koloni. Polja visine **44px**, a font u poljima **16px** (inače iPhone sam zumira stranu pri kucanju).
 - Pravilni tipovi tastature: `inputmode="numeric"` za PIB i matični broj, `inputmode="decimal"` za iznose, `type="email"`, `type="tel"`.
-- Dugmad "Sačuvaj / Otkaži" lepljiva na dnu ekrana.
+- Dugmad "Sačuvaj / Odustani" lepljiva na dnu ekrana.
 - **Modali postaju bottom sheet-ovi**: izlaze odozdo, imaju ručku za povlačenje i zatvaraju se prevlačenjem nadole.
 - SweetAlert na telefonu: puna širina sa marginom od 12px, dugmad jedno ispod drugog (primarno gore).
 

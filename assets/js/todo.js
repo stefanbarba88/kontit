@@ -114,7 +114,7 @@ if (roots().length) {
                     <div class="col-5"><div class="form-check"><input class="form-check-input" type="checkbox" id="kt-td-mail" ${item.remindByEmail ? 'checked' : ''}><label class="form-check-label kt-text-sm" for="kt-td-mail">Obaveštenje na mejl</label></div></div>
                 </div>
                 <label class="form-label kt-text-sm" for="kt-td-client">Klijent (veza)</label>
-                <select id="kt-td-client" placeholder="Bez veze">${item.clientId ? `<option value="${esc(item.clientId)}" selected>${esc(item.clientName)}</option>` : ''}</select>
+                <select id="kt-td-client" class="form-select" placeholder="Bez veze">${item.clientId ? `<option value="${esc(item.clientId)}" selected>${esc(item.clientName)}</option>` : ''}</select>
             </div>
             ${item.convertUrl ? `<div class="mt-3"><a href="${esc(item.convertUrl)}" class="kt-text-sm">Pretvori u zadatak</a></div>` : ''}
         </div>`;

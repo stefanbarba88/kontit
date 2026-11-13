@@ -28,7 +28,7 @@
                             <td>{{ job.estimatedMinutes }} min</td>
                             <td>{{ job.priceUnit.label }}</td>
                             <td>{{ ui.status_badge(job.active) }}</td>
-                            <td><a href="{{ path('admin_job_edit', {id: job.id}) }}" class="btn kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a></td>
+                            <td><a href="{{ path('admin_job_edit', {id: job.id}) }}" class="btn btn-ghost kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a></td>
                         </tr>
                     {% else %}
                         <tr><td colspan="8">{{ ui.empty_state('Katalog je prazan.', 'library') }}</td></tr>

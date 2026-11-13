@@ -61,10 +61,10 @@
                                     <td>{{ entry.name }}{% if entry.note %}<div class="text-muted kt-text-sm">{{ entry.note }}</div>{% endif %}</td>
                                     <td><span class="kt-badge kt-badge-{{ entry.type.color }}">{{ ux_icon('lucide:' ~ entry.type.icon, {class: 'kt-icon me-1'}) }}{{ entry.type.label }}</span></td>
                                     <td class="text-nowrap">
-                                        <a href="{{ path('admin_non_working_edit', {id: entry.id}) }}" class="btn kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a>
+                                        <a href="{{ path('admin_non_working_edit', {id: entry.id}) }}" class="btn btn-ghost kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a>
                                         <form method="post" action="{{ path('admin_non_working_delete', {id: entry.id}) }}" class="d-inline" {{ confirm_attrs('Obrisati „' ~ entry.name ~ '“?', entry.recurring ? 'Praznik se briše za sve godine. Rokovi se više neće pomerati zbog ovih datuma.' : 'Rokovi se više neće pomerati zbog ovih datuma.', 'danger', 'Da, obriši') }}>
                                             <input type="hidden" name="_token" value="{{ csrf_token('non_working_delete_' ~ entry.id) }}">
-                                            <button class="btn kt-btn-icon btn-sm text-danger" title="Obriši">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}</button>
+                                            <button class="btn btn-ghost kt-btn-icon btn-sm text-danger" title="Obriši">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}</button>
                                         </form>
                                     </td>
                                 </tr>

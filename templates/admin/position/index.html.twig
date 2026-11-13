@@ -28,19 +28,19 @@
                     <span class="text-muted kt-text-sm text-nowrap">{{ users }} {{ users % 10 == 1 and users % 100 != 11 ? 'korisnik' : 'korisnika' }}</span>
                     {{ ui.status_badge(position.active) }}
                     <span class="text-nowrap">
-                        <button type="button" class="btn kt-btn-icon btn-sm" title="Izmeni" data-bs-toggle="modal" data-bs-target="#position-modal"
+                        <button type="button" class="btn btn-ghost kt-btn-icon btn-sm" title="Izmeni" data-bs-toggle="modal" data-bs-target="#position-modal"
                                 data-kt-position-edit="{{ path('admin_position_edit', {id: position.id}) }}" data-name="{{ position.name }}" data-description="{{ position.description }}"
                                 data-color="{{ position.color }}" data-capacity="{{ position.monthlyCapacityHours }}" data-role="{{ position.suggestedAccessRole ? position.suggestedAccessRole.value : '' }}" data-review="{{ position.requiresTaskReview ? '1' : '0' }}">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button>
                         {% if used[position.id] is not defined %}
                             <form method="post" action="{{ path('admin_position_delete', {id: position.id}) }}" class="d-inline" {{ confirm_attrs('Obrisati poziciju „' ~ position.name ~ '“?', 'Pozicija nikad nije korišćena, pa se briše trajno.', 'danger', 'Da, obriši') }}>
                                 <input type="hidden" name="_token" value="{{ csrf_token('position_delete_' ~ position.id) }}">
-                                <button class="btn kt-btn-icon btn-sm text-danger" title="Obriši">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}</button>
+                                <button class="btn btn-ghost kt-btn-icon btn-sm text-danger" title="Obriši">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}</button>
                             </form>
                         {% else %}
                             <form method="post" action="{{ path('admin_position_toggle', {id: position.id}) }}" class="d-inline"
                                 {% if position.active %}{{ confirm_attrs('Deaktivirati poziciju „' ~ position.name ~ '“?', 'Pozicija je korišćena (korisnici ili istorija napredovanja), pa ne može da se obriše. Posle deaktivacije se ne nudi u formama, a korisnici koji je imaju je zadržavaju.', 'warning', 'Da, deaktiviraj') }}{% endif %}>
                                 <input type="hidden" name="_token" value="{{ csrf_token('position_toggle_' ~ position.id) }}">
-                                <button class="btn kt-btn-icon btn-sm" title="{{ position.active ? 'Deaktiviraj' : 'Aktiviraj' }}">{{ ux_icon(position.active ? 'lucide:eye-off' : 'lucide:eye', {class: 'kt-icon'}) }}</button>
+                                <button class="btn btn-ghost kt-btn-icon btn-sm" title="{{ position.active ? 'Deaktiviraj' : 'Aktiviraj' }}">{{ ux_icon(position.active ? 'lucide:eye-off' : 'lucide:eye', {class: 'kt-icon'}) }}</button>
                             </form>
                         {% endif %}
                     </span>

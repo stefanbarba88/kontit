@@ -10,7 +10,7 @@
             <div class="kt-segmented" role="radiogroup" aria-label="{{ schedule.type.vars.label }}">
                 {% for choice in schedule.type %}
                     <input type="radio" class="btn-check" id="{{ choice.vars.id }}" name="{{ choice.vars.full_name }}" value="{{ choice.vars.value }}" data-kt-schedule-type {{ choice.vars.checked ? 'checked' }} autocomplete="off">
-                    <label class="btn" for="{{ choice.vars.id }}">{{ choice.vars.label }}</label>
+                    <label class="btn btn-outline-primary" for="{{ choice.vars.id }}">{{ choice.vars.label }}</label>
                     {% do choice.setRendered %}
                 {% endfor %}
             </div>

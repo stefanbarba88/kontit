@@ -39,7 +39,7 @@
             <td class="text-end">
                 {% if can_manage %}
                     <div class="dropdown">
-                        <button type="button" class="btn kt-btn-icon btn-sm" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Radnje">{{ ux_icon('lucide:ellipsis', {class: 'kt-icon'}) }}</button>
+                        <button type="button" class="btn btn-ghost kt-btn-icon btn-sm" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Radnje">{{ ux_icon('lucide:ellipsis', {class: 'kt-icon'}) }}</button>
                         <div class="dropdown-menu dropdown-menu-end">
                             {% if job.excluded %}
                                 <form method="post" action="{{ path('client_job_include', {id: job.id}) }}" {{ confirm_attrs('Ponovo uključiti „' ~ job.jobTemplate.name ~ '“?', 'Zadaci za ovaj posao će se ponovo praviti.', 'info', 'Da, uključi') }}>
@@ -95,7 +95,7 @@
             {% if can_price %}<span class="ms-auto fw-semibold text-nowrap">{{ cp.agreedPrice|number_format(0, ',', '.') }} RSD / mesečno{% if cp.discountPercent %} <span class="kt-badge kt-badge-success ms-1">-{{ cp.discountPercent|number_format(0) }}%</span>{% endif %}</span>{% endif %}
             {% if can_manage %}
                 <div class="dropdown {{ can_price ? '' : 'ms-auto' }}">
-                    <button type="button" class="btn kt-btn-icon btn-sm" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Radnje sa paketom">{{ ux_icon('lucide:ellipsis', {class: 'kt-icon'}) }}</button>
+                    <button type="button" class="btn btn-ghost kt-btn-icon btn-sm" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Radnje sa paketom">{{ ux_icon('lucide:ellipsis', {class: 'kt-icon'}) }}</button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <button type="button" class="dropdown-item" data-bs-toggle="collapse" data-bs-target="#price-{{ cp.id }}">{{ ux_icon('lucide:circle-dollar-sign', {class: 'kt-icon me-2'}) }}Promeni cenu</button>
                         <div class="dropdown-divider"></div>

@@ -19,7 +19,7 @@
                         {% for s in scopes %}
                             {% set scope_icon = {mine: 'user', team: 'users', all: 'building-2'}[s] %}
                             <input type="radio" class="btn-check" name="scope" id="cal-scope-{{ s }}" value="{{ s }}" {{ loop.first ? 'checked' }} autocomplete="off">
-                            <label class="btn" for="cal-scope-{{ s }}">{{ ux_icon('lucide:' ~ scope_icon, {class: 'kt-icon'}) }}{{ {mine: 'Moji', team: 'Moj tim', all: 'Svi'}[s] }}</label>
+                            <label class="btn btn-outline-primary" for="cal-scope-{{ s }}">{{ ux_icon('lucide:' ~ scope_icon, {class: 'kt-icon'}) }}{{ {mine: 'Moji', team: 'Moj tim', all: 'Svi'}[s] }}</label>
                         {% endfor %}
                     </div>
                 {% endif %}

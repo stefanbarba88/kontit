@@ -56,7 +56,7 @@
                                         {% if is_granted('TEAM_MANAGE') and not isLeader %}
                                             <form method="post" action="{{ path('admin_team_member_remove', {id: m.id}) }}" {{ confirm_attrs('Ukloniti radnika iz tima?', 'Radnik ' ~ m.user.fullName ~ ' ostaje u sistemu, ali bez tima.', 'warning', 'Da, ukloni') }}>
                                                 <input type="hidden" name="_token" value="{{ csrf_token('member_remove_' ~ m.id) }}">
-                                                <button class="btn kt-btn-icon btn-sm text-danger" title="Ukloni iz tima">{{ ux_icon('lucide:user-minus', {class: 'kt-icon'}) }}</button>
+                                                <button class="btn btn-ghost kt-btn-icon btn-sm text-danger" title="Ukloni iz tima">{{ ux_icon('lucide:user-minus', {class: 'kt-icon'}) }}</button>
                                             </form>
                                         {% endif %}
                                     </td>

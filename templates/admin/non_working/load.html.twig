@@ -33,7 +33,7 @@
                                         <input class="form-check-input" type="checkbox" name="pick[]" value="{{ loop.index0 }}" id="pick-{{ loop.index0 }}" {{ item.sundayShift ? '' : 'checked' }}>
                                     {% endif %}
                                 </td>
-                                <td class="text-nowrap"><label for="pick-{{ loop.index0 }}">{{ item.from|date('d.m.') }}{% if item.to != item.from %} – {{ item.to|date('d.m.') }}{% endif %}</label> <span class="text-muted kt-text-xs">{{ ['', 'pon', 'uto', 'sre', 'čet', 'pet', 'sub', 'ned'][item.from|date('N')] }}</span></td>
+                                <td class="text-nowrap"><label class="form-check-label" for="pick-{{ loop.index0 }}">{{ item.from|date('d.m.') }}{% if item.to != item.from %} – {{ item.to|date('d.m.') }}{% endif %}</label> <span class="text-muted kt-text-xs">{{ ['', 'pon', 'uto', 'sre', 'čet', 'pet', 'sub', 'ned'][item.from|date('N')] }}</span></td>
                                 <td>{{ item.name }}{% if item.exists %} <span class="kt-text-xs">(već postoji)</span>{% endif %}</td>
                                 <td><span class="kt-badge kt-badge-{{ item.sundayShift ? 'warning' : item.type.color }}">{{ item.sundayShift ? 'Predlog zbog nedelje' : item.type.label }}</span></td>
                             </tr>

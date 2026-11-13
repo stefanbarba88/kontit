@@ -39,7 +39,7 @@ export function initJobPicker(root = document) {
             li.innerHTML = `<div class="d-flex align-items-center gap-2">
                 <span class="kt-drag-handle" aria-hidden="true">${icon('grip-vertical')}</span>
                 <span class="flex-grow-1 min-w-0"><span class="d-block text-truncate">${escape(input.dataset.name)}</span><span class="kt-jp-desc">${escape(input.dataset.describe)}</span></span>
-                <button type="button" class="btn kt-btn-icon btn-sm text-muted" data-kt-jp-remove title="Ukloni" aria-label="Ukloni">${icon('x')}</button>
+                <button type="button" class="btn btn-ghost kt-btn-icon btn-sm text-muted" data-kt-jp-remove title="Ukloni" aria-label="Ukloni">${icon('x')}</button>
                 <input type="hidden" name="${escape(picker.dataset.name)}" value="${escape(input.value)}">
             </div>${extra ? extra.replace(/__ID__/g, escape(input.value)).replace(/__PRICE__/g, escape(input.dataset.price || '')).replace(/__SCHEDULE__/g, escape(input.dataset.schedule || '')).replace(/__DESCRIBE__/g, escape(input.dataset.describe || '')).replace(/__NAME__/g, escape(input.dataset.name || '')) : ''}`;
             chosen.append(li);

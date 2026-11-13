@@ -25,7 +25,7 @@
                             {% if is_granted('PRICE_VIEW') %}<td class="text-end text-nowrap">{{ package.price is not null ? package.price|number_format(2, ',', '.') ~ ' RSD' : '—' }}</td>{% endif %}
                             <td>{{ clientCounts[package.id] }}</td>
                             <td>{{ ui.status_badge(package.active) }}</td>
-                            <td><a href="{{ path('admin_package_edit', {id: package.id}) }}" class="btn kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a></td>
+                            <td><a href="{{ path('admin_package_edit', {id: package.id}) }}" class="btn btn-ghost kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a></td>
                         </tr>
                     {% else %}
                         <tr><td colspan="6">{{ ui.empty_state('Još nema paketa.', 'package') }}</td></tr>

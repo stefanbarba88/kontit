@@ -22,7 +22,7 @@ document.querySelectorAll('form[data-kt-package-attach]').forEach((form) => {
             const dup = existing.includes(String(job.id));
             const li = document.createElement('li');
             li.className = 'list-group-item';
-            li.innerHTML = `<label class="d-flex align-items-start gap-2 mb-0">
+            li.innerHTML = `<label class="form-check-label d-flex align-items-start gap-2 mb-0">
                     <input type="checkbox" class="form-check-input mt-1" name="include[]" value="${job.id}" checked>
                     <span class="flex-grow-1 min-w-0"><span class="d-block">${escape(job.name)}</span><span class="kt-text-sm text-muted">${escape(job.describe)}</span>
                     ${dup ? '<span class="d-block kt-text-sm text-warning">Klijent već ima ovaj posao: neće biti dupliran, zadatak nastaje jednom po periodu.</span>' : ''}</span>
