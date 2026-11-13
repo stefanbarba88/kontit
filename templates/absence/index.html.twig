@@ -79,7 +79,7 @@
                                 <td class="text-end text-nowrap">
                                     {{ _self.edit_link(a) }}
                                     {% if is_granted('ABSENCE_DECIDE', a) %}
-                                        {{ _self.action_form(a, 'approve', 'Odobri', 'btn-success', 'check') }}
+                                        {{ _self.action_form(a, 'approve', 'Odobri', 'btn-success', 'badge-check') }}
                                         {{ _self.action_form(a, 'reject', 'Odbij', 'btn-outline-danger', 'x') }}
                                     {% endif %}
                                     {% if is_granted('ABSENCE_REVOKE', a) %}{{ _self.action_form(a, 'revoke', 'Poništi', 'btn-outline-danger', 'undo-2') }}{% endif %}

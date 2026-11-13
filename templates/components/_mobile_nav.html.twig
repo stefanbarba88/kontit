@@ -54,7 +54,7 @@
             <a href="{{ path('admin_user_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:contact', {class: 'kt-icon'}) }}Korisnici</a>
         {% endif %}
         {% if is_granted('CATALOG_MANAGE') %}
-            <a href="{{ path('admin_job_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:list-checks', {class: 'kt-icon'}) }}Katalog poslova</a>
+            <a href="{{ path('admin_job_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:library', {class: 'kt-icon'}) }}Katalog poslova</a>
             <a href="{{ path('admin_package_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:package', {class: 'kt-icon'}) }}Paketi usluga</a>
             <a href="{{ path('admin_finance') }}" class="kt-sheet-item">{{ ux_icon('lucide:trending-up', {class: 'kt-icon'}) }}Finansije i statistika</a>
         {% endif %}

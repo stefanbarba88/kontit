@@ -334,6 +334,27 @@ Sve animacije se isključuju za `prefers-reduced-motion: reduce`.
   Posle dodavanja novih ikonica: `php bin/console ux:icons:lock` (ikonice se čuvaju lokalno, bez povlačenja sa interneta u produkciji).
 - Veličine 16px (u tekstu i tabelama), 18px (dugmad, meni), 20px (topbar). Boja `--kt-text-2`, a aktivna `--kt-primary`.
 - Ikonica nikad sama bez tooltipa ili labele, osim univerzalnih (zvonce, pretraga, zatvori).
+- **JavaScript** ikonice ne crta ručno: `import { icon } from './icons.js'` i `icon('eye')` uzima ikonicu iz `<template id="kt-js-icons">` (`templates/components/_js_icons.html.twig`, isti `ux_icon`). Nova ikonica se dodaje u tu listu.
+- **Jedna ikonica po radnji** (ista radnja = ista ikonica na svim ekranima, različite radnje = različite ikonice):
+
+| Radnja / pojam | Ikonica |
+|---|---|
+| Zadaci (meni, naslovi, zadatak) | `list-checks` |
+| Podsetnik (meni, topbar, panel, kartica, obaveštenje iz Podsetnika) | `notebook-pen` |
+| Završi stavku Podsetnika / štiklirana stavka checkliste | `square-check` (neštikliran: `square`) |
+| Završi zadatak ili deo kolege | `circle-check-big` |
+| Moj deo je gotov | `check-check` |
+| Odobri / Potvrdi (zadatak, odsustvo, posebna potvrda) | `badge-check` |
+| Sačuvaj | `save` |
+| Checklista (naslov bloka) | `square-check-big` |
+| Katalog poslova | `library` |
+| Dodaj / Novo | `plus` |
+| Izmeni / Obriši | `pencil` / `trash-2` |
+| Izvoz, preuzimanje | `download` |
+| Otpremi (upload) | `upload` |
+| Uvoz iz NBS | `cloud-download` |
+| Promena u KPI kartici | `trending-up` / `trending-down` |
+| Izuzetak: naslov događaja u Google kalendaru i ICS koristi znak ✓ jer je tekst u tuđem kalendaru | |
 
 ---
 

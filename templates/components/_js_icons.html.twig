@@ -1,0 +1,4 @@
+{# Ikonice za HTML koji pravi JavaScript (assets/js/icons.js, icon('naziv')). Dodaj novu ovde pa pokreni ux:icons:lock. #}
+<template id="kt-js-icons">
+    {% for name in ['eye', 'search', 'x', 'filter', 'grip-vertical'] %}<span data-icon="{{ name }}">{{ ux_icon('lucide:' ~ name, {class: 'kt-icon'}) }}</span>{% endfor %}
+</template>

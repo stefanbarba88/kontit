@@ -1,6 +1,7 @@
 // Job picker (SPEC 8h.2): grupe po kategoriji, pretraga, "Izaberi sve u grupi" i lista izabranih sa redosledom.
 // Šalju se skrivena polja name[] u redosledu liste izabranih; checkbox-ovi služe samo za izbor.
 import Sortable from 'sortablejs';
+import { icon } from './icons.js';
 
 const escape = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fold = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'dj');
@@ -36,9 +37,9 @@ export function initJobPicker(root = document) {
             li.className = 'kt-jp-chosen-row';
             li.dataset.id = input.value;
             li.innerHTML = `<div class="d-flex align-items-center gap-2">
-                <span class="kt-drag-handle" aria-hidden="true"><svg viewBox="0 0 24 24" class="kt-icon"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></g></svg></span>
+                <span class="kt-drag-handle" aria-hidden="true">${icon('grip-vertical')}</span>
                 <span class="flex-grow-1 min-w-0"><span class="d-block text-truncate">${escape(input.dataset.name)}</span><span class="kt-jp-desc">${escape(input.dataset.describe)}</span></span>
-                <button type="button" class="btn kt-btn-icon btn-sm text-muted" data-kt-jp-remove title="Ukloni" aria-label="Ukloni"><svg viewBox="0 0 24 24" class="kt-icon"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></g></svg></button>
+                <button type="button" class="btn kt-btn-icon btn-sm text-muted" data-kt-jp-remove title="Ukloni" aria-label="Ukloni">${icon('x')}</button>
                 <input type="hidden" name="${escape(picker.dataset.name)}" value="${escape(input.value)}">
             </div>${extra ? extra.replace(/__ID__/g, escape(input.value)).replace(/__PRICE__/g, escape(input.dataset.price || '')).replace(/__SCHEDULE__/g, escape(input.dataset.schedule || '')).replace(/__DESCRIBE__/g, escape(input.dataset.describe || '')).replace(/__NAME__/g, escape(input.dataset.name || '')) : ''}`;
             chosen.append(li);

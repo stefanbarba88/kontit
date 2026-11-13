@@ -66,9 +66,10 @@ enum NotificationType: string
     public function icon(): string
     {
         return match ($this) {
-            self::TASK_ASSIGNED, self::TODO_REMINDER => 'list-checks',
+            self::TASK_ASSIGNED => 'list-checks',
+            self::TODO_REMINDER => 'notebook-pen',
             self::TASK_SUBMITTED => 'send',
-            self::TASK_APPROVED => 'circle-check',
+            self::TASK_APPROVED => 'badge-check',
             self::TASK_RETURNED => 'undo-2',
             self::TASK_COMMENTED => 'message-square-text',
             self::TASK_DUE_SOON => 'clock',

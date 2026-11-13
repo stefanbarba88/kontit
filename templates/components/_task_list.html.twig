@@ -59,7 +59,7 @@
                         {% if mine and mine.status.value != 'ZAVRSIO' and task.status.workable and is_granted('TASK_COMPLETE', task) %}
                             <form method="post" action="{{ path('task_my_part', {id: task.id, action: 'done'}) }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('task_my_part_' ~ task.id) }}">
-                                <button class="btn btn-success">{{ ux_icon('lucide:check', {class: 'kt-icon'}) }}Moj deo je gotov</button>
+                                <button class="btn btn-success">{{ ux_icon('lucide:check-check', {class: 'kt-icon'}) }}Moj deo je gotov</button>
                             </form>
                         {% endif %}
                         <a href="{{ path('task_show', {id: task.id}) }}" class="btn btn-primary">{{ ux_icon('lucide:arrow-right', {class: 'kt-icon'}) }}Otvori</a>

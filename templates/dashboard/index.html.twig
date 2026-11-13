@@ -12,7 +12,7 @@
        Redosled blokova u DOM-u je redosled na telefonu (Zadaci, Podsetnik, Kalendar, Posebne potvrde); od lg ih raspoređuje CSS grid (assets/styles/components/dashboard.css). #}
     <div class="kt-dash{{ special is not null ? (admin ? ' kt-dash--wide' : ' kt-dash--special') : '' }}">
         <section class="kt-dash-tasks" aria-labelledby="kt-dash-tasks-title">
-            <h5 class="mb-3" id="kt-dash-tasks-title">{{ ux_icon('lucide:circle-user', {class: 'kt-icon me-2'}) }}Zadaci</h5>
+            <h5 class="mb-3" id="kt-dash-tasks-title">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Zadaci</h5>
             <div class="kt-dash-stats">
                 {{ ui.stat_card('list-checks', me.open, 'Otvoreni zadaci', 'primary') }}
                 {{ ui.stat_card('circle-alert', me.overdue, 'Kasne', me.overdue > 0 ? 'danger' : 'success') }}

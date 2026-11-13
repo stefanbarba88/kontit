@@ -1,6 +1,7 @@
 // Telefon (DESIGN.md 16): tabele kao liste (labela iz zaglavlja), filteri u bottom sheet-u, "Učitaj još",
 // prevlačenje sheet-a nadole, swipe akcije na zadacima, dugme nazad i pretraga preko celog ekrana.
 import { Offcanvas, Modal } from 'bootstrap';
+import { icon } from './icons.js';
 
 const phone = () => window.matchMedia('(max-width: 575.98px)').matches;
 
@@ -44,7 +45,7 @@ document.querySelectorAll('form[data-kt-filters]').forEach((form, index) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'btn btn-light kt-filter-btn';
-    button.innerHTML = `<svg viewBox="0 0 24 24" class="kt-icon me-2" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></g></svg>Filteri${active ? ` <span class="kt-filter-count">${active}</span>` : ''}`;
+    button.innerHTML = `${icon('filter', 'me-2')}Filteri${active ? ` <span class="kt-filter-count">${active}</span>` : ''}`;
     button.setAttribute('data-bs-toggle', 'offcanvas');
     button.setAttribute('data-bs-target', `#${sheet.id}`);
     sheet.querySelector('.kt-sheet-body').appendChild(form);

@@ -13,7 +13,7 @@
         <form method="post" action="{{ path('task_approve', {id: task.id}) }}" class="d-inline">
             <input type="hidden" name="_token" value="{{ csrf_token('task_approve_' ~ task.id) }}">
             <input type="hidden" name="returnTo" value="{{ returnTo }}">
-            <button class="btn btn-success {{ compact ? 'btn-sm' }}" {{ confirm_attrs('Potvrditi zadatak?', 'Zadatak „' ~ task.title ~ '“ postaje završen.', 'info', 'Da, potvrdi') }}>{{ ux_icon('lucide:check', {class: 'kt-icon' ~ (compact ? '' : ' me-1')}) }}{% if not compact %}Potvrdi{% endif %}</button>
+            <button class="btn btn-success {{ compact ? 'btn-sm' }}" {{ confirm_attrs('Potvrditi zadatak?', 'Zadatak „' ~ task.title ~ '“ postaje završen.', 'info', 'Da, potvrdi') }}>{{ ux_icon('lucide:badge-check', {class: 'kt-icon' ~ (compact ? '' : ' me-1')}) }}{% if not compact %}Potvrdi{% endif %}</button>
         </form>
         <form method="post" action="{{ path('task_return', {id: task.id}) }}" class="d-inline">
             <input type="hidden" name="_token" value="{{ csrf_token('task_return_' ~ task.id) }}">

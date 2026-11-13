@@ -13,7 +13,7 @@
         {% if item.done %}
             <button type="button" class="btn btn-secondary" data-todo-act="reopen">{{ ux_icon('lucide:undo-2', {class: 'kt-icon'}) }}Vrati</button>
         {% else %}
-            <button type="button" class="btn btn-success" data-todo-act="done">{{ ux_icon('lucide:check', {class: 'kt-icon'}) }}Završi</button>
+            <button type="button" class="btn btn-success" data-todo-act="done">{{ ux_icon('lucide:square-check', {class: 'kt-icon'}) }}Završi</button>
         {% endif %}
         <button type="button" class="btn btn-danger" data-todo-act="delete">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}Obriši</button>
     </div>

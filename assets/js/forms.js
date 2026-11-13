@@ -2,6 +2,7 @@
 // brojač karaktera i tooltip-ovi. Sve se kači preko initForms(root), pa radi i za sadržaj dodat kasnije.
 import TomSelect from 'tom-select';
 import { initDatepickers } from './datepicker.js';
+import { icon } from './icons.js';
 import IMask from 'imask';
 import autosize from 'autosize';
 import { Tooltip } from 'bootstrap';
@@ -69,7 +70,7 @@ function initPasswords(root) {
         toggle.type = 'button';
         toggle.className = 'kt-password-toggle';
         toggle.setAttribute('aria-label', 'Prikaži lozinku');
-        toggle.innerHTML = '<svg viewBox="0 0 24 24" class="kt-icon" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2.06 12.35a1 1 0 0 1 0-.7a10.75 10.75 0 0 1 19.88 0a1 1 0 0 1 0 .7a10.75 10.75 0 0 1-19.88 0"/><circle cx="12" cy="12" r="3"/></g></svg>';
+        toggle.innerHTML = icon('eye');
         toggle.addEventListener('click', () => {
             const show = el.type === 'password';
             el.type = show ? 'text' : 'password';
@@ -102,12 +103,12 @@ function initClearable(root) {
         wrap.className = 'kt-input-icon';
         el.parentNode.insertBefore(wrap, el);
         wrap.appendChild(el);
-        wrap.insertAdjacentHTML('afterbegin', '<svg viewBox="0 0 24 24" class="kt-icon kt-input-icon-start" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21l-4.34-4.34"/><circle cx="11" cy="11" r="8"/></g></svg>');
+        wrap.insertAdjacentHTML('afterbegin', icon('search', 'kt-input-icon-start'));
         const clear = document.createElement('button');
         clear.type = 'button';
         clear.className = 'kt-input-clear';
         clear.setAttribute('aria-label', 'Obriši');
-        clear.innerHTML = '<svg viewBox="0 0 24 24" class="kt-icon" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></g></svg>';
+        clear.innerHTML = icon('x');
         const sync = () => { clear.hidden = el.value === ''; };
         clear.addEventListener('click', () => { el.value = ''; sync(); el.focus(); el.dispatchEvent(new Event('input', { bubbles: true })); });
         el.addEventListener('input', sync);

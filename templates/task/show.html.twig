@@ -60,7 +60,7 @@
                 <div class="d-flex flex-wrap gap-3 align-items-start">
                     <form method="post" action="{{ path('task_approve', {id: task.id}) }}">
                         <input type="hidden" name="_token" value="{{ csrf_token('task_approve_' ~ task.id) }}">
-                        <button class="btn btn-success" {{ confirm_attrs('Potvrditi zadatak?', 'Zadatak postaje završen.', 'info', 'Da, potvrdi') }}>{{ ux_icon('lucide:check', {class: 'kt-icon me-2'}) }}Potvrdi</button>
+                        <button class="btn btn-success" {{ confirm_attrs('Potvrditi zadatak?', 'Zadatak postaje završen.', 'info', 'Da, potvrdi') }}>{{ ux_icon('lucide:badge-check', {class: 'kt-icon me-2'}) }}Potvrdi</button>
                     </form>
                     <form method="post" action="{{ path('task_return', {id: task.id}) }}" class="flex-fill">
                         <input type="hidden" name="_token" value="{{ csrf_token('task_return_' ~ task.id) }}">
@@ -93,7 +93,7 @@
 
             <div class="card">
                 <div class="card-header d-flex align-items-center">
-                    <h5 class="mb-0">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Checklist</h5>
+                    <h5 class="mb-0">{{ ux_icon('lucide:square-check-big', {class: 'kt-icon me-2'}) }}Checklist</h5>
                     <span class="ms-auto text-muted" id="checklist-progress">{{ task.checklistDone }}/{{ task.checklistTotal }}</span>
                 </div>
                 <ul class="list-group list-group-flush border-top" id="checklist">
@@ -205,7 +205,7 @@
                         <form method="post" action="{{ path('task_my_part', {id: task.id, action: 'done'}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('task_my_part_' ~ task.id) }}">
                             <input type="text" name="note" class="form-control mb-2" maxlength="250" placeholder="Napomena (opciono)">
-                            <button class="btn btn-success w-100">{{ ux_icon('lucide:check', {class: 'kt-icon me-2'}) }}Završi deo kolege (zamena)</button>
+                            <button class="btn btn-success w-100">{{ ux_icon('lucide:circle-check-big', {class: 'kt-icon me-2'}) }}Završi deo kolege (zamena)</button>
                         </form>
                     </div>
                 {% endif %}
@@ -227,7 +227,7 @@
                             <form method="post" action="{{ path('task_my_part', {id: task.id, action: 'done'}) }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('task_my_part_' ~ task.id) }}">
                                 <input type="text" name="note" class="form-control mb-2" maxlength="250" placeholder="Napomena (opciono)">
-                                <button class="btn btn-success w-100" {% if finishes_without_review(task, app.user) %}{{ confirm_attrs('Završiti zadatak bez provere?', 'Zadatak će biti završen bez provere.', 'info', 'Da, završi') }}{% endif %}>{{ ux_icon('lucide:check', {class: 'kt-icon me-2'}) }}Moj deo je gotov</button>
+                                <button class="btn btn-success w-100" {% if finishes_without_review(task, app.user) %}{{ confirm_attrs('Završiti zadatak bez provere?', 'Zadatak će biti završen bez provere.', 'info', 'Da, završi') }}{% endif %}>{{ ux_icon('lucide:check-check', {class: 'kt-icon me-2'}) }}Moj deo je gotov</button>
                             </form>
                         {% endif %}
                     </div>
@@ -249,7 +249,7 @@
         <div class="kt-mobile-actionbar">
             <form method="post" action="{{ path('task_my_part', {id: task.id, action: 'done'}) }}">
                 <input type="hidden" name="_token" value="{{ csrf_token('task_my_part_' ~ task.id) }}">
-                <button class="btn btn-success" {% if finishes_without_review(task, app.user) %}{{ confirm_attrs('Završiti zadatak bez provere?', 'Zadatak će biti završen bez provere.', 'info', 'Da, završi') }}{% endif %}>{{ ux_icon('lucide:check', {class: 'kt-icon me-2'}) }}Moj deo je gotov</button>
+                <button class="btn btn-success" {% if finishes_without_review(task, app.user) %}{{ confirm_attrs('Završiti zadatak bez provere?', 'Zadatak će biti završen bez provere.', 'info', 'Da, završi') }}{% endif %}>{{ ux_icon('lucide:check-check', {class: 'kt-icon me-2'}) }}Moj deo je gotov</button>
             </form>
         </div>
     {% endif %}

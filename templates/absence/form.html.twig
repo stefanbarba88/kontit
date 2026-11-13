@@ -53,7 +53,7 @@
         <a href="{{ path('absence_index') }}" class="btn btn-light">Otkaži</a>
         {% if editing %}
             <button type="submit" class="btn btn-primary" data-kt-absence-submit
-                    {{ confirm_attrs('Sačuvati izmenu odsustva?', absence.user.fullName ~ ': ' ~ absence.summary ~ '. Izmena se beleži u istoriju' ~ (absence.user != me ? ', a radnik dobija obaveštenje.' : '.'), 'warning', 'Da, sačuvaj') }}>Sačuvaj izmenu{{ ux_icon('lucide:check', {class: 'kt-icon ms-2'}) }}</button>
+                    {{ confirm_attrs('Sačuvati izmenu odsustva?', absence.user.fullName ~ ': ' ~ absence.summary ~ '. Izmena se beleži u istoriju' ~ (absence.user != me ? ', a radnik dobija obaveštenje.' : '.'), 'warning', 'Da, sačuvaj') }}>Sačuvaj izmenu{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
         {% else %}
             <button class="btn btn-primary" data-kt-absence-submit>{{ canChooseUser ? 'Sačuvaj' : 'Pošalji zahtev' }}{{ ux_icon('lucide:send', {class: 'kt-icon ms-2'}) }}</button>
         {% endif %}
