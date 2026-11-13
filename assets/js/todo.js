@@ -121,12 +121,24 @@ if (roots().length) {
     };
 
     const blank = { title: '', note: '', dueDate: '', dueTime: '', remindDate: '', remindTime: '', repeat: 'NONE', remindByEmail: false, clientId: null, clientName: null };
+    const panel = document.querySelector('[data-kt-todo-panel]');
     let dialogOpen = false;
+    const closePanelIfOpen = () => new Promise((resolve) => {
+        if (!panel || !panel.classList.contains('show')) {
+            resolve(false);
+
+            return;
+        }
+        panel.addEventListener('hidden.bs.offcanvas', () => resolve(true), { once: true });
+        Offcanvas.getOrCreateInstance(panel).hide();
+    });
     const openDialog = async (item = null) => {
         if (dialogOpen) {
             return;
         }
         dialogOpen = true;
+        // Bootstrap offcanvas drži focus trap, pa prozor u <body> ne bi dobio unos: panel se zatvara dok je prozor otvoren, pa se vraća
+        const reopenPanel = await closePanelIfOpen();
         const editing = Boolean(item?.id);
         const chips = panelData('chips');
         let saved = '';
@@ -246,6 +258,9 @@ if (roots().length) {
             });
         } finally {
             dialogOpen = false;
+            if (reopenPanel) {
+                Offcanvas.getOrCreateInstance(panel).show();
+            }
         }
         if (saved) {
             toast(saved);
@@ -343,7 +358,6 @@ if (roots().length) {
     });
 
     // panel: sadržaj se učitava pri prvom otvaranju, a na svako otvaranje osvežava
-    const panel = document.querySelector('[data-kt-todo-panel]');
     if (panel) {
         panel.addEventListener('show.bs.offcanvas', refresh);
     }
