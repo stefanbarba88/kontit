@@ -23,6 +23,17 @@ final class ScheduleImpact
         return \count($this->moves);
     }
 
+    /**
+     * Isti uticaj bez jednog zadatka (npr. onog čiji rok se baš ručno postavlja, pa ga preračun ne dira).
+     */
+    public function without(Task $task): self
+    {
+        return new self(
+            array_values(array_filter($this->moves, static fn (array $m) => $m['task'] !== $task)),
+            array_values(array_filter($this->stranded, static fn (Task $t) => $t !== $task)),
+        );
+    }
+
     public function merge(self $other): void
     {
         $this->moves = [...$this->moves, ...$other->moves];

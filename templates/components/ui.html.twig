@@ -91,6 +91,11 @@
         <span class="{{ task.overdue ? 'text-danger fw-semibold' : '' }}">
             {% if task.overdue %}{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon me-1'}) }}{% endif %}{{ task.dueDate|date('d.m.Y.') }}
         </span>
+        {% if task.dueDateManuallySet %}
+            {% set default_due = task_default_due(task) %}
+            {# ručno promenjen rok (SPEC 8g.4): generator i izmena rasporeda ga ne diraju #}
+            <span class="kt-due-manual text-muted ms-1" data-bs-toggle="tooltip" title="Rok ručno promenjen{{ default_due ? ', podrazumevano je ' ~ (default_due|date('Y-m') == task.dueDate|date('Y-m') ? default_due|date('j') ~ '.' : default_due|date('d.m.Y.')) }}" aria-label="Rok ručno promenjen">{{ ux_icon('lucide:pencil-line', {class: 'kt-icon'}) }}</span>
+        {% endif %}
     {% else %}
         <span class="text-muted">—</span>
     {% endif %}

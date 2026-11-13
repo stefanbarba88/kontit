@@ -155,6 +155,28 @@
                 </div>
             </div>
 
+            {% if is_granted('TASK_EDIT', task) %}
+                {% set scheduled = task.clientJob and task.periodKey %}
+                {% set default_due = task_default_due(task) %}
+                <div class="card">
+                    <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:calendar-clock', {class: 'kt-icon me-2'}) }}Rok i raspored</h5></div>
+                    <div class="card-body border-top">
+                        {% if scheduled %}
+                            <p class="kt-text-sm mb-2">Raspored posla: <strong>{{ schedule_describe(task_schedule(task), true) }}</strong>{% if task.clientJob.hasScheduleOverride %} <span class="kt-badge kt-badge-info ms-1">Prilagođeno</span>{% endif %}</p>
+                        {% endif %}
+                        {% if task.dueDateManuallySet %}
+                            <p class="kt-text-sm text-muted mb-2">{{ ux_icon('lucide:pencil-line', {class: 'kt-icon me-1'}) }}Rok je ručno promenjen{% if default_due %}, podrazumevano je {{ default_due|date('d.m.Y.') }}{% endif %}. Raspored ga ne preračunava.</p>
+                        {% endif %}
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-light btn-sm" data-kt-task-due="change" data-url="{{ path('ajax_task_due_change', {id: task.id}) }}" data-preview-url="{{ path('ajax_task_due_preview', {id: task.id}) }}" data-due="{{ task.dueDate ? task.dueDate|date('Y-m-d') }}" data-can-future="{{ scheduled and is_granted('CATALOG_MANAGE') ? '1' : '0' }}">{{ ux_icon('lucide:calendar-clock', {class: 'kt-icon me-2'}) }}Promeni rok</button>
+                            {% if task.dueDateManuallySet and default_due %}
+                                <button type="button" class="btn btn-light btn-sm" data-kt-task-due="reset" data-url="{{ path('ajax_task_due_change', {id: task.id}) }}" data-default="{{ default_due|date('d.m.Y.') }}">{{ ux_icon('lucide:rotate-ccw', {class: 'kt-icon me-2'}) }}Vrati na podrazumevani rok</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
             <div class="card">
                 <div class="card-header d-flex align-items-center">
                     <h5 class="mb-0">Učesnici</h5>

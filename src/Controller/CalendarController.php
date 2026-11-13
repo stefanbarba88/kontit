@@ -9,6 +9,7 @@ use App\Repository\UserRepository;
 use App\Service\AbsenceOverview;
 use App\Service\CalendarService;
 use App\Service\IcsExporter;
+use App\Service\TaskDueService;
 use App\Service\WorkingDayService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -67,7 +68,7 @@ class CalendarController extends AbstractController
      * Prevlačenje zadatka na drugi dan menja rok (samo uz TASK_EDIT); vraća upozorenje ako je dan neradni.
      */
     #[Route('/ajax/tasks/{id}/due', name: 'ajax_task_due', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function moveDue(Request $request, Task $task, EntityManagerInterface $em, WorkingDayService $workingDays): JsonResponse
+    public function moveDue(Request $request, Task $task, TaskDueService $due, WorkingDayService $workingDays): JsonResponse
     {
         if (!$this->isGranted('TASK_EDIT', $task)) {
             return new JsonResponse(['success' => false, 'data' => null, 'message' => 'Ne možeš da menjaš rok ovog zadatka.'], 403);
@@ -76,8 +77,8 @@ class CalendarController extends AbstractController
         if (false === $date) {
             return new JsonResponse(['success' => false, 'data' => null, 'message' => 'Neispravan datum.'], 400);
         }
-        $task->setDueDate($date);
-        $em->flush();
+        // ručno pomeren rok važi samo za ovaj zadatak (SPEC 8g.4)
+        $due->setDue($task, $date, false, false, null);
 
         return new JsonResponse(['success' => true, 'data' => ['due' => $date->format('Y-m-d'), 'nonWorking' => $workingDays->reason($date)], 'message' => 'Rok je promenjen na '.$date->format('d.m.Y.').'.']);
     }

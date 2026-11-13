@@ -39,6 +39,7 @@ import './js/activity.js';
 import './js/checklist-editor.js';
 import './js/schedule-form.js';
 import './js/schedule-customize.js';
+import './js/task-due.js';
 import './js/catalog.js';
 import './js/positions.js';
 import './js/review.js';
