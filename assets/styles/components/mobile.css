@@ -123,8 +123,8 @@
     /* SweetAlert: puna širina sa 12px margine, dugmad jedno ispod drugog (primarno gore) */
     .swal2-container { padding: 12px !important; }
     .swal2-popup.kt-swal { width: 100% !important; }
-    .kt-swal .swal2-actions { flex-direction: column-reverse; width: 100%; }
-    .kt-swal .swal2-actions .swal2-styled { width: 100%; min-height: 44px; margin: 0; }
+    .kt-swal .swal2-actions { flex-direction: column; width: 100%; }
+    .kt-swal .swal2-actions .btn { width: 100%; min-height: 44px; margin: 0; }
     body.swal2-toast-shown .swal2-container.swal2-top-end { top: calc(56px + env(safe-area-inset-top)) !important; width: 100%; padding: 8px 12px !important; }
 
     /* dodir: najmanje 44x44 */

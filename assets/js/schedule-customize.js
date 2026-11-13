@@ -152,7 +152,6 @@ async function changeExisting(button, schedule) {
         showCancelButton: true,
         confirmButtonText: schedule ? 'Da, primeni' : 'Da, vrati',
         cancelButtonText: 'Odustani',
-        customClass: { confirmButton: 'btn kt-btn-confirm', cancelButton: 'btn', popup: 'kt-swal text-start' },
     });
     if (!answer.isConfirmed) {
         return;

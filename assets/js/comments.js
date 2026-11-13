@@ -31,7 +31,7 @@ if ($page.length) {
         const $editor = $('<div class="comment-editor"></div>')
             .append($('<textarea class="form-control mb-2" rows="3"></textarea>').val(text))
             .append('<button type="button" class="btn btn-sm btn-primary me-2 comment-edit-save">Sačuvaj</button>')
-            .append('<button type="button" class="btn btn-sm btn-light comment-edit-cancel">Otkaži</button>');
+            .append('<button type="button" class="btn btn-sm btn-outline-secondary comment-edit-cancel">Odustani</button>');
 
         $body.addClass('d-none').after($editor);
         $(this).addClass('d-none');

@@ -143,7 +143,7 @@ if (roots().length) {
                 focusCancel: false,
                 focusConfirm: false,
                 returnFocus: false,
-                customClass: { popup: 'kt-swal kt-todo-swal-popup', container: 'kt-todo-swal', confirmButton: 'btn kt-btn-confirm', cancelButton: 'btn', denyButton: 'btn kt-btn-danger' },
+                customClass: { popup: 'kt-swal text-start kt-todo-swal-popup', container: 'kt-todo-swal' },
                 didOpen: (popup) => {
                     initDatepickers(popup);
                     const $ = (sel) => popup.querySelector(sel);

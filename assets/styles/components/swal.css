@@ -10,12 +10,17 @@
 .kt-swal .swal2-title { font-family: var(--kt-font-display); font-size: 18px; font-weight: 650; letter-spacing: -.01em; color: var(--kt-text); padding: 0; }
 .kt-swal .swal2-html-container { font-size: 14px; color: var(--kt-text-2); margin: 8px 0 0; }
 .kt-swal .swal2-actions { gap: 8px; margin-top: 20px; }
-.kt-swal .swal2-styled { border-radius: var(--kt-radius-md); font-weight: 500; font-size: 14px; min-height: 36px; padding: 0 16px; box-shadow: none; }
-.kt-swal .swal2-styled:focus { box-shadow: 0 0 0 3px var(--kt-focus); }
-.kt-swal .swal2-confirm.kt-btn-confirm { background: var(--kt-primary); color: var(--kt-on-primary); }
-.kt-swal .swal2-confirm.kt-btn-danger { background: var(--kt-danger); color: #fff; }
-:root[data-bs-theme="dark"] .kt-swal .swal2-confirm.kt-btn-danger { color: #1a0505; }
-.kt-swal .swal2-cancel { background: var(--kt-surface); color: var(--kt-text); border: 1px solid var(--kt-border-strong); }
+.kt-swal .swal2-actions { justify-content: flex-start; }
+/* dugmad su Bootstrap (btn btn-primary / btn-outline-secondary / btn-danger) iz confirm.js; primarna radnja je prva */
+.kt-swal .swal2-actions .btn { margin: 0; }
+
+/* polja u HTML-u prozora (components/forms) izgledaju kao u formama */
+.kt-swal .swal2-html-container { text-align: left; overflow-x: hidden; }
+.kt-swal .swal2-html-container .form-label { display: block; margin-bottom: 4px; color: var(--kt-text); }
+.kt-swal .swal2-html-container .form-control,
+.kt-swal .swal2-html-container .form-select { width: 100%; margin: 0; }
+.kt-swal .swal2-html-container .btn-group { flex-wrap: wrap; }
+.kt-swal .swal2-html-container .form-check { margin-bottom: 0; }
 .kt-swal .swal2-input, .kt-swal .swal2-textarea { border: 1px solid var(--kt-border-strong); border-radius: var(--kt-radius-md); background: var(--kt-surface); color: var(--kt-text); box-shadow: none; }
 .kt-swal .swal2-input:focus, .kt-swal .swal2-textarea:focus { border-color: var(--kt-brand-500); box-shadow: 0 0 0 3px var(--kt-focus); }
 

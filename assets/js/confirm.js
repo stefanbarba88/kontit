@@ -12,22 +12,30 @@ import Swal from 'sweetalert2';
  * Potvrda je samo UI sloj: bez JS-a forma ide običnim POST-om, a server proverava Voter i CSRF.
  */
 const buttons = {
-    info: 'btn kt-btn-confirm',
-    warning: 'btn kt-btn-confirm',
-    danger: 'btn kt-btn-danger',
+    info: 'btn btn-primary',
+    warning: 'btn btn-primary',
+    danger: 'btn btn-danger',
+};
+
+// Dugmad u svim prozorima su Bootstrap dugmad: primarna radnja je prva (levo na računaru, gore na telefonu), Odustani iza nje.
+const baseClasses = {
+    confirmButton: 'btn btn-primary',
+    denyButton: 'btn btn-danger',
+    cancelButton: 'btn btn-outline-secondary',
+    popup: 'kt-swal text-start',
 };
 
 const icons = { info: 'info', warning: 'warning', danger: 'warning' };
 
 const swal = Swal.mixin({
     buttonsStyling: false,
-    reverseButtons: true,
     focusCancel: true,
-    customClass: { cancelButton: 'btn', confirmButton: '', popup: 'kt-swal text-start' },
 });
 
+const fire = (options) => swal.fire({ ...options, customClass: { ...baseClasses, ...options.customClass } });
+
 /** Dijalog sa istim izgledom (mixin) za module koji grade svoj sadržaj, npr. prozor stavke Podsetnika. */
-export const swalFire = (options) => swal.fire(options);
+export const swalFire = (options) => fire(options);
 
 const toaster = Swal.mixin({
     toast: true,
@@ -65,7 +73,7 @@ export function undoToast(message, onUndo, seconds = 5) {
             showConfirmButton: true,
             confirmButtonText: 'Poništi',
             timer: seconds * 1000,
-            customClass: { popup: 'kt-toast', confirmButton: 'btn btn-sm btn-light kt-toast-undo' },
+            customClass: { popup: 'kt-toast', confirmButton: 'btn btn-sm btn-outline-secondary kt-toast-undo' },
         })
         .then((result) => {
             if (result.isConfirmed) {
@@ -89,7 +97,7 @@ export function reminderToast(title) {
             showDenyButton: true,
             denyButtonText: 'Odloži',
             timer: 60000,
-            customClass: { popup: 'kt-toast', confirmButton: 'btn btn-sm btn-primary', denyButton: 'btn btn-sm btn-light' },
+            customClass: { popup: 'kt-toast', confirmButton: 'btn btn-sm btn-primary', denyButton: 'btn btn-sm btn-outline-secondary' },
         })
         .then((result) => (result.isConfirmed ? 'done' : (result.isDenied ? 'snooze' : null)));
 }
@@ -98,8 +106,7 @@ export function reminderToast(title) {
  * Izbor odlaganja podsetnika: '10m' | '1h' | 'tomorrow' (sutra 9:00, sledeći radni dan) ili null.
  */
 export function snoozeDialog() {
-    return swal
-        .fire({
+    return fire({
             title: 'Odloži obaveštenje',
             input: 'select',
             inputOptions: { '10m': '10 minuta', '1h': '1 sat', tomorrow: 'Sutra u 9:00 (sledeći radni dan)' },
@@ -107,7 +114,7 @@ export function snoozeDialog() {
             showCancelButton: true,
             confirmButtonText: 'Odloži',
             cancelButtonText: 'Odustani',
-            customClass: { confirmButton: 'btn kt-btn-confirm', cancelButton: 'btn', popup: 'kt-swal text-start', input: 'form-select' },
+            customClass: { input: 'form-select' },
         })
         .then((result) => (result.isConfirmed ? result.value : null));
 }
@@ -137,15 +144,14 @@ export function confirmDialog(options) {
         html.push(`<textarea class="form-control swal-reason mt-2" rows="3" maxlength="255" placeholder="${needsReason ? 'Razlog (obavezno)' : 'Napomena (neobavezno)'}"></textarea>`);
     }
 
-    return swal
-        .fire({
+    return fire({
             title: options.message,
             text: html.length ? undefined : options.text,
             icon: icons[type],
             showCancelButton: true,
             confirmButtonText: options.button || 'Potvrdi',
             cancelButtonText: 'Odustani',
-            customClass: { confirmButton: buttons[type], cancelButton: 'btn', popup: 'kt-swal text-start' },
+            customClass: { confirmButton: buttons[type] },
             html: html.length ? `<p class="mb-2 text-muted">${$('<div>').text(options.text || '').html()}</p>${html.join('')}` : undefined,
             didOpen: (popup) => {
                 $(popup).find('.swal-type-name').text(typeName);

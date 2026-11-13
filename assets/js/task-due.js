@@ -114,7 +114,6 @@ document.addEventListener('click', async (e) => {
             showCancelButton: true,
             confirmButtonText: 'Da, vrati',
             cancelButtonText: 'Odustani',
-            customClass: { confirmButton: 'btn kt-btn-confirm', cancelButton: 'btn', popup: 'kt-swal text-start' },
         });
         if (!answer.isConfirmed) {
             return;
