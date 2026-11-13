@@ -111,7 +111,7 @@
         </div>
     {% endif %}
     <div class="col-12 col-xl-3 d-flex align-items-center gap-2">
-        <button class="btn btn-light flex-fill" type="submit">{{ ux_icon('lucide:filter', {class: 'kt-icon me-2'}) }}Traži{% if f.activeCount %} <span class="kt-filter-count">{{ f.activeCount }}</span>{% endif %}</button>
+        <button class="btn btn-outline-secondary flex-fill" type="submit">{{ ux_icon('lucide:filter', {class: 'kt-icon me-2'}) }}Pretraži{% if f.activeCount %} <span class="kt-filter-count">{{ f.activeCount }}</span>{% endif %}</button>
         <a href="{{ path(list.route, list.routeParams|merge({tab: f.tab != 'all' ? f.tab : null})) }}" class="btn btn-ghost" title="Poništi filtere" aria-label="Poništi filtere">{{ ux_icon('lucide:x', {class: 'kt-icon'}) }}Poništi{% if f.activeCount %} ({{ f.activeCount }}){% endif %}</a>
     </div>
 </form>

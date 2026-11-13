@@ -78,6 +78,6 @@
                 <div class="d-flex gap-2 mb-3"><div class="kt-skeleton rounded-circle flex-shrink-0" style="width: 24px; height: 24px;"></div><div class="flex-grow-1"><div class="kt-skeleton mb-2" style="width: 55%;"></div><div class="kt-skeleton" style="width: 80%;"></div></div></div>
             {% endfor %}
         </div>
-        <button type="button" class="btn btn-light w-100 kt-tl-more" data-kt-activity-more{% if not page.hasMore %} hidden{% endif %}>Učitaj još</button>
+        <button type="button" class="btn btn-outline-secondary w-100 kt-tl-more" data-kt-activity-more{% if not page.hasMore %} hidden{% endif %}>Učitaj još</button>
     </div>
 {% endmacro %}

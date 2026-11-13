@@ -6,7 +6,7 @@
 {% block breadcrumbs %}<span class="breadcrumb-item">Podešavanja</span><span class="breadcrumb-item active">Neradni dani</span>{% endblock %}
 
 {% block page_actions %}
-    <a href="{{ path('admin_non_working_load', {year: year}) }}" class="btn btn-light me-2">{{ ux_icon('lucide:download', {class: 'kt-icon me-2'}) }}Učitaj praznike Srbije za {{ year }}.</a>
+    <a href="{{ path('admin_non_working_load', {year: year}) }}" class="btn btn-outline-secondary me-2">{{ ux_icon('lucide:download', {class: 'kt-icon me-2'}) }}Učitaj praznike Srbije za {{ year }}.</a>
     <a href="{{ path('admin_non_working_new') }}" class="btn btn-primary">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Dodaj</a>
 {% endblock %}
 

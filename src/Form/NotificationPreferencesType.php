@@ -10,7 +10,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Koje vrste obaveštenja korisnik uvek želi i na mail (User::emailNotifications). U aplikaciji dolaze sva.
+ * Koje vrste obaveštenja korisnik uvek želi i na mejl (User::emailNotifications). U aplikaciji dolaze sva.
  */
 class NotificationPreferencesType extends AbstractType
 {
@@ -18,7 +18,7 @@ class NotificationPreferencesType extends AbstractType
     {
         $choices = [];
         foreach (NotificationType::cases() as $type) {
-            // podsetnik iz Podsetnika ide na mail po izboru na samoj stavci, ne preko podešavanja profila
+            // podsetnik iz Podsetnika ide na mejl po izboru na samoj stavci, ne preko podešavanja profila
             if (NotificationType::TODO_REMINDER === $type) {
                 continue;
             }
@@ -26,7 +26,7 @@ class NotificationPreferencesType extends AbstractType
         }
 
         $builder->add('emailNotifications', ChoiceType::class, [
-            'label' => 'Uvek pošalji i na mail kada:',
+            'label' => 'Uvek pošalji i na mejl kada:',
             'choices' => $choices,
             'multiple' => true,
             'expanded' => true,

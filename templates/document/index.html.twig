@@ -12,7 +12,7 @@
 
 {% block page_actions %}
     {% if is_granted('ROLE_ADMIN') %}
-        <a href="{{ path('user_documents', {id: person.id, trash: trash ? null : 1}) }}" class="btn btn-light">{{ ux_icon(trash ? 'lucide:arrow-right' : 'lucide:trash-2', {class: 'kt-icon me-2'}) }}{{ trash ? 'Nazad na dokumente' : 'Korpa' }}</a>
+        <a href="{{ path('user_documents', {id: person.id, trash: trash ? null : 1}) }}" class="btn btn-outline-secondary">{{ ux_icon(trash ? 'lucide:arrow-right' : 'lucide:trash-2', {class: 'kt-icon me-2'}) }}{{ trash ? 'Nazad na dokumente' : 'Korpa' }}</a>
     {% endif %}
 {% endblock %}
 
@@ -23,8 +23,8 @@
         <div class="{{ canUpload and not trash ? 'col-xl-8' : 'col-12' }}">
             {% if not trash %}
                 <div class="d-flex flex-wrap gap-2 mb-3" role="group" aria-label="Kategorije">
-                    <a href="{{ path('user_documents', {id: person.id}) }}" class="btn btn-sm {{ categoryId ? 'btn-light' : 'btn-primary' }}">Sve</a>
-                    {% for c in categories %}<a href="{{ path('user_documents', {id: person.id, category: c.id}) }}" class="btn btn-sm {{ categoryId == c.id ? 'btn-primary' : 'btn-light' }}">{{ c.name }}</a>{% endfor %}
+                    <a href="{{ path('user_documents', {id: person.id}) }}" class="btn btn-sm {{ categoryId ? 'btn-outline-secondary' : 'btn-primary' }}">Sve</a>
+                    {% for c in categories %}<a href="{{ path('user_documents', {id: person.id, category: c.id}) }}" class="btn btn-sm {{ categoryId == c.id ? 'btn-primary' : 'btn-outline-secondary' }}">{{ c.name }}</a>{% endfor %}
                 </div>
             {% endif %}
             {% for group in groups %}

@@ -111,7 +111,7 @@ if (roots().length) {
                 <div class="kt-todo-chips mb-3">${remindChips}</div>
                 <div class="row g-2 mb-3 align-items-end">
                     <div class="col-7"><label class="form-label kt-text-sm" for="kt-td-repeat">Ponavljanje</label><select class="form-select" id="kt-td-repeat" data-native>${repeats}</select></div>
-                    <div class="col-5"><div class="form-check"><input class="form-check-input" type="checkbox" id="kt-td-mail" ${item.remindByEmail ? 'checked' : ''}><label class="form-check-label kt-text-sm" for="kt-td-mail">Obaveštenje na mail</label></div></div>
+                    <div class="col-5"><div class="form-check"><input class="form-check-input" type="checkbox" id="kt-td-mail" ${item.remindByEmail ? 'checked' : ''}><label class="form-check-label kt-text-sm" for="kt-td-mail">Obaveštenje na mejl</label></div></div>
                 </div>
                 <label class="form-label kt-text-sm" for="kt-td-client">Klijent (veza)</label>
                 <select id="kt-td-client" placeholder="Bez veze">${item.clientId ? `<option value="${esc(item.clientId)}" selected>${esc(item.clientName)}</option>` : ''}</select>
@@ -138,7 +138,7 @@ if (roots().length) {
                 showCancelButton: true,
                 showDenyButton: editing,
                 confirmButtonText: 'Sačuvaj',
-                cancelButtonText: 'Otkaži',
+                cancelButtonText: 'Odustani',
                 denyButtonText: 'Obriši',
                 focusCancel: false,
                 focusConfirm: false,

@@ -107,11 +107,11 @@
     .btn-sm { min-height: 36px; }
     .kt-form-actions, form > .text-end:last-child {
         position: sticky; bottom: calc(64px + env(safe-area-inset-bottom)); z-index: 5;
-        display: flex; gap: 8px; margin: 16px -16px -16px; padding: 12px 16px;
+        display: flex; flex-direction: column; gap: 8px; margin: 16px -16px -16px; padding: 12px 16px;
         background: color-mix(in srgb, var(--kt-surface) 94%, transparent); backdrop-filter: blur(8px);
         border-top: 1px solid var(--kt-border);
     }
-    .kt-form-actions > *, form > .text-end:last-child > * { flex: 1; margin: 0 !important; }
+    .kt-form-actions > *, form > .text-end:last-child > * { margin: 0 !important; }
 
     /* modali kao bottom sheet */
     .modal-dialog { margin: 0; position: fixed; left: 0; right: 0; bottom: 0; max-width: none; }

@@ -13,7 +13,7 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
- * In-app notifikacije (SPEC 7) i opcioni mail. Mail ide preko MailerInterface, a Messenger
+ * In-app obaveštenja (SPEC 7) i opcioni mail. Mail ide preko MailerInterface, a Messenger
  * ga šalje asinhrono (SendEmailMessage je rutiran na "async"), pa akcija korisnika ne čeka SMTP.
  */
 class NotificationService
@@ -30,7 +30,7 @@ class NotificationService
 
     /**
      * Obaveštava jednog korisnika. Ne obaveštava aktera o sopstvenoj akciji ni neaktivne korisnike.
-     * Mail se šalje ako je $email (checkbox "Pošalji i na mail") ili ako je korisnik u profilu
+     * Mail se šalje ako je $email (checkbox "Pošalji i na mejl") ili ako je korisnik u profilu
      * izabrao ovu vrstu obaveštenja za mail.
      *
      * @param array{0: string, 1?: array<string, mixed>}|null $route [ime rute, parametri]
@@ -104,8 +104,8 @@ class NotificationService
 
             return true;
         } catch (\Throwable $e) {
-            // notifikacija u aplikaciji ostaje, a greška mejla ne sme da obori akciju korisnika
-            $this->logger->error('Slanje notifikacije na mail nije uspelo: '.$e->getMessage());
+            // obaveštenja u aplikaciji ostaje, a greška mejla ne sme da obori akciju korisnika
+            $this->logger->error('Slanje obaveštenja na mejl nije uspelo: '.$e->getMessage());
 
             return false;
         }

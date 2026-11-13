@@ -31,7 +31,7 @@
                 <input type="hidden" name="year" value="{{ b.year }}">
                 <div class="col-5"><label class="form-label kt-text-sm" for="le-{{ person.id }}">Pravo (dana)</label><input type="text" class="form-control form-control-sm" id="le-{{ person.id }}" name="entitled" value="{{ f.fmt(b.entitled) }}"></div>
                 <div class="col-4"><label class="form-label kt-text-sm" for="lc-{{ person.id }}">Preneto</label><input type="text" class="form-control form-control-sm" id="lc-{{ person.id }}" name="carriedOver" value="{{ f.fmt(b.carriedOver) }}"></div>
-                <div class="col-3"><button class="btn btn-light btn-sm w-100">Sačuvaj</button></div>
+                <div class="col-3"><button class="btn btn-outline-secondary btn-sm w-100">Sačuvaj</button></div>
                 {% set prev = leave_balance(person, b.year - 1) %}
                 <div class="col-12 kt-text-xs text-muted">Predlog prenosa iz {{ b.year - 1 }}.: {{ f.fmt(prev.suggestedCarry) }} dana neiskorišćeno.</div>
             </form>

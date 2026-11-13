@@ -228,6 +228,6 @@ class TodoPagesTest extends DatabaseTestCase
         self::assertStringContainsString("kt-tone-primary", $menu);
         self::assertStringContainsString("<svg", $menu);
         $this->browser->request("GET", "/profile");
-        self::assertStringNotContainsString("Obaveštenje iz Podsetnika", (string) $this->browser->getResponse()->getContent());
+        self::assertStringNotContainsString("Obaveštenje iz podsetnika", (string) $this->browser->getResponse()->getContent());
     }
 }

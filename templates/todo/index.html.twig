@@ -6,10 +6,10 @@
 
 {% block content %}
     <div class="kt-todo-page">
-        <div class="kt-text-sm text-muted mb-3">{{ ux_icon('lucide:lock', {class: 'kt-icon me-1'}) }}Ovo je tvoj privatni Podsetnik. Vidiš ga samo ti: ni administrator ga ne vidi.</div>
+        <div class="kt-text-sm text-muted mb-3">{{ ux_icon('lucide:lock', {class: 'kt-icon me-1'}) }}Ovo je tvoj privatni podsetnik. Vidiš ga samo ti: ni administrator ga ne vidi.</div>
         <form method="get" class="kt-search-field mb-3" role="search">
             {{ ux_icon('lucide:search', {class: 'kt-icon kt-search-icon'}) }}
-            <input type="search" name="q" value="{{ query }}" class="form-control" placeholder="Pretraga Podsetnika" aria-label="Pretraga Podsetnika" maxlength="100">
+            <input type="search" name="q" value="{{ query }}" class="form-control" placeholder="Pretraga podsetnika" aria-label="Pretraga podsetnika" maxlength="100">
         </form>
         <div class="card">
             <div class="card-body">

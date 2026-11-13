@@ -137,7 +137,7 @@
 				</button>
 
 				<div class="dropdown" id="notification-bell" data-url="{{ path('ajax_notifications') }}" data-read-all-url="{{ path('ajax_notifications_read_all') }}">
-					<button type="button" class="kt-icon-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" title="Notifikacije" aria-label="Notifikacije">
+					<button type="button" class="kt-icon-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" title="Obaveštenja" aria-label="Obaveštenja">
 						{% set unread = unread_notification_count() %}
 						{{ ux_icon('lucide:bell', {class: 'kt-icon'}) }}
 						<span class="kt-bell-dot notification-count {{ unread > 0 ? '' : 'd-none' }}">{{ unread }}</span>

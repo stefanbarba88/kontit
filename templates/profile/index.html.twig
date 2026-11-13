@@ -4,7 +4,7 @@
 
 {% block title %}Moj profil{% endblock %}
 {% block page_title %}Moj profil{% endblock %}
-{% block page_actions %}<a href="{{ path('user_tasks', {id: app.user.id}) }}" class="btn btn-light">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Moji zadaci</a> <a href="{{ path('user_documents', {id: app.user.id}) }}" class="btn btn-light">{{ ux_icon('lucide:folder', {class: 'kt-icon me-2'}) }}Moji dokumenti</a>{% endblock %}
+{% block page_actions %}<a href="{{ path('user_tasks', {id: app.user.id}) }}" class="btn btn-outline-secondary">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Moji zadaci</a> <a href="{{ path('user_documents', {id: app.user.id}) }}" class="btn btn-outline-secondary">{{ ux_icon('lucide:folder', {class: 'kt-icon me-2'}) }}Moji dokumenti</a>{% endblock %}
 
 {% block content %}
     <div class="row">
@@ -59,7 +59,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">{{ ux_icon('lucide:bell', {class: 'kt-icon me-2'}) }}Obaveštenja na mail</h5>
+                    <h5 class="mb-0">{{ ux_icon('lucide:bell', {class: 'kt-icon me-2'}) }}Obaveštenja na mejl</h5>
                 </div>
 
                 <div class="card-body border-top">
@@ -84,7 +84,7 @@
                         {% if gc.lastError %}<div class="kt-text-sm text-danger mb-2">{{ ux_icon('lucide:circle-alert', {class: 'kt-icon me-1'}) }}{{ gc.lastError }}</div>{% endif %}
                         <form method="post" action="{{ path('profile_google_disconnect') }}" {{ confirm_attrs('Odvezati Google kalendar?', 'Novi događaji se više neće upisivati. Kalendar „KontIT“ ostaje u tvom Google nalogu.', 'warning', 'Da, odveži') }}>
                             <input type="hidden" name="_token" value="{{ csrf_token('google_disconnect') }}">
-                            <button class="btn btn-light btn-sm">Odveži</button>
+                            <button class="btn btn-outline-secondary btn-sm">Odveži</button>
                         </form>
                     {% elseif google_calendar_active() %}
                         <p class="kt-text-sm text-muted">Tvoji zadaci (na dan roka) i odobrena odsustva se upisuju u poseban kalendar „KontIT“ u tvom Google nalogu. Lični kalendar ostaje netaknut. Izmene u Google-u se ne vraćaju u aplikaciju.</p>
@@ -104,11 +104,11 @@
                         {% set ics = url('calendar_ics', {token: app.user.icsToken}) %}
                         <div class="input-group input-group-sm mb-2">
                             <input type="text" class="form-control kt-mono" value="{{ ics }}" readonly id="ics-url" aria-label="ICS link">
-                            <button type="button" class="btn btn-light" onclick="navigator.clipboard.writeText(document.getElementById('ics-url').value).then(() => window.ktToast('Link je kopiran.'))">{{ ux_icon('lucide:clipboard-list', {class: 'kt-icon me-1'}) }}Kopiraj</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="navigator.clipboard.writeText(document.getElementById('ics-url').value).then(() => window.ktToast('Link je kopiran.'))">{{ ux_icon('lucide:clipboard-list', {class: 'kt-icon me-1'}) }}Kopiraj</button>
                         </div>
                         <form method="post" action="{{ path('profile_ics') }}" class="d-inline" {{ confirm_attrs('Napraviti nov link?', 'Stari link prestaje da radi; u kalendaru ga zameni novim.', 'warning', 'Da, nov link') }}>
                             <input type="hidden" name="_token" value="{{ csrf_token('profile_ics') }}">
-                            <button class="btn btn-light btn-sm">Nov link</button>
+                            <button class="btn btn-outline-secondary btn-sm">Nov link</button>
                         </form>
                         <form method="post" action="{{ path('profile_ics') }}" class="d-inline" {{ confirm_attrs('Poništiti link?', 'Kalendar koji koristi ovaj link više neće dobijati događaje.', 'danger', 'Da, poništi') }}>
                             <input type="hidden" name="_token" value="{{ csrf_token('profile_ics') }}">
@@ -118,7 +118,7 @@
                     {% else %}
                         <form method="post" action="{{ path('profile_ics') }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('profile_ics') }}">
-                            <button class="btn btn-primary btn-sm">Napravi link</button>
+                            <button class="btn btn-primary btn-sm">Generiši link</button>
                         </form>
                     {% endif %}
                 </div>
@@ -135,7 +135,7 @@
                         {{ form_row(passwordForm.plainPassword.first) }}
                         {{ form_row(passwordForm.plainPassword.second) }}
                         <div class="kt-form-actions">
-                            <button class="btn btn-light">Promeni lozinku{{ ux_icon('lucide:lock-keyhole', {class: 'kt-icon ms-2'}) }}</button>
+                            <button class="btn btn-outline-secondary">Promeni lozinku{{ ux_icon('lucide:lock-keyhole', {class: 'kt-icon ms-2'}) }}</button>
                         </div>
                     {{ form_end(passwordForm) }}
                 </div>

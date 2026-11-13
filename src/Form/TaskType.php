@@ -114,7 +114,7 @@ class TaskType extends AbstractType
                 'constraints' => [new Count(min: 1, minMessage: 'Izaberi bar jednog učesnika.')],
             ]);
             $builder->add('notifyByEmail', CheckboxType::class, [
-                'label' => 'Pošalji učesnicima i na mail',
+                'label' => 'Pošalji učesnicima i na mejl',
                 'required' => false,
                 'mapped' => false,
                 'help' => 'Obaveštenje u aplikaciji dobijaju uvek. Za hitne zadatke se ova opcija preporučuje.',

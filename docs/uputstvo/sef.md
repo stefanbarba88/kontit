@@ -22,7 +22,7 @@ Prijava, promena lozinke i profil su isti kao za radnika (vidi **Uputstvo za rad
 
 1. **Moj profil → Nalog**: da li pored **Šef tima** piše tvoj tim.
 2. **Moj tim** u meniju: da li su svi članovi tu.
-3. **Moj profil → Obaveštenja na mail**: šef dobija dosta obaveštenja (zadaci na proveri, zahtevi za odsustvo), pa izaberi šta želiš i na mail.
+3. **Moj profil → Obaveštenja na mejl**: šef dobija dosta obaveštenja (zadaci na proveri, zahtevi za odsustvo), pa izaberi šta želiš i na mejl.
 
 ## Šta šef ima u meniju
 
@@ -119,7 +119,7 @@ Ovo smeš samo za članove svog tima na nivou radnika (i za sebe). Za člana tu�
    - **Svi učesnici moraju da završe**: zadatak ide na proveru tek kad svi kliknu „Moj deo je gotov“,
    - **Dovoljan je jedan učesnik**: ide na proveru čim jedan završi.
 6. U **Zaduženi** štikliraj ko radi. Za klijenta se nude samo ljudi raspoređeni na tog klijenta (glavni, zamena), uz oznaku uloge.
-7. Za hitne stvari štikliraj **Pošalji učesnicima i na mail**.
+7. Za hitne stvari štikliraj **Pošalji učesnicima i na mejl**.
 8. Klikni **Sačuvaj**.
 
 > **Savet:** stavke checkliste možeš da dodeliš određenom učesniku (izbor pored stavke na strani zadatka). Tada samo on može da je štiklira i ne može da javi da je gotov dok je ne štiklira.
@@ -137,7 +137,7 @@ Kad zadatak dođe **Na proveri**, dobijaš obaveštenje, a zadatak je u tabu **�
 1. Otvori zadatak. Na vrhu je okvir **Čeka tvoju potvrdu**.
 2. Proveri checklistu, komentare i napomene učesnika.
 3. Ako je sve u redu, klikni **Potvrdi**. Zadatak postaje **Završeno** i upisuje se ko je i kada potvrdio.
-4. Ako nije, upiši **Razlog vraćanja na doradu (obavezno)**, po želji štikliraj **Pošalji i na mail** i klikni **Vrati na doradu**. Zadatak se vraća **U radu**, a razlog stoji u komentarima.
+4. Ako nije, upiši **Razlog vraćanja na doradu (obavezno)**, po želji štikliraj **Pošalji i na mejl** i klikni **Vrati na doradu**. Zadatak se vraća **U radu**, a razlog stoji u komentarima.
 
 [SLIKA: zadatak na proveri sa dugmadima Potvrdi i Vrati na doradu]
 

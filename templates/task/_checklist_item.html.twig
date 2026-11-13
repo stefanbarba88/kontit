@@ -20,7 +20,7 @@
                 <option value="{{ a.user.id }}" {{ item.assignedTo == a.user ? 'selected' : '' }}>{{ a.user.fullName }}</option>
             {% endfor %}
         </select>
-        <button type="button" class="btn btn-sm kt-btn-icon btn-light text-danger ms-2 checklist-delete" title="Obriši stavku">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}</button>
+        <button type="button" class="btn btn-sm kt-btn-icon btn-outline-secondary text-danger ms-2 checklist-delete" title="Obriši stavku">{{ ux_icon('lucide:trash-2', {class: 'kt-icon'}) }}</button>
     {% elseif item.assignedTo %}
         <span class="ms-2" title="{{ item.assignedTo.fullName }}">{{ ui.avatar(item.assignedTo, 24) }}</span>
     {% endif %}

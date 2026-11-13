@@ -18,7 +18,7 @@
                                 <input type="number" name="position" value="{{ c.position }}" class="form-control form-control-sm" style="width: 72px;" min="0" aria-label="Redosled">
                                 <input type="text" name="name" value="{{ c.name }}" class="form-control form-control-sm flex-grow-1" style="min-width: 160px;" maxlength="80" aria-label="Naziv">
                                 {{ ui.status_badge(c.active) }}
-                                <button class="btn btn-light btn-sm">Sačuvaj</button>
+                                <button class="btn btn-outline-secondary btn-sm">Sačuvaj</button>
                                 <button class="btn btn-ghost btn-sm" name="toggle" value="1" {% if c.active %}{{ confirm_attrs('Deaktivirati kategoriju „' ~ c.name ~ '“?', 'Neće se nuditi za nove dokumente; postojeći je zadržavaju.', 'warning', 'Da, deaktiviraj') }}{% endif %}>{{ c.active ? 'Deaktiviraj' : 'Aktiviraj' }}</button>
                             </form>
                         </li>

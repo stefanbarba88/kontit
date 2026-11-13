@@ -30,6 +30,6 @@ class ReviewFormsRenderTest extends DatabaseTestCase
         self::assertStringContainsString('reviewMode', $html);
         self::assertStringContainsString('data-kt-me="'.$admin->getId().'"', $html);
         $this->browser->request('GET', '/admin/catalog/jobs');
-        self::assertStringContainsString('Traži potvrdu', (string) $this->browser->getResponse()->getContent());
+        self::assertStringContainsString('Zatraži potvrdu', (string) $this->browser->getResponse()->getContent());
     }
 }

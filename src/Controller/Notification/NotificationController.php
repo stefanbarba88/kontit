@@ -38,7 +38,7 @@ class NotificationController extends AbstractController
     }
 
     /**
-     * Otvara notifikaciju: označava je pročitanom i vodi na link. Samo vlasnik.
+     * Otvara obaveštenje: označava ga pročitanim i vodi na link. Samo vlasnik.
      */
     #[Route('/{id}/open', name: 'notification_open', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function open(Notification $notification): Response
@@ -58,7 +58,7 @@ class NotificationController extends AbstractController
     {
         if ($this->isCsrfTokenValid('notifications_read_all', $request->request->getString('_token'))) {
             $this->notifications->markAllRead($this->actor());
-            $this->addFlash('success', 'Sve notifikacije su označene kao pročitane.');
+            $this->addFlash('success', 'Sva obaveštenja su označena kao pročitana.');
         }
 
         return $this->redirectToRoute('notification_index');

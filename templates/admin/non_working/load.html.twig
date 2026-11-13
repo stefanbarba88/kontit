@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block page_actions %}
-    <a href="{{ path('admin_non_working_load', {year: year - 1}) }}" class="btn btn-light me-2">{{ year - 1 }}.</a>
-    <a href="{{ path('admin_non_working_load', {year: year + 1}) }}" class="btn btn-light">{{ year + 1 }}.</a>
+    <a href="{{ path('admin_non_working_load', {year: year - 1}) }}" class="btn btn-outline-secondary me-2">{{ year - 1 }}.</a>
+    <a href="{{ path('admin_non_working_load', {year: year + 1}) }}" class="btn btn-outline-secondary">{{ year + 1 }}.</a>
 {% endblock %}
 
 {% block content %}
@@ -42,8 +42,8 @@
                 </table>
             </div>
             <div class="card-body border-top kt-form-actions">
-                <a href="{{ path('admin_non_working_index', {year: year}) }}" class="btn btn-light">Odustani</a>
                 <button class="btn btn-primary">Sačuvaj izabrane</button>
+                <a href="{{ path('admin_non_working_index', {year: year}) }}" class="btn btn-outline-secondary">Odustani</a>
             </div>
         </form>
     </div>

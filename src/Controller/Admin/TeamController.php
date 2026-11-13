@@ -63,7 +63,7 @@ class TeamController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $this->teams->update($team, $form->get('leader')->getData(), $this->getUser());
-                $this->addFlash('success', 'Izmene su sačuvane.');
+                $this->addFlash('success', 'Tim je sačuvan.');
 
                 return $this->redirectToRoute('team_show', ['id' => $team->getId()]);
             } catch (\DomainException $e) {

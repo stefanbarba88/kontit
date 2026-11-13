@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block page_actions %}
-    <button type="button" class="btn btn-light" data-kt-remind data-client-id="{{ client.id }}" data-title="{{ client.shortName }}">{{ ux_icon('lucide:bell-plus', {class: 'kt-icon me-2'}) }}Dodaj u podsetnik</button>
+    <button type="button" class="btn btn-outline-secondary" data-kt-remind data-client-id="{{ client.id }}" data-title="{{ client.shortName }}">{{ ux_icon('lucide:bell-plus', {class: 'kt-icon me-2'}) }}Dodaj u podsetnik</button>
     {% if tab == 'zadaci' %}{% import 'components/export.html.twig' as export %}{{ export.menu('zadaci', list.exportQuery) }}{% endif %}
     <a href="{{ path('client_task_new', {clientId: client.id, returnTo: return_to_path()}) }}" class="btn btn-outline-primary">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Novi zadatak</a>
     {% if is_granted('PRICE_VIEW') %}

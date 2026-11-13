@@ -117,7 +117,7 @@ if (el && window.FullCalendar) {
                 const off = info(arg.date, cache[arg.date.getFullYear()] || {});
                 popover = new Popover(arg.dayEl, {
                     title: arg.date.toLocaleDateString('sr-Latn-RS', { weekday: 'long', day: 'numeric', month: 'long' }),
-                    content: `${off ? `<div class="kt-text-xs text-muted mb-2">Neradni dan: ${escape(off.name)}</div>` : ''}<div class="d-grid gap-1"><a class="btn btn-sm btn-primary" href="${el.dataset.taskNewUrl}?due=${date}${el.dataset.returnTo ? `&returnTo=${encodeURIComponent(el.dataset.returnTo)}` : ''}">Novi zadatak za ovaj dan</a><a class="btn btn-sm btn-light" href="${el.dataset.absenceNewUrl}?from=${date}">Zahtev za odsustvo od ovog dana</a></div>`,
+                    content: `${off ? `<div class="kt-text-xs text-muted mb-2">Neradni dan: ${escape(off.name)}</div>` : ''}<div class="d-grid gap-1"><a class="btn btn-sm btn-primary" href="${el.dataset.taskNewUrl}?due=${date}${el.dataset.returnTo ? `&returnTo=${encodeURIComponent(el.dataset.returnTo)}` : ''}">Novi zadatak za ovaj dan</a><a class="btn btn-sm btn-outline-secondary" href="${el.dataset.absenceNewUrl}?from=${date}">Zahtev za odsustvo od ovog dana</a></div>`,
                     html: true,
                     trigger: 'manual',
                     placement: 'auto',

@@ -107,7 +107,7 @@ class TodoController extends AbstractAjaxController
             throw $e;
         }
 
-        return $this->ok($this->state() + ['id' => $item->getId(), 'hasReminder' => null !== $item->getRemindAt()], 'Dodato u tvoj Podsetnik.');
+        return $this->ok($this->state() + ['id' => $item->getId(), 'hasReminder' => null !== $item->getRemindAt()], 'Dodato u tvoj podsetnik.');
     }
 
     #[Route('/ajax/todo/reorder', name: 'ajax_todo_reorder', methods: ['POST'])]
@@ -175,7 +175,7 @@ class TodoController extends AbstractAjaxController
             return $this->fail($e->getMessage());
         }
 
-        return $this->ok($this->state(), 'Dodato u tvoj Podsetnik.');
+        return $this->ok($this->state(), 'Dodato u tvoj podsetnik.');
     }
 
     #[Route('/ajax/todo/{id}', name: 'ajax_todo_update', requirements: ['id' => '\d+'], methods: ['POST'])]

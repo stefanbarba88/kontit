@@ -1,15 +1,15 @@
 {% extends 'base.html.twig' %}
 {% import 'components/ui.html.twig' as ui %}
 
-{% block title %}Notifikacije{% endblock %}
-{% block page_title %}Notifikacije{% endblock %}
-{% block breadcrumbs %}<span class="breadcrumb-item active">Notifikacije</span>{% endblock %}
+{% block title %}Obaveštenja{% endblock %}
+{% block page_title %}Obaveštenja{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item active">Obaveštenja</span>{% endblock %}
 
 {% block page_actions %}
     {% if unreadCount > 0 %}
         <form method="post" action="{{ path('notification_read_all') }}">
             <input type="hidden" name="_token" value="{{ csrf_token('notifications_read_all') }}">
-            <button class="btn btn-light">{{ ux_icon('lucide:check-check', {class: 'kt-icon me-2'}) }}Označi sve kao pročitano</button>
+            <button class="btn btn-outline-secondary">{{ ux_icon('lucide:check-check', {class: 'kt-icon me-2'}) }}Označi sve kao pročitano</button>
         </form>
     {% endif %}
 {% endblock %}
@@ -39,11 +39,11 @@
                     </div>
                     <div class="text-muted kt-text-sm ms-3 text-nowrap">
                         {{ n.createdAt|date('d.m.Y. H:i') }}
-                        {% if n.emailSent %}<span title="Poslato i na mail">{{ ux_icon('lucide:mail', {class: 'kt-icon ms-1'}) }}</span>{% endif %}
+                        {% if n.emailSent %}<span title="Poslato i na mejl">{{ ux_icon('lucide:mail', {class: 'kt-icon ms-1'}) }}</span>{% endif %}
                     </div>
                 </a>
             {% else %}
-                <div class="p-3">{{ ui.empty_state(onlyUnread ? 'Nema nepročitanih notifikacija.' : 'Još nemaš notifikacija.', 'bell') }}</div>
+                <div class="p-3">{{ ui.empty_state(onlyUnread ? 'Nema nepročitanih obaveštenja.' : 'Još nemaš obaveštenja.', 'bell') }}</div>
             {% endfor %}
         </div>
     </div>

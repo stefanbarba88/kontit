@@ -110,7 +110,7 @@ class UserController extends AbstractController
             try {
                 $this->users->save($user, $form->get('plainPassword')->getData(), $form->get('role')->getData());
                 $this->users->logPositionChange($user, $positionBefore, $this->getUser(), $request->request->getString('reason'));
-                $this->addFlash('success', 'Izmene su sačuvane.');
+                $this->addFlash('success', 'Korisnik je sačuvan.');
                 // admin koji je jedini proveravač posebnih potvrda više nema prava da ih potvrđuje
                 if (null !== $soleWarning && !\App\Service\TaskReviewPolicy::isEligibleApprover($user)) {
                     $this->addFlash('warning', $soleWarning);

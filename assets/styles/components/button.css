@@ -82,5 +82,5 @@
 .btn-ghost:hover { background: var(--kt-surface-3); color: var(--kt-text); }
 
 /* dugmad na kraju forme (na telefonu lepljiva, vidi mobile.css) */
-.kt-form-actions { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 8px; }
+.kt-form-actions { display: flex; justify-content: flex-start; align-items: center; gap: 8px; margin-top: 8px; }
 .kt-form-actions .me-2 { margin-right: 0 !important; }

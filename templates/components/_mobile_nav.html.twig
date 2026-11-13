@@ -59,15 +59,15 @@
             <a href="{{ path('admin_finance') }}" class="kt-sheet-item">{{ ux_icon('lucide:trending-up', {class: 'kt-icon'}) }}Finansije i statistika</a>
         {% endif %}
         <div class="kt-sheet-sep"></div>
-        <a href="{{ path('notification_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:bell', {class: 'kt-icon'}) }}Notifikacije</a>
+        <a href="{{ path('notification_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:bell', {class: 'kt-icon'}) }}Obaveštenja</a>
         <a href="{{ path('app_profile') }}" class="kt-sheet-item">{{ ux_icon('lucide:circle-user', {class: 'kt-icon'}) }}Moj profil</a>
         <a href="{{ path('help_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:book-open', {class: 'kt-icon'}) }}Uputstvo</a>
         <div class="kt-sheet-item kt-sheet-theme">
             {{ ux_icon('lucide:sun', {class: 'kt-icon'}) }}Tema
             <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="Tema">
-                <button type="button" class="btn btn-light" data-theme-choice="light">Svetla</button>
-                <button type="button" class="btn btn-light" data-theme-choice="dark">Tamna</button>
-                <button type="button" class="btn btn-light" data-theme-choice="system">Sistem</button>
+                <button type="button" class="btn btn-outline-secondary" data-theme-choice="light">Svetla</button>
+                <button type="button" class="btn btn-outline-secondary" data-theme-choice="dark">Tamna</button>
+                <button type="button" class="btn btn-outline-secondary" data-theme-choice="system">Sistem</button>
             </div>
         </div>
         <a href="{{ path('app_logout') }}" class="kt-sheet-item text-danger">{{ ux_icon('lucide:log-out', {class: 'kt-icon'}) }}Odjava</a>

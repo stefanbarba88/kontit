@@ -55,7 +55,7 @@ class JobTemplateType extends AbstractType
             ->add('priceUnit', EnumType::class, ['label' => 'Jedinica cene', 'class' => PriceUnit::class, 'choice_label' => static fn (PriceUnit $u) => $u->label()])
             ->add('defaultPrice', MoneyType::class, ['label' => 'Predložena cena', 'currency' => 'RSD', 'required' => false, 'help' => 'Samo predlog kad se posao ugovara pojedinačno; prava cena se upisuje na klijentu.'])
             ->add('requiresApproval', CheckboxType::class, [
-                'label' => 'Traži potvrdu',
+                'label' => 'Zatraži potvrdu',
                 'required' => false,
                 'help' => 'Za posebne poslove. Zadatke iz ovog posla mora da potvrdi izabrana osoba, bez obzira na poziciju radnika.',
                 'attr' => ['data-kt-approval-toggle' => ''],

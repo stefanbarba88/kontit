@@ -4,7 +4,7 @@ namespace App\Message;
 
 /**
  * Veliki izvoz liste (preko ExportService::LIMIT_SYNC redova) se pravi u pozadini;
- * kad je fajl spreman, korisnik dobija notifikaciju sa linkom.
+ * kad je fajl spreman, korisnik dobija obaveštenje sa linkom.
  */
 final class GenerateExport
 {

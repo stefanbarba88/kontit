@@ -51,13 +51,13 @@
         <div class="card-header"><h5>Dugmad</h5></div>
         <div class="card-body d-flex flex-wrap gap-2 align-items-center">
             <button class="btn btn-primary">Primarno</button>
-            <button class="btn btn-light">Sekundarno</button>
+            <button class="btn btn-outline-secondary">Sekundarno</button>
             <button class="btn btn-ghost">Ghost</button>
             <button class="btn btn-outline-danger">Opasno (ghost)</button>
             <button class="btn btn-primary is-loading">Učitavanje</button>
             <button class="btn btn-primary" disabled>Onemogućeno</button>
-            <button class="btn btn-light btn-sm">Kompaktno</button>
-            <button class="btn btn-light kt-btn-icon rounded-pill" title="Ikonica">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button>
+            <button class="btn btn-outline-secondary btn-sm">Kompaktno</button>
+            <button class="btn btn-outline-secondary kt-btn-icon rounded-pill" title="Ikonica">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button>
         </div>
     </div>
 
@@ -196,8 +196,8 @@
                 <span class="badge kt-badge-secondary">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Bez provere</span>
                 <span class="badge kt-badge-secondary">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Bez provere, odlučio: Marko Marković</span>
             </div>
-            <p class="kt-text-sm text-muted mb-2">Značka „Traži potvrdu“ u katalogu poslova i ugovorenim uslugama klijenta.</p>
-            <div class="mb-4"><span class="kt-svc-name">Godišnji obračun <span class="badge kt-badge-warning ms-1" title="Zadatke iz ovog posla potvrđuje izabrana osoba">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Traži potvrdu</span></span></div>
+            <p class="kt-text-sm text-muted mb-2">Značka „Zatraži potvrdu“ u katalogu poslova i ugovorenim uslugama klijenta.</p>
+            <div class="mb-4"><span class="kt-svc-name">Godišnji obračun <span class="badge kt-badge-warning ms-1" title="Zadatke iz ovog posla potvrđuje izabrana osoba">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Zatraži potvrdu</span></span></div>
             <p class="kt-text-sm text-muted mb-2">Polje „Provera“ iz forme zadatka (<code>reviewMode</code>) sa pomoćnim tekstom i izborom proveravača kad je „Posebna potvrda“.</p>
             <div class="row mb-4">
                 <div class="col-md-6">
@@ -344,10 +344,10 @@
                     options: {plugins: {legend: {display: false}}},
                 }|json_encode|e('html_attr') }}"></canvas>
             </div>
-            <form onsubmit="return false;" class="d-inline" {{ confirm_attrs('Primer potvrde', 'Ovako izgleda SweetAlert u aplikaciji.', 'warning', 'Da, nastavi') }}><button class="btn btn-light">SweetAlert (upozorenje)</button></form>
+            <form onsubmit="return false;" class="d-inline" {{ confirm_attrs('Primer potvrde', 'Ovako izgleda SweetAlert u aplikaciji.', 'warning', 'Da, nastavi') }}><button class="btn btn-outline-secondary">SweetAlert (upozorenje)</button></form>
             <form onsubmit="return false;" class="d-inline" {{ confirm_attrs('Primer opasne radnje', 'Crveno dugme samo kad je radnja glavna.', 'danger', 'Da, obriši', true) }}><button class="btn btn-outline-danger">SweetAlert (opasno + razlog)</button></form>
-            <button class="btn btn-light" onclick="window.ktToast('Izmene su sačuvane.', 'success')">Toast</button>
-            <button class="btn btn-light" onclick="window.ktToast('Klijent nije sačuvan: PIB već postoji.', 'danger')">Toast (greška)</button>
+            <button class="btn btn-outline-secondary" onclick="window.ktToast('Izmene su sačuvane.', 'success')">Toast</button>
+            <button class="btn btn-outline-secondary" onclick="window.ktToast('Klijent nije sačuvan: PIB već postoji.', 'danger')">Toast (greška)</button>
         </div>
     </div>
     <div class="card">
@@ -370,7 +370,7 @@
                     <div class="kt-todo-section"><div class="kt-todo-head">Danas (3)</div>
                         <div class="kt-todo-item is-pinned"><div class="kt-todo-row"><input type="checkbox" class="kt-check" aria-label="Završi"><div class="kt-todo-main"><button type="button" class="kt-todo-title kt-check-label">Pozvati klijenta zbog PDV-a</button><div class="kt-todo-meta"><span>{{ ux_icon('lucide:calendar', {class: 'kt-icon'}) }}Danas 14:30</span><span>{{ ux_icon('lucide:bell', {class: 'kt-icon'}) }}Danas 14:30 {{ ux_icon('lucide:mail', {class: 'kt-icon'}) }}</span><span>{{ ux_icon('lucide:building-2', {class: 'kt-icon'}) }}<a href="#">Pekara Zlatni klas</a></span></div></div><button type="button" class="kt-icon-btn kt-todo-pin is-on" aria-label="Otkači">{{ ux_icon('lucide:pin', {class: 'kt-icon'}) }}</button></div></div>
                         <div class="kt-todo-item"><div class="kt-todo-row"><input type="checkbox" class="kt-check" aria-label="Završi"><div class="kt-todo-main"><button type="button" class="kt-todo-title kt-check-label">Mesečni izveštaj</button><div class="kt-todo-meta"><span>{{ ux_icon('lucide:calendar', {class: 'kt-icon'}) }}Danas</span><span>{{ ux_icon('lucide:repeat', {class: 'kt-icon'}) }}Svakog meseca</span></div></div></div></div>
-                        <div class="kt-todo-item is-done"><div class="kt-todo-row"><input type="checkbox" class="kt-check" checked aria-label="Vrati u rad"><div class="kt-todo-main"><button type="button" class="kt-todo-title kt-check-label">Odgovoriti na mail</button></div></div></div>
+                        <div class="kt-todo-item is-done"><div class="kt-todo-row"><input type="checkbox" class="kt-check" checked aria-label="Vrati u rad"><div class="kt-todo-main"><button type="button" class="kt-todo-title kt-check-label">Odgovoriti na mejl</button></div></div></div>
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -414,7 +414,7 @@
             </div>
             <p class="kt-text-sm text-muted mb-2">Toast obaveštenja sa dugmadima "Završeno" i "Odloži" i toast sa "Poništi" (5 s).</p>
             <div class="d-flex flex-wrap gap-2">
-                <button class="btn btn-light" onclick="window.ktToast('Završeno.', 'success')">Toast sa "Poništi"</button>
+                <button class="btn btn-outline-secondary" onclick="window.ktToast('Završeno.', 'success')">Toast sa "Poništi"</button>
                 <span class="kt-text-sm text-muted align-self-center">Obaveštenje i "Poništi" se prikazuju kao SweetAlert toast (<code>reminderToast</code>, <code>undoToast</code> u <code>confirm.js</code>).</span>
             </div>
         </div>

@@ -47,12 +47,12 @@ function init(form) {
 
     form.addEventListener('change', (e) => {
         if (e.target === q) { return; }
-        // opseg datuma: čeka se drugi datum (jedan dan se šalje dugmetom "Traži")
+        // opseg datuma: čeka se drugi datum (jedan dan se šalje dugmetom "Pretraži")
         if (e.target.name === 'period' && (e.target.value.match(/\d{4}-\d{2}-\d{2}/g) || []).length === 1) { return; }
         clearTimeout(timer);
         submit();
     });
-    // dugme "Traži" ostaje kao rezervni način
+    // dugme "Pretraži" ostaje kao rezervni način
     form.addEventListener('submit', () => {
         form.querySelectorAll('input[name], select[name]').forEach((el) => {
             if (el.type !== 'checkbox' && el.value === '' && el.name !== 'tab') { el.disabled = true; }

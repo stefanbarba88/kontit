@@ -50,10 +50,10 @@ Većina zadataka ti stiže **sama**: sistem ih svako jutro pravi iz poslova koje
 Na strani **Moj profil**:
 
 - **Lični podaci**: ime, prezime, telefon, adresa. Klikni **Sačuvaj**. Email, rolu i poziciju menja samo administrator.
-- **Obaveštenja na mail**: štikliraj za šta želiš da dobiješ i mail (npr. kad dobiješ nov zadatak). U aplikaciji (zvonce) uvek dobijaš sva obaveštenja.
+- **Obaveštenja na mejl**: štikliraj za šta želiš da dobiješ i mail (npr. kad dobiješ nov zadatak). U aplikaciji (zvonce) uvek dobijaš sva obaveštenja.
 - **Tema**: ikonica sunca/meseca gore desno. Biraš **Svetla**, **Tamna** ili **Kao sistem**.
 
-[SLIKA: strana Moj profil sa karticama Lični podaci, Obaveštenja na mail i Promena lozinke]
+[SLIKA: strana Moj profil sa karticama Lični podaci, Obaveštenja na mejl i Promena lozinke]
 
 ## Kako je aplikacija organizovana
 
@@ -81,7 +81,7 @@ Meni možeš da skupiš na ikonice dugmetom sa ikonicom panela pored logoa. Dole
 
 ### Na telefonu
 
-Meni sa strane ne postoji, nego je **traka na dnu**: **Početna**, **Zadaci**, veliko **+** (brze akcije: Novi zadatak, Prijavi odsustvo), **Klijenti** i **Više** (Moji klijenti, Odsustva, Notifikacije, Moj profil, Uputstvo, Tema, Odjava). Lupa gore desno pretražuje klijente po nazivu i PIB-u.
+Meni sa strane ne postoji, nego je **traka na dnu**: **Početna**, **Zadaci**, veliko **+** (brze akcije: Novi zadatak, Prijavi odsustvo), **Klijenti** i **Više** (Moji klijenti, Odsustva, Obaveštenja, Moj profil, Uputstvo, Tema, Odjava). Lupa gore desno pretražuje klijente po nazivu i PIB-u.
 
 [SLIKA: telefon, donja traka i otvoren meni Više]
 
@@ -240,7 +240,7 @@ Kad se kolega vrati (ili se odsustvo otkaže), zamena prestaje sama.
 1. Klikni **+ Dodaj** (na kartici, u panelu ili na strani Podsetnika) ili pritisni taster **n** bilo gde u aplikaciji (dok ne kucaš u nekom polju).
 2. Upiši naslov i pritisni **Enter**. To je dovoljno.
 3. Ako treba, izaberi **Rok** (čipovi **Danas**, **Sutra**, **Ponedeljak** ili datum, uz vreme po želji).
-4. Klikom na **Više opcija** dobijaš: napomenu, **obaveštenje** (datum i vreme ili čip **Sutra 9:00**, **Ponedeljak 9:00**), **ponavljanje**, **obaveštenje na mail** i vezu sa **klijentom**.
+4. Klikom na **Više opcija** dobijaš: napomenu, **obaveštenje** (datum i vreme ili čip **Sutra 9:00**, **Ponedeljak 9:00**), **ponavljanje**, **obaveštenje na mejl** i vezu sa **klijentom**.
 
 > **Savet:** ako mail ne stigne za par minuta, proveri folder za neželjenu poštu (spam). Ako ni tada nema, javi se administratoru.
 
@@ -249,10 +249,10 @@ Kad se kolega vrati (ili se odsustvo otkaže), zamena prestaje sama.
 Na strani **Moj profil**:
 
 - **Lični podaci**: ime, prezime, telefon, adresa. Klikni **Sačuvaj**. Email, rolu i poziciju menja samo administrator.
-- **Obaveštenja na mail**: štikliraj za šta želiš da dobiješ i mail (npr. kad dobiješ nov zadatak). U aplikaciji (zvonce) uvek dobijaš sva obaveštenja.
+- **Obaveštenja na mejl**: štikliraj za šta želiš da dobiješ i mail (npr. kad dobiješ nov zadatak). U aplikaciji (zvonce) uvek dobijaš sva obaveštenja.
 - **Tema**: ikonica sunca/meseca gore desno. Biraš **Svetla**, **Tamna** ili **Kao sistem**.
 
-[SLIKA: strana Moj profil sa karticama Lični podaci, Obaveštenja na mail i Promena lozinke]
+[SLIKA: strana Moj profil sa karticama Lični podaci, Obaveštenja na mejl i Promena lozinke]
 
 ## Kako je aplikacija organizovana
 
@@ -280,7 +280,7 @@ Meni možeš da skupiš na ikonice dugmetom sa ikonicom panela pored logoa. Dole
 
 ### Na telefonu
 
-Meni sa strane ne postoji, nego je **traka na dnu**: **Početna**, **Zadaci**, veliko **+** (brze akcije: Novi zadatak, Prijavi odsustvo), **Klijenti** i **Više** (Moji klijenti, Odsustva, Notifikacije, Moj profil, Uputstvo, Tema, Odjava). Lupa gore desno pretražuje klijente po nazivu i PIB-u.
+Meni sa strane ne postoji, nego je **traka na dnu**: **Početna**, **Zadaci**, veliko **+** (brze akcije: Novi zadatak, Prijavi odsustvo), **Klijenti** i **Više** (Moji klijenti, Odsustva, Obaveštenja, Moj profil, Uputstvo, Tema, Odjava). Lupa gore desno pretražuje klijente po nazivu i PIB-u.
 
 [SLIKA: telefon, donja traka i otvoren meni Više]
 
@@ -514,7 +514,7 @@ Ikonica oka otvara pregled (PDF ili sliku) u aplikaciji, a ikonica strelice preu
 
 ## Obaveštenja
 
-Zvonce gore desno pokazuje poslednjih 10 obaveštenja. Klik na obaveštenje otvara ono na šta se odnosi (zadatak, odsustvo...). Sva obaveštenja su na strani **Notifikacije** (na telefonu u meniju **Više**), sa tabovima **Sve** i **Nepročitane** i dugmetom **Označi sve kao pročitano**.
+Zvonce gore desno pokazuje poslednjih 10 obaveštenja. Klik na obaveštenje otvara ono na šta se odnosi (zadatak, odsustvo...). Sva obaveštenja su na strani **Obaveštenja** (na telefonu u meniju **Više**), sa tabovima **Sve** i **Nepročitane** i dugmetom **Označi sve kao pročitano**.
 
 Obaveštenje dobijaš, na primer, kad:
 
@@ -524,7 +524,7 @@ Obaveštenje dobijaš, na primer, kad:
 - dobiješ novog klijenta ili postaneš zamena,
 - šef odluči o tvom zahtevu za odsustvo.
 
-Koja obaveštenja stižu i na mail biraš na **Moj profil → Obaveštenja na mail**.
+Koja obaveštenja stižu i na mejl biraš na **Moj profil → Obaveštenja na mejl**.
 
 ## Česta pitanja
 

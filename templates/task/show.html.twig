@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block page_actions %}
-    <button type="button" class="btn btn-light" data-kt-remind data-task-id="{{ task.id }}" data-title="{{ task.title }}">{{ ux_icon('lucide:bell-plus', {class: 'kt-icon me-2'}) }}Dodaj u podsetnik</button>
+    <button type="button" class="btn btn-outline-secondary" data-kt-remind data-task-id="{{ task.id }}" data-title="{{ task.title }}">{{ ux_icon('lucide:bell-plus', {class: 'kt-icon me-2'}) }}Dodaj u podsetnik</button>
     {% if is_granted('TASK_EDIT', task) %}
         <a href="{{ path('task_edit', {id: task.id, returnTo: return_to_path()}) }}" class="btn btn-primary">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-2'}) }}Izmeni</a>
     {% endif %}
@@ -67,7 +67,7 @@
                         <textarea name="reason" class="form-control mb-2" rows="2" placeholder="Razlog vraćanja na doradu (obavezno)" required></textarea>
                         <div class="form-check mb-2">
                             <input type="checkbox" class="form-check-input" name="email" value="1" id="return-email">
-                            <label class="form-check-label" for="return-email">Pošalji i na mail</label>
+                            <label class="form-check-label" for="return-email">Pošalji i na mejl</label>
                         </div>
                         <button class="btn btn-outline-warning" {{ confirm_attrs('Vratiti zadatak na doradu?', 'Učesnici dobijaju razlog i zadatak se vraća u rad.', 'warning', 'Da, vrati') }}>{{ ux_icon('lucide:undo-2', {class: 'kt-icon me-2'}) }}Vrati na doradu</button>
                     </form>
@@ -101,7 +101,7 @@
                         {{ include('task/_checklist_item.html.twig', {item: item, task: task}) }}
                     {% endfor %}
                 </ul>
-                <div class="text-muted text-center py-3 {{ task.checklistTotal ? 'd-none' : '' }}" id="checklist-empty">Nema stavki.</div>
+                <div class="text-muted text-center py-3 {{ task.checklistTotal ? 'd-none' : '' }}" id="checklist-empty">Još nema stavki.</div>
                 {% if is_granted('TASK_EDIT', task) %}
                     <div class="card-body border-top">
                         <form id="checklist-add" class="row g-2">
@@ -112,7 +112,7 @@
                                     {% for a in task.assignees %}<option value="{{ a.user.id }}">{{ a.user.fullName }}</option>{% endfor %}
                                 </select>
                             </div>
-                            <div class="col-4 col-md-2"><button class="btn btn-light w-100">{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button></div>
+                            <div class="col-4 col-md-2"><button class="btn btn-outline-secondary w-100">{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button></div>
                         </form>
                     </div>
                 {% endif %}
@@ -168,9 +168,9 @@
                             <p class="kt-text-sm text-muted mb-2">{{ ux_icon('lucide:pencil-line', {class: 'kt-icon me-1'}) }}Rok je ručno promenjen{% if default_due %}, podrazumevano je {{ default_due|date('d.m.Y.') }}{% endif %}. Raspored ga ne preračunava.</p>
                         {% endif %}
                         <div class="d-flex flex-wrap gap-2">
-                            <button type="button" class="btn btn-light btn-sm" data-kt-task-due="change" data-url="{{ path('ajax_task_due_change', {id: task.id}) }}" data-preview-url="{{ path('ajax_task_due_preview', {id: task.id}) }}" data-due="{{ task.dueDate ? task.dueDate|date('Y-m-d') }}" data-can-future="{{ scheduled and is_granted('CATALOG_MANAGE') ? '1' : '0' }}">{{ ux_icon('lucide:calendar-clock', {class: 'kt-icon me-2'}) }}Promeni rok</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-kt-task-due="change" data-url="{{ path('ajax_task_due_change', {id: task.id}) }}" data-preview-url="{{ path('ajax_task_due_preview', {id: task.id}) }}" data-due="{{ task.dueDate ? task.dueDate|date('Y-m-d') }}" data-can-future="{{ scheduled and is_granted('CATALOG_MANAGE') ? '1' : '0' }}">{{ ux_icon('lucide:calendar-clock', {class: 'kt-icon me-2'}) }}Promeni rok</button>
                             {% if task.dueDateManuallySet and default_due %}
-                                <button type="button" class="btn btn-light btn-sm" data-kt-task-due="reset" data-url="{{ path('ajax_task_due_change', {id: task.id}) }}" data-default="{{ default_due|date('d.m.Y.') }}">{{ ux_icon('lucide:rotate-ccw', {class: 'kt-icon me-2'}) }}Vrati na podrazumevani rok</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" data-kt-task-due="reset" data-url="{{ path('ajax_task_due_change', {id: task.id}) }}" data-default="{{ default_due|date('d.m.Y.') }}">{{ ux_icon('lucide:rotate-ccw', {class: 'kt-icon me-2'}) }}Vrati na podrazumevani rok</button>
                             {% endif %}
                         </div>
                     </div>
@@ -215,7 +215,7 @@
                         {% if me_assignee.status.value == 'ZAVRSIO' %}
                             <form method="post" action="{{ path('task_my_part', {id: task.id, action: 'undo'}) }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('task_my_part_' ~ task.id) }}">
-                                <button class="btn btn-light w-100">Vrati moj deo u rad</button>
+                                <button class="btn btn-outline-secondary w-100">Vrati moj deo u rad</button>
                             </form>
                         {% else %}
                             {% if me_assignee.status.value == 'NOVO' %}
@@ -235,7 +235,7 @@
                     <div class="card-body border-top">
                         <form method="post" action="{{ path('task_my_part', {id: task.id, action: 'undo'}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('task_my_part_' ~ task.id) }}">
-                            <button class="btn btn-light w-100">Vrati moj deo u rad</button>
+                            <button class="btn btn-outline-secondary w-100">Vrati moj deo u rad</button>
                         </form>
                     </div>
                 {% endif %}

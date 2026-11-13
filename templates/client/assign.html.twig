@@ -19,8 +19,8 @@
                         {{ form_row(form.backup) }}
                         <div class="text-muted kt-text-sm mb-3">Možeš dodeliti samo članove svog tima. Promene se beleže u istoriji klijenta.</div>
                         <div class="kt-form-actions">
-                            <a href="{{ path('client_show', {id: client.id}) }}" class="btn btn-light me-2">Otkaži</a>
                             <button class="btn btn-primary">Sačuvaj{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
+                            <a href="{{ path('client_show', {id: client.id}) }}" class="btn btn-outline-secondary">Odustani</a>
                         </div>
                     {{ form_end(form) }}
                 </div>

@@ -14,12 +14,12 @@
                 <div class="form-check"><input class="form-check-input" type="radio" name="d-r" id="d-r1" checked><label class="form-check-label" for="d-r1">Mesečno</label></div>
                 <div class="form-check"><input class="form-check-input" type="radio" name="d-r" id="d-r2"><label class="form-check-label" for="d-r2">Kvartalno</label></div>
                 <div class="kt-overline mb-2 mt-3">Switch</div>
-                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="d-s1" checked><label class="form-check-label" for="d-s1">Pošalji i na mail</label></div>
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="d-s1" checked><label class="form-check-label" for="d-s1">Pošalji i na mejl</label></div>
                 <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="d-s2"><label class="form-check-label" for="d-s2">Nedeljni izveštaj</label></div>
             </div>
             <div class="col-md-4">
                 <div class="kt-overline mb-2">Tooltip</div>
-                <button type="button" class="btn btn-light" data-bs-toggle="tooltip" title="Pojavljuje se posle 300 ms">Pređi mišem</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Pojavljuje se posle 300 ms">Pređi mišem</button>
                 <div class="kt-overline mb-2 mt-3">Prazna vrednost</div>
                 <div>Telefon: <span class="kt-empty-value">—</span></div>
             </div>
@@ -66,7 +66,7 @@
                 <label class="form-label">Lista zadataka: pretraga, brojač filtera, brojači taba</label>
                 <div class="row g-2 align-items-center">
                     <div class="col-md-4"><div class="kt-search-field">{{ ux_icon('lucide:search', {class: 'kt-icon kt-search-icon'}) }}<input type="text" class="form-control" value="racun" aria-label="Naziv zadatka"><button type="button" class="kt-search-clear" aria-label="Obriši pretragu">{{ ux_icon('lucide:x', {class: 'kt-icon'}) }}</button></div></div>
-                    <div class="col-md-4"><button class="btn btn-light" type="button">{{ ux_icon('lucide:filter', {class: 'kt-icon me-2'}) }}Traži <span class="kt-filter-count">3</span></button></div>
+                    <div class="col-md-4"><button class="btn btn-outline-secondary" type="button">{{ ux_icon('lucide:filter', {class: 'kt-icon me-2'}) }}Pretraži <span class="kt-filter-count">3</span></button></div>
                     <div class="col-md-4 kt-task-summary"><span class="kt-task-summary-item"><strong>12</strong> otvoreno</span><span class="kt-task-summary-item is-danger"><strong>2</strong> kasni</span></div>
                 </div>
                 <ul class="nav kt-tabs mt-2"><li class="nav-item"><a href="#" class="nav-link">Pregled</a></li><li class="nav-item"><a href="#" class="nav-link active">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-1'}) }}Zadaci<span class="kt-tab-count">12</span><span class="kt-tab-dot" aria-label="Ima zadataka koji kasne"></span></a></li></ul>

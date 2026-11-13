@@ -170,7 +170,7 @@ class TeamService
         $leader = $team->getLeader();
         $others = $team->getActiveMembers()->filter(static fn (TeamMember $m) => $m->getUser() !== $leader);
         if ($others->count() > 0) {
-            throw new \DomainException('Tim ima aktivne članove. Prvo ih premestite ili uklonite.');
+            throw new \DomainException('Tim ima aktivne članove. Prvo ih premesti ili ukloni.');
         }
 
         $this->em->wrapInTransaction(function () use ($team, $leader): void {

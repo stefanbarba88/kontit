@@ -11,7 +11,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zatvori"></button>
             </div>
             <div class="modal-body">
-                <div class="kt-text-sm text-muted mb-3">{{ ux_icon('lucide:lock', {class: 'kt-icon me-1'}) }}Stavka ide u tvoj privatni Podsetnik.</div>
+                <div class="kt-text-sm text-muted mb-3">{{ ux_icon('lucide:lock', {class: 'kt-icon me-1'}) }}Stavka ide u tvoj privatni podsetnik.</div>
                 <div class="mb-3">
                     <label class="form-label" for="kt-remind-name">Naslov</label>
                     <input type="text" class="form-control" id="kt-remind-name" name="title" maxlength="200" required>
@@ -20,10 +20,10 @@
                     <div class="col-7"><label class="form-label" for="kt-remind-date">Datum</label><input type="text" class="form-control" id="kt-remind-date" name="date" data-datepicker placeholder="Izaberi datum"></div>
                     <div class="col-5"><label class="form-label" for="kt-remind-time">Vreme</label><input type="time" class="form-control" id="kt-remind-time" name="time" value="09:00"></div>
                 </div>
-                <div class="form-check"><input class="form-check-input" type="checkbox" name="remindByEmail" id="kt-remind-email"><label class="form-check-label" for="kt-remind-email">Pošalji obaveštenje i na mail</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="remindByEmail" id="kt-remind-email"><label class="form-check-label" for="kt-remind-email">Pošalji obaveštenje i na mejl</label></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Odustani</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Odustani</button>
                 <button type="submit" class="btn btn-primary">Dodaj u podsetnik</button>
             </div>
         </form>

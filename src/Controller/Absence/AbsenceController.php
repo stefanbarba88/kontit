@@ -145,7 +145,7 @@ class AbsenceController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $this->service->update($absence, $me, $original);
-                $this->addFlash('success', 'Odsustvo je izmenjeno.');
+                $this->addFlash('success', 'Odsustvo je sačuvano.');
 
                 return $this->redirectToRoute('absence_index');
             } catch (\DomainException $e) {

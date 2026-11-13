@@ -15,7 +15,7 @@
         {% set job = row.job %}
         <tr class="{{ job.excluded ? 'kt-row-excluded' }}">
             <td>
-                <div class="kt-svc-name">{{ job.jobTemplate.name }}{% if job.jobTemplate.requiresApproval %} <span class="badge kt-badge-warning ms-1" title="Zadatke iz ovog posla potvrđuje izabrana osoba">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Traži potvrdu</span>{% endif %}</div>
+                <div class="kt-svc-name">{{ job.jobTemplate.name }}{% if job.jobTemplate.requiresApproval %} <span class="badge kt-badge-warning ms-1" title="Zadatke iz ovog posla potvrđuje izabrana osoba">{{ ux_icon('lucide:shield-check', {class: 'kt-icon me-1'}) }}Zatraži potvrdu</span>{% endif %}</div>
                 <div class="d-flex flex-wrap gap-1 align-items-center mt-1">
                     {{ ui.category_badge(job.jobTemplate.category) }}
                     {% if job.note %}<span class="kt-text-xs text-muted">{{ job.note }}</span>{% endif %}
@@ -49,7 +49,7 @@
                             {% else %}
                                 <a class="dropdown-item" href="{{ path('client_job_edit', {id: job.id}) }}">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-2'}) }}Izmeni</a>
                                 {{ js.schedule_actions(job, 'dropdown-item') }}
-                                <a class="dropdown-item" href="{{ path('client_task_new', {clientId: client.id, job: job.id, returnTo: return_to_path()}) }}">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Kreiraj zadatak sada</a>
+                                <a class="dropdown-item" href="{{ path('client_task_new', {clientId: client.id, job: job.id, returnTo: return_to_path()}) }}">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Dodaj zadatak sada</a>
                                 <div class="dropdown-divider"></div>
                                 {% if job.clientPackage %}
                                     <form method="post" action="{{ path('client_job_exclude', {id: job.id}) }}" {{ confirm_attrs('Isključiti „' ~ job.jobTemplate.name ~ '“ za ovog klijenta?', 'Zadaci za ovaj posao se više neće praviti. Otvoreni zadaci se otkazuju.', 'warning', 'Da, isključi', true) }}>
@@ -83,7 +83,7 @@
     {% if can_manage %}
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#package-modal">{{ ux_icon('lucide:package', {class: 'kt-icon me-2'}) }}Dodaj paket</button>
     {% endif %}
-    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#individual-modal">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}{{ can_manage ? 'Dodaj pojedinačan posao' : 'Predloži posao' }}</button>
+    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#individual-modal">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}{{ can_manage ? 'Dodaj pojedinačan posao' : 'Predloži posao' }}</button>
 </div>
 
 {% for group in services.packages %}
@@ -228,7 +228,7 @@
                         {{ form_row(packageForm.note) }}
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Odustani</button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Odustani</button>
                         <button class="btn btn-primary">Dodaj paket</button>
                     </div>
                 {{ form_end(packageForm) }}
@@ -272,7 +272,7 @@
                 {% if can_manage %}<p class="kt-text-sm text-muted mt-2 mb-0">Drugačiji raspored za ovog klijenta podešavaš posle dodavanja, preko „Izmeni“.</p>{% endif %}
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Odustani</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Odustani</button>
                 <button class="btn btn-primary">{{ can_manage ? 'Dodaj' : 'Pošalji predlog' }}</button>
             </div>
         </form>

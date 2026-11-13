@@ -514,7 +514,7 @@ Ništa se ne briše fizički: poslovi i paketi se deaktiviraju ili završavaju, 
 
 Neki poslovi traže da zadatak potvrdi tačno određeni admin, bez obzira na poziciju radnika.
 
-1. **Katalog → posao → Traži potvrdu**: uključi kvačicu i izaberi proveravače (aktivni admini i superadmini, najmanje jedan). Posao dobija značku **Traži potvrdu**. Ako izabereš samo jednog, on ne može da potvrdi sopstveni zadatak (tada potvrđuje drugi proveravač ili superadmin).
+1. **Katalog → posao → Zatraži potvrdu**: uključi kvačicu i izaberi proveravače (aktivni admini i superadmini, najmanje jedan). Posao dobija značku **Zatraži potvrdu**. Ako izabereš samo jednog, on ne može da potvrdi sopstveni zadatak (tada potvrđuje drugi proveravač ili superadmin).
 2. Zadatak nastao iz tog posla pamti proveravače u trenutku kreiranja. Kasnija izmena posla ne menja već napravljene zadatke.
 3. Pregled je u meniju **Posebne potvrde** (brojač pokazuje koliko čeka tebe). Tabovi: **Čeka potvrdu** (najstariji prvi, crveno posle 2 radna dana), **U radu** i **Potvrđeno** (sa izvozom). Superadmin ima prekidač **Sve posebne potvrde**.
 4. U listi su dugmad **Potvrdi** i **Vrati na doradu** (razlog je obavezan); na telefonu se prevlači red.

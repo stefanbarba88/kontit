@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Izvoz liste (SPEC 8e): isti filteri iz query stringa, isti upit i Voteri kao lista.
- * Do 2.000 redova odmah, a veći izvoz u pozadini sa notifikacijom.
+ * Do 2.000 redova odmah, a veći izvoz u pozadini sa obaveštenjem.
  */
 class ExportController extends AbstractController
 {
@@ -44,7 +44,7 @@ class ExportController extends AbstractController
 
         if ($export->count($query, $user) > ExportService::LIMIT_SYNC) {
             $bus->dispatch(new GenerateExport($list, $format, $query, (int) $user->getId(), bin2hex(random_bytes(12))));
-            $this->addFlash('info', 'Izvoz je veliki, pa se priprema u pozadini. Dobićeš notifikaciju sa linkom kad bude spreman.');
+            $this->addFlash('info', 'Izvoz je veliki, pa se priprema u pozadini. Dobićeš obaveštenje sa linkom kad bude spreman.');
 
             return $this->redirect($request->headers->get('referer') ?: $this->generateUrl('app_dashboard'));
         }

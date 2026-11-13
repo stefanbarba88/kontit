@@ -25,8 +25,8 @@
                     <div class="text-muted kt-text-sm">Za svaki PIB se iz NBS-a preuzimaju naziv, adresa, matični broj, delatnost i datumi. Kraći naziv se pravi od punog naziva, pa ga posle uvoza proveri na kartici klijenta. Klijenti koji već postoje se preskaču.</div>
                 </div>
             </div>
-            <div class="d-flex justify-content-end gap-2">
-                <a href="{{ path('client_index') }}" class="btn btn-light">Nazad</a>
+            <div class="d-flex justify-content-start gap-2">
+                <a href="{{ path('client_index') }}" class="btn btn-outline-secondary">Nazad</a>
                 <button class="btn btn-primary" {{ configured ? '' : 'disabled' }}>Uvezi{{ ux_icon('lucide:cloud-download', {class: 'kt-icon ms-2'}) }}</button>
             </div>
             {{ form_end(form) }}

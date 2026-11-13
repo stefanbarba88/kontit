@@ -189,7 +189,7 @@ class ClientController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $this->clients->update($client, $form->get('primary')->getData(), $form->get('backup')->getData(), $this->actor());
-                $this->addFlash('success', 'Izmene su sačuvane.');
+                $this->addFlash('success', 'Klijent je sačuvan.');
 
                 return $this->redirectToRoute('client_show', ['id' => $client->getId()]);
             } catch (\DomainException $e) {

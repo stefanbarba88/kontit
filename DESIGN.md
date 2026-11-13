@@ -372,7 +372,7 @@ Sve animacije se isključuju za `prefers-reduced-motion: reduce`.
 - Osnova je naš tabelarni šablon (`templates/emails/base.html.twig`, sav stil inline), sa bojama brenda: pozadina `#F5F6F8`, kartica bela, radius 14px,
   primarno dugme `#006FD6`, tekst `#1F2329` / `#5E6672`.
 - Logo: `kontit-app-lockup-email@2x.png` (prikazan u širini 220px), sa apsolutnim URL-om.
-- Futer: "KontIT app · Ova poruka je poslata automatski." i link ka podešavanjima notifikacija.
+- Futer: "KontIT app · Ova poruka je poslata automatski." i link ka podešavanjima obaveštenja.
 - Mailovi ostaju u svetloj temi (tamna u mail klijentima nije pouzdana).
 
 ---

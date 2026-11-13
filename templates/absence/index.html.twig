@@ -37,7 +37,7 @@
 {% endmacro %}
 
 {% macro edit_link(a) %}
-    {% if is_granted('ABSENCE_EDIT', a) %}<a href="{{ path('absence_edit', {id: a.id}) }}" class="btn btn-sm btn-light">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-1'}) }}Izmeni</a>{% endif %}
+    {% if is_granted('ABSENCE_EDIT', a) %}<a href="{{ path('absence_edit', {id: a.id}) }}" class="btn btn-sm btn-outline-secondary">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-1'}) }}Izmeni</a>{% endif %}
 {% endmacro %}
 
 {% block content %}
@@ -60,8 +60,8 @@
         {% if availability is not empty %}{% include 'absence/_team_availability.html.twig' %}{% endif %}
         <div class="d-flex mb-3">
             <div class="btn-group">
-                <a href="{{ path('absence_index') }}" class="btn btn-light {{ current ? 'active' }}">Aktuelna</a>
-                <a href="{{ path('absence_index', {history: 1}) }}" class="btn btn-light {{ not current ? 'active' }}">Istorija</a>
+                <a href="{{ path('absence_index') }}" class="btn btn-outline-secondary {{ current ? 'active' }}">Aktuelna</a>
+                <a href="{{ path('absence_index', {history: 1}) }}" class="btn btn-outline-secondary {{ not current ? 'active' }}">Istorija</a>
             </div>
         </div>
         <div class="card">
@@ -83,11 +83,11 @@
                                         {{ _self.action_form(a, 'reject', 'Odbij', 'btn-outline-danger', 'x') }}
                                     {% endif %}
                                     {% if is_granted('ABSENCE_REVOKE', a) %}{{ _self.action_form(a, 'revoke', 'Poništi', 'btn-outline-danger', 'undo-2') }}{% endif %}
-                                    {% if is_granted('ABSENCE_CANCEL', a) %}{{ _self.action_form(a, 'cancel', 'Otkaži', 'btn-light', 'ban') }}{% endif %}
+                                    {% if is_granted('ABSENCE_CANCEL', a) %}{{ _self.action_form(a, 'cancel', 'Otkaži', 'btn-outline-secondary', 'ban') }}{% endif %}
                                 </td>
                             </tr>
                         {% else %}
-                            <tr><td colspan="6">{{ ui.empty_state(current ? 'Nema aktuelnih odsustava.' : 'Nema odsustava.', 'plane') }}</td></tr>
+                            <tr><td colspan="6">{{ ui.empty_state(current ? 'Nema aktuelnih odsustava.' : 'Još nema odsustava.', 'plane') }}</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>

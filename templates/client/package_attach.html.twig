@@ -32,8 +32,8 @@
                         </div>
                         {{ form_row(form.note) }}
                         <div class="kt-form-actions">
-                            <a href="{{ path('client_show', {id: client.id, tab: 'usluge'}) }}" class="btn btn-light me-2">Odustani</a>
                             <button class="btn btn-primary">Dodaj paket</button>
+                            <a href="{{ path('client_show', {id: client.id, tab: 'usluge'}) }}" class="btn btn-outline-secondary">Odustani</a>
                         </div>
                     {{ form_end(form) }}
                 </div>

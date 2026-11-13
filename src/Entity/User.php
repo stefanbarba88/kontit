@@ -98,7 +98,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     private ?int $capacityHours = null;
 
     /**
-     * Koje vrste notifikacija korisnik želi i na mail (popunjava se u Fazi 5).
+     * Koje vrste obaveštenja korisnik želi i na mejl (popunjava se u Fazi 5).
      *
      * @var list<string>
      */

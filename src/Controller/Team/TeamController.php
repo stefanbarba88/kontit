@@ -22,7 +22,7 @@ class TeamController extends AbstractController
     {
         $team = $teams->findActiveLedBy($this->getUser());
         if (null === $team) {
-            $this->addFlash('warning', 'Trenutno ne vodite nijedan tim.');
+            $this->addFlash('warning', 'Trenutno ne vodiš nijedan tim.');
 
             return $this->redirectToRoute('app_dashboard');
         }

@@ -1,7 +1,7 @@
-// Provera zadataka: forma posla (Traži potvrdu → proveravači) i forma zadatka (polje "Provera").
+// Provera zadataka: forma posla (Zatraži potvrdu → proveravači) i forma zadatka (polje "Provera").
 // Server uvek proverava šta je dozvoljeno (TaskReviewPolicy); ovo je samo pomoć u prikazu.
 
-// Forma posla: izbor proveravača se vidi samo kad je "Traži potvrdu" uključeno
+// Forma posla: izbor proveravača se vidi samo kad je "Zatraži potvrdu" uključeno
 const toggle = document.querySelector('[data-kt-approval-toggle]');
 const approversRow = document.querySelector('[data-kt-approvers-row]');
 if (toggle && approversRow) {

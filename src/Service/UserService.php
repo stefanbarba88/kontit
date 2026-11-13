@@ -85,11 +85,11 @@ class UserService
             }
             $clients = $this->clients->countActiveAssignedTo($user);
             if ($clients > 0) {
-                throw new \DomainException(sprintf('Korisnik je zadužen na %d klijent(a) kao glavni ili backup. Prvo prebacite klijente na drugog radnika.', $clients));
+                throw new \DomainException(sprintf('Korisnik je zadužen na %d klijent(a) kao glavni ili backup. Prvo prebaci klijente na drugog radnika.', $clients));
             }
             $tasks = $this->tasks->countPendingFor($user);
             if ($tasks > 0) {
-                throw new \DomainException(sprintf('Korisnik ima %d zadatak(a) u radu. Prvo ih prebacite na drugog radnika (izmena zadatka) ili ih otkažite.', $tasks));
+                throw new \DomainException(sprintf('Korisnik ima %d zadatak(a) u radu. Prvo ih prebaci na drugog radnika (izmena zadatka) ili ih otkaži.', $tasks));
             }
         }
 

@@ -37,8 +37,8 @@
                 </div>
             </div>
             <div class="kt-form-actions">
-                <a href="{{ path('client_show', {id: client.id, tab: 'usluge'}) }}" class="btn btn-light me-2">Odustani</a>
                 <button class="btn btn-primary">{{ isAdmin ? 'Dodaj' : 'Pošalji predlog' }}</button>
+                <a href="{{ path('client_show', {id: client.id, tab: 'usluge'}) }}" class="btn btn-outline-secondary">Odustani</a>
             </div>
         </form>
     </div>

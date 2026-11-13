@@ -44,7 +44,7 @@ document.querySelectorAll('form[data-kt-filters]').forEach((form, index) => {
     const holder = form.closest('.card-body') || form.parentElement;
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'btn btn-light kt-filter-btn';
+    button.className = 'btn btn-outline-secondary kt-filter-btn';
     button.innerHTML = `${icon('filter', 'me-2')}Filteri${active ? ` <span class="kt-filter-count">${active}</span>` : ''}`;
     button.setAttribute('data-bs-toggle', 'offcanvas');
     button.setAttribute('data-bs-target', `#${sheet.id}`);
@@ -70,7 +70,7 @@ document.querySelectorAll('.pagination').forEach((pagination) => {
     }
     const more = document.createElement('button');
     more.type = 'button';
-    more.className = 'btn btn-light w-100 kt-load-more';
+    more.className = 'btn btn-outline-secondary w-100 kt-load-more';
     more.textContent = 'Učitaj još';
     table.closest('.card').after(more);
     more.addEventListener('click', async () => {

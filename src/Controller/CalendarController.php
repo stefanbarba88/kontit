@@ -112,7 +112,7 @@ class CalendarController extends AbstractController
         $revoke = 'revoke' === $request->request->getString('action');
         $me->setIcsToken($revoke ? null : bin2hex(random_bytes(20)));
         $em->flush();
-        $this->addFlash('success', $revoke ? 'ICS link je poništen.' : 'Napravljen je nov ICS link. Stari više ne radi.');
+        $this->addFlash('success', $revoke ? 'ICS link je poništen.' : 'Generisan je nov ICS link. Stari više ne radi.');
 
         return $this->redirectToRoute('app_profile');
     }

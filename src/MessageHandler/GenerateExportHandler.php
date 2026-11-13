@@ -49,7 +49,7 @@ final class GenerateExportHandler
     }
 
     /**
-     * Izvozi stariji od 7 dana se brišu (link u notifikaciji tada više ne radi).
+     * Izvozi stariji od 7 dana se brišu (link u obaveštenju tada više ne radi).
      */
     private function removeExpired(): void
     {

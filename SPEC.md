@@ -45,7 +45,7 @@ Objektna prava rešavaju Voteri:
 - roles (JSON, čuva se jedna najviša rola; hijerarhiju rešava `role_hierarchy`), isActive, lastLoginAt
 - Admin može da menja samo radnike i šefove. Admine i superadmina menja i kreira samo superadmin. Svako sam menja svoj profil (ime, kontakt, lozinka, tema), a email, prava pristupa (rolu) i poziciju menja admin.
 - internalNote (vidi samo admin+)
-- emailNotifications (JSON: koje vrste notifikacija korisnik želi i na mail)
+- emailNotifications (JSON: koje vrste obaveštenja korisnik želi i na mejl)
 - createdAt, updatedAt
 
 ### Team
@@ -190,10 +190,10 @@ OTKAZANO (iz bilo kog statusa, radi kreator / šef / admin)
 - Učesnik može da povuče "moj deo je gotov" dok zadatak nije potvrđen. Izmena učesnika ponovo računa da li je zadatak kompletan.
 - Klijent na zadatku mora biti aktivan i vidljiv onom ko kreira (isti opseg kao `CLIENT_VIEW`).
 - Komentar može da izmeni autor 15 minuta. Komentare vraćanja na doradu nije moguće menjati.
-- Beleženje u `ActivityLog` je urađeno u Fazi 4 (vidi sekciju 3, ActivityLog), a notifikacije dolaze u Fazi 5. Prikaz tuđih zadataka kao "PREUZETO" za backup dolazi u Fazi 6.
+- Beleženje u `ActivityLog` je urađeno u Fazi 4 (vidi sekciju 3, ActivityLog), a obaveštenja dolaze u Fazi 5. Prikaz tuđih zadataka kao "PREUZETO" za backup dolazi u Fazi 6.
 
 ### 4.6 Posebne potvrde (implementirano)
-- **Posao** (`JobTemplate`): `requiresApproval` + proveravači (aktivni admin/superadmin, najmanje jedan). Značka „Traži potvrdu“ u katalogu i ugovorenim uslugama. Sa jednim proveravačem forma upozorava da on ne može da potvrdi sopstveni zadatak.
+- **Posao** (`JobTemplate`): `requiresApproval` + proveravači (aktivni admin/superadmin, najmanje jedan). Značka „Zatraži potvrdu“ u katalogu i ugovorenim uslugama. Sa jednim proveravačem forma upozorava da on ne može da potvrdi sopstveni zadatak.
 - **Snapshot**: pri kreiranju zadatka iz posla (generator, „Kreiraj zadatak sada“, „Po potrebi“, ručni zadatak sa poslom; jedno mesto: `TaskService`) proveravači se kopiraju na zadatak (`task_required_approver`, `reviewFromJob`). Kasnija izmena posla ne menja postojeće zadatke.
 - **Način provere na zadatku** (`Task.reviewMode`, `reviewDecidedBy`, `reviewDecidedAt`), polje „Provera“ u formi:
   - kreator čija pozicija traži proveru ne vidi polje, server nameće AUTO;
@@ -207,7 +207,7 @@ OTKAZANO (iz bilo kog statusa, radi kreator / šef / admin)
 - **Proveravač koji više nije važeći** (neaktivan ili bez admin prava) ne računa se; ako nijedan ne preostane, potvrđuje superadmin. Pri deaktivaciji ili spuštanju prava jedinog proveravača admin dobija upozorenje sa brojem posebnih poslova i otvorenih zadataka (`SpecialApprovalService::soleApproverWarning`).
 - **Stranica** `/tasks/special-approvals` (samo admin i superadmin, `SPECIAL_APPROVALS_VIEW`, stavka „Posebne potvrde“ u meniju sa brojačem): admin vidi zadatke gde je proveravač, superadmin svoje + prekidač „Sve posebne potvrde“. Tabovi: Čeka potvrdu (najstariji prvi, „čeka N radna dana“, crveno preko 2 radna dana), U radu, Potvrđeno (period se odnosi na datum potvrde, izvoz Excel/CSV/PDF). Filteri: klijent, posao, radnik, rok. Akcije u listi „Potvrdi“ i „Vrati na doradu“ (obavezan razlog), na telefonu prevlačenjem.
 - **Dashboard**: kartica „Posebne potvrde“ u uskoj koloni (brojač u zaglavlju, najviše 5 najstarijih sa klijentom i datumom slanja, „Najstariji od…“, dugme „Pregledaj“ ka punoj strani; „Nema posebnih potvrda.“ kad je prazno). Admin vidi i broj zadataka „Bez provere“ po odlučivaču (90 dana).
-- **Notifikacije**: `SPECIAL_APPROVAL_SUBMITTED` svim proveravačima (in-app + mail, podrazumevano uključen, korisnik ga isključuje u profilu); `TASK_SUBMITTED` samo onima koji smeju da potvrde; upozorenje `SPECIAL_APPROVAL_REMINDER` jednom dnevno za posebne potvrde koje čekaju duže od 2 radna dana (`app:notifications:due`).
+- **Obaveštenja**: `SPECIAL_APPROVAL_SUBMITTED` svim proveravačima (in-app + mail, podrazumevano uključen, korisnik ga isključuje u profilu); `TASK_SUBMITTED` samo onima koji smeju da potvrde; upozorenje `SPECIAL_APPROVAL_REMINDER` jednom dnevno za posebne potvrde koje čekaju duže od 2 radna dana (`app:notifications:due`).
 - **Automatsko odobravanje** se nikad ne primenjuje na posebne potvrde.
 - **Statistika**: „% vraćenih na doradu“ i „prosečno vreme do potvrde“ računaju samo zadatke koji su išli na proveru; zadaci završeni bez provere se broje kao završeni i „na vreme“ (po `finished_at`).
 ---
@@ -215,7 +215,7 @@ OTKAZANO (iz bilo kog statusa, radi kreator / šef / admin)
 ## 5. Backup radnik i odsustva
 - Backup **uvek vidi** klijenta, u odvojenom bloku "Zamena".
 - Kada se glavnom radniku upiše **odsustvo** (`UserAbsence`), backup za taj period:
-  - dobija notifikaciju "Preuzimaš klijente za [ime] od [datum] do [datum]"
+  - dobija obaveštenje "Preuzimaš klijente za [ime] od [datum] do [datum]"
   - vidi otvorene zadatke glavnog radnika za te klijente, označene kao **"PREUZETO"**
   - može da ih štiklira i završava (ActivityLog beleži da je to uradio kao zamena)
 - Odsustvo upisuje admin (za bilo koga), šef (za sebe i svoj tim) ili radnik sam sebi.
@@ -239,18 +239,18 @@ OTKAZANO (iz bilo kog statusa, radi kreator / šef / admin)
 
 ---
 
-## 7. Notifikacije
+## 7. Obaveštenja
 - Prikazuju se **u aplikaciji**: zvonce u navigaciji sa brojem nepročitanih, dropdown sa poslednjih 10 i stranica sa svim.
   Osvežavanje preko AJAX poll-a na 60 s.
 - **Mail je opcion**:
-  - na mestima gde ima smisla (kreiranje zadatka, vraćanje na doradu, hitni zadaci) postoji checkbox **"Pošalji i na mail"**
-  - korisnik u profilu bira koje vrste notifikacija uvek želi i na mail (`emailNotifications`)
+  - na mestima gde ima smisla (kreiranje zadatka, vraćanje na doradu, hitni zadaci) postoji checkbox **"Pošalji i na mejl"**
+  - korisnik u profilu bira koje vrste obaveštenja uvek želi i na mejl (`emailNotifications`)
 - Mail se šalje asinhrono preko Symfony Messenger-a, da ne usporava akciju.
 - Vrste: TASK_ASSIGNED, TASK_SUBMITTED (šefu), TASK_APPROVED, TASK_RETURNED, TASK_COMMENTED, TASK_DUE_SOON, TASK_OVERDUE, CLIENT_ASSIGNED, BACKUP_ACTIVATED, TEAM_CHANGED.
-- **Implementacija (Faza 5)**: `NotificationService::notify()` je jedino mesto koje pravi notifikacije (servisi ga pozivaju posle uspešne izmene). Ne obaveštava aktera o sopstvenoj akciji ni neaktivne korisnike. Mail se šalje ako je pošiljalac štiklirao "Pošalji i na mail" ili ako je primalac tu vrstu izabrao u profilu; ide kroz `MailerInterface`, a `SendEmailMessage` je rutiran na `async` transport, pa ga šalje `messenger:consume async`.
+- **Implementacija (Faza 5)**: `NotificationService::notify()` je jedino mesto koje pravi obaveštenja (servisi ga pozivaju posle uspešne izmene). Ne obaveštava aktera o sopstvenoj akciji ni neaktivne korisnike. Mail se šalje ako je pošiljalac štiklirao "Pošalji i na mejl" ili ako je primalac tu vrstu izabrao u profilu; ide kroz `MailerInterface`, a `SendEmailMessage` je rutiran na `async` transport, pa ga šalje `messenger:consume async`.
 - Primaoci: TASK_ASSIGNED (novi učesnici), TASK_SUBMITTED (šefovi timova učesnika koji sami nisu učesnici, a ako takvih nema, admini), TASK_APPROVED i TASK_RETURNED (učesnici; razlog vraćanja je u poruci), TASK_COMMENTED (učesnici i kreator, bez autora), CLIENT_ASSIGNED (novi glavni ili backup), TEAM_CHANGED (radnik koji je dodat ili prebačen, novi i bivši šef). BACKUP_ACTIVATED se uvodi u Fazi 6.
 - TASK_DUE_SOON (rok u narednih 3 dana) i TASK_OVERDUE šalje komanda `app:notifications:due`, jednom po zadatku i korisniku (preskače učesnike koji su završili svoj deo). Pokreće se dnevno preko crona.
-- Hitan zadatak (prioritet HITAN) ima naslov notifikacije "Novi HITAN zadatak", a checkbox za mail se u formi sam štiklira.
+- Hitan zadatak (prioritet HITAN) ima naslov obaveštenja "Novi HITAN zadatak", a checkbox za mail se u formi sam štiklira.
 
 ---
 
@@ -481,7 +481,7 @@ Kasnije se zamenjuje stvarnim vremenom iz agenta (Faza 8), pa analitiku treba pi
 - Izvozi se **ono što je trenutno filtrirano**, i to **samo redovi koje korisnik sme da vidi** (isti upit i isti Voteri kao lista).
 - Cene i finansije se izvoze samo adminu i superadminu.
 - Naziv fajla: `kontit-klijenti-2026-10-27.xlsx`.
-- Veliki izvozi (preko 2.000 redova) idu preko Messenger-a, a korisnik dobije notifikaciju sa linkom kad je fajl spreman.
+- Veliki izvozi (preko 2.000 redova) idu preko Messenger-a, a korisnik dobije obaveštenje sa linkom kad je fajl spreman.
 - Excel (phpspreadsheet): formatirano zaglavlje, širine kolona, iznosi kao brojevi, zamrznut prvi red, autofilter. CSV (league/csv): UTF-8 sa BOM-om, separator `;`. PDF (dompdf): šabloni u `templates/pdf/`, logo, Inter, boje brenda.
 
 ---
@@ -501,7 +501,7 @@ Kasnije se zamenjuje stvarnim vremenom iz agenta (Faza 8), pa analitiku treba pi
 
 ### 8f.2 Klijent: kraći naziv
 - `Client.shortName` (obavezno, do 40 karaktera), npr. "Mlekara Ivanjica".
-- **Kraći naziv se koristi svuda**: liste, badge-ovi, Tom Select opcije, naslovi zadataka, kalendar, notifikacije, mailovi.
+- **Kraći naziv se koristi svuda**: liste, badge-ovi, Tom Select opcije, naslovi zadataka, kalendar, obaveštenja, mailovi.
 - **Pun naziv** (`name`) samo na kartici klijenta, u PDF izveštajima i izvozima (posebna kolona).
 - Migracija: postojećim klijentima `shortName` = `name` skraćen na 40 karaktera (korisnik ih kasnije ručno ispravlja).
 - NBS: `name` = zvaničan naziv, a `shortName` se predlaže (bez pravne forme i dodataka "doo", "d.o.o.", "preduzetnik", "PR"), uz mogućnost izmene.
@@ -652,9 +652,9 @@ Zamenjuje `Holiday` tabelu. Admin+ upravlja na **Podešavanja → Neradni dani**
 ## 8m. Automatsko odobravanje posle roka (implementirano u P7)
 - Ako odobravalac ne odgovori do roka, zahtev se smatra odobrenim.
 - `ApprovableInterface` (status, approvalDeadline, approve(), approveAutomatically()); implementira ga `Absence`.
-- Rok pri podnošenju: `min(podnošenje + X radnih sati, početak odsustva − 1 dan)`; X po vrsti zahteva u Podešavanjima (podrazumevano 48 h). Ako je odsustvo za sutra, odobravalac dobija hitnu notifikaciju.
-- `app:approvals:auto-approve` (cron na 15 min): `NA_ODOBRENJU` sa isteklim rokom → `AUTOMATSKI_ODOBRENO`, ActivityLog (sistem), notifikacije obojici. Upozorenje odobravaocu 24 h pre isteka.
-- UI: odbrojavanje ("Automatski se odobrava za 5 h"), poseban badge za automatski odobreno. Admin može da poništi automatsko odobrenje (razlog, notifikacija).
+- Rok pri podnošenju: `min(podnošenje + X radnih sati, početak odsustva − 1 dan)`; X po vrsti zahteva u Podešavanjima (podrazumevano 48 h). Ako je odsustvo za sutra, odobravalac dobija hitno obaveštenje.
+- `app:approvals:auto-approve` (cron na 15 min): `NA_ODOBRENJU` sa isteklim rokom → `AUTOMATSKI_ODOBRENO`, ActivityLog (sistem), obaveštenja obojici. Upozorenje odobravaocu 24 h pre isteka.
+- UI: odbrojavanje ("Automatski se odobrava za 5 h"), poseban badge za automatski odobreno. Admin može da poništi automatsko odobrenje (razlog, obaveštenja).
 - "X radnih sati" = sati koji padaju u radne dane (vikend, praznici i kolektivni odmor se preskaču), bez radnog vremena od-do. Podrazumevano 48 h za sve vrste odsustva, uključujući slavu (menja se u Podešavanjima).
 - Primena: odsustva (uključeno). **Potvrda zadataka (NA_PROVERI)**: mehanizam postoji, podrazumevano isključen; kad se uključi u Podešavanjima, rok je 3 radna dana. Uključivanje je po vrsti zahteva.
 
@@ -664,7 +664,7 @@ Zamenjuje `Holiday` tabelu. Admin+ upravlja na **Podešavanja → Neradni dani**
 - Fajlovi van `public/` (`var/storage/user-documents/{userId}/`, nasumično ime), servira ih kontroler uz Voter `USER_DOCUMENT_VIEW`. Nikad direktan link.
 - Vidi: korisnik svoje, admin+ sve, šef samo dokumente vezane za odsustva svog tima. Upload: admin+ za bilo koga, korisnik za sebe.
 - Profil: tab "Dokumenti" po kategorijama (ikonica tipa, naziv, datum, veličina, ko je dodao) sa filterom.
-- `validUntil`: notifikacija adminu 30 i 7 dana pre isteka. Brisanje je soft (SweetAlert); fajl se fizički briše tek trajnim brisanjem iz korpe (admin).
+- `validUntil`: obaveštenja adminu 30 i 7 dana pre isteka. Brisanje je soft (SweetAlert); fajl se fizički briše tek trajnim brisanjem iz korpe (admin).
 
 ## 8n. Kalendar (8n.1, 8n.2 i ICS implementirani u P9, Google u P10)
 - **FullCalendar v6** (MIT paketi: core, daygrid, timegrid, list, interaction) preko importmap-a, srpski latinični locale, nedelja od ponedeljka, tokeni iz DESIGN.md u obe teme. Premium paketi se ne koriste.
@@ -674,12 +674,12 @@ Zamenjuje `Holiday` tabelu. Admin+ upravlja na **Podešavanja → Neradni dani**
 - Klik na prazan dan: "Novi zadatak za ovaj dan" ili "Zahtev za odsustvo od ovog dana". Klik na događaj: popover sa detaljima i linkom. Prevlačenje zadatka menja rok (samo uz `TASK_EDIT`), uz SweetAlert i upozorenje za neradni dan.
 - Kalendar je u glavnom meniju; mali pregled naredne nedelje na dashboardu.
 - **ICS link**: tajni `/calendar/ics/{token}.ics` (samo čitanje), uz poništavanje i novi link.
-- **Google Calendar** (samo jedan smer, aplikacija → Google; izmene u Google-u se ne vraćaju u aplikaciju): svaki korisnik sam povezuje nalog (OAuth 2.0, scope `calendar.app.created`), aplikacija pravi poseban kalendar "KontIT". Šalju se zadaci gde je korisnik učesnik (celodnevno na dan roka, link u opisu) i njegova odobrena odsustva; šef opciono i odsustva tima. Kreiranje, izmena roka, status (✓ u naslovu), otkazivanje i brisanje idu asinhrono preko Messenger-a, sa ponavljanjem; posle 5 neuspeha notifikacija korisniku. Entiteti `GoogleCalendarConnection` (refreshToken šifrovan) i `CalendarSyncLink`. Komanda `app:calendar:resync {user}`. Paketi `knpuniversity/oauth2-client-bundle`, `league/oauth2-google`, `google/apiclient` (samo Calendar servis). Uputstvo za Google Cloud konzolu u `docs/google-calendar-setup.md`; `GOOGLE_CLIENT_ID` i `GOOGLE_CLIENT_SECRET` samo u `.env.local`.
+- **Google Calendar** (samo jedan smer, aplikacija → Google; izmene u Google-u se ne vraćaju u aplikaciju): svaki korisnik sam povezuje nalog (OAuth 2.0, scope `calendar.app.created`), aplikacija pravi poseban kalendar "KontIT". Šalju se zadaci gde je korisnik učesnik (celodnevno na dan roka, link u opisu) i njegova odobrena odsustva; šef opciono i odsustva tima. Kreiranje, izmena roka, status (✓ u naslovu), otkazivanje i brisanje idu asinhrono preko Messenger-a, sa ponavljanjem; posle 5 neuspeha obaveštenja korisniku. Entiteti `GoogleCalendarConnection` (refreshToken šifrovan) i `CalendarSyncLink`. Komanda `app:calendar:resync {user}`. Paketi `knpuniversity/oauth2-client-bundle`, `league/oauth2-google`, `google/apiclient` (samo Calendar servis). Uputstvo za Google Cloud konzolu u `docs/google-calendar-setup.md`; `GOOGLE_CLIENT_ID` i `GOOGLE_CLIENT_SECRET` samo u `.env.local`.
 
 ### Podešavanja (admin) iz ove dopune
 Neradni dani, vrste odsustva i kategorije dokumenata, rokovi automatskog odobravanja po vrsti zahteva, podrazumevan broj dana godišnjeg odmora, Google kalendar (uključen za firmu, šefovi dobijaju odsustva tima).
 
-### Nove notifikacije
+### Nova obaveštenja
 ABSENCE_REQUESTED (postoji), ABSENCE_APPROVED, ABSENCE_REJECTED (zamenjuju ABSENCE_DECIDED), ABSENCE_AUTO_APPROVED, APPROVAL_DEADLINE_SOON, DOCUMENT_EXPIRING, DOCUMENT_ADDED, CALENDAR_SYNC_FAILED.
 
 ## 8o. Uputstvo za korisnike (u aplikaciji)
@@ -700,7 +700,7 @@ ABSENCE_REQUESTED (postoji), ABSENCE_APPROVED, ABSENCE_REJECTED (zamenjuju ABSEN
 - **Dodavanje i izmena (jedan SweetAlert prozor):** dugme "+ Dodaj" (panel, `/podsetnik`, kartica na početnoj, prazno stanje) i taster **n** (kad fokus nije u polju, nije otvoren drugi prozor i nema modifikatora) otvaraju isti prozor iz `assets/js/todo.js`; klik na tekst stavke otvara isti prozor popunjen, sa crvenim "Obriši" (ponavljajuća traži dodatnu potvrdu). Osnovno: naslov (fokus odmah, Enter čuva) i rok (flatpickr + čipovi Danas / Sutra / Ponedeljak, opciono vreme). Iza "Više opcija": napomena, obaveštenje (flatpickr + vreme, čipovi Sutra 9:00 / Ponedeljak 9:00), ponavljanje, mail, veza na klijenta (Tom Select, `/ajax/todo/clients` vraća samo klijente koje korisnik sme da vidi). Prazan naslov, rok-vreme bez datuma i ponavljanje bez roka/obaveštenja daju poruku u prozoru; greška servera ili mreže ostaje u prozoru da se unos ne izgubi. Čipovi dolaze sa servera (`TodoService::chips`, `data-chips` na panelu). Brzo polje iz panela je uklonjeno jer je dupliralo prozor. Veza na klijenta traži `CLIENT_VIEW` (inače 404); neuspeo unos ne ostavlja praznu stavku.
 - **Štikliranje i brisanje:** animacija kvačice iz DESIGN 7.10, toast "Poništi" 5 s. Obična stavka se briše bez potvrde (Poništi je vraća iz snimka); **ponavljajuća traži SweetAlert potvrdu** (brisanje zaustavlja ponavljanje). Na telefonu swipe ulevo: Završi / Obriši.
 - **Ponavljanje:** završetkom nastaje sledeća stavka, po belgradskom kalendaru (isto vreme dana i posle promene na letnje/zimsko). Ako stavka kasni, sledeći rok se računa od DANAŠNJEG dana, ne od starog roka. WORKDAYS preskače vikende i neradne dane (`WorkingDayService`), MONTHLY pamti dan u mesecu (31. u kraćem mesecu postaje poslednji dan, bez "klizanja"). **Poništi** završetka briše novonastalu stavku ako je netaknuta (nema duplikata). Ponavljanje staje izmenom na NONE ili brisanjem.
-- **Obaveštenja:** komanda `app:todo:send-reminders`, cron svakog minuta (DEPLOY.md). Svako obaveštenje tačno jednom: pre slanja se atomski postavlja `reminder_sent_at` (`UPDATE ... WHERE reminder_sent_at IS NULL`), pa preklapanje ili dvostruko pokretanje ne šalje duplo. Kanali: notifikacija `TODO_REMINDER` u zvonu (ima svoju ikonu i tekst; ne pojavljuje se u podešavanjima profila), mail kad je na stavci uključen `remindByEmail`, toast "Završeno" / "Odloži" dok je aplikacija otvorena, browser obaveštenje (Notification API) kad je tab u pozadini; dozvola se traži jednom, pri prvom postavljanju obaveštenja, nikad pri učitavanju strane.
+- **Obaveštenja:** komanda `app:todo:send-reminders`, cron svakog minuta (DEPLOY.md). Svako obaveštenje tačno jednom: pre slanja se atomski postavlja `reminder_sent_at` (`UPDATE ... WHERE reminder_sent_at IS NULL`), pa preklapanje ili dvostruko pokretanje ne šalje duplo. Kanali: obaveštenja `TODO_REMINDER` u zvonu (ima svoju ikonu i tekst; ne pojavljuje se u podešavanjima profila), mail kad je na stavci uključen `remindByEmail`, toast "Završeno" / "Odloži" dok je aplikacija otvorena, browser obaveštenje (Notification API) kad je tab u pozadini; dozvola se traži jednom, pri prvom postavljanju obaveštenja, nikad pri učitavanju strane.
 - **Brz poll:** `/ajax/todo/due` na 15 s dok je tab vidljiv (zvono ostaje na 60 s kao rezervni kanal). Lagan je i zatvara sesiju pre upita. Podsetnik se atomski preuzima (`shown_at`), pa toast dobija samo jedan tab; skriven tab preuzima samo ako sme da pokaže browser obaveštenje. Prikazuju se obaveštenja poslati u poslednja 2 sata.
 - **Odloži:** 10 min, 1 h, sutra u 9:00 (sledeći radni dan). Postavlja novi `remindAt` i briše `reminderSentAt` i `shownAt`.
 - **"Dodaj u podsetnik"** na zadatku i klijentu: modal sa unapred popunjenim naslovom i izborom vremena; pravi stavku vezanu za zadatak/klijenta (potreban `TASK_VIEW` / `CLIENT_VIEW`, inače 404). U listi je veza link samo dok vlasnik sme da vidi zadatak/klijenta, inače običan tekst.
@@ -715,6 +715,26 @@ ABSENCE_REQUESTED (postoji), ABSENCE_APPROVED, ABSENCE_REJECTED (zamenjuju ABSEN
 - „Zadaci“ su kartice „Moj pregled“ (automatski se slažu u 2 do 4 u redu zavisno od širine kolone). Kalendar je „Naredna nedelja“.
 - Posebne potvrde u uskoj koloni nisu tabela nego brojač, najviše 5 najstarijih stavki i link na punu stranu (`TaskRepository::awaitingSpecialApproval`, isti upit kao brojač).
 - Blokovi **Moj tim** (šef) i **Svi radnici / Cela firma** (admin) ostaju ispod mreže, preko cele širine, jer grafikoni i tabele ne staju u uske kolone.
+
+### 8q. Rečnik i pravila teksta u aplikaciji
+Jedna reč po pojmu (UI, mailovi, flash i validacione poruke). Obraćanje je svuda **ti** (interna aplikacija).
+| Pojam | Pravilo |
+|---|---|
+| zadatak, klijent, rok | nikad "task", "komitent", "termin" |
+| **usluga** / **posao** | usluga = ono što klijent plaća (paket usluga, cenovnik, ugovorene usluge); posao = katalog i rad (katalog poslova, poslovi klijenta, zadaci iz posla) |
+| **Sačuvaj** / **Pošalji** | Sačuvaj čuva formu; Pošalji šalje (na proveru, predlog) |
+| **Odustani** / **Otkaži** / **Zatvori** / **Poništi** | Odustani = izlaz iz forme ili prozora bez čuvanja; Otkaži samo poslovna radnja (zadatak, odsustvo); Zatvori = prozor samo za čitanje; Poništi = undo i reset filtera |
+| **Obriši** / **Ukloni** / **Deaktiviraj** / **Isključi** | Obriši = trajno; Ukloni = raskidanje veze (iz paketa, tima, klijenta); Deaktiviraj = soft delete (korisnik, klijent, tim); Isključi = prekidači i podešavanja obaveštenja |
+| **Izmeni** / **Promeni** | Izmeni = radnja nad zapisom; Promeni = samo vrednost (lozinka, rok, status) |
+| **Dodaj** / **Novi X** | Dodaj = stavka u postojeću listu ili vezu; Novi X = zaglavlje liste; "Kreiraj" i "Napravi" se ne koriste |
+| **Pretraži** / **Zatraži potvrdu** | dugme pretrage i filtera je Pretraži; posao koji traži proveru ima "Zatraži potvrdu" |
+| **Odobri** / **Potvrdi** | Odobri = odsustvo i predlog posla; Potvrdi = provera zadatka |
+| **Obaveštenja** | zvono, meni i stranica; "notifikacija" se ne koristi |
+| **Podsetnik** | veliko P samo kao naziv modula (meni, naslov, kartica); u rečenici malo ("u tvoj podsetnik") |
+| **mejl** / **Email** | u rečenicama "mejl" ("pošalji i na mejl"), u nazivu polja i kolone "Email" |
+| prazna stanja | "Još nema X." kad korisnik može da doda; "Nema X." kad je rezultat filtera ili sistema |
+| poruke | flash: "<Entitet> je sačuvan/obrisan/uklonjen/deaktiviran."; validacija: "Unesi …." / "Izaberi …." sa tačkom |
+| dugmad | primarna radnja je prva (levo na računaru, gore na telefonu), Odustani iza nje (`btn-outline-secondary`); isto u SweetAlert prozorima |
 
 ## 9. Planirano za kasnije (NE implementirati sada, ali ne blokirati)
 - **Praćenje vremena**: neće biti start/stop tajmer, a način ćemo definisati kasnije.
@@ -734,7 +754,7 @@ ABSENCE_REQUESTED (postoji), ABSENCE_APPROVED, ABSENCE_REJECTED (zamenjuju ABSEN
 - **Međukorak (završen)**: Prelazak na Limitless template (vidi `TEMPLATE_INVENTORY.md`)
 - **Faza 3 (završena)**: Zadaci: kreiranje, više učesnika, checklist (AJAX, drag & drop), komentari (AJAX), potvrda šefa i vraćanje na doradu
 - **Faza 4 (završena)**: ActivityLog listener i timeline prikaz
-- **Faza 5 (završena)**: Notifikacije (in-app i opcioni mail preko Messenger-a)
+- **Faza 5 (završena)**: Obaveštenja (in-app i opcioni mail preko Messenger-a)
 - **Faza 6 (završena)**: Odsustva i aktivacija backup radnika
 - **Faza 7 (završena)**: Dashboardi i statistika
 

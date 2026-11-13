@@ -19,7 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Svaka vrsta se šalje jednom po zadatku i korisniku, pa je bezbedno pokretati ga više puta dnevno.
  * Raspored: jednom dnevno, npr. cron "0 7 * * * php bin/console app:notifications:due".
  */
-#[AsCommand(name: 'app:notifications:due', description: 'Šalje notifikacije o zadacima čiji rok ističe ili je prošao')]
+#[AsCommand(name: 'app:notifications:due', description: 'Šalje obaveštenja o zadacima čiji rok ističe ili je prošao')]
 class NotificationsDueCommand extends Command
 {
     public function __construct(
@@ -68,7 +68,7 @@ class NotificationsDueCommand extends Command
         // upozorenje proveravačima: posebna potvrda koja čeka duže od 2 radna dana (jednom dnevno po proveravaču)
         $reminded = $this->specialApprovals->remind();
 
-        $io->success(sprintf('Poslato notifikacija: %d, upozorenja za posebne potvrde: %d.', $sent, $reminded));
+        $io->success(sprintf('Poslato obaveštenja: %d, upozorenja za posebne potvrde: %d.', $sent, $reminded));
 
         return Command::SUCCESS;
     }

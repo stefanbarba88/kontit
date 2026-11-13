@@ -105,8 +105,8 @@
 
     {% if returnTo %}<input type="hidden" name="returnTo" value="{{ returnTo }}">{% endif %}
     <div class="kt-form-actions">
-        <a href="{{ returnTo ?: (is_new ? (locked ? path('client_show', {id: task.client.id}) : path('task_index')) : path('task_show', {id: task.id})) }}" class="btn btn-light">Otkaži</a>
         <button class="btn btn-primary">Sačuvaj{{ ux_icon('lucide:save', {class: 'kt-icon ms-2'}) }}</button>
+        <a href="{{ returnTo ?: (is_new ? (locked ? path('client_show', {id: task.client.id}) : path('task_index')) : path('task_show', {id: task.id})) }}" class="btn btn-outline-secondary">Odustani</a>
     </div>
     {{ form_end(form) }}
 {% endblock %}

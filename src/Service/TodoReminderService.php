@@ -42,7 +42,7 @@ class TodoReminderService
                 $item->getOwner(),
                 NotificationType::TODO_REMINDER,
                 'Podsetnik: '.$item->getTitle(),
-                $due ?? 'Obaveštenje iz tvog Podsetnika.',
+                $due ?? 'Obaveštenje iz tvog podsetnika.',
                 ['todo_index'],
                 null,
                 $item->isRemindByEmail(),

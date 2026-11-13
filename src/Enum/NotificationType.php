@@ -29,7 +29,7 @@ enum NotificationType: string
     case TODO_REMINDER = 'TODO_REMINDER';
 
     /**
-     * Naziv za podešavanja u profilu ("uvek šalji i na mail").
+     * Naziv za podešavanja u profilu ("uvek šalji i na mejl").
      */
     public function label(): string
     {
@@ -56,7 +56,7 @@ enum NotificationType: string
             self::EXPORT_READY => 'Izvoz je spreman za preuzimanje',
             self::SPECIAL_APPROVAL_SUBMITTED => 'Posebna potvrda čeka moje odobrenje',
             self::SPECIAL_APPROVAL_REMINDER => 'Upozorenje: posebna potvrda čeka duže od 2 radna dana',
-            self::TODO_REMINDER => 'Obaveštenje iz Podsetnika',
+            self::TODO_REMINDER => 'Obaveštenje iz podsetnika',
         };
     }
 
@@ -100,7 +100,7 @@ enum NotificationType: string
     }
 
     /**
-     * Vrste koje se podrazumevano šalju i na mail (korisnik može da ih isključi u profilu).
+     * Vrste koje se podrazumevano šalju i na mejl (korisnik može da ih isključi u profilu).
      *
      * @return list<string>
      */
