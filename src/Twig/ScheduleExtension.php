@@ -4,15 +4,18 @@ namespace App\Twig;
 
 use App\Entity\Schedule;
 use App\Service\ScheduleCalculator;
+use App\Form\ScheduleFormType;
+use Symfony\Component\Form\FormFactoryInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
  * schedule_describe(schedule, short): opis rasporeda rečima (SPEC 8g.3), npr. "Mesečno, 15.".
+ * schedule_data(schedule) i schedule_dialog_form(): podaci i polja za prozor "Prilagodi za ovog klijenta" (SPEC 8g.4).
  */
 class ScheduleExtension extends AbstractExtension
 {
-    public function __construct(private readonly ScheduleCalculator $calculator)
+    public function __construct(private readonly ScheduleCalculator $calculator, private readonly FormFactoryInterface $forms)
     {
     }
 
@@ -20,6 +23,10 @@ class ScheduleExtension extends AbstractExtension
     {
         return [
             new TwigFunction('schedule_describe', fn (?Schedule $schedule, bool $short = false): string => null === $schedule ? '' : $this->calculator->describe($schedule, $short)),
+            // niz polja rasporeda za JS (podrazumevane i prilagođene vrednosti u redu posla)
+            new TwigFunction('schedule_data', static fn (?Schedule $schedule): array => $schedule?->toArray() ?? []),
+            // polja rasporeda (ista zajednička komponenta) za prozor "Prilagodi za ovog klijenta"
+            new TwigFunction('schedule_dialog_form', fn () => $this->forms->createNamed('ks', ScheduleFormType::class)->createView()),
         ];
     }
 }

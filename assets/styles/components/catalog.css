@@ -71,3 +71,9 @@
 .kt-locked-client { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--kt-border); border-radius: var(--kt-radius); background: var(--kt-surface-2); }
 .kt-assignees { max-height: 320px; overflow: auto; }
 .kt-assignees.kt-is-locked { opacity: .5; }
+
+/* Red posla pri dodeli: podrazumevani raspored i prilagođavanje za klijenta (SPEC 8g.4) */
+.kt-sched-row { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; font-size: 13px; }
+.kt-sched-row .btn-link { font-size: 13px; text-decoration: none; min-height: 0; }
+.kt-sched-row .btn-link:hover { text-decoration: underline; }
+@media (max-width: 575.98px) { .kt-sched-row .btn-link { min-height: 44px; display: inline-flex; align-items: center; } }

@@ -15,7 +15,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Izmena ugovorenog posla (SPEC 8h.3c): cena (samo pojedinačni), napomena, drugačiji raspored i zaduženi, period.
+ * Izmena ugovorenog posla (SPEC 8h.3c): cena (samo pojedinačni), napomena, zaduženi, period. Raspored za klijenta se menja posebno
+ * (ClientJobScheduleController), jer promena preračunava otvorene zadatke i traži potvrdu.
  */
 class ClientJobEditType extends AbstractType
 {
@@ -30,7 +31,6 @@ class ClientJobEditType extends AbstractType
         }
         $builder
             ->add('note', TextareaType::class, ['label' => 'Napomena', 'required' => false, 'attr' => ['rows' => 2]])
-            ->add('scheduleOverride', ScheduleFormType::class, ['allow_empty' => true])
             ->add('assigneeOverride', EntityType::class, [
                 'label' => 'Zaduženi',
                 'class' => User::class,

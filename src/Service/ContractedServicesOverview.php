@@ -86,7 +86,7 @@ class ContractedServicesOverview
     }
 
     /**
-     * @return array{job: ClientJob, describe: string, next: ?\DateTimeImmutable, assignee: ?User, assigneeIsOverride: bool, monthly: ?float}
+     * @return array{job: ClientJob, describe: string, customized: bool, defaultDescribe: string, next: ?\DateTimeImmutable, assignee: ?User, assigneeIsOverride: bool, monthly: ?float}
      */
     private function row(ClientJob $job, Client $client, \DateTimeImmutable $today): array
     {
@@ -103,6 +103,8 @@ class ContractedServicesOverview
         return [
             'job' => $job,
             'describe' => $this->calculator->describe($schedule, true),
+            'customized' => $this->resolver->isCustomized($job),
+            'defaultDescribe' => $this->calculator->describe($this->resolver->defaultFor($job), true),
             'next' => $next,
             'assignee' => $job->getAssigneeOverride() ?? $client->getPrimaryAccountant(),
             'assigneeIsOverride' => null !== $job->getAssigneeOverride(),

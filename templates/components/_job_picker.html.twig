@@ -5,7 +5,7 @@
     Upotreba: {% import 'components/_job_picker.html.twig' as jp %}
               {{ jp.picker('jobs', selectedIds) }}
     Šalje se name[] = id posla, redom kako su izabrani poslovi poređani.
-    extra: id <template> elementa sa dodatnim poljima po izabranom poslu (__ID__ i __PRICE__ se zamenjuju).
+    extra: id <template> elementa sa dodatnim poljima po izabranom poslu (__ID__, __PRICE__, __SCHEDULE__, __DESCRIBE__ i __NAME__ se zamenjuju).
 #}
 {% macro picker(name, selected = [], extra = null, id = 'job-picker') %}
     {% import 'components/ui.html.twig' as ui %}
@@ -34,7 +34,7 @@
                             {% for job in group.jobs %}
                                 <li data-kt-jp-item data-search="{{ (job.name ~ ' ' ~ group.category.name)|lower }}">
                                     <label class="kt-jp-option">
-                                        <input type="checkbox" class="form-check-input" value="{{ job.id }}" data-name="{{ job.name }}" data-describe="{{ schedule_describe(job.schedule, true) }}" data-price="{{ job.defaultPrice ? job.defaultPrice|number_format(2, ',', '.') : '' }}">
+                                        <input type="checkbox" class="form-check-input" value="{{ job.id }}" data-name="{{ job.name }}" data-describe="{{ schedule_describe(job.schedule, true) }}" data-schedule="{{ schedule_data(job.schedule)|json_encode }}" data-price="{{ job.defaultPrice ? job.defaultPrice|number_format(2, ',', '.') : '' }}">
                                         <span class="min-w-0">
                                             <span class="kt-jp-name">{{ job.name }}{% if not job.active %} <span class="kt-text-xs text-muted">(neaktivan)</span>{% endif %}</span>
                                             <span class="kt-jp-desc">{{ schedule_describe(job.schedule, true) }}</span>

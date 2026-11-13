@@ -11,6 +11,7 @@
 
 {% block content %}
     {# isto kao modal na tabu "Ugovorene usluge" #}
+    {% if isAdmin %}{{ include('components/_schedule_dialog.html.twig') }}{% endif %}
     <template id="jp-extra-page">
         <div class="kt-jp-extra">
             {% if isAdmin %}
@@ -21,6 +22,7 @@
                 </select>
             {% endif %}
             <input type="text" class="form-control form-control-sm kt-jp-extra-wide" name="note[__ID__]" placeholder="Napomena (opciono)" maxlength="500" aria-label="Napomena">
+            {% if isAdmin %}<div class="kt-jp-extra-wide" data-kt-sched-row data-job-id="__ID__" data-job-name="__NAME__" data-default='__SCHEDULE__' data-default-text="__DESCRIBE__" data-anchor="{{ 'now'|date('Y-m-d') }}"></div>{% endif %}
         </div>
     </template>
     <div class="card">

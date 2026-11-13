@@ -43,7 +43,7 @@ class ScheduleController extends AbstractAjaxController
             ];
         }
 
-        return $this->ok(['describe' => $calculator->describe($schedule), 'occurrences' => $occurrences]);
+        return $this->ok(['describe' => $calculator->describe($schedule), 'short' => $calculator->describe($schedule, true), 'occurrences' => $occurrences]);
     }
 
     /** "16. nov 2026. (pon)" */

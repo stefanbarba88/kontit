@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 {% import 'components/ui.html.twig' as ui %}
-{% import 'components/schedule_form.html.twig' as sf %}
+{% import 'components/_job_schedule.html.twig' as js %}
 
 {% block title %}{{ job.jobTemplate.name }} — {{ client.shortName }}{% endblock %}
 {% block page_title %}{{ job.jobTemplate.name }}{% endblock %}
@@ -19,8 +19,17 @@
                     <h5 class="mb-0">{{ ux_icon('lucide:calendar-clock', {class: 'kt-icon me-2'}) }}Raspored za ovog klijenta</h5>
                 </div>
                 <div class="card-body border-top">
-                    <p class="kt-text-sm text-muted">Raspored posla: <strong class="text-body">{{ schedule_describe(job.jobTemplate.schedule) }}</strong>. Izaberi „Kao u poslu“ da važi taj raspored, ili drugi tip da ovaj klijent ima drugačiji rok.</p>
-                    {{ sf.fields(form.scheduleOverride, job.startDate) }}
+                    <p class="kt-text-sm text-muted mb-2">Podrazumevano (iz posla): <strong class="text-body">{{ schedule_describe(job.jobTemplate.schedule) }}</strong></p>
+                    {% if job.hasScheduleOverride %}
+                        <p class="mb-3"><span class="kt-badge kt-badge-info me-2">Prilagođeno</span><strong>{{ schedule_describe(job.scheduleOverride) }}</strong></p>
+                    {% else %}
+                        <p class="kt-text-sm text-muted">Ovaj klijent koristi podrazumevani raspored i prati njegove izmene.</p>
+                    {% endif %}
+                    {% if not job.excluded %}
+                        <div class="d-flex flex-wrap gap-2">{{ js.schedule_actions(job, 'btn btn-light btn-sm') }}</div>
+                        <p class="kt-text-xs text-muted mt-2 mb-0">Raspored se menja odmah i ne zavisi od dugmeta „Sačuvaj“. Pre primene vidiš koliko otvorenih zadataka menja rok.</p>
+                        {{ include('components/_schedule_dialog.html.twig') }}
+                    {% endif %}
                 </div>
             </div>
         </div>

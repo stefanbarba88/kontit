@@ -1,0 +1,7 @@
+{#
+    Prozor "Prilagodi za ovog klijenta" (SPEC 8g.4): isti sklop polja rasporeda kao u katalogu poslova (components/schedule_form.html.twig),
+    u <template> elementu koji assets/js/schedule-customize.js ubacuje u SweetAlert. Uključi jednom po stranici.
+    Pored njega: red posla [data-kt-sched-row] pri dodeli, ili dugmad [data-kt-sched-job] na postojećem poslu (makro job_actions).
+#}
+{% import 'components/schedule_form.html.twig' as sf %}
+<template id="kt-schedule-dialog">{{ sf.fields(schedule_dialog_form()) }}</template>

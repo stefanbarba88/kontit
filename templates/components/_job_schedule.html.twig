@@ -1,0 +1,8 @@
+{# dugmad „Prilagodi za ovog klijenta“ / „Vrati na podrazumevano“ (assets/js/schedule-customize.js); koristi i stranica izmene posla #}
+{% macro schedule_actions(job, class) %}
+    {% set attrs %}data-job-name="{{ job.jobTemplate.name }}" data-default="{{ schedule_data(job.jobTemplate.schedule)|json_encode }}" data-current="{{ job.hasScheduleOverride ? schedule_data(job.scheduleOverride)|json_encode }}" data-anchor="{{ job.startDate|date('Y-m-d') }}" data-impact-url="{{ path('ajax_client_job_schedule_impact', {id: job.id}) }}" data-apply-url="{{ path('ajax_client_job_schedule', {id: job.id}) }}"{% endset %}
+    <button type="button" class="{{ class }}" data-kt-sched-job="customize" {{ attrs }}>{{ ux_icon('lucide:calendar-clock', {class: 'kt-icon me-2'}) }}{{ job.hasScheduleOverride ? 'Izmeni raspored za klijenta' : 'Prilagodi za ovog klijenta' }}</button>
+    {% if job.hasScheduleOverride %}
+        <button type="button" class="{{ class }}" data-kt-sched-job="revert" {{ attrs }}>{{ ux_icon('lucide:rotate-ccw', {class: 'kt-icon me-2'}) }}Vrati na podrazumevano</button>
+    {% endif %}
+{% endmacro %}

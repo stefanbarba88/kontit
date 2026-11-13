@@ -10,9 +10,10 @@
 
 {% block content %}
     {# isto kao modal na tabu "Ugovorene usluge"; ova strana se vidi kad forma ima grešku ili bez JS-a #}
+    {{ include('components/_schedule_dialog.html.twig') }}
     {% set pkg_json = {} %}
     {% for id, p in packagesData %}
-        {% set pkg_json = pkg_json|merge({('p' ~ id): {price: p.price ? p.price|number_format(2, ',', '.') : '', jobs: p.jobs|map(j => {id: j.id, name: j.name, describe: schedule_describe(j.schedule, true)})}}) %}
+        {% set pkg_json = pkg_json|merge({('p' ~ id): {price: p.price ? p.price|number_format(2, ',', '.') : '', jobs: p.jobs|map(j => {id: j.id, name: j.name, describe: schedule_describe(j.schedule, true), schedule: schedule_data(j.schedule)})}}) %}
     {% endfor %}
     <div class="row">
         <div class="col-lg-8">

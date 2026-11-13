@@ -13,6 +13,7 @@ use App\Repository\JobTemplateRepository;
 use App\Repository\ServicePackageRepository;
 use App\Repository\UserRepository;
 use App\Service\ClientPackageService;
+use App\Service\ScheduleChangeService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,8 +25,25 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 class ClientPackageController extends AbstractController
 {
-    public function __construct(private readonly ClientPackageService $service)
+    public function __construct(private readonly ClientPackageService $service, private readonly ScheduleChangeService $scheduleChanges)
     {
+    }
+
+    /**
+     * Prilagođeni rasporedi iz forme: schedule[id posla] = JSON. Neispravni i prazni se izostavljaju (posao ostaje na podrazumevanom).
+     *
+     * @return array<int, \App\Entity\Schedule>
+     */
+    private function customSchedules(Request $request): array
+    {
+        $out = [];
+        foreach ($request->request->all('schedule') as $id => $raw) {
+            if (null !== ($schedule = $this->scheduleChanges->parse($raw))) {
+                $out[(int) $id] = $schedule;
+            }
+        }
+
+        return $out;
     }
 
     /**
@@ -55,7 +73,7 @@ class ClientPackageController extends AbstractController
                     $excluded[$template->getId()] = trim((string) ($request->request->all('reason')[$template->getId()] ?? ''));
                 }
             }
-            $warnings = $this->service->attach($clientPackage, $this->actor(), $excluded);
+            $warnings = $this->service->attach($clientPackage, $this->actor(), $excluded, $this->customSchedules($request));
             $this->addFlash('success', sprintf('Paket „%s“ je dodat klijentu.%s', $clientPackage->getPackage()->getName(), $excluded ? sprintf(' Isključeno poslova: %d.', \count($excluded)) : ''));
             foreach ($warnings as $warning) {
                 $this->addFlash('warning', $warning);
@@ -194,6 +212,7 @@ class ClientPackageController extends AbstractController
             $prices = $request->request->all('price');
             $notes = $request->request->all('note');
             $assignees = $request->request->all('assignee');
+            $schedules = $isAdmin ? $this->customSchedules($request) : [];
             $items = [];
             foreach ($templates->findBy(['id' => $ids, 'isActive' => true]) as $template) {
                 $id = $template->getId();
@@ -202,6 +221,7 @@ class ClientPackageController extends AbstractController
                     'price' => $isAdmin ? ClientPackageService::parseMoney((string) ($prices[$id] ?? '')) : null,
                     'note' => (string) ($notes[$id] ?? ''),
                     'assignee' => $isAdmin && !empty($assignees[$id]) ? $users->findOneBy(['id' => (int) $assignees[$id], 'isActive' => true]) : null,
+                    'schedule' => $schedules[$id] ?? null,
                 ];
             }
             try {

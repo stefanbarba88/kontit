@@ -5,7 +5,11 @@ import { ajax } from './ajax.js';
 const FIELDS = ['interval', 'dayOfWeek', 'dayOfMonth', 'monthOfQuarter', 'month', 'workingDaysOnly', 'leadDays', 'nonWorkingDayShift'];
 const escape = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-document.querySelectorAll('[data-kt-schedule]').forEach((box) => {
+/**
+ * Pokreće jedan sklop polja rasporeda (i onaj koji je naknadno ubačen u stranicu, npr. u prozor "Prilagodi za ovog klijenta").
+ * Vraća { data(), fill(values) }: trenutne vrednosti polja i popunjavanje iz niza (isti oblik kao Schedule::toArray()).
+ */
+export function initSchedule(box) {
     const preview = box.querySelector('.kt-schedule-preview');
     const describe = box.querySelector('[data-kt-schedule-describe]');
     const dates = box.querySelector('[data-kt-schedule-dates]');
@@ -69,8 +73,42 @@ document.querySelectorAll('[data-kt-schedule]').forEach((box) => {
         timer = window.setTimeout(render, 250);
     };
 
+    const fill = (values = {}) => {
+        const radio = box.querySelector(`[data-kt-schedule-type][value="${values.type || ''}"]`);
+        if (radio) {
+            radio.checked = true;
+        }
+        FIELDS.forEach((name) => {
+            const el = field(name);
+            if (!el || values[name] === undefined || values[name] === null) {
+                return;
+            }
+            if (el.type === 'checkbox') {
+                el.checked = Boolean(values[name]);
+            } else {
+                el.value = String(values[name]);
+            }
+        });
+        // tip bez dana u mesecu (npr. nedeljni) kad se pređe na mesečni: razuman početni dan umesto "poslednji dan"
+        if (values.dayOfMonth === undefined || values.dayOfMonth === null) {
+            const day = field('dayOfMonth');
+            if (day) {
+                day.value = '15';
+            }
+        }
+        update();
+    };
+
+    box.dataset.ktReady = '1';
     box.addEventListener('change', update);
     box.addEventListener('input', update);
     toggle();
     render();
+
+    return { data, fill };
+}
+
+document.querySelectorAll('[data-kt-schedule]:not([data-kt-ready])').forEach((box) => {
+    // sklop u <template> elementu nije deo stranice, pa ga querySelectorAll ne vidi; ovo su polja koja stoje u formi
+    initSchedule(box);
 });

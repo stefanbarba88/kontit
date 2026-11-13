@@ -11,6 +11,7 @@ use App\Enum\ActivityAction;
 use App\Repository\ClientJobRepository;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Promena rasporeda i šta ona radi već generisanim zadacima (SPEC 8g.4).
@@ -31,6 +32,7 @@ class ScheduleChangeService
         private readonly ScheduleResolver $resolver,
         private readonly ScheduleCalculator $calculator,
         private readonly ActivityLogger $logger,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -96,6 +98,22 @@ class ScheduleChangeService
         $this->em->flush();
 
         return $total;
+    }
+
+    /**
+     * Raspored iz forme ili AJAX-a (JSON tekst ili niz). Prazan ili neispravan raspored vraća null.
+     */
+    public function parse(mixed $raw): ?Schedule
+    {
+        if (\is_string($raw)) {
+            $raw = json_decode($raw, true);
+        }
+        if (!\is_array($raw)) {
+            return null;
+        }
+        $schedule = Schedule::fromArray($raw);
+
+        return $schedule->isEmpty() || \count($this->validator->validate($schedule)) > 0 ? null : $schedule;
     }
 
     /**

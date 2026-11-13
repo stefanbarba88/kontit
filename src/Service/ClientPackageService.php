@@ -23,6 +23,8 @@ class ClientPackageService
         private readonly EntityManagerInterface $em,
         private readonly ClientJobRepository $jobs,
         private readonly TaskService $tasks,
+        private readonly ScheduleChangeService $scheduleChanges,
+        private readonly ScheduleResolver $resolver,
     ) {
     }
 
@@ -30,11 +32,12 @@ class ClientPackageService
      * Dodeljuje paket klijentu i pravi poslove iz paketa. Poslovi iz $excluded (id posla => razlog, može prazan)
      * čuvaju se kao isključeni, da se zna da su svesno izostavljeni (SPEC 8h.3).
      *
-     * @param array<int, string> $excluded
+     * @param array<int, string>   $excluded
+     * @param array<int, Schedule> $schedules id posla => prilagođen raspored za ovog klijenta (SPEC 8g.4)
      *
      * @return list<string> upozorenja (npr. posao koji klijent već ima)
      */
-    public function attach(ClientPackage $clientPackage, User $actor, array $excluded = []): array
+    public function attach(ClientPackage $clientPackage, User $actor, array $excluded = [], array $schedules = []): array
     {
         $this->em->wrapInTransaction(function () use ($clientPackage, $actor): void {
             $this->em->persist($clientPackage);
@@ -43,7 +46,7 @@ class ClientPackageService
         });
 
         $warnings = [];
-        $this->syncJobs($clientPackage, $warnings, $excluded, $actor);
+        $this->syncJobs($clientPackage, $warnings, $excluded, $actor, $schedules);
         $this->em->flush();
 
         return $warnings;
@@ -54,11 +57,12 @@ class ClientPackageService
      * ili pojedinačno) se ne dupla, nego se prijavljuje kao upozorenje.
      *
      * @param list<string>       $warnings
-     * @param array<int, string> $excluded id posla => razlog isključenja
+     * @param array<int, string>   $excluded id posla => razlog isključenja
+     * @param array<int, Schedule> $schedules id posla => prilagođen raspored za ovog klijenta
      *
      * @return int broj novokreiranih poslova
      */
-    public function syncJobs(ClientPackage $clientPackage, array &$warnings = [], array $excluded = [], ?User $actor = null): int
+    public function syncJobs(ClientPackage $clientPackage, array &$warnings = [], array $excluded = [], ?User $actor = null, array $schedules = []): int
     {
         $client = $clientPackage->getClient();
         $have = [];
@@ -67,6 +71,7 @@ class ClientPackageService
         }
 
         $created = 0;
+        $custom = [];
         foreach ($clientPackage->getPackage()->getJobTemplates() as $template) {
             if (isset($have[$template->getId()])) {
                 if ($have[$template->getId()]->getClientPackage() !== $clientPackage) {
@@ -85,9 +90,13 @@ class ClientPackageService
                 $job->exclude($excluded[$template->getId()] ?: 'Isključeno pri dodeli paketa', $actor);
             }
             $this->em->persist($job);
+            if (!$job->isExcluded()) {
+                $custom[] = [$job, $schedules[$template->getId()] ?? null];
+            }
             ++$created;
         }
         $this->em->flush();
+        $this->applyCustomSchedules($custom, $actor);
 
         return $created;
     }
@@ -168,7 +177,7 @@ class ClientPackageService
      * Pojedinačni poslovi (SPEC 8h.3b). Admin ih odmah dodaje sa cenom; radnik/šef samo predlaže (bez cene), pa admin odobrava.
      * Posao koji klijent već ima aktivan se ne dupla.
      *
-     * @param list<array{template: JobTemplate, price: ?string, note: string, assignee: ?User}> $items
+     * @param list<array{template: JobTemplate, price: ?string, note: string, assignee: ?User, schedule?: ?Schedule}> $items
      *
      * @return list<string> upozorenja
      */
@@ -180,6 +189,7 @@ class ClientPackageService
         }
 
         $warnings = [];
+        $custom = [];
         foreach ($items as $item) {
             $template = $item['template'];
             if (isset($have[$template->getId()])) {
@@ -199,18 +209,33 @@ class ClientPackageService
             }
             $this->em->persist($job);
             $have[$template->getId()] = true;
+            if ($isAdmin) {
+                $custom[] = [$job, $item['schedule'] ?? null];
+            }
         }
         $this->em->flush();
+        $this->applyCustomSchedules($custom, $actor);
 
         return $warnings;
     }
 
+    /**
+     * Prilagođen raspored za tek napravljene poslove (nema zadataka, pa nema preračuna; ide u istoriju klijenta).
+     * Raspored koji je prazan ili isti kao podrazumevani se ne čuva, da posao i dalje prati izmene šablona.
+     *
+     * @param list<array{0: ClientJob, 1: ?Schedule}> $jobs
+     */
+    private function applyCustomSchedules(array $jobs, ?User $actor): void
+    {
+        foreach ($jobs as [$job, $schedule]) {
+            if (null !== $schedule && !$schedule->isEmpty() && $schedule->toArray() !== $this->resolver->defaultFor($job)->toArray()) {
+                $this->scheduleChanges->changeJob($job, $schedule, $actor);
+            }
+        }
+    }
+
     public function save(ClientJob $job): void
     {
-        // "Kao u poslu": skrivena polja forme se ne čuvaju uz prazan override
-        if ($job->getScheduleOverride()->isEmpty()) {
-            $job->setScheduleOverride(new Schedule());
-        }
         $this->em->flush();
     }
 

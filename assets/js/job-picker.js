@@ -40,7 +40,7 @@ export function initJobPicker(root = document) {
                 <span class="flex-grow-1 min-w-0"><span class="d-block text-truncate">${escape(input.dataset.name)}</span><span class="kt-jp-desc">${escape(input.dataset.describe)}</span></span>
                 <button type="button" class="btn kt-btn-icon btn-sm text-muted" data-kt-jp-remove title="Ukloni" aria-label="Ukloni"><svg viewBox="0 0 24 24" class="kt-icon"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></g></svg></button>
                 <input type="hidden" name="${escape(picker.dataset.name)}" value="${escape(input.value)}">
-            </div>${extra ? extra.replace(/__ID__/g, escape(input.value)).replace(/__PRICE__/g, escape(input.dataset.price || '')) : ''}`;
+            </div>${extra ? extra.replace(/__ID__/g, escape(input.value)).replace(/__PRICE__/g, escape(input.dataset.price || '')).replace(/__SCHEDULE__/g, escape(input.dataset.schedule || '')).replace(/__DESCRIBE__/g, escape(input.dataset.describe || '')).replace(/__NAME__/g, escape(input.dataset.name || '')) : ''}`;
             chosen.append(li);
             li.dispatchEvent(new CustomEvent('kt:content', { bubbles: true }));
         };

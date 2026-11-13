@@ -10,6 +10,7 @@
 
 {% macro job_rows(rows, client, can_manage, can_price, months_short) %}
     {% import 'components/ui.html.twig' as ui %}
+    {% import 'components/_job_schedule.html.twig' as js %}
     {% for row in rows %}
         {% set job = row.job %}
         <tr class="{{ job.excluded ? 'kt-row-excluded' }}">
@@ -24,7 +25,7 @@
             <td>{{ job.clientPackage ? job.clientPackage.package.name : 'Pojedinačno' }}</td>
             <td>
                 {{ row.describe }}
-                {% if job.hasScheduleOverride %}<span class="kt-badge kt-badge-info ms-1" title="Drugačiji raspored nego u poslu" data-bs-toggle="tooltip">za klijenta</span>{% endif %}
+                {% if row.customized %}<span class="kt-badge kt-badge-info ms-1" title="Podrazumevano: {{ row.defaultDescribe }}" data-bs-toggle="tooltip">Prilagođeno</span>{% endif %}
             </td>
             <td class="text-nowrap">{% if row.next %}{{ row.next|date('j') }}. {{ months_short[row.next|date('n') - 1] }}{% if row.next|date('Y') != 'now'|date('Y') %} {{ row.next|date('Y') }}.{% endif %}{% else %}—{% endif %}</td>
             <td class="text-nowrap">{% if row.assignee %}{{ ui.avatar(row.assignee, 24) }} <span class="ms-1">{{ row.assignee.fullName }}</span>{% if row.assigneeIsOverride %} <span class="kt-text-xs text-muted">(za ovaj posao)</span>{% endif %}{% endif %}</td>
@@ -47,6 +48,7 @@
                                 </form>
                             {% else %}
                                 <a class="dropdown-item" href="{{ path('client_job_edit', {id: job.id}) }}">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-2'}) }}Izmeni</a>
+                                {{ js.schedule_actions(job, 'dropdown-item') }}
                                 <a class="dropdown-item" href="{{ path('client_task_new', {clientId: client.id, job: job.id, returnTo: return_to_path()}) }}">{{ ux_icon('lucide:plus', {class: 'kt-icon me-2'}) }}Kreiraj zadatak sada</a>
                                 <div class="dropdown-divider"></div>
                                 {% if job.clientPackage %}
@@ -199,7 +201,7 @@
 {% if can_manage %}
     {% set pkg_json = {} %}
     {% for id, p in packagesData %}
-        {% set pkg_json = pkg_json|merge({('p' ~ id): {price: p.price ? p.price|number_format(2, ',', '.') : '', jobs: p.jobs|map(j => {id: j.id, name: j.name, describe: schedule_describe(j.schedule, true)})}}) %}
+        {% set pkg_json = pkg_json|merge({('p' ~ id): {price: p.price ? p.price|number_format(2, ',', '.') : '', jobs: p.jobs|map(j => {id: j.id, name: j.name, describe: schedule_describe(j.schedule, true), schedule: schedule_data(j.schedule)})}}) %}
     {% endfor %}
     <div class="modal fade" id="package-modal" tabindex="-1" aria-labelledby="package-modal-title" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -236,6 +238,7 @@
 {% endif %}
 
 {# --- modal: pojedinačan posao (više poslova odjednom, sa cenom, napomenom i zaduženim po poslu) --- #}
+{% if can_manage %}{{ include('components/_schedule_dialog.html.twig') }}{% endif %}
 <template id="jp-extra-{{ client.id }}">
     <div class="kt-jp-extra">
         {% if can_manage %}
@@ -246,6 +249,7 @@
             </select>
         {% endif %}
         <input type="text" class="form-control form-control-sm kt-jp-extra-wide" name="note[__ID__]" placeholder="Napomena (opciono)" maxlength="500" aria-label="Napomena">
+        {% if can_manage %}<div class="kt-jp-extra-wide" data-kt-sched-row data-job-id="__ID__" data-job-name="__NAME__" data-default='__SCHEDULE__' data-default-text="__DESCRIBE__" data-anchor="{{ 'now'|date('Y-m-d') }}"></div>{% endif %}
     </div>
 </template>
 <div class="modal fade" id="individual-modal" tabindex="-1" aria-labelledby="individual-modal-title" aria-hidden="true">
