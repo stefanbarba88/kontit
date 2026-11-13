@@ -575,6 +575,7 @@ crontab -e          # kao korisnik deploy
 0 7 * * *    cd /var/www/kontit && /usr/bin/php bin/console app:documents:check --no-interaction >> var/log/cron.log 2>&1
 0 7 * * *    cd /var/www/kontit && /usr/bin/php bin/console app:notifications:due --no-interaction >> var/log/cron.log 2>&1
 * * * * *    cd /var/www/kontit && /usr/bin/php bin/console app:todo:send-reminders --no-interaction >> var/log/cron.log 2>&1
+30 3 * * *   cd /var/www/kontit && /usr/bin/php bin/console app:todo:cleanup --no-interaction >> var/log/cron.log 2>&1
 # opciono, samo uz NBS kredencijale (raspored je predlog, SPEC ga ne propisuje):
 # 0 3 * * 0  cd /var/www/kontit && /usr/bin/php bin/console app:nbs:sync --no-interaction >> var/log/cron.log 2>&1
 ```

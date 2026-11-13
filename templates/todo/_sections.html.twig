@@ -30,6 +30,7 @@
     {% if sections.done is not empty %}
         <details class="kt-todo-section kt-todo-done">
             <summary class="kt-todo-head">Završene <span class="text-muted">({{ sections.done|length }})</span></summary>
+            <p class="kt-text-sm text-muted px-3 pt-2 mb-0">Završene stavke se brišu posle 3 dana.</p>
             <div class="kt-todo-items">
                 {% for item in sections.done %}{% include 'todo/_item.html.twig' with {item: item, section: 'done'} only %}{% endfor %}
             </div>

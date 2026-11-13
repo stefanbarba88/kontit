@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Enum\TodoRepeat;
 use App\Repository\TodoItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Podsetnik: dodavanje, završavanje (sa ponavljanjem i poništavanjem), brisanje, razvrstavanje u sekcije.
@@ -23,7 +24,21 @@ class TodoService
         private readonly TodoClock $clock,
         private readonly TodoRepeatCalculator $repeat,
         private readonly WorkingDayService $workingDays,
+        #[Autowire('%todo.done_retention_days%')]
+        private readonly int $doneRetentionDays,
     ) {
+    }
+
+    /** Najstarije vreme završetka koje se još vidi i čuva (UTC) */
+    public function doneCutoff(): \DateTimeImmutable
+    {
+        return $this->clock->now()->modify('-'.$this->doneRetentionDays.' days');
+    }
+
+    /** Trajno briše završene stavke starije od roka čuvanja (svih korisnika); vraća broj obrisanih */
+    public function purgeOldDone(): int
+    {
+        return $this->items->deleteDoneBefore($this->doneCutoff());
     }
 
     /** Brza stavka bez roka */
@@ -152,7 +167,7 @@ class TodoService
         }
         usort($sections['nodue'], static fn (TodoItem $a, TodoItem $b) => [!$a->isPinned(), $a->getPosition(), $a->getId()] <=> [!$b->isPinned(), $b->getPosition(), $b->getId()]);
 
-        return $sections + ['done' => $this->items->findRecentDone($owner)];
+        return $sections + ['done' => $this->items->findRecentDone($owner, $this->doneCutoff())];
     }
 
     /**
@@ -332,7 +347,7 @@ class TodoService
      */
     public function search(User $owner, string $query): array
     {
-        return $this->items->search($owner, $query);
+        return $this->items->search($owner, $query, $this->doneCutoff());
     }
     public const SNOOZE_PRESETS = ['10m', '1h', 'tomorrow'];
 

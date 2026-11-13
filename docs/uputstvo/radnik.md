@@ -235,6 +235,7 @@ Kad se kolega vrati (ili se odsustvo otkaže), zamena prestaje sama.
 - **Meni → Podsetnik** (na telefonu **Više → Podsetnik**) otvara panel sa strane (na telefonu iz dna ekrana). U panelu je link **Otvori celu stranicu**, sa pretragom.
 - Ikonica u gornjoj traci je samo signal i otvara isti panel: mala tačka znači da imaš otvorene stavke, crveni broj da nešto kasni ili ističe danas, a bez oznake je lista prazna.
 - Na Početnoj strani nema kartice Podsetnika.
+- Završene stavke se čuvaju **3 dana** u sekciji **Završene**, pa se trajno brišu (zadatak nastao iz stavke ostaje).
 
 ### Dodavanje
 1. Klikni **+ Dodaj** (u panelu ili na strani Podsetnika) ili pritisni taster **n** bilo gde u aplikaciji (dok ne kucaš u nekom polju).

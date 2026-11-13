@@ -42,14 +42,31 @@ class TodoItemRepository extends ServiceEntityRepository
             ->getQuery()->getResult();
     }
 
-    /** @return list<TodoItem> poslednjih završenih */
-    public function findRecentDone(User $owner, int $limit = self::DONE_LIMIT): array
+    /**
+     * Poslednjih završenih, ne starijih od $doneSince (UTC). Starije briše `app:todo:cleanup`, ali ih ovaj upit ne vraća ni pre toga.
+     *
+     * @return list<TodoItem>
+     */
+    public function findRecentDone(User $owner, \DateTimeImmutable $doneSince, int $limit = self::DONE_LIMIT): array
     {
         return $this->createQueryBuilder('t')
-            ->andWhere('t.owner = :owner AND t.isDone = true')->setParameter('owner', $owner)
+            ->andWhere('t.owner = :owner AND t.isDone = true AND t.doneAt >= :since')
+            ->setParameter('owner', $owner)->setParameter('since', $doneSince)
             ->orderBy('t.doneAt', 'DESC')->addOrderBy('t.id', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()->getResult();
+    }
+
+    /**
+     * Trajno briše završene stavke SVIH korisnika završene pre $before (UTC). Jedini upit koji ne gleda vlasnika (služi samo komandi
+     * `app:todo:cleanup`, nikad kontroleru). Zadatak nastao iz stavke ostaje (veza je na strani stavke).
+     */
+    public function deleteDoneBefore(\DateTimeImmutable $before): int
+    {
+        return (int) $this->createQueryBuilder('t')->delete()
+            ->where('t.isDone = true AND t.doneAt IS NOT NULL AND t.doneAt < :before')
+            ->setParameter('before', $before)
+            ->getQuery()->execute();
     }
 
     /** Broj nezavršenih sa rokom pre $before (UTC): zakasnelo + danas kad je $before početak sutrašnjeg dana */
@@ -88,13 +105,14 @@ class TodoItemRepository extends ServiceEntityRepository
      *
      * @return list<TodoItem>
      */
-    public function search(User $owner, string $query, int $limit = 100): array
+    public function search(User $owner, string $query, \DateTimeImmutable $doneSince, int $limit = 100): array
     {
         $like = '%'.addcslashes(trim($query), '%_\\').'%';
 
         return $this->createQueryBuilder('t')
             ->andWhere('t.owner = :owner AND (t.title LIKE :q OR t.note LIKE :q)')
-            ->setParameter('owner', $owner)->setParameter('q', $like)
+            ->andWhere('t.isDone = false OR t.doneAt >= :since')
+            ->setParameter('owner', $owner)->setParameter('q', $like)->setParameter('since', $doneSince)
             ->orderBy('t.isDone', 'ASC')->addOrderBy('t.dueAt', 'ASC')->addOrderBy('t.id', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()->getResult();

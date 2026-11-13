@@ -11,6 +11,9 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-13: **Podsetnik: završene stavke se brišu posle 3 dana**
+  - Parametar `todo.done_retention_days: 3`; komanda `app:todo:cleanup` (DQL DELETE za sve korisnike, UTC, bez ActivityLog-a; zadatak iz stavke ostaje), cron `30 3 * * *` u `DEPLOY.md`. Lista "Završene" i pretraga ne vraćaju starije od 3 dana ni pre cron-a; napomena "Završene stavke se brišu posle 3 dana." u sekciji. Bez migracije.
+  - Testovi `TodoRetentionTest`: briše samo završene starije od 3 dana (dva korisnika), ne dira novije ni otvorene, zadatak ostaje, lista i pretraga skrivaju stare pre cron-a, tuđa stavka je 404.
 - 2026-11-13: **Podsetnik: ispravke (bug prozora, navigacija, bez kartice na početnoj)**
   - Bug: SweetAlert prozor otvoren iz offcanvas panela nije primao unos (Bootstrap focus trap vraćao fokus u panel). Panel se pre prozora zatvara i posle njega vraća (`assets/js/todo.js`, `closePanelIfOpen`). "Dodaj u podsetnik" sa zadatka/klijenta je Bootstrap modal, pa ga bug nije pogađao.
   - Navigacija: jedna stavka "Podsetnik" u meniju i u "Više" otvara panel (`data-kt-open-todo-panel`); ikonica u topbaru je signal (tačka kad ima otvorenih, crveni broj za zakasnelo + danas, ništa kad je prazno); u panelu je link "Otvori celu stranicu". `/podsetnik` ostaje. `todo_open_count`, `open` u AJAX stanju.

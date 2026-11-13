@@ -85,7 +85,7 @@ class TodoTest extends DatabaseTestCase
         self::assertNotNull($repo->findOwned($item->getId(), $owner));
         self::assertNull($repo->findOwned($item->getId(), $admin), 'tuđa stavka se ne učitava (kontroler vraća 404)');
         self::assertNull($repo->findOwned($item->getId(), $super));
-        self::assertSame([], $repo->search($super, 'Tajna'));
+        self::assertSame([], $repo->search($super, 'Tajna', $this->todo->doneCutoff()));
         $titles = [];
         foreach ($this->todo->sections($super) as $list) {
             foreach ($list as $i) {
