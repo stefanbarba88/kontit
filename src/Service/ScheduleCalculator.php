@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Entity\ClientJob;
 use App\Entity\Schedule;
 use App\Enum\NonWorkingDayShift;
 use App\Enum\ScheduleType;
@@ -77,21 +76,6 @@ class ScheduleCalculator
         }
 
         return $this->sorted($result);
-    }
-
-    /**
-     * Rokovi ugovorenog posla klijenta u opsegu: raspored koji važi (override ili posao), od početka do kraja posla.
-     *
-     * @return list<array{key: string, label: string, nominal: \DateTimeImmutable, due: \DateTimeImmutable, shifted: bool, reason: ?string}>
-     */
-    public function forClientJob(ClientJob $job, \DateTimeInterface $from, \DateTimeInterface $to): array
-    {
-        $end = $job->getEndDate();
-
-        return array_values(array_filter(
-            $this->occurrencesBetween($job->getSchedule(), $from, $to, $job->getStartDate()),
-            static fn (array $o) => null === $end || $o['nominal'] <= $end,
-        ));
     }
 
     /**

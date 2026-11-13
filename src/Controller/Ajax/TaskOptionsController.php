@@ -6,6 +6,7 @@ use App\Entity\Client;
 use App\Repository\ClientJobRepository;
 use App\Service\ClientPeople;
 use App\Service\ScheduleCalculator;
+use App\Service\ScheduleResolver;
 use App\Service\TaskService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -19,7 +20,7 @@ class TaskOptionsController extends AbstractAjaxController
 {
     #[Route('/ajax/clients/{id}/task-options', name: 'ajax_client_task_options', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[IsGranted('CLIENT_VIEW', 'client')]
-    public function options(Client $client, ClientJobRepository $jobs, ClientPeople $people, ScheduleCalculator $calculator, TaskService $tasks): JsonResponse
+    public function options(Client $client, ClientJobRepository $jobs, ClientPeople $people, ScheduleCalculator $calculator, ScheduleResolver $resolver, TaskService $tasks): JsonResponse
     {
         $me = $this->actor();
         $jobList = [];
@@ -28,7 +29,7 @@ class TaskOptionsController extends AbstractAjaxController
             $jobList[] = [
                 'id' => $job->getId(),
                 'name' => $template->getName(),
-                'describe' => $calculator->describe($job->getSchedule(), true),
+                'describe' => $calculator->describe($resolver->forClientJob($job), true),
                 'title' => sprintf('%s — %s', $template->getName(), $client->getShortName()),
                 'priority' => $template->getDefaultPriority()->value,
                 'completionMode' => $template->getCompletionMode()->value,

@@ -31,6 +31,7 @@ class FinanceService
         private readonly SettingsService $settings,
         private readonly CapacityResolver $capacities,
         private readonly ScheduleCalculator $schedule,
+        private readonly ScheduleResolver $resolver,
         private readonly EntityManagerInterface $em,
     ) {
     }
@@ -96,7 +97,7 @@ class FinanceService
     {
         $minutes = 0.0;
         foreach ($this->jobs->findBy(['client' => $client, 'isActive' => true, 'isApproved' => true, 'isExcluded' => false]) as $job) {
-            $minutes += $job->getEstimatedMinutes() * $this->schedule->perMonth($job->getSchedule());
+            $minutes += $job->getEstimatedMinutes() * $this->schedule->perMonth($this->resolver->forClientJob($job));
         }
 
         return $minutes / 60;
@@ -110,7 +111,7 @@ class FinanceService
         $sum = 0.0;
         $year = (int) date('Y');
         foreach ($this->jobs->findBy(['client' => $client, 'isApproved' => true, 'source' => JobSource::INDIVIDUAL]) as $job) {
-            if (ScheduleType::NONE === $job->getSchedule()->getType() && null !== $job->getPrice() && (int) $job->getStartDate()->format('Y') === $year) {
+            if (ScheduleType::NONE === $this->resolver->forClientJob($job)->getType() && null !== $job->getPrice() && (int) $job->getStartDate()->format('Y') === $year) {
                 $sum += (float) $job->getPrice();
             }
         }
@@ -315,7 +316,7 @@ class FinanceService
             $load[$d->format('Y-m-d')] = 0;
         }
         foreach ($this->jobs->findGeneratable() as $job) {
-            foreach ($this->schedule->forClientJob($job, $from, $to) as $occ) {
+            foreach ($this->resolver->occurrences($job, $from, $to) as $occ) {
                 $load[$occ['due']->format('Y-m-d')] += $job->getEstimatedMinutes();
             }
         }
@@ -375,7 +376,7 @@ class FinanceService
         return match ($template->getPriceUnit()) {
             PriceUnit::MESECNO => $price,
             PriceUnit::GODISNJE => $price / 12,
-            PriceUnit::PO_IZVRSENJU => $price * $this->schedule->perMonth($job->getSchedule()),
+            PriceUnit::PO_IZVRSENJU => $price * $this->schedule->perMonth($this->resolver->forClientJob($job)),
         };
     }
 }

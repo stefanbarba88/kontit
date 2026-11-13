@@ -19,6 +19,7 @@ class ContractedServicesOverview
         private readonly ClientPackageRepository $packages,
         private readonly ClientJobRepository $jobs,
         private readonly ScheduleCalculator $calculator,
+        private readonly ScheduleResolver $resolver,
         private readonly FinanceService $finance,
     ) {
     }
@@ -89,7 +90,7 @@ class ContractedServicesOverview
      */
     private function row(ClientJob $job, Client $client, \DateTimeImmutable $today): array
     {
-        $schedule = $job->getSchedule();
+        $schedule = $this->resolver->forClientJob($job);
         $next = null;
         if ($job->isActive() && $job->isApproved() && !$job->isExcluded() && $schedule->isAutomatic()) {
             $start = max($today, $job->getStartDate() ?? $today);

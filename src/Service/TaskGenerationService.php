@@ -27,7 +27,7 @@ class TaskGenerationService
         private readonly TaskRepository $tasks,
         private readonly UserRepository $users,
         private readonly UserAbsenceRepository $absences,
-        private readonly ScheduleCalculator $schedule,
+        private readonly ScheduleResolver $resolver,
         private readonly TaskService $taskService,
         private readonly EntityManagerInterface $em,
     ) {
@@ -41,15 +41,15 @@ class TaskGenerationService
     public function preview(int $horizonDays = 30, ?\DateTimeImmutable $today = null): array
     {
         $today ??= new \DateTimeImmutable('today');
-        $jobs = array_values(array_filter($this->jobs->findGeneratable(), static fn (ClientJob $j) => $j->getSchedule()->isAutomatic()));
+        $jobs = array_values(array_filter($this->jobs->findGeneratable(), fn (ClientJob $j) => $this->resolver->forClientJob($j)->isAutomatic()));
         $existing = $this->tasks->findPeriodKeys($jobs);
 
         $rows = [];
         foreach ($jobs as $job) {
-            $lead = $job->getSchedule()->getLeadDays() ?? 0;
+            $lead = $this->resolver->forClientJob($job)->getLeadDays() ?? 0;
             $from = $today->modify('-'.self::CATCH_UP_DAYS.' days');
             $to = $today->modify('+'.($horizonDays + $lead).' days');
-            foreach ($this->schedule->forClientJob($job, $from, $to) as $occ) {
+            foreach ($this->resolver->occurrences($job, $from, $to) as $occ) {
                 $generateOn = $occ['due']->modify('-'.$lead.' days');
                 if ($generateOn > $today->modify('+'.$horizonDays.' days') || !$job->isGeneratable($occ['due'])) {
                     continue;

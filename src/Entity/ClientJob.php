@@ -312,14 +312,6 @@ class ClientJob
 
     // --- efektivne vrednosti (override ili šablon) ---
 
-    /**
-     * Raspored koji važi: override ako je zadat, inače raspored posla.
-     */
-    public function getSchedule(): Schedule
-    {
-        return $this->getScheduleOverride()->isEmpty() ? $this->jobTemplate->getSchedule() : $this->scheduleOverride;
-    }
-
     public function hasScheduleOverride(): bool
     {
         return !$this->getScheduleOverride()->isEmpty();

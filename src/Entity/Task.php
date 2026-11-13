@@ -81,6 +81,10 @@ class Task
     #[ORM\Column]
     private bool $generatedAutomatically = false;
 
+    /** Rok je ručno promenjen samo za ovaj zadatak: ni generator ni izmena rasporeda (posla, klijenta) ga ne preračunavaju (SPEC 8g.4) */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $dueDateManuallySet = false;
+
     /** Generisan zadatak koji je dobila zamena jer je glavni radnik bio na odsustvu ("PREUZETO", SPEC 8i.1) */
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
@@ -202,6 +206,18 @@ class Task
     public function getEstimatedMinutes(): ?int
     {
         return $this->estimatedMinutes;
+    }
+
+    public function isDueDateManuallySet(): bool
+    {
+        return $this->dueDateManuallySet;
+    }
+
+    public function setDueDateManuallySet(bool $manual): static
+    {
+        $this->dueDateManuallySet = $manual;
+
+        return $this;
     }
 
     public function isGeneratedAutomatically(): bool
