@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Entity\UserAbsence;
 use App\Enum\AbsenceStatus;
 use App\Service\AbsenceService;
+use Symfony\Component\Security\Core\Authentication\Token\SwitchUserToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -46,6 +47,10 @@ class AbsenceVoter extends Voter
         }
         if (self::CREATE === $attribute) {
             return true;
+        }
+        // odobravanje, odbijanje i poništavanje automatskog odobrenja nikad u tuđe ime (SPEC 8s)
+        if ($token instanceof SwitchUserToken && \in_array($attribute, [self::DECIDE, self::REVOKE], true)) {
+            return false;
         }
 
         /** @var UserAbsence $subject */

@@ -41,6 +41,14 @@ class ActivityLog
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?User $user;
 
+    /**
+     * "U ime": kad admin ili superadmin radi u režimu izmena ("Prikaži kao korisnik", SPEC 8s), `user` je STVARNI izvršilac,
+     * a ovde je korisnik u čije se ime radi. Za sve ostale zapise je prazno (i za sve zapise nastale pre ove kolone).
+     */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    private ?User $onBehalfOf = null;
+
     #[ORM\Column(length: 20, enumType: ActivityAction::class)]
     private ActivityAction $action;
 
@@ -54,7 +62,7 @@ class ActivityLog
     /**
      * @param array<string, array{0: ?string, 1: ?string}> $changes
      */
-    public function __construct(string $entityType, int $entityId, ?string $entityLabel, ?User $user, ActivityAction $action, array $changes = [])
+    public function __construct(string $entityType, int $entityId, ?string $entityLabel, ?User $user, ActivityAction $action, array $changes = [], ?User $onBehalfOf = null)
     {
         $this->entityType = $entityType;
         $this->entityId = $entityId;
@@ -62,6 +70,7 @@ class ActivityLog
         $this->user = $user;
         $this->action = $action;
         $this->changes = $changes;
+        $this->onBehalfOf = $onBehalfOf;
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -88,6 +97,11 @@ class ActivityLog
     public function getUser(): ?User
     {
         return $this->user;
+    }
+
+    public function getOnBehalfOf(): ?User
+    {
+        return $this->onBehalfOf;
     }
 
     public function getAction(): ActivityAction

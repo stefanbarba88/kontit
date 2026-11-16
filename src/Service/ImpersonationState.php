@@ -69,6 +69,18 @@ class ImpersonationState
         return $user instanceof User ? $user : null;
     }
 
+    /** Stvarni izvršilac za istoriju izmena: pokretač impersonacije dok traje, inače prosleđeni (ulogovani) korisnik. */
+    public function realUser(?User $current): ?User
+    {
+        return $this->actor() ?? $current;
+    }
+
+    /** Korisnik u čije ime se radi (samo dok impersonacija traje), za ActivityLog.onBehalfOf. */
+    public function onBehalfOf(): ?User
+    {
+        return $this->target();
+    }
+
     public function mode(): ImpersonationMode
     {
         return ImpersonationMode::tryFrom((string) $this->session()?->get(self::KEY_MODE)) ?? ImpersonationMode::VIEW;

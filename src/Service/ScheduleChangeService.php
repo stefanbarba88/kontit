@@ -33,6 +33,7 @@ class ScheduleChangeService
         private readonly ScheduleCalculator $calculator,
         private readonly ActivityLogger $logger,
         private readonly ValidatorInterface $validator,
+        private readonly ImpersonationState $impersonation,
     ) {
     }
 
@@ -194,9 +195,10 @@ class ScheduleChangeService
             ActivityLog::CLIENT,
             $client->getId(),
             $client->getShortName(),
-            $actor,
+            $this->impersonation->realUser($actor),
             ActivityAction::UPDATED,
             $this->logger->scheduleChange((string) $job->getJobTemplate()->getName(), $old, $new, $impact->movedCount(), \count($impact->stranded)),
+            $this->impersonation->isActive() ? $this->impersonation->onBehalfOf() : null,
         ));
     }
 }

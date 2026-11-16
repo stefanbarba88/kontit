@@ -5,6 +5,7 @@ namespace App\Security\Voter;
 use App\Entity\User;
 use App\Enum\Role;
 use App\Repository\UserRepository;
+use Symfony\Component\Security\Core\Authentication\Token\SwitchUserToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -42,6 +43,11 @@ class UserVoter extends Voter
     {
         $actor = $token->getUser();
         if (!$actor instanceof User) {
+            return false;
+        }
+
+        // izmena korisnika (lozinka, mejl, rola, pozicija, deaktivacija) nikad iz "Prikaži kao korisnik" (SPEC 8s)
+        if ($token instanceof SwitchUserToken && \in_array($attribute, [self::MANAGE, self::EDIT], true)) {
             return false;
         }
 

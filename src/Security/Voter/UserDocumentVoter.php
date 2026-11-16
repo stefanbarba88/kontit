@@ -5,6 +5,7 @@ namespace App\Security\Voter;
 use App\Entity\User;
 use App\Entity\UserDocument;
 use App\Repository\UserRepository;
+use Symfony\Component\Security\Core\Authentication\Token\SwitchUserToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
@@ -44,6 +45,10 @@ class UserDocumentVoter extends Voter
     {
         $me = $token->getUser();
         if (!$me instanceof User) {
+            return false;
+        }
+        // dokumenti se tokom "Prikaži kao korisnik" samo gledaju: bez otpremanja, brisanja i trajnog brisanja (SPEC 8s)
+        if ($token instanceof SwitchUserToken && \in_array($attribute, [self::UPLOAD, self::DELETE, self::PURGE], true)) {
             return false;
         }
         $admin = $this->decisions->decide($token, ['ROLE_ADMIN']);

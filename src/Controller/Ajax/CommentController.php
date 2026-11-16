@@ -19,6 +19,7 @@ class CommentController extends AbstractAjaxController
     public function add(Request $request, Task $task): JsonResponse
     {
         $this->denyAccessUnlessGranted('TASK_VIEW', $task);
+        $this->denyAccessUnlessGranted('TASK_COMMENT', $task);
 
         try {
             $comment = $this->tasks->addComment($task, $this->actor(), (string) ($this->payload($request)['body'] ?? ''));
@@ -33,6 +34,7 @@ class CommentController extends AbstractAjaxController
     public function edit(Request $request, TaskComment $comment): JsonResponse
     {
         $this->denyAccessUnlessGranted('TASK_VIEW', $comment->getTask());
+        $this->denyAccessUnlessGranted('TASK_COMMENT', $comment->getTask());
 
         try {
             $this->tasks->editComment($comment, $this->actor(), (string) ($this->payload($request)['body'] ?? ''));

@@ -10,6 +10,7 @@ use App\Repository\TeamMemberRepository;
 use App\Security\TeamScope;
 use App\Service\ReplacementResolver;
 use App\Service\TaskReviewPolicy;
+use Symfony\Component\Security\Core\Authentication\Token\SwitchUserToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -32,6 +33,8 @@ class TaskVoter extends Voter
     public const COMPLETE = 'TASK_COMPLETE';
     public const APPROVE = 'TASK_APPROVE';
     public const CANCEL = 'TASK_CANCEL';
+    /** komentar na zadatku: isti uslov kao VIEW, ali nikad iz "Prikaži kao korisnik" (SPEC 8s) */
+    public const COMMENT = 'TASK_COMMENT';
 
     public function __construct(
         private readonly RoleHierarchyInterface $roleHierarchy,
@@ -45,7 +48,7 @@ class TaskVoter extends Voter
     {
         return match ($attribute) {
             self::CREATE => null === $subject,
-            self::VIEW, self::EDIT, self::COMPLETE, self::APPROVE, self::CANCEL => $subject instanceof Task,
+            self::VIEW, self::EDIT, self::COMPLETE, self::APPROVE, self::CANCEL, self::COMMENT => $subject instanceof Task,
             default => false,
         };
     }
@@ -60,6 +63,10 @@ class TaskVoter extends Voter
         if (self::CREATE === $attribute) {
             return true;
         }
+        // odluke (potvrda, vraćanje, otkazivanje) i komentari nikad ne mogu u tuđe ime: admin ih radi u svom nalogu (SPEC 8s)
+        if ($token instanceof SwitchUserToken && \in_array($attribute, [self::APPROVE, self::CANCEL, self::COMMENT], true)) {
+            return false;
+        }
 
         /** @var Task $subject */
         $reachable = $this->roleHierarchy->getReachableRoleNames($token->getRoleNames());
@@ -71,7 +78,7 @@ class TaskVoter extends Voter
         $status = $subject->getStatus();
 
         return match ($attribute) {
-            self::VIEW => $isAdmin || $isLeader || $isAssignee || $isCreator || $isSubstitute,
+            self::VIEW, self::COMMENT => $isAdmin || $isLeader || $isAssignee || $isCreator || $isSubstitute,
             self::EDIT, self::CANCEL => $status->isOpen() && ($isAdmin || $isLeader || $isCreator),
             self::COMPLETE => TaskStatus::OTKAZANO !== $status && ($isAdmin || $isLeader || $isAssignee || $isSubstitute),
             self::APPROVE => TaskStatus::NA_PROVERI === $status && ($subject->isSpecialReview()

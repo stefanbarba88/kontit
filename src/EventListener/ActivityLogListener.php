@@ -18,6 +18,7 @@ use App\Enum\CompletionMode;
 use App\Enum\TaskPriority;
 use App\Enum\TaskStatus;
 use App\Service\ActivityLogger;
+use App\Service\ImpersonationState;
 use App\Service\ReplacementResolver;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\EntityManagerInterface;
@@ -65,12 +66,16 @@ class ActivityLogListener
     /** @var list<array{subject: object, action: ActivityAction, changes: array<string, array{0: ?string, 1: ?string}>, user: ?User, type: string}> */
     private array $pending = [];
 
+    /** korisnik u čije ime se radi (samo tokom impersonacije u režimu izmena) */
+    private ?User $behalf = null;
+
     private bool $flushing = false;
 
     public function __construct(
         private readonly Security $security,
         private readonly ActivityLogger $logger,
         private readonly ReplacementResolver $replacements,
+        private readonly ImpersonationState $impersonation,
     ) {
     }
 
@@ -83,6 +88,9 @@ class ActivityLogListener
         $uow = $args->getObjectManager()->getUnitOfWork();
         $user = $this->security->getUser();
         $user = $user instanceof User ? $user : null;
+        // dok traje "Prikaži kao korisnik" u istoriji je STVARNI izvršilac, a korisnik u čije se ime radi ide u onBehalfOf (SPEC 8s)
+        $user = $this->impersonation->realUser($user);
+        $this->behalf = $this->impersonation->isActive() ? $this->impersonation->onBehalfOf() : null;
 
         $insertions = $uow->getScheduledEntityInsertions();
 
@@ -121,7 +129,7 @@ class ActivityLogListener
             foreach ($entries as $entry) {
                 [$id, $label] = $this->identify($entry['subject']);
                 if (null !== $id) {
-                    $em->persist(new ActivityLog($entry['type'], $id, $label, $entry['user'], $entry['action'], $entry['changes']));
+                    $em->persist(new ActivityLog($entry['type'], $id, $label, $entry['user'], $entry['action'], $entry['changes'], $entry['behalf'] ?? null));
                 }
             }
             $em->flush();
@@ -301,6 +309,7 @@ class ActivityLogListener
             'action' => $action,
             'changes' => $changes,
             'user' => $user,
+            'behalf' => $this->behalf,
             'type' => match (true) {
                 $subject instanceof Task => ActivityLog::TASK,
                 $subject instanceof Client => ActivityLog::CLIENT,
