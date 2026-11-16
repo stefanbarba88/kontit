@@ -3,6 +3,8 @@
 Vodič za postavljanje aplikacije na DigitalOcean. Napisan je na osnovu analize koda, bez ijedne izmene koda aplikacije.
 U fajlu nema tajni. Sve što je u `<UGLASTIM ZAGRADAMA>` je mesto koje popunjavaš svojom vrednošću.
 
+> **Ažuriranje postojeće instalacije:** za puštanje nove verzije na server koji već radi (migracije, cron, vraćanje) vidi [`docs/RELEASE.md`](docs/RELEASE.md).
+
 > **Napomena o bezbednosti:** komande označene sa ⚠ brišu podatke ili menjaju produkciju. Pokrećeš ih ti, ručno,
 > i tek pošto pročitaš šta rade.
 
