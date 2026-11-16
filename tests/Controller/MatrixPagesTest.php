@@ -134,4 +134,27 @@ class MatrixPagesTest extends DatabaseTestCase
         $taskQueries = array_filter($holder->getData()['default'] ?? [], static fn (array $q) => str_contains($q['sql'], 'FROM task '));
         self::assertCount(1, $taskQueries, 'prozor ćelije učitava zadatke jednim upitom');
     }
+
+    public function testExportUsesSameFiltersAndVisibility(): void
+    {
+        $month = (new \DateTimeImmutable('today'))->format('Y-m');
+        [$w] = $this->setUpData($month);
+        $this->login($w);
+        $export = self::getContainer()->get(\App\Export\MatrixExport::class);
+
+        $rows = iterator_to_array($export->rows(['period' => $month], $w), false);
+        self::assertCount(1, $rows, 'jedna ćelija sa zadacima: klijent radnika x Paket 1');
+        self::assertSame('Moj', $rows[0][0]);
+        self::assertStringContainsString('Radnik', (string) $rows[0][1]);
+        self::assertSame('Paket 1', $rows[0][3]);
+        self::assertSame([2, 1], [$rows[0][5], $rows[0][6]]);
+        self::assertSame(1, $export->count(['period' => $month], $w));
+        self::assertSame([], iterator_to_array($export->rows(['period' => $month, 'q' => 'nepostojeci'], $w), false));
+
+        $this->browser->request('GET', '/export/pregled/csv?period='.$month);
+        self::assertResponseIsSuccessful();
+        $this->browser->request('GET', '/pregled-poslova');
+        self::assertStringContainsString('/export/pregled/csv', (string) $this->browser->getResponse()->getContent());
+        self::assertStringContainsString('Pregled poslova</', (string) $this->browser->getResponse()->getContent());
+    }
 }

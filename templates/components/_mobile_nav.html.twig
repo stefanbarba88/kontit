@@ -42,6 +42,7 @@
     <div class="kt-sheet-body">
         <a href="{{ path('client_mine') }}" class="kt-sheet-item">{{ ux_icon('lucide:briefcase', {class: 'kt-icon'}) }}Moji klijenti</a>
         <button type="button" class="kt-sheet-item" data-kt-open-todo-panel data-bs-target="#kt-todo-panel">{{ ux_icon('lucide:notebook-pen', {class: 'kt-icon'}) }}Podsetnik</button>
+        <a href="{{ path('matrix_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:table-properties', {class: 'kt-icon'}) }}Pregled poslova</a>
         <a href="{{ path('absence_index') }}" class="kt-sheet-item">{{ ux_icon('lucide:plane', {class: 'kt-icon'}) }}Odsustva</a>
         {% if is_granted('ROLE_SEF') %}
             {% if is_granted('TEAM_MANAGE') %}

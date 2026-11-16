@@ -52,6 +52,7 @@
 			{{ nav.link(path('client_mine'), 'briefcase', 'Moji klijenti', route == 'client_mine') }}
 			{{ nav.link(path('absence_index'), 'plane', 'Odsustva', route starts with 'absence_', pending_absence_count()) }}
 			{{ nav.link(path('task_index'), 'list-checks', 'Zadaci', route starts with 'task_', awaiting_approval_count()) }}
+			{{ nav.link(path('matrix_index'), 'table-properties', 'Pregled poslova', route == 'matrix_index') }}
 			{% if is_granted('SPECIAL_APPROVALS_VIEW') %}{{ nav.link(path('special_approvals_index'), 'shield-check', 'Posebne potvrde', route starts with 'special_approvals', special_approval_count()) }}{% endif %}
 			{{ nav.panel_link('#kt-todo-panel', 'notebook-pen', 'Podsetnik', route starts with 'todo_', todo_count()) }}
 			{{ nav.link(path('calendar_index'), 'calendar-days', 'Kalendar', route starts with 'calendar_') }}

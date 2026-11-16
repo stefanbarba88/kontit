@@ -4,6 +4,11 @@
 {% block page_title %}Pregled poslova po klijentima{% endblock %}
 {% block breadcrumbs %}<span class="breadcrumb-item active">Pregled poslova</span>{% endblock %}
 
+{% block page_actions %}
+    {% import 'components/export.html.twig' as export %}
+    <div data-kt-mx-export>{{ export.menu('pregled', mx.filters.toQuery) }}</div>
+{% endblock %}
+
 {% block content %}
     <div class="card mb-4">
         <div class="card-body">

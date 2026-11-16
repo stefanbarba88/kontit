@@ -8,6 +8,27 @@
 {% macro pct(value) %}{{ value is null ? '—' : value ~ '%' }}{% endmacro %}
 
 {% block content %}
+    <h5 class="mb-3">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Zadaci</h5>
+    <div class="row mb-4">
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('list-checks', me.open, 'Otvoreni zadaci', 'primary') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('circle-alert', me.overdue, 'Kasne', me.overdue > 0 ? 'danger' : 'success') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('clock', me.dueSoon, 'Ističu u 3 dana', me.dueSoon > 0 ? 'warning' : 'secondary') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('circle-check', me.doneThisMonth, 'Završeno ovog meseca', 'success', 'Prošli mesec: ' ~ me.doneLastMonth) }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('timer', _self.pct(me.onTimePercent), 'Završeno na vreme', 'info', 'poslednjih 90 dana') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('undo-2', me.returned30, 'Vraćeno na doradu', me.returned30 > 0 ? 'warning' : 'secondary', 'poslednjih 30 dana') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('building-2', me.clientsPrimary, 'Klijenti (glavni)', 'primary') }}</div>
+        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('refresh-cw', me.clientsBackup, 'Klijenti (backup)', 'secondary') }}</div>
+    </div>
+
+    {# Pregled poslova po klijentima (SPEC 8r): odmah posle kartica Zadaci #}
+    <div class="card mb-4">
+        <div class="card-header d-flex align-items-center flex-wrap gap-2">
+            <h5 class="mb-0">{{ ux_icon('lucide:table-properties', {class: 'kt-icon me-2'}) }}Pregled poslova po klijentima</h5>
+            <a href="{{ path('matrix_index', mx.filters.toQuery) }}" class="btn btn-ghost btn-sm ms-auto">Otvori celu stranicu{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</a>
+        </div>
+        <div class="card-body border-top">{% include 'matrix/_block.html.twig' %}</div>
+    </div>
+
     {% if special is not null %}
         <div class="card mb-4">
             <div class="card-body d-flex align-items-center gap-3 flex-wrap">
@@ -41,27 +62,6 @@
                 {% endfor %}
             </div>
         </div>
-    </div>
-    <h5 class="mb-3">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Zadaci</h5>
-    <div class="row mb-4">
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('list-checks', me.open, 'Otvoreni zadaci', 'primary') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('circle-alert', me.overdue, 'Kasne', me.overdue > 0 ? 'danger' : 'success') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('clock', me.dueSoon, 'Ističu u 3 dana', me.dueSoon > 0 ? 'warning' : 'secondary') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('circle-check', me.doneThisMonth, 'Završeno ovog meseca', 'success', 'Prošli mesec: ' ~ me.doneLastMonth) }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('timer', _self.pct(me.onTimePercent), 'Završeno na vreme', 'info', 'poslednjih 90 dana') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('undo-2', me.returned30, 'Vraćeno na doradu', me.returned30 > 0 ? 'warning' : 'secondary', 'poslednjih 30 dana') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('building-2', me.clientsPrimary, 'Klijenti (glavni)', 'primary') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('refresh-cw', me.clientsBackup, 'Klijenti (backup)', 'secondary') }}</div>
-    </div>
-
-
-    {# Pregled poslova po klijentima (SPEC 8r): odmah posle kartica Zadaci #}
-    <div class="card mb-4">
-        <div class="card-header d-flex align-items-center flex-wrap gap-2">
-            <h5 class="mb-0">{{ ux_icon('lucide:table-properties', {class: 'kt-icon me-2'}) }}Pregled poslova po klijentima</h5>
-            <a href="{{ path('matrix_index', mx.filters.toQuery) }}" class="btn btn-ghost btn-sm ms-auto">Otvori celu stranicu{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</a>
-        </div>
-        <div class="card-body border-top">{% include 'matrix/_block.html.twig' %}</div>
     </div>
 
     {% if showTeam %}

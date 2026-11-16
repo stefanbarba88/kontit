@@ -64,6 +64,11 @@ function init(root) {
         const query = p.toString();
         // period je podrazumevan: sam ne čini filter
         const onlyDefault = !query || (p.size === 1 && p.get('period') === defaultPeriod);
+        // izvoz uvek nosi trenutne filtere (isti upit kao tabela)
+        document.querySelectorAll('[data-kt-mx-export] a[href]').forEach((a) => {
+            const u = new URL(a.getAttribute('href'), location.origin);
+            a.setAttribute('href', `${u.pathname}${query ? `?${query}` : ''}`);
+        });
         try {
             history.replaceState(null, '', onlyDefault ? location.pathname : `${location.pathname}?${query}`);
         } catch (e) { /* bez history API-ja URL se samo ne ažurira */ }
