@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pregled poslova po klijentima{% endblock %}
+{% block page_title %}Pregled poslova po klijentima{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item active">Pregled poslova</span>{% endblock %}
+
+{% block content %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <p class="kt-text-sm text-muted mb-3">Zadaci klijenata po paketima, sa rokom u izabranom mesecu. Vidiš samo zadatke koje smeš da vidiš. Klik na ćeliju otvara spisak zadataka.</p>
+            {% include 'matrix/_block.html.twig' %}
+        </div>
+    </div>
+{% endblock %}

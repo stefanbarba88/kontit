@@ -76,6 +76,16 @@
             {% endfor %}
         </select>
     </div>
+    {% if list.packages is defined and list.packages is not empty %}
+    <div class="col-12 col-md-6 col-xl-3">
+        {# Paket: iz kog paketa klijenta je posao (ClientJob.clientPackage); "Bez paketa" su individualni poslovi i ručni zadaci #}
+        <select name="package" class="form-select" aria-label="Paket">
+            <option value="">Svi paketi</option>
+            <option value="none" {{ f.noPackage ? 'selected' }}>Bez paketa</option>
+            {% for pkg in list.packages %}<option value="{{ pkg.id }}" {{ f.package and f.package.id == pkg.id ? 'selected' }}>{{ pkg.name }}</option>{% endfor %}
+        </select>
+    </div>
+    {% endif %}
     {% if 'origin' not in hidden %}<div class="col-6 col-md-4 col-xl-3">
         <select name="origin" class="form-select" aria-label="Nastanak" data-native>
             {% for key, label in {all: 'Svi (automatski i ručni)', auto: 'Automatski generisani', manual: 'Ručno kreirani'} %}
@@ -115,3 +125,12 @@
         <a href="{{ path(list.route, list.routeParams|merge({tab: f.tab != 'all' ? f.tab : null})) }}" class="btn btn-ghost" title="Poništi filtere" aria-label="Poništi filtere">{{ ux_icon('lucide:x', {class: 'kt-icon'}) }}Poništi{% if f.activeCount %} ({{ f.activeCount }}){% endif %}</a>
     </div>
 </form>
+
+{# Aktivan filter po paketu kao čip koji se uklanja jednim klikom (isti URL bez paketa) #}
+{% if f.noPackage or f.package %}
+    <div class="kt-active-chips mt-2">
+        <a class="kt-tchip kt-tchip-link" href="{{ path(list.route, list.routeParams|merge(f.toQuery|merge({package: null}))) }}" title="Ukloni filter po paketu" aria-label="Ukloni filter po paketu">
+            {{ ux_icon('lucide:package', {class: 'kt-icon'}) }}Paket: {{ f.noPackage ? 'bez paketa' : f.package.name }}{{ ux_icon('lucide:x', {class: 'kt-icon ms-1'}) }}
+        </a>
+    </div>
+{% endif %}

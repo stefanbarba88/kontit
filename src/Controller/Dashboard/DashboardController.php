@@ -2,13 +2,16 @@
 
 namespace App\Controller\Dashboard;
 
+use App\Controller\Ajax\MatrixController;
 use App\Entity\User;
 use App\Repository\TaskRepository;
 use App\Service\SpecialApprovalService;
 use App\Service\StatisticsService;
 use App\Service\CalendarService;
+use App\Service\ClientJobMatrixService;
 use App\Service\TaskService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -20,11 +23,12 @@ class DashboardController extends AbstractController
         private readonly CalendarService $calendar,
         private readonly TaskRepository $taskRepository,
         private readonly SpecialApprovalService $specialApprovals,
+        private readonly ClientJobMatrixService $matrix,
     ) {
     }
 
     #[Route('/', name: 'app_dashboard')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $me = $this->getUser();
         \assert($me instanceof User);
@@ -43,7 +47,14 @@ class DashboardController extends AbstractController
             ];
         }
 
+        // Pregled poslova po klijentima (SPEC 8r): filteri iz URL-a, prvih 15 klijenata
+        $matrixFilters = $this->matrix->filters($request->query->all());
+
         return $this->render('dashboard/index.html.twig', [
+            'mx' => $this->matrix->build($matrixFilters, $me, 1, MatrixController::PER_PAGE_BLOCK),
+            'full' => false,
+            'periodOptions' => $this->matrix->periodOptions($matrixFilters),
+            'periodLabel' => $this->matrix->periodLabel($matrixFilters),
             'special' => $special,
             'noReview' => $admin ? $this->stats->noReviewDecisions() : [],
             'me' => $this->stats->forWorker($me),

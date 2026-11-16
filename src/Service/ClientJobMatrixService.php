@@ -315,6 +315,27 @@ class ClientJobMatrixService
         return $this->urls->generate('task_index', $query);
     }
 
+    /**
+     * Izbor perioda u filteru: 18 meseci unazad do 6 unapred od danas (i izabrani mesec, ako je van toga).
+     *
+     * @return list<array{value: string, label: string}>
+     */
+    public function periodOptions(MatrixFilters $f): array
+    {
+        $months = ['', 'januar', 'februar', 'mart', 'april', 'maj', 'jun', 'jul', 'avgust', 'septembar', 'oktobar', 'novembar', 'decembar'];
+        $first = $this->today()->modify('first day of this month');
+        $keys = [];
+        for ($i = -18; $i <= 6; ++$i) {
+            $keys[] = $first->modify(sprintf('%+d months', $i))->format('Y-m');
+        }
+        if (!\in_array($f->periodKey(), $keys, true)) {
+            $keys[] = $f->periodKey();
+            sort($keys);
+        }
+
+        return array_map(static fn (string $k) => ['value' => $k, 'label' => $months[(int) substr($k, 5, 2)].' '.substr($k, 0, 4)], array_reverse($keys));
+    }
+
     /** "novembar 2026" */
     public function periodLabel(MatrixFilters $f): string
     {

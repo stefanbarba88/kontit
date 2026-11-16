@@ -26,6 +26,7 @@ import './js/checklist.js';
 import './js/comments.js';
 import './js/notifications.js';
 import './js/dashboard.js';
+import './js/matrix.js';
 import './js/confirm.js';
 import './js/dropdowns.js';
 import './js/nbs.js';

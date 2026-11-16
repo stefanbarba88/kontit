@@ -55,6 +55,15 @@
     </div>
 
 
+    {# Pregled poslova po klijentima (SPEC 8r): odmah posle kartica Zadaci #}
+    <div class="card mb-4">
+        <div class="card-header d-flex align-items-center flex-wrap gap-2">
+            <h5 class="mb-0">{{ ux_icon('lucide:table-properties', {class: 'kt-icon me-2'}) }}Pregled poslova po klijentima</h5>
+            <a href="{{ path('matrix_index', mx.filters.toQuery) }}" class="btn btn-ghost btn-sm ms-auto">Otvori celu stranicu{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</a>
+        </div>
+        <div class="card-body border-top">{% include 'matrix/_block.html.twig' %}</div>
+    </div>
+
     {% if showTeam %}
         <h5 class="mb-3">{{ ux_icon('lucide:users', {class: 'kt-icon me-2'}) }}{{ admin ? 'Svi radnici' : 'Moj tim' }}</h5>
         {% if team.workers %}

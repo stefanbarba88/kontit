@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 class UiRulesTest extends TestCase
 {
     /** Klase koje dugmetu daju izgled: Bootstrap dugme ili naša dokumentovana komponenta (DESIGN.md) */
-    private const BUTTON_OK = '/(^|\s)(btn|btn-close|dropdown-item|accordion-button|nav-link|kt-icon-btn|kt-pager-btn|kt-tchip|kt-todo-title|kt-jp-toggle|kt-search-clear|kt-user-toggle|kt-avatar-btn|kt-tab-plus|kt-password-toggle|kt-input-clear|kt-sheet-item|kt-nav-link|kt-tab|kt-tchip-x)(\s|$)/';
+    private const BUTTON_OK = '/(^|\s)(btn|btn-close|dropdown-item|accordion-button|nav-link|kt-icon-btn|kt-pager-btn|kt-tchip|kt-todo-title|kt-jp-toggle|kt-search-clear|kt-user-toggle|kt-avatar-btn|kt-tab-plus|kt-password-toggle|kt-input-clear|kt-sheet-item|kt-nav-link|kt-tab|kt-tchip-x|kt-mx-cell|kt-mx-count)(\s|$)/';
 
     /** Tekstualna polja moraju da imaju jednu od ovih klasa (checkbox/radio/hidden/file/submit se proveravaju posebno) */
     private const FIELD_OK = '/(^|\s)(form-control|form-select|form-range|form-check-input|btn-check|kt-input|kt-check|flatpickr-input|swal2-input)(\s|$)/';

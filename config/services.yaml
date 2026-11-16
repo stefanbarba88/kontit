@@ -40,10 +40,3 @@ services:
         arguments:
             $preferred: "%env(NBS_PROVIDER)%"
             $cache: '@cache.app'
-
-when@test:
-    services:
-        # servis se u testovima uzima direktno iz kontejnera
-        App\Service\ClientJobMatrixService:
-            autowire: true
-            public: true

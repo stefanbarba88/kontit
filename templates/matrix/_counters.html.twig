@@ -1,0 +1,8 @@
+{# Brojači bloka: ćelije u izabranom periodu (klik uključuje "Samo problematični") i zakasneli zadaci bez obzira na period #}
+{% if mx.dangerCells == 0 and mx.warningCells == 0 and mx.overdueTasks == 0 %}
+    <span class="kt-text-sm text-muted">{{ ux_icon('lucide:circle-check-big', {class: 'kt-icon me-1'}) }}Nema zakasnelih ni zadataka koji uskoro ističu.</span>
+{% else %}
+    {% if mx.dangerCells %}<button type="button" class="kt-mx-count kt-mx-count-danger" data-kt-mx-problem title="Prikaži samo problematične">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon'}) }}{{ mx.dangerCells }} {{ mx.dangerCells == 1 ? 'kasni' : 'kasne' }}</button>{% endif %}
+    {% if mx.warningCells %}<button type="button" class="kt-mx-count kt-mx-count-warning" data-kt-mx-problem title="Prikaži samo problematične">{{ ux_icon('lucide:clock-alert', {class: 'kt-icon'}) }}{{ mx.warningCells }} {{ mx.warningCells == 1 ? 'ističe' : 'ističu' }} uskoro</button>{% endif %}
+    {% if mx.overdueTasks %}<a class="kt-mx-count kt-mx-count-link" href="{{ path('task_index', {tab: 'overdue'}) }}" title="Svi zakasneli zadaci, bez obzira na period">{{ mx.overdueTasks }} {{ mx.overdueTasks == 1 ? 'zakasneo zadatak' : 'zakasnelih zadataka' }} ukupno{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</a>{% endif %}
+{% endif %}

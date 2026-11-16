@@ -1,0 +1,21 @@
+{# Tabela (od md naviše) i lista kartica (telefon); isti podaci, jedna se krije CSS-om #}
+{% import 'matrix/_parts.html.twig' as p %}
+{% if mx.rows is empty %}
+    <div class="kt-mx-empty">{{ ux_icon('lucide:search', {class: 'kt-icon kt-icon-lg d-block mb-2'}) }}Nema klijenata za izabrane filtere.</div>
+{% else %}
+    <div class="kt-mx-scroll {{ full ? 'is-full' }}" data-kt-mx-scroll>
+        <table class="table kt-mx-table d-none d-md-table mb-0">
+            <thead>
+                <tr>
+                    <th scope="col" class="kt-mx-col-client">Klijent</th>
+                    <th scope="col" class="kt-mx-col-people">Zaduženi</th>
+                    {% for pkg in mx.columns %}<th scope="col" class="text-center" title="{{ pkg.name }}">{{ pkg.name }}</th>{% endfor %}
+                    <th scope="col" class="text-center kt-mx-col-other">Ostali taskovi</th>
+                </tr>
+            </thead>
+            <tbody data-kt-mx-rows>{{ p.rows(mx) }}</tbody>
+        </table>
+        <div class="kt-mx-cards d-md-none" data-kt-mx-cards>{{ p.cards(mx) }}</div>
+    </div>
+    <div class="kt-mx-foot" data-kt-mx-foot>{{ p.foot(mx, full) }}</div>
+{% endif %}

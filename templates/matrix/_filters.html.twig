@@ -1,0 +1,45 @@
+{# Filteri matrice: AJAX, stanje u URL-u i localStorage (assets/js/matrix.js). Na telefonu su skupljeni iza dugmeta "Filteri". #}
+{% set f = mx.filters %}
+{% set active = (f.q != '' ? 1 : 0) + (f.userId ? 1 : 0) + (f.packageIds ? 1 : 0) + (f.onlyOpen ? 1 : 0) + (f.onlyProblem ? 1 : 0) %}
+{% set fid = full ? 'mxf-page' : 'mxf-card' %}
+<div class="kt-mx-filters-bar d-md-none">
+    <button type="button" class="btn btn-outline-secondary w-100" data-bs-toggle="collapse" data-bs-target="#{{ fid }}" aria-expanded="false" aria-controls="{{ fid }}">{{ ux_icon('lucide:filter', {class: 'kt-icon me-2'}) }}Filteri{% if active %} <span class="kt-filter-count" data-kt-mx-active>{{ active }}</span>{% endif %}</button>
+</div>
+<form class="kt-mx-filters collapse d-md-block" id="{{ fid }}" data-kt-mx-filters autocomplete="off" onsubmit="return false">
+    <div class="row g-2">
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="kt-search-field">
+                {{ ux_icon('lucide:search', {class: 'kt-icon kt-search-icon'}) }}
+                <input type="text" name="q" value="{{ f.q }}" class="form-control" placeholder="Klijent" aria-label="Pretraga klijenta" maxlength="100" autocomplete="off">
+                <button type="button" class="kt-search-clear" data-kt-mx-clear-q aria-label="Obriši pretragu" {{ f.q == '' ? 'hidden' }}>{{ ux_icon('lucide:x', {class: 'kt-icon'}) }}</button>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <select name="user" class="form-select" aria-label="Zaposleni (glavni ili backup)">
+                <option value="">Svi zaposleni</option>
+                {% for u in mx.people %}<option value="{{ u.id }}" {{ f.userId == u.id ? 'selected' }}>{{ u.fullName }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <select name="pkg" class="form-select" multiple aria-label="Paketi" data-placeholder="Svi paketi">
+                {% for pkg in mx.allPackages %}<option value="{{ pkg.id }}" {{ pkg.id in f.packageIds ? 'selected' }}>{{ pkg.name }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-6 col-md-3 col-xl-2">
+            <select name="period" class="form-select" aria-label="Period (mesec roka)" data-native>
+                {% for opt in periodOptions %}<option value="{{ opt.value }}" {{ opt.value == f.periodKey ? 'selected' }}>{{ opt.label }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-12 d-flex flex-wrap align-items-center gap-3 mt-2">
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" name="open" value="1" id="{{ fid }}-open" {{ f.onlyOpen ? 'checked' }}>
+                <label class="form-check-label" for="{{ fid }}-open">Samo nezavršeno</label>
+            </div>
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" name="problem" value="1" id="{{ fid }}-problem" {{ f.onlyProblem ? 'checked' }}>
+                <label class="form-check-label" for="{{ fid }}-problem">Samo problematični</label>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm ms-md-auto" data-kt-mx-reset>{{ ux_icon('lucide:x', {class: 'kt-icon me-1'}) }}Poništi filtere</button>
+        </div>
+    </div>
+</form>

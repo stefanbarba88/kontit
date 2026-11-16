@@ -182,6 +182,16 @@ class TaskListFilters
     }
 
     /**
+     * Paketi za filter "Paket" (ceo katalog po nazivu).
+     *
+     * @return list<ServicePackage>
+     */
+    public function packageOptions(): array
+    {
+        return $this->em->getRepository(ServicePackage::class)->findBy([], ['name' => 'ASC']);
+    }
+
+    /**
      * Timovi za filter: admin svi, šef oni koje vodi, radnik nijedan.
      *
      * @return list<Team>
