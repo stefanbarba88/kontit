@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% import 'components/_impersonation_log.html.twig' as il %}
+
+{% block title %}Sigurnost{% endblock %}
+{% block page_title %}Sigurnost{% endblock %}
+{% block breadcrumbs %}<span class="breadcrumb-item">Podešavanja</span><span class="breadcrumb-item active">Sigurnost</span>{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">{{ ux_icon('lucide:eye', {class: 'kt-icon me-2'}) }}Pristupi „Prikaži kao korisnik“</h5>
+        </div>
+        <div class="card-body border-top kt-text-sm text-muted">
+            Poslednjih {{ logs|length }} pristupa: ko je gledao čiji nalog, kada, koliko dugo i u kom režimu.
+            „Izmene“ znači da je u nekom trenutku uključen rad u ime korisnika; sve izmene u tom režimu u istoriji nose ime stvarnog izvršioca.
+        </div>
+        {{ il.list(logs, true) }}
+    </div>
+{% endblock %}

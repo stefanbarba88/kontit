@@ -70,7 +70,7 @@
 				{% endif %}
 			{% endif %}
 
-			{% if is_granted('CATALOG_MANAGE') or is_granted('USER_MANAGE') %}
+			{% if is_granted('CATALOG_MANAGE') or is_granted('USER_MANAGE') or is_granted('IMPERSONATION_LOG_VIEW') %}
 				{{ nav.group('Administracija') }}
 				{% if is_granted('CATALOG_MANAGE') %}
 					{{ nav.link(path('admin_job_index'), 'library', 'Katalog poslova', route starts with 'admin_job') }}
@@ -84,6 +84,9 @@
 				{% if is_granted('USER_MANAGE') %}
 					{{ nav.link(path('admin_user_index'), 'contact', 'Korisnici', route starts with 'admin_user') }}
 					{{ nav.link(path('admin_position_index'), 'award', 'Pozicije', route starts with 'admin_position') }}
+				{% endif %}
+				{% if is_granted('IMPERSONATION_LOG_VIEW') %}
+					{{ nav.link(path('admin_security_index'), 'shield-check', 'Sigurnost', route starts with 'admin_security') }}
 				{% endif %}
 			{% endif %}
 

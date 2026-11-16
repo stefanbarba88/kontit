@@ -6,6 +6,7 @@ use App\Form\NotificationPreferencesType;
 use App\Form\OwnPasswordType;
 use App\Form\ProfileType;
 use App\Repository\ActivityLogRepository;
+use App\Repository\ImpersonationLogRepository;
 use App\Repository\TeamMemberRepository;
 use App\Repository\TeamRepository;
 use App\Service\UserService;
@@ -26,6 +27,7 @@ class ProfileController extends AbstractController
         TeamMemberRepository $members,
         TeamRepository $teams,
         ActivityLogRepository $activity,
+        ImpersonationLogRepository $accessLog,
     ): Response {
         $user = $this->getUser();
 
@@ -64,6 +66,7 @@ class ProfileController extends AbstractController
             'membership' => $members->findActiveByUser($user),
             'ledTeam' => $teams->findActiveLedBy($user),
             'activity' => $activity->findUserPage($user),
+            'accessLog' => $accessLog->findForTarget($user, 50),
         ]);
     }
 }

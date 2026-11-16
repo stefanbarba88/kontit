@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 {% import 'components/ui.html.twig' as ui %}
 {% import 'components/timeline.html.twig' as tl %}
+{% import 'components/_impersonation_log.html.twig' as il %}
 
 {% block title %}Moj profil{% endblock %}
 {% block page_title %}Moj profil{% endblock %}
@@ -71,6 +72,16 @@
                         </div>
                     {{ form_end(prefsForm) }}
                 </div>
+            </div>
+
+            {# Ko je gledao moj nalog (SPEC 8s), samo za čitanje #}
+            <div class="card" id="access-log">
+                <div class="card-header"><h5 class="mb-0">{{ ux_icon('lucide:eye', {class: 'kt-icon me-2'}) }}Pristupi mom nalogu</h5></div>
+                <div class="card-body border-top kt-text-sm text-muted">
+                    Administrator može da pogleda aplikaciju kako je ti vidiš, radi podrške. Tvoj Podsetnik, lozinka, mejl i dokumenti ostaju zaštićeni.
+                    Ovde vidiš ko je i kada pristupao tvom nalogu; ne možeš to da menjaš.
+                </div>
+                {{ il.list(accessLog) }}
             </div>
 
             {# Google kalendar (SPEC 8n.3): aplikacija -> Google, poseban kalendar "KontIT" #}

@@ -1,0 +1,33 @@
+{# Evidencija "Prikaži kao korisnik" (SPEC 8s). Lista, ista na telefonu i na računaru.
+   logs: ImpersonationLog[]; both: true prikazuje i ko je koga gledao, IP i razlog izlaska (superadmin) #}
+{% macro duration(seconds) %}{% if seconds < 60 %}manje od minuta{% elseif seconds < 3600 %}{{ (seconds / 60)|round }} min{% else %}{{ (seconds // 3600) }} h {{ ((seconds % 3600) / 60)|round }} min{% endif %}{% endmacro %}
+
+{% macro list(logs, both = false) %}
+    {% import _self as self %}
+    {% if logs is empty %}
+        <div class="card-body text-muted text-center py-4">Nema evidentiranih pristupa.</div>
+    {% else %}
+        <ul class="list-group list-group-flush kt-imp-log">
+            {% for log in logs %}
+                <li class="list-group-item d-flex flex-wrap align-items-center gap-2 gap-md-3">
+                    <span class="min-w-0 flex-grow-1">
+                        <strong>{{ log.actor.fullName }}</strong> <span class="text-muted">({{ log.actor.highestRole.label }})</span>
+                        {% if both %}<span class="text-muted">→</span> <strong>{{ log.target.fullName }}</strong> <span class="text-muted">({{ log.target.highestRole.label }})</span>{% endif %}
+                        <div class="text-muted kt-text-sm">
+                            {{ log.startedAt|date('d.m.Y. H:i') }} · {{ self.duration(log.durationSeconds) }}
+                            {% if both and log.ip %}· IP {{ log.ip }}{% endif %}
+                        </div>
+                    </span>
+                    <span class="d-flex flex-wrap gap-2 align-items-center">
+                        <span class="badge {{ log.mode.value == 'edit' ? 'text-bg-warning' : 'text-bg-secondary' }}">{{ log.mode.value == 'edit' ? 'Izmene' : 'Samo pregled' }}</span>
+                        {% if log.endedAt is null %}
+                            <span class="badge text-bg-info">U toku</span>
+                        {% elseif both and log.endReason %}
+                            <span class="text-muted kt-text-sm">{{ log.endReason.label }}</span>
+                        {% endif %}
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endmacro %}

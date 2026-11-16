@@ -20,6 +20,8 @@ use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 class ImpersonationVoter extends Voter
 {
     public const IMPERSONATE = 'USER_IMPERSONATE';
+    /** Podešavanja → Sigurnost: evidencija pristupa, samo superadmin */
+    public const LOG_VIEW = 'IMPERSONATION_LOG_VIEW';
 
     public function __construct(private readonly RoleHierarchyInterface $roleHierarchy)
     {
@@ -27,12 +29,16 @@ class ImpersonationVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return self::IMPERSONATE === $attribute && $subject instanceof User;
+        return (self::IMPERSONATE === $attribute && $subject instanceof User) || (self::LOG_VIEW === $attribute && null === $subject);
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $actor = $token->getUser();
+        if (self::LOG_VIEW === $attribute) {
+            return $actor instanceof User && !$token instanceof SwitchUserToken
+                && \in_array(Role::SUPERADMIN->value, $this->roleHierarchy->getReachableRoleNames($token->getRoleNames()), true);
+        }
         if (!$actor instanceof User || !$subject instanceof User || $token instanceof SwitchUserToken) {
             return false;
         }
