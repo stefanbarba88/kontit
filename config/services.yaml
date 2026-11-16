@@ -7,6 +7,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    # Matrica "Pregled poslova po klijentima": otvoren zadatak čiji rok ističe u narednih N radnih dana boji ćeliju žuto
+    matrix.warning_days: 3
     # Završene stavke Podsetnika se trajno brišu posle ovoliko dana (app:todo:cleanup); lista ih ne prikazuje ni pre toga
     todo.done_retention_days: 3
 
@@ -38,3 +40,10 @@ services:
         arguments:
             $preferred: "%env(NBS_PROVIDER)%"
             $cache: '@cache.app'
+
+when@test:
+    services:
+        # servis se u testovima uzima direktno iz kontejnera
+        App\Service\ClientJobMatrixService:
+            autowire: true
+            public: true

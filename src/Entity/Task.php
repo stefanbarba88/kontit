@@ -19,6 +19,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Index(name: 'IDX_TASK_STATUS_DUE', fields: ['status', 'dueDate'])]
 #[ORM\Index(name: 'IDX_TASK_CLIENT_STATUS', fields: ['client', 'status'])]
+// matrica "Pregled poslova po klijentima" (SPEC 8r): zadaci jednog meseca po klijentu
+#[ORM\Index(name: 'IDX_TASK_DUE_CLIENT', fields: ['dueDate', 'client'])]
 // jedan zadatak po poslu klijenta i periodu (SPEC 8i.1); ručni zadaci iz posla imaju period_key = NULL, pa ih može biti više
 #[ORM\UniqueConstraint(name: 'UNIQ_TASK_JOB_PERIOD', columns: ['client_job_id', 'period_key'])]
 class Task

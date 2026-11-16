@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Client;
 use App\Entity\JobTemplate;
+use App\Entity\ServicePackage;
 use App\Entity\Team;
 use App\Entity\User;
 use App\Enum\TaskPriority;
@@ -39,6 +40,9 @@ final class TaskFilter
         public readonly string $qRaw = '',
         public readonly ?JobTemplate $job = null,
         public readonly bool $noJob = false,
+        /** paket klijenta kome posao pripada (ClientJob.clientPackage.package); $noPackage = zadaci van svakog paketa */
+        public readonly ?ServicePackage $package = null,
+        public readonly bool $noPackage = false,
         /** 'all' | 'auto' | 'manual' (generatedAutomatically) */
         public readonly string $origin = 'all',
         /** prikaži i završene i otkazane (važi samo za tab "Svi" bez izabranog statusa) */
@@ -84,6 +88,7 @@ final class TaskFilter
             'period' => null !== $this->from,
             'q' => '' !== $this->q,
             'job' => null !== $this->job || $this->noJob,
+            'package' => null !== $this->package || $this->noPackage,
             'origin' => 'all' !== $this->origin,
             'closed' => $this->showClosed,
             'role' => null !== $this->lockedAssignee && 'assigned' !== $this->role,
@@ -108,6 +113,7 @@ final class TaskFilter
             'period' => '' !== $this->period() ? $this->period() : null,
             'q' => '' !== $this->qRaw ? $this->qRaw : null,
             'job' => $this->noJob ? 'none' : $this->job?->getId(),
+            'package' => $this->noPackage ? 'none' : $this->package?->getId(),
             'origin' => 'all' !== $this->origin ? $this->origin : null,
             'closed' => $this->showClosed ? 1 : null,
             'role' => null !== $this->lockedAssignee && 'assigned' !== $this->role ? $this->role : null,

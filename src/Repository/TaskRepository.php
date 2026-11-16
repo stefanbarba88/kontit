@@ -150,11 +150,86 @@ class TaskRepository extends ServiceEntityRepository
         } elseif (null !== $f->job) {
             $qb->andWhere('EXISTS (SELECT 1 FROM App\Entity\ClientJob fj WHERE fj = t.clientJob AND fj.jobTemplate = :fJob)')->setParameter('fJob', $f->job);
         }
+        if ($f->noPackage) {
+            $qb->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\ClientJob npj WHERE npj = t.clientJob AND npj.clientPackage IS NOT NULL)');
+        } elseif (null !== $f->package) {
+            $qb->andWhere('EXISTS (SELECT 1 FROM App\Entity\ClientJob fpj JOIN fpj.clientPackage fpc WHERE fpj = t.clientJob AND fpc.package = :fPackage)')->setParameter('fPackage', $f->package);
+        }
         if ('auto' === $f->origin || 'manual' === $f->origin) {
             $qb->andWhere('t.generatedAutomatically = :fAuto')->setParameter('fAuto', 'auto' === $f->origin);
         }
 
         return $qb;
+    }
+
+    /**
+     * Matrica "Pregled poslova po klijentima": jedan upit, GROUP BY klijent + paket, nad istom vidljivošću i istim filterima kao lista zadataka.
+     * OTKAZANO se ne broji ni u ukupno. Otvoreni sa rokom pre $today su zakasneli, a sa rokom do $soonUntil (uključujući) ističu uskoro.
+     *
+     * @param list<int> $clientIds
+     *
+     * @return list<array{clientId: int, packageId: ?int, total: int, done: int, overdue: int, soon: int}> packageId null = van paketa
+     */
+    public function matrixAggregates(TaskFilter $f, User $viewer, array $clientIds, \DateTimeImmutable $today, \DateTimeImmutable $soonUntil): array
+    {
+        if ([] === $clientIds) {
+            return [];
+        }
+        $qb = $this->createFilteredQueryBuilder($f, $viewer)
+            ->select('IDENTITY(t.client) AS client_id', 'IDENTITY(mcp.package) AS package_id', 'COUNT(t.id) AS total')
+            ->addSelect('SUM(CASE WHEN t.status = :mxDone THEN 1 ELSE 0 END) AS done_count')
+            ->addSelect('SUM(CASE WHEN t.status IN (:mxOpen) AND t.dueDate < :mxToday THEN 1 ELSE 0 END) AS overdue_count')
+            ->addSelect('SUM(CASE WHEN t.status IN (:mxOpen) AND t.dueDate >= :mxToday AND t.dueDate <= :mxSoon THEN 1 ELSE 0 END) AS soon_count')
+            ->leftJoin('t.clientJob', 'mj')->leftJoin('mj.clientPackage', 'mcp')
+            ->andWhere('t.status <> :mxCancelled AND t.client IN (:mxClients)')
+            ->resetDQLPart('orderBy')
+            ->groupBy('client_id')->addGroupBy('package_id');
+        $rows = $this->withoutSortParameters($qb)
+            ->setParameter('mxDone', TaskStatus::ZAVRSENO)->setParameter('mxOpen', self::openStatuses())
+            ->setParameter('mxCancelled', TaskStatus::OTKAZANO)->setParameter('mxClients', $clientIds)
+            ->setParameter('mxToday', $today)->setParameter('mxSoon', $soonUntil)
+            ->getQuery()->getArrayResult();
+
+        return array_map(static fn (array $r) => [
+            'clientId' => (int) $r['client_id'],
+            'packageId' => null === $r['package_id'] ? null : (int) $r['package_id'],
+            'total' => (int) $r['total'],
+            'done' => (int) $r['done_count'],
+            'overdue' => (int) $r['overdue_count'],
+            'soon' => (int) $r['soon_count'],
+        ], $rows);
+    }
+
+    /**
+     * Zakasneli otvoreni zadaci klijenata iz matrice, bez obzira na izabrani period (isti filter vidljivosti kao lista).
+     *
+     * @param list<int> $clientIds
+     */
+    public function matrixOverdueCount(TaskFilter $f, User $viewer, array $clientIds, \DateTimeImmutable $today): int
+    {
+        if ([] === $clientIds) {
+            return 0;
+        }
+        $qb = $this->createFilteredQueryBuilder($f->with(['tab' => 'all', 'from' => null, 'to' => null, 'showClosed' => true]), $viewer)
+            ->select('COUNT(t.id)')->resetDQLPart('orderBy')
+            ->andWhere('t.client IN (:mxClients) AND t.status IN (:mxOpen) AND t.dueDate < :mxToday')
+            ->setParameter('mxClients', $clientIds)->setParameter('mxOpen', self::openStatuses())->setParameter('mxToday', $today);
+
+        return (int) $this->withoutSortParameters($qb)->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * Zadaci jedne ćelije matrice (klijent + paket ili van paketa, u periodu filtera), sa učesnicima, bez otkazanih. Jedan upit.
+     *
+     * @return list<Task>
+     */
+    public function matrixCellTasks(TaskFilter $f, User $viewer): array
+    {
+        $qb = $this->createFilteredQueryBuilder($f, $viewer)
+            ->addSelect('mta', 'mtu')->leftJoin('t.assignees', 'mta')->leftJoin('mta.user', 'mtu')
+            ->andWhere('t.status <> :mxCancelled')->setParameter('mxCancelled', TaskStatus::OTKAZANO);
+
+        return $qb->getQuery()->getResult();
     }
 
     /** Posle zamene select-a i brisanja sortiranja parametar :closed (iz sortiranja) više nije u upitu, pa se ne sme slati */

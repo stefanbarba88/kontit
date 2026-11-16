@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Client;
 use App\Entity\JobTemplate;
+use App\Entity\ServicePackage;
 use App\Entity\Team;
 use App\Entity\User;
 use App\Enum\TaskPriority;
@@ -81,6 +82,8 @@ class TaskListFilters
         $qRaw = mb_substr(trim((string) ($query['q'] ?? '')), 0, 100);
         $jobParam = (string) ($query['job'] ?? '');
         $job = ctype_digit($jobParam) && '' !== $jobParam ? $this->em->find(JobTemplate::class, (int) $jobParam) : null;
+        $packageParam = (string) ($query['package'] ?? '');
+        $package = ctype_digit($packageParam) && '' !== $packageParam ? $this->em->find(ServicePackage::class, (int) $packageParam) : null;
         $origin = (string) ($query['origin'] ?? 'all');
         $role = (string) ($query['role'] ?? 'assigned');
 
@@ -100,6 +103,8 @@ class TaskListFilters
             qRaw: $qRaw,
             job: $job,
             noJob: 'none' === $jobParam,
+            package: $package,
+            noPackage: 'none' === $packageParam,
             origin: \in_array($origin, TaskFilter::ORIGINS, true) ? $origin : 'all',
             showClosed: \in_array((string) ($query['closed'] ?? ''), ['1', 'on', 'true'], true),
             role: null !== $lockedAssignee && \in_array($role, TaskFilter::ROLES, true) ? $role : 'assigned',
@@ -239,6 +244,11 @@ class TaskListFilters
             $parts[] = 'Posao: samostalni zadaci';
         } elseif (null !== $f->job) {
             $parts[] = 'Posao: '.$f->job->getName();
+        }
+        if ($f->noPackage) {
+            $parts[] = 'Paket: bez paketa';
+        } elseif (null !== $f->package) {
+            $parts[] = 'Paket: '.$f->package->getName();
         }
         if ('all' !== $f->origin) {
             $parts[] = 'Nastanak: '.('auto' === $f->origin ? 'automatski' : 'ručno');
