@@ -3,7 +3,7 @@
 > Claude ažurira ovaj fajl na kraju svakog zadatka. Najnovije ide na vrh.
 
 ## Trenutno stanje
-- Poslednje: **Pregled poslova po klijentima (matrica)** (SPEC 8r); pre toga **Podsetnik (preimenovanje) i raspored početne strane** (SPEC 8p, 8p.5); pre toga raspored posla po klijentu i po zadatku (SPEC 8g.5). Sledeće: po dogovoru; 3c „Pretvori u ponavljajući posao“ je odložen.
+- Poslednje: **„Prikaži kao korisnik“ (impersonacija, SPEC 8s)**; pre toga **Pregled poslova po klijentima (matrica)** (SPEC 8r); pre toga **Podsetnik (preimenovanje) i raspored početne strane** (SPEC 8p, 8p.5); pre toga raspored posla po klijentu i po zadatku (SPEC 8g.5). Sledeće: po dogovoru; 3c „Pretvori u ponavljajući posao“ je odložen.
 - Faza: **UPDATE-POSLOVI-KALENDAR završen** (P1-P11, SPEC 8f-8n): kraći naziv i aktivnosti, neradni dani, kategorije i raspored posla, ugovorene usluge, generisanje sa zamenom, odsustva sa automatskim odobravanjem, dokumenti, kalendar, Google kalendar. Uz faze 0-7, 2b, 3b, 7b i UPDATE-DIZAJN.
 - Sledeće: po dogovoru. **Faza 8 (praćenje vremena) je odložena.** Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
 - Za pravi Google kalendar treba uraditi korake iz `docs/google-calendar-setup.md` (Client ID i Secret u `.env.local`).
@@ -11,6 +11,12 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-16: **„Prikaži kao korisnik“ (impersonacija)** (SPEC 8s), 5 commit-a: jezgro (6fb47a4), privatnost Podsetnika (72d250b), režim izmena i zabrane (5a1f8a2), Sigurnost i „Pristupi mom nalogu“ (3aa42e4), dokumentacija
+  - Migracije: `Version20261116132226` (tabela `impersonation_log`), `Version20261116133704` (`activity_log.on_behalf_of_id`, nullable, postojeći redovi netaknuti).
+  - Symfony `switch_user` (POST + CSRF), `ImpersonationVoter` (`USER_IMPERSONATE`, `IMPERSONATION_LOG_VIEW`), `ImpersonationState`, `ImpersonationSubscriber` (jedno mesto za blokadu izmena i istek), `ImpersonationRules` (spisak zabrana i privatnih ruta), baner, `app:impersonation:close-stale` (cron 15 min u DEPLOY.md), parametar `impersonation.idle_minutes: 60`.
+  - Voteri kao druga linija odbrane (SwitchUserToken): TaskVoter (`TASK_COMMENT`, APPROVE, CANCEL), AbsenceVoter, UserDocumentVoter, UserVoter, TodoVoter.
+  - Testovi: 252 ukupno (`ImpersonationVoterTest`, `ImpersonationTest`, `ImpersonationPrivacyTest`, `ImpersonationEditModeTest`, `ImpersonationEvidenceTest`).
+  - Uputstva: admin („Prikaži kao korisnik“), radnik („Ko može da gleda moj nalog“, uz napomenu o jednoj sesiji). DESIGN.md: ikonica `eye`; `/_design`: baner.
 - 2026-11-16: **Pregled poslova po klijentima (matrica)** (SPEC 8r), 3 commit-a: servis i testovi (e262264), kartica na početnoj sa filterima i prozorom ćelije (3aca9d9), izvoz + meni + redosled početne (f2b82b3)
   - Migracija `Version20261116112327`: indeks `IDX_TASK_DUE_CLIENT (due_date, client_id)` na `task`. Parametar `matrix.warning_days: 3`.
   - Servis `ClientJobMatrixService` (+ `MatrixFilters`, `MatrixCell`, `MatrixView`, enum `MatrixState`), agregatni upiti u `TaskRepository` (`matrixAggregates`, `matrixOverdueCount`, `matrixCellTasks`), filter po paketu u listi zadataka (`TaskFilter::$package`, `package=none`), `MatrixExport` (dugi format), rute `/pregled-poslova`, `/ajax/matrix`, `/ajax/matrix/cell`, `assets/js/matrix.js`, `assets/styles/components/matrix.css`, šabloni `templates/matrix/`, `/_design`, uputstva (radnik, šef, admin).

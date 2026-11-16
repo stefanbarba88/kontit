@@ -35,11 +35,12 @@ body.kt-impersonating .kt-sidebar { top: var(--kt-banner-h); height: calc(100vh 
 body.kt-impersonating .kt-shell { min-height: calc(100vh - var(--kt-banner-h)); min-height: calc(100dvh - var(--kt-banner-h)); }
 body.kt-impersonating.swal2-toast-shown .swal2-container.swal2-top-end { top: calc(64px + var(--kt-banner-h)) !important; }
 
-/* telefon: dva reda (tekst, pa dugmad), banner mora da bude primetan i da ne prekrije topbar */
+/* telefon: dva reda (tekst do dva reda, pa dugmad), banner mora da bude primetan i da ne prekrije topbar */
 @media (max-width: 575.98px) {
-    body.kt-impersonating { --kt-banner-h: 84px; }
+    body.kt-impersonating { --kt-banner-h: 100px; }
     .kt-imp-banner { flex-direction: column; align-items: stretch; justify-content: center; gap: 6px; padding: 6px 16px; padding-top: calc(6px + env(safe-area-inset-top)); }
-    .kt-imp-text { flex: none; }
+    .kt-imp-text { flex: none; align-items: flex-start; }
+    .kt-imp-who { white-space: normal; overflow: visible; font-size: 13px; line-height: 1.3; }
     .kt-imp-actions { justify-content: stretch; }
     .kt-imp-actions form { flex: 1; }
     .kt-imp-actions .btn { width: 100%; justify-content: center; }

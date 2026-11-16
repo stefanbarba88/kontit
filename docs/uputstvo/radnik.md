@@ -539,6 +539,14 @@ Koja obaveštenja stižu i na mejl biraš na **Moj profil → Obaveštenja na me
 - Dugme **Izvoz** (samo na celoj stranici) daje Excel, CSV ili PDF sa trenutnim filterima, u obliku jedan red po klijentu i paketu.
 - Na telefonu je tabela lista kartica, a filteri su sklopljeni u **Filteri**.
 
+## Ko može da gleda moj nalog
+
+Administrator (i superadmin) može da otvori aplikaciju „kao ti“, radi podrške, uz žuti baner „Gledaš kao“ na svakoj strani. Podrazumevano je to **samo pregled**; izmene u tvoje ime moguće su samo uz posebnu potvrdu administratora.
+
+- **Nikad** ne može u tvoje ime da promeni lozinku ili mejl, da potvrdi ili odobri nešto, da napiše komentar, da menja dokumente, Google kalendar ni ICS link.
+- Tvoj **Podsetnik je privatan** i administrator ga ne vidi.
+- U **Moj profil → Pristupi mom nalogu** vidiš ko je, kada, koliko dugo i u kom režimu pristupao tvom nalogu.
+
 ## Česta pitanja
 
 **Zašto ne vidim nekog klijenta?**

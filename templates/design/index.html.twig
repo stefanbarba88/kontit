@@ -353,7 +353,7 @@
     <div class="card mb-4">
         <div class="card-header"><h5>Baner „Gledaš kao“ (impersonacija)</h5></div>
         <div class="card-body">
-            <p class="kt-text-sm text-muted mb-3">Baner (<code>.kt-imp-banner</code>, <code>components/_impersonation_banner.html.twig</code>) je uvek prvi na stranici dok traje „Prikaži kao korisnik“, u boji upozorenja, i na računaru i na telefonu. Njegova visina je <code>--kt-banner-h</code> (48px, na telefonu 84px u dva reda): topbar, bočni meni, zaglavlja tabela i toast se pomeraju ispod njega. U režimu izmena je crven. Ovde je prikazan statički (u aplikaciji je zalepljen za vrh).</p>
+            <p class="kt-text-sm text-muted mb-3">Baner (<code>.kt-imp-banner</code>, <code>components/_impersonation_banner.html.twig</code>) je uvek prvi na stranici dok traje „Prikaži kao korisnik“, u boji upozorenja, i na računaru i na telefonu. Njegova visina je <code>--kt-banner-h</code> (48px, na telefonu 100px: tekst do dva reda, pa dugmad): topbar, bočni meni, zaglavlja tabela i toast se pomeraju ispod njega. U režimu izmena je crven. Ovde je prikazan statički (u aplikaciji je zalepljen za vrh).</p>
             <div class="kt-imp-banner mb-3" style="position: static; height: auto; min-height: 48px;">
                 <div class="kt-imp-text">{{ ux_icon('lucide:eye', {class: 'kt-icon'}) }}<span class="kt-imp-who"><strong>Gledaš kao: Marko Marković (Radnik)</strong> · samo pregled</span></div>
                 <div class="kt-imp-actions"><span class="btn btn-sm kt-imp-btn">Radi kao korisnik</span><span class="btn btn-sm kt-imp-btn kt-imp-exit">{{ ux_icon('lucide:log-out', {class: 'kt-icon me-1'}) }}Izađi</span></div>

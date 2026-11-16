@@ -465,6 +465,18 @@ Opis je u uputstvu za radnika. Kao admin vidiš **sve aktivne klijente**, ali br
 ## Podsetnik i privatnost
 
 Svako (i admin) ima **Podsetnik**, ličnu listu obaveza i obaveštenja (vidi uputstvo za radnika). Stavke vidi **samo vlasnik**: ni admin ni superadmin ne mogu da ih otvore, izmene, pretraže ni izvezu, a pokušaj pristupa tuđoj stavci vraća „nije pronađeno“. Stavke se ne beleže u istoriji izmena i ne ulaze u statistiku. Za obaveštenja mora da radi cron `app:todo:send-reminders` (svakog minuta, vidi `DEPLOY.md`). Završene stavke se brišu posle 3 dana komandom `app:todo:cleanup` (jednom dnevno, takođe u `DEPLOY.md`).
+## Prikaži kao korisnik
+
+Kad treba da vidiš tačno šta korisnik vidi (npr. „ne vidim klijenta“), otvori **⋯ → Prikaži kao ovaj korisnik** u listi korisnika (ili isto dugme na profilu korisnika) i potvrdi.
+
+- **Ko može:** admin gleda šefove i radnike, superadmin i admine. Nikad sebe, deaktivirane korisnike ni višu ili istu rolu.
+- **Baner** na vrhu svake strane pokazuje koga gledaš. **Izađi** te vraća na tvoj nalog. Posle 60 minuta bez aktivnosti izlaz je automatski.
+- **Samo pregled** je podrazumevan: ništa ne možeš da izmeniš. **Radi kao korisnik** (uz potvrdu) dozvoljava obične radnje u njegovo ime; u istoriji piše tvoje ime i „u ime“ korisnika.
+- **Nikad u tuđe ime:** lozinka i mejl, role i pozicije, deaktivacija, potvrde i odobravanja (zadaci, posebne potvrde, odsustva), komentari, dokumenti, Google kalendar i ICS. To radiš u svom nalogu.
+- **Podsetnik korisnika je privatan** i za vreme gledanja ne postoji.
+- Samo jedna sesija: ako otvoriš drugi tab, baner se vidi i u njemu. Ne gledaj dva korisnika istovremeno, prvo izađi.
+- Korisnik u profilu vidi ko je i kada gledao njegov nalog, a superadmin celu evidenciju na **Sigurnost** u meniju.
+
 ## Samo za superadmina
 
 Superadmin ima sve što i admin, plus:

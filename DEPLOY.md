@@ -48,6 +48,7 @@ U fajlu nema tajni. Sve što je u `<UGLASTIM ZAGRADAMA>` je mesto koje popunjava
 | Komanda | Raspored | Šta radi |
 |---|---|---|
 | `app:approvals:auto-approve` | **na 15 minuta** | automatsko odobravanje zahteva kojima je istekao rok, podsetnici |
+| `app:impersonation:close-stale` | **na 15 minuta** | zatvara evidenciju „Prikaži kao korisnik“ sesija koje su napuštene (istekle posle 60 min neaktivnosti) |
 | `app:tasks:generate` | **06:00 svakog dana** | pravi ponavljajuće zadatke iz poslova klijenata |
 | `app:documents:check` | **07:00 svakog dana** | dokumenti koji ističu, podsetnik za doznaku |
 | `app:notifications:due` | **svakog dana** (predlog 07:00) | notifikacije za rokove zadataka |
@@ -574,6 +575,7 @@ crontab -e          # kao korisnik deploy
 0 6 * * *    cd /var/www/kontit && /usr/bin/php bin/console app:tasks:generate --no-interaction >> var/log/cron.log 2>&1
 0 7 * * *    cd /var/www/kontit && /usr/bin/php bin/console app:documents:check --no-interaction >> var/log/cron.log 2>&1
 0 7 * * *    cd /var/www/kontit && /usr/bin/php bin/console app:notifications:due --no-interaction >> var/log/cron.log 2>&1
+*/15 * * * * cd /var/www/kontit && /usr/bin/php bin/console app:impersonation:close-stale --no-interaction >> var/log/cron.log 2>&1
 * * * * *    cd /var/www/kontit && /usr/bin/php bin/console app:todo:send-reminders --no-interaction >> var/log/cron.log 2>&1
 30 3 * * *   cd /var/www/kontit && /usr/bin/php bin/console app:todo:cleanup --no-interaction >> var/log/cron.log 2>&1
 # opciono, samo uz NBS kredencijale (raspored je predlog, SPEC ga ne propisuje):
