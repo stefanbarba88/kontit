@@ -11,6 +11,8 @@ parameters:
     matrix.warning_days: 3
     # Završene stavke Podsetnika se trajno brišu posle ovoliko dana (app:todo:cleanup); lista ih ne prikazuje ni pre toga
     todo.done_retention_days: 3
+    # "Prikaži kao korisnik" (impersonacija) se sama prekida posle ovoliko minuta bez aktivnosti (SPEC 8s)
+    impersonation.idle_minutes: 60
 
 services:
     # default configuration for services in *this* file

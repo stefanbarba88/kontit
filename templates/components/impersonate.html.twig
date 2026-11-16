@@ -1,0 +1,27 @@
+{#
+    "Prikaži kao ovaj korisnik" (SPEC 8s). Prikazuje se samo ako voter USER_IMPERSONATE dozvoljava (admin: šef i radnik, superadmin: i admin);
+    isto pravilo proverava server. Pokretanje je POST sa CSRF tokenom ka ugrađenom switch_user mehanizmu, uz SweetAlert potvrdu.
+    Upotreba: {% import 'components/impersonate.html.twig' as imp %}{{ imp.item(user) }}  (stavka u meniju ⋯)  ili  {{ imp.button(user) }}  (dugme na profilu)
+#}
+{% macro form(user, class, label) %}
+    <form method="post" action="{{ path('impersonation_switch', {id: user.id}) }}" class="d-inline"
+          {{ confirm_attrs('Prikazati nalog korisnika ' ~ user.fullName ~ '?', 'Gledaš aplikaciju kao ' ~ user.fullName ~ ' (' ~ user.highestRole.label ~ '), u režimu „samo pregled“. Pristup se beleži, a korisnik ga vidi u svom profilu. Podsetnik ostaje privatan.', 'warning', 'Da, prikaži') }}>
+        <input type="hidden" name="_switch_user" value="{{ user.email }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('impersonate') }}">
+        <button type="submit" class="{{ class }}">{{ ux_icon('lucide:eye', {class: 'kt-icon me-2'}) }}{{ label }}</button>
+    </form>
+{% endmacro %}
+
+{% macro item(user) %}
+    {% if is_granted('USER_IMPERSONATE', user) %}
+        {% import _self as i %}
+        <li>{{ i.form(user, 'dropdown-item', 'Prikaži kao ovaj korisnik') }}</li>
+    {% endif %}
+{% endmacro %}
+
+{% macro button(user) %}
+    {% if is_granted('USER_IMPERSONATE', user) %}
+        {% import _self as i %}
+        {{ i.form(user, 'btn btn-outline-secondary', 'Prikaži kao ovaj korisnik') }}
+    {% endif %}
+{% endmacro %}

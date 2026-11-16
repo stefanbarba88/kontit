@@ -18,7 +18,7 @@
     font-size: 11px; line-height: 16px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
     color: var(--kt-text-3);
     border-bottom: 1px solid var(--kt-border);
-    position: sticky; top: 64px; z-index: 2;
+    position: sticky; top: calc(64px + var(--kt-banner-h, 0px)); z-index: 2;
     white-space: nowrap;
 }
 .table-responsive { border-radius: var(--kt-radius-lg); }

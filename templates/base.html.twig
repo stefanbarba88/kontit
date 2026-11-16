@@ -25,10 +25,11 @@
 		{% block importmap %}{{ importmap('app') }}{% endblock %}
 	{% endblock %}
 </head>
-<body class="kt-app" data-route="{{ app.request.attributes.get('_route')|default('') }}">
+<body class="kt-app{{ is_impersonating() ? ' kt-impersonating' : '' }}" data-route="{{ app.request.attributes.get('_route')|default('') }}"{{ is_impersonating() ? ' data-kt-impersonating="1"' : '' }}>
 {% import 'components/ui.html.twig' as ui %}
 {% import 'components/nav.html.twig' as nav %}
 {% set route = app.request.attributes.get('_route')|default('') %}
+{{ include('components/_impersonation_banner.html.twig') }}
 
 <div class="kt-shell">
 

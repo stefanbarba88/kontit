@@ -1,0 +1,33 @@
+{#
+    Baner "Gledaš kao" (SPEC 8s). Uvek na vrhu, u boji upozorenja, i na računaru i na telefonu; visinu daje --kt-banner-h (impersonation.css),
+    pa topbar i meni ostaju ispod njega. Izlaz je POST sa CSRF tokenom ka ugrađenom switch_user mehanizmu, režim se menja posebnom rutom.
+#}
+{% set imp = impersonation() %}
+{% if imp %}
+    <div class="kt-imp-banner{{ imp.editing ? ' is-edit' : '' }}" role="status" data-kt-impersonation>
+        <div class="kt-imp-text">
+            {{ ux_icon('lucide:' ~ (imp.editing ? 'pencil' : 'eye'), {class: 'kt-icon'}) }}
+            <span class="kt-imp-who"><strong>Gledaš kao: {{ imp.target.fullName }} ({{ imp.target.highestRole.label }})</strong> · {{ imp.editing ? 'radiš u njegovo ime' : 'samo pregled' }}</span>
+        </div>
+        <div class="kt-imp-actions">
+            {% if imp.editing %}
+                <form method="post" action="{{ path('impersonation_mode') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('impersonation_mode') }}">
+                    <input type="hidden" name="mode" value="view">
+                    <button type="submit" class="btn btn-sm kt-imp-btn">Samo pregled</button>
+                </form>
+            {% else %}
+                <form method="post" action="{{ path('impersonation_mode') }}" {{ confirm_attrs('Raditi kao ' ~ imp.target.fullName ~ '?', 'Sve što uradiš biće upisano na tvoje ime kao radnja u ime korisnika. Potvrde, komentari, lozinka, mejl, uloge i Podsetnik ostaju zabranjeni.', 'warning', 'Da, radi kao korisnik') }}>
+                    <input type="hidden" name="_token" value="{{ csrf_token('impersonation_mode') }}">
+                    <input type="hidden" name="mode" value="edit">
+                    <button type="submit" class="btn btn-sm kt-imp-btn">Radi kao korisnik</button>
+                </form>
+            {% endif %}
+            <form method="post" action="{{ path('impersonation_switch', {id: imp.target.id}) }}">
+                <input type="hidden" name="_switch_user" value="_exit">
+                <input type="hidden" name="_token" value="{{ csrf_token('impersonate') }}">
+                <button type="submit" class="btn btn-sm kt-imp-btn kt-imp-exit">{{ ux_icon('lucide:log-out', {class: 'kt-icon me-1'}) }}Izađi</button>
+            </form>
+        </div>
+    </div>
+{% endif %}

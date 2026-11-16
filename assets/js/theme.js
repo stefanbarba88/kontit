@@ -26,7 +26,8 @@ $(document).on('click', '[data-theme-choice]', function (e) {
         localStorage.setItem('kt-theme', pref);
     } catch (err) { /* privatni mod */ }
     applyTheme(pref, true);
-    if ($('meta[name="csrf-token"]').length) {
+    // dok traje "Prikaži kao korisnik" tema se menja samo lokalno: čuvanje bi menjalo profil tuđeg naloga (SPEC 8s)
+    if ($('meta[name="csrf-token"]').length && !document.body.hasAttribute('data-kt-impersonating')) {
         ajax('POST', '/ajax/theme', { theme: pref });
     }
 });

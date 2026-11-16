@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 {% import 'components/ui.html.twig' as ui %}
+{% import 'components/impersonate.html.twig' as impersonate %}
 {% import 'components/timeline.html.twig' as tl %}
 
 {% block title %}{{ user.fullName }}{% endblock %}
@@ -10,6 +11,7 @@
 {% endblock %}
 
 {% block page_actions %}
+    {{ impersonate.button(user) }}
     {% if is_granted('USER_DOCUMENTS_LIST', user) %}<a href="{{ path('user_documents', {id: user.id}) }}" class="btn btn-outline-secondary">{{ ux_icon('lucide:folder', {class: 'kt-icon me-2'}) }}Dokumenti</a>{% endif %}
     {% if is_granted('USER_EDIT', user) %}
         <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn btn-primary">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-2'}) }}Izmeni</a>

@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 {% import 'components/ui.html.twig' as ui %}
+{% import 'components/impersonate.html.twig' as impersonate %}
 
 {% block title %}Korisnici{% endblock %}
 {% block page_title %}Korisnici{% endblock %}
@@ -83,6 +84,12 @@
                             <td class="text-center">
                                 {% if is_granted('USER_EDIT', user) %}
                                     <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn btn-ghost kt-btn-icon btn-sm" title="Izmeni">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</a>
+                                {% endif %}
+                                {% if is_granted('USER_IMPERSONATE', user) %}
+                                    <div class="dropdown d-inline-block">
+                                        <button type="button" class="btn btn-ghost kt-btn-icon btn-sm" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Još radnji" title="Još radnji">{{ ux_icon('lucide:ellipsis', {class: 'kt-icon'}) }}</button>
+                                        <ul class="dropdown-menu dropdown-menu-end">{{ impersonate.item(user) }}</ul>
+                                    </div>
                                 {% endif %}
                             </td>
                         </tr>

@@ -1,0 +1,49 @@
+/* Baner "Gledaš kao" (SPEC 8s, DESIGN.md). Visina je promenljiva da bi se sticky elementi (meni, topbar, zaglavlja tabela, toast) pomerili ispod njega. */
+:root { --kt-banner-h: 0px; }
+body.kt-impersonating { --kt-banner-h: 48px; }
+
+.kt-imp-banner {
+    position: sticky; top: 0; z-index: 1036;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    height: var(--kt-banner-h); padding: 0 24px; padding-top: env(safe-area-inset-top);
+    background: var(--kt-warning); color: #fff;
+    font-size: 14px; line-height: 20px; box-shadow: 0 1px 0 rgba(0, 0, 0, .12);
+}
+.kt-imp-banner.is-edit { background: var(--kt-danger); }
+[data-bs-theme="dark"] .kt-imp-banner { background: var(--kt-warning); color: #1a1405; }
+[data-bs-theme="dark"] .kt-imp-banner.is-edit { background: var(--kt-danger); color: #1c0606; }
+.kt-imp-text { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+.kt-imp-text .kt-icon { flex: none; width: 20px; height: 20px; }
+.kt-imp-who { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kt-imp-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+.kt-imp-actions form { margin: 0; }
+.kt-imp-btn {
+    display: inline-flex; align-items: center; height: 32px; padding: 0 12px; border-radius: var(--kt-radius-md, 8px);
+    border: 1px solid rgba(255, 255, 255, .7); background: rgba(255, 255, 255, .14); color: inherit; font-weight: 600; white-space: nowrap;
+}
+.kt-imp-btn:hover, .kt-imp-btn:focus-visible { background: rgba(255, 255, 255, .28); color: inherit; border-color: #fff; }
+.kt-imp-exit { background: #fff; color: #111; border-color: #fff; }
+.kt-imp-exit:hover, .kt-imp-exit:focus-visible { background: rgba(255, 255, 255, .88); color: #111; }
+[data-bs-theme="dark"] .kt-imp-btn { border-color: rgba(0, 0, 0, .45); background: rgba(0, 0, 0, .1); }
+[data-bs-theme="dark"] .kt-imp-btn:hover, [data-bs-theme="dark"] .kt-imp-btn:focus-visible { background: rgba(0, 0, 0, .22); border-color: rgba(0, 0, 0, .7); }
+[data-bs-theme="dark"] .kt-imp-exit { background: #111; color: #fff; border-color: #111; }
+[data-bs-theme="dark"] .kt-imp-exit:hover, [data-bs-theme="dark"] .kt-imp-exit:focus-visible { background: #000; color: #fff; }
+
+/* sve što je zalepljeno za vrh ekrana ide ispod banera */
+body.kt-impersonating .kt-topbar { top: var(--kt-banner-h); }
+body.kt-impersonating .kt-sidebar { top: var(--kt-banner-h); height: calc(100vh - var(--kt-banner-h)); height: calc(100dvh - var(--kt-banner-h)); }
+body.kt-impersonating .kt-shell { min-height: calc(100vh - var(--kt-banner-h)); min-height: calc(100dvh - var(--kt-banner-h)); }
+body.kt-impersonating.swal2-toast-shown .swal2-container.swal2-top-end { top: calc(64px + var(--kt-banner-h)) !important; }
+
+/* telefon: dva reda (tekst, pa dugmad), banner mora da bude primetan i da ne prekrije topbar */
+@media (max-width: 575.98px) {
+    body.kt-impersonating { --kt-banner-h: 84px; }
+    .kt-imp-banner { flex-direction: column; align-items: stretch; justify-content: center; gap: 6px; padding: 6px 16px; padding-top: calc(6px + env(safe-area-inset-top)); }
+    .kt-imp-text { flex: none; }
+    .kt-imp-actions { justify-content: stretch; }
+    .kt-imp-actions form { flex: 1; }
+    .kt-imp-actions .btn { width: 100%; justify-content: center; }
+}
+@media (max-width: 991.98px) {
+    body.kt-impersonating .kt-sidebar { top: var(--kt-banner-h); }
+}

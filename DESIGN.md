@@ -341,6 +341,7 @@ Sve animacije se isključuju za `prefers-reduced-motion: reduce`.
 |---|---|
 | Zadaci (meni, naslovi, zadatak) | `list-checks` |
 | Podsetnik (meni, topbar, panel, kartica, obaveštenje iz Podsetnika) | `notebook-pen` |
+| Prikaži kao korisnik (impersonacija: dugme, baner „samo pregled“) | `eye` (režim izmena u baneru: `pencil`, izlaz: `log-out`) |
 | Završi stavku Podsetnika / štiklirana stavka checkliste | `square-check` (neštikliran: `square`) |
 | Završi zadatak ili deo kolege | `circle-check-big` |
 | Moj deo je gotov | `check-check` |

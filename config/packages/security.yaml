@@ -28,6 +28,11 @@ security:
                 default_target_path: app_dashboard
             logout:
                 path: app_logout
+            # Prikaži kao korisnik (SPEC 8s): pokretanje i izlaz samo POST + CSRF (ImpersonationSubscriber), pravo je voter USER_IMPERSONATE
+            switch_user:
+                role: USER_IMPERSONATE
+                parameter: _switch_user
+                target_route: app_dashboard
             remember_me:
                 secret: '%kernel.secret%'
                 lifetime: 1209600
