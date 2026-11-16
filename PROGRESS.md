@@ -11,6 +11,7 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-16: **Ažurirana uputstva** (verzija 2.0): radnik, šef, admin proverena naspram aplikacije. Ispravljen dupliran blok i prekinuto poglavlje Podsetnik u `radnik.md`; dopunjeno: Podsetnik (panel, signal, Obavesti me, ponavljanje, brisanje završenih posle 3 dana), Pregled poslova u meniju i na početnoj (nov redosled), pozicije i provera zadataka, tab Zadaci na klijentu, rok zadatka, rečnik (posao/usluge, Odustani/Otkaži), „Ko može da gleda moj nalog“, Sigurnost (superadmin). Datum i verzija na vrhu svakog uputstva, nov `docs/uputstvo/CHANGELOG.md` („Šta je novo“ po rolama).
 - 2026-11-16: **„Prikaži kao korisnik“ (impersonacija)** (SPEC 8s), 5 commit-a: jezgro (6fb47a4), privatnost Podsetnika (72d250b), režim izmena i zabrane (5a1f8a2), Sigurnost i „Pristupi mom nalogu“ (3aa42e4), dokumentacija
   - Migracije: `Version20261116132226` (tabela `impersonation_log`), `Version20261116133704` (`activity_log.on_behalf_of_id`, nullable, postojeći redovi netaknuti).
   - Symfony `switch_user` (POST + CSRF), `ImpersonationVoter` (`USER_IMPERSONATE`, `IMPERSONATION_LOG_VIEW`), `ImpersonationState`, `ImpersonationSubscriber` (jedno mesto za blokadu izmena i istek), `ImpersonationRules` (spisak zabrana i privatnih ruta), baner, `app:impersonation:close-stale` (cron 15 min u DEPLOY.md), parametar `impersonation.idle_minutes: 60`.

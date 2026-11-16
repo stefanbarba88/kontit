@@ -1,5 +1,7 @@
 # Uputstvo za šefa
 
+_Ažurirano: 16.11.2026. · Verzija 2.0 · šta je novo: vidi `docs/uputstvo/CHANGELOG.md`_
+
 Ovo uputstvo opisuje ono što šef radi **pored** običnog rada na zadacima. Kao šef ti si i radnik: imaš svoje klijente i zadatke, pa za to važi **Uputstvo za radnika** (tab **Radnik** na vrhu strane).
 
 ## Šta je šef
@@ -26,7 +28,7 @@ Prijava, promena lozinke i profil su isti kao za radnika (vidi **Uputstvo za rad
 
 ## Šta šef ima u meniju
 
-Pored stavki koje ima svaki radnik (**Početna**, **Moji klijenti**, **Odsustva**, **Zadaci**, **Kalendar**), šef ima i grupu **Klijenti**:
+Pored stavki koje ima svaki radnik (**Početna**, **Moji klijenti**, **Odsustva**, **Zadaci**, **Pregled poslova**, **Podsetnik**, **Kalendar**), šef ima i grupu **Klijenti**:
 
 | Stavka | Šta je tu |
 |---|---|
@@ -42,7 +44,7 @@ Brojevi u meniju:
 
 ## Početna strana šefa
 
-Ispod kartica **Naredna nedelja** i **Zadaci** je blok **Moj tim**:
+Kartice na vrhu su **Zadaci**, **Pregled poslova po klijentima** i **Naredna nedelja** (jedna ispod druge). Ispod njih je blok **Moj tim**:
 
 - **Opterećenje po radniku**: koliko klijenata i otvorenih zadataka ima svaki član. Tu vidiš ko je preopterećen.
 - **Čeka potvrdu**: koliko zadataka čeka tvoju potvrdu i koliko dugo.
@@ -70,7 +72,7 @@ Meni **Klijenti**. Pretražuješ po nazivu, PIB-u, matičnom broju ili gradu, bi
 
 Dugme **Izvoz** pravi Excel, CSV ili PDF sa istim filterom.
 
-Na kartici klijenta je tab **Zadaci** (vidi Uputstvo za admina, „Zadaci klijenta“): isti filteri, a ti vidiš samo zadatke koje smeš da vidiš.
+Na kartici klijenta je tab **Zadaci** (adresa se može poslati kolegi sa izabranim filterima): isti filteri kao u **Zadaci**, broj otvorenih zadataka pored naziva taba i crvena tačka ako neki kasne. Vidiš samo zadatke koje smeš da vidiš.
 
 ### Promena glavnog zaduženog i zamene
 
@@ -145,7 +147,7 @@ Kad zadatak dođe **Na proveri**, dobijaš obaveštenje, a zadatak je u tabu **�
 
 ### Koji zadaci čekaju tvoju potvrdu
 
-Provera zavisi od **pozicije radnika**: zadaci radnika na pozicijama koje traže proveru (podrazumevano Entry level i Junior) dolaze tebi, a zadaci Samostalnih i Šefova se završavaju odmah. Tvoju potvrdu ne traže **posebne potvrde** (poslovi koje potvrđuju određeni admini); na takvom zadatku piše **Posebna potvrda: ime**.
+Provera zavisi od **pozicije radnika**: zadaci radnika na pozicijama koje traže proveru (podrazumevano Entry level i Junior) dolaze tebi, a zadaci Samostalnih knjigovođa i Šefova se završavaju odmah. Tvoju potvrdu ne traže **posebne potvrde** (poslovi koje potvrđuju određeni admini); na takvom zadatku piše **Posebna potvrda: ime**.
 
 ### Provera pri pravljenju zadatka
 
@@ -208,6 +210,11 @@ Opis je u uputstvu za radnika. Kao šef vidiš **klijente svog tima** i samo zad
 ## Podsetnik
 
 Imaš i **Podsetnik**: ličnu listu obaveza i obaveštenja (opis je u uputstvu za radnika). Vidiš samo svoju, a tvoju ne vidi niko, ni administrator. Nije zadatak, pa tvoj tim ne vidi šta je u njoj.
+
+## Ko može da gleda moj nalog
+
+Administrator može da otvori aplikaciju „kao ti“, radi podrške, uz žuti baner „Gledaš kao“. Podrazumevano je to samo pregled. Nikad u tvoje ime ne može da potvrdi ili odobri zadatak ili odsustvo, da napiše komentar, da promeni lozinku ili mejl ni da menja tvoje dokumente. Tvoj Podsetnik je privatan i za njega ne postoji. U **Moj profil → Pristupi mom nalogu** vidiš ko je, kada i koliko dugo pristupao tvom nalogu.
+
 ## Česta pitanja
 
 **Zašto ne vidim zadatak koji je napravio kolega iz drugog tima?**

@@ -1,5 +1,7 @@
 # Uputstvo za admina
 
+_Ažurirano: 16.11.2026. · Verzija 2.0 · šta je novo: vidi `docs/uputstvo/CHANGELOG.md`_
+
 Ovo uputstvo opisuje upravljanje aplikacijom: korisnike, timove, klijente, katalog poslova, pakete, odsustva, dokumente i finansije. Admin može i sam da radi na klijentima i zadacima. Za to važe **Uputstvo za radnika** i **Uputstvo za šefa** (tabovi na vrhu strane), samo što admin vidi **celu firmu**, a ne samo jedan tim.
 
 ## Šta je admin
@@ -38,6 +40,9 @@ Prijava i profil su isti kao za radnika. Kad aplikacija tek počinje da se koris
 | Grupa | Stavka | Šta je tu |
 |---|---|---|
 | Rad | **Početna**, **Moji klijenti**, **Odsustva**, **Zadaci**, **Kalendar** | kao kod radnika, ali za celu firmu gde ima smisla |
+| | **Pregled poslova** | matrica klijenata i paketa usluga sa bojama (vidi „Pregled poslova po klijentima“) |
+| | **Posebne potvrde** | zadaci koji čekaju tvoju potvrdu (vidi „Posebne potvrde“) |
+| | **Podsetnik** | tvoja lična lista, privatna |
 | Klijenti | **Klijenti** | svi klijenti, novi, uvoz iz NBS |
 | | **Timovi** | svi timovi, šefovi, članovi |
 | Administracija | **Katalog poslova** | poslovi, kategorije poslova |
@@ -48,11 +53,13 @@ Prijava i profil su isti kao za radnika. Kad aplikacija tek počinje da se koris
 | | **Kategorije dokumenata** | kategorije za dokumente zaposlenih |
 | | **Finansije** | prihod, opterećenje, naplata |
 | | **Korisnici** | nalozi zaposlenih |
+| | **Pozicije** | nivoi zaposlenih (Entry level, Junior...) |
+| | **Sigurnost** | samo superadmin: ko je gledao čije naloge |
 | Pomoć | **Uputstvo** | ovo uputstvo |
 
 ## Početna strana admina
 
-Kartice na vrhu su jedna ispod druge, preko cele širine: **Posebne potvrde** (broj i dugme **Pregledaj**), **Naredna nedelja** i **Zadaci**. Ispod njih admin vidi:
+Kartice na vrhu su jedna ispod druge, preko cele širine, ovim redom: **Zadaci**, **Pregled poslova po klijentima**, **Posebne potvrde** (broj i dugme **Pregledaj**) i **Naredna nedelja**. Ispod njih admin vidi:
 
 - **Svi timovi**: isto što šef vidi za svoj tim (opterećenje, čeka potvrdu, čeka klijenta, učinak), ali za sve,
 - **Cela firma**:
@@ -460,12 +467,13 @@ Ako se posle 5 pokušaja događaji ne upišu, korisnik dobija obaveštenje i vid
 
 ## Pregled poslova po klijentima
 
-Opis je u uputstvu za radnika. Kao admin vidiš **sve aktivne klijente**, ali brojevi i prozor ćelije prate isto pravilo kao lista zadataka: **samo zadaci koje vidiš**. Prag „ističe uskoro“ je parametar `matrix.warning_days` (3 radna dana) u `config/services.yaml`. Izvoz (**Izvoz** na stranici **Pregled poslova**) je u dugom formatu: red po klijentu i paketu. Za veliki broj redova izvoz ide u pozadini kao i ostali izvozi.
+Opis je u uputstvu za radnika. Kao admin vidiš **sve aktivne klijente**, ali brojevi i prozor ćelije prate isto pravilo kao lista zadataka: **samo zadaci koje vidiš**. Prag „ističe uskoro“ je 3 radna dana (menja ga tehničko lice). Izvoz (**Izvoz** na stranici **Pregled poslova**) je u dugom formatu: red po klijentu i paketu. Za veliki broj redova izvoz ide u pozadini kao i ostali izvozi.
 
 ## Podsetnik i privatnost
 
-Svako (i admin) ima **Podsetnik**, ličnu listu obaveza i obaveštenja (vidi uputstvo za radnika). Stavke vidi **samo vlasnik**: ni admin ni superadmin ne mogu da ih otvore, izmene, pretraže ni izvezu, a pokušaj pristupa tuđoj stavci vraća „nije pronađeno“. Stavke se ne beleže u istoriji izmena i ne ulaze u statistiku. Za obaveštenja mora da radi cron `app:todo:send-reminders` (svakog minuta, vidi `DEPLOY.md`). Završene stavke se brišu posle 3 dana komandom `app:todo:cleanup` (jednom dnevno, takođe u `DEPLOY.md`).
-## Prikaži kao korisnik
+Svako (i admin) ima **Podsetnik**, ličnu listu obaveza i obaveštenja (vidi uputstvo za radnika). Stavke vidi **samo vlasnik**: ni admin ni superadmin ne mogu da ih otvore, izmene, pretraže ni izvezu, a pokušaj pristupa tuđoj stavci vraća „nije pronađeno“. Stavke se ne beleže u istoriji izmena i ne ulaze u statistiku. Da bi obaveštenja stizala na vreme, tehničko lice mora da održava zakazane poslove (vidi `DEPLOY.md`). Završene stavke se brišu posle 3 dana.
+
+## Prikaži kao korisnik (ko može da gleda moj nalog)
 
 Kad treba da vidiš tačno šta korisnik vidi (npr. „ne vidim klijenta“), otvori **⋯ → Prikaži kao ovaj korisnik** u listi korisnika (ili isto dugme na profilu korisnika) i potvrdi.
 
@@ -475,7 +483,8 @@ Kad treba da vidiš tačno šta korisnik vidi (npr. „ne vidim klijenta“), ot
 - **Nikad u tuđe ime:** lozinka i mejl, role i pozicije, deaktivacija, potvrde i odobravanja (zadaci, posebne potvrde, odsustva), komentari, dokumenti, Google kalendar i ICS. To radiš u svom nalogu.
 - **Podsetnik korisnika je privatan** i za vreme gledanja ne postoji.
 - Samo jedna sesija: ako otvoriš drugi tab, baner se vidi i u njemu. Ne gledaj dva korisnika istovremeno, prvo izađi.
-- Korisnik u profilu vidi ko je i kada gledao njegov nalog, a superadmin celu evidenciju na **Sigurnost** u meniju.
+- Korisnik u profilu (**Pristupi mom nalogu**) vidi ko je i kada gledao njegov nalog, a superadmin celu evidenciju na **Sigurnost** u meniju.
+- **Ko može da gleda moj nalog:** tvoj nalog (ako si admin) može da gleda samo superadmin, a ti možeš da gledaš šefove i radnike. Superadmin ne može da bude gledan, a lozinka, mejl i Podsetnik ostaju zaštićeni.
 
 ## Samo za superadmina
 
@@ -483,9 +492,23 @@ Superadmin ima sve što i admin, plus:
 
 - pravi korisnike sa rolom **Admin** i **Superadmin** i menja ih (admin to ne može: u listi korisnika kod admina i superadmina nema olovke),
 - jedini može da promeni rolu, lozinku ili podatke drugog admina, i da ga deaktivira,
-- admin nikad ne može da menja ni deaktivira superadmina.
+- admin nikad ne može da menja ni deaktivira superadmina,
+- jedini vidi stranu **Sigurnost** (**Administracija → Sigurnost**): spisak svih pristupa „Prikaži kao korisnik“ (ko je gledao koga, kada, koliko dugo, iz koje IP adrese, da li samo pregled ili i izmene i kako je pristup završen). Admin ovu stranu ne vidi.
 
 > **Savet:** neka postoje bar **dva** superadmin naloga (npr. vlasnik i zamenik), da firma ne ostane bez pristupa ako jedan zaboravi lozinku ili ode.
+
+## Posebne potvrde
+
+Neki poslovi traže da zadatak potvrdi tačno određeni admin, bez obzira na poziciju radnika.
+
+1. **Katalog → posao → Zatraži potvrdu**: uključi kvačicu i izaberi proveravače (aktivni admini i superadmini, najmanje jedan). Posao dobija značku **Zatraži potvrdu**. Ako izabereš samo jednog, on ne može da potvrdi sopstveni zadatak (tada potvrđuje drugi proveravač ili superadmin).
+2. Zadatak nastao iz tog posla pamti proveravače u trenutku kreiranja. Kasnija izmena posla ne menja već napravljene zadatke.
+3. Pregled je u meniju **Posebne potvrde** (brojač pokazuje koliko čeka tebe). Tabovi: **Čeka potvrdu** (najstariji prvi, crveno posle 2 radna dana), **U radu** i **Potvrđeno** (sa izvozom). Superadmin ima prekidač **Sve posebne potvrde**.
+4. U listi su dugmad **Potvrdi** i **Vrati na doradu** (razlog je obavezan); na telefonu se prevlači red.
+5. Obaveštenja (u aplikaciji i mailom, mail se isključuje u profilu) stižu pri slanju na potvrdu, a upozorenje jednom dnevno za zadatke koji čekaju duže od 2 radna dana. Automatsko odobravanje se ne primenjuje.
+6. Pri deaktivaciji admina (ili skidanju prava) koji je jedini proveravač nekog posla, dobijaš upozorenje sa brojem poslova i otvorenih zadataka. Dok ne izabereš novog proveravača, zadatke potvrđuje superadmin.
+
+U formi zadatka polje **Provera** (Automatski / Bez provere / Posebna potvrda) možeš da menjaš dok zadatak nije poslat na proveru. Na početnoj strani vidiš i koliko je zadataka „Bez provere“ ko odlučio u poslednjih 90 dana.
 
 ## Česta pitanja
 
@@ -523,16 +546,3 @@ Ništa se ne briše fizički: poslovi i paketi se deaktiviraju ili završavaju, 
 - **Praznici nisu učitani za novu godinu**: rokovi u januaru padaju na praznike. Učitaj praznike na vreme.
 - **Promena neradnih dana u nedelji** menja rokove budućih zadataka i broj radnih dana u odsustvima. Radi to pažljivo.
 - **Cena sa tačkom i zarezom**: upisuj kao „2.500,00“ ili „2500“. Obe varijante su ispravne.
-
-## Posebne potvrde
-
-Neki poslovi traže da zadatak potvrdi tačno određeni admin, bez obzira na poziciju radnika.
-
-1. **Katalog → posao → Zatraži potvrdu**: uključi kvačicu i izaberi proveravače (aktivni admini i superadmini, najmanje jedan). Posao dobija značku **Zatraži potvrdu**. Ako izabereš samo jednog, on ne može da potvrdi sopstveni zadatak (tada potvrđuje drugi proveravač ili superadmin).
-2. Zadatak nastao iz tog posla pamti proveravače u trenutku kreiranja. Kasnija izmena posla ne menja već napravljene zadatke.
-3. Pregled je u meniju **Posebne potvrde** (brojač pokazuje koliko čeka tebe). Tabovi: **Čeka potvrdu** (najstariji prvi, crveno posle 2 radna dana), **U radu** i **Potvrđeno** (sa izvozom). Superadmin ima prekidač **Sve posebne potvrde**.
-4. U listi su dugmad **Potvrdi** i **Vrati na doradu** (razlog je obavezan); na telefonu se prevlači red.
-5. Obaveštenja (u aplikaciji i mailom, mail se isključuje u profilu) stižu pri slanju na potvrdu, a upozorenje jednom dnevno za zadatke koji čekaju duže od 2 radna dana. Automatsko odobravanje se ne primenjuje.
-6. Pri deaktivaciji admina (ili skidanju prava) koji je jedini proveravač nekog posla, dobijaš upozorenje sa brojem poslova i otvorenih zadataka. Dok ne izabereš novog proveravača, zadatke potvrđuje superadmin.
-
-U formi zadatka polje **Provera** (Automatski / Bez provere / Posebna potvrda) možeš da menjaš dok zadatak nije poslat na proveru. Na početnoj strani vidiš i koliko je zadataka „Bez provere“ ko odlučio u poslednjih 90 dana.

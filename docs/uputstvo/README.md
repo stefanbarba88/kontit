@@ -8,6 +8,8 @@ Uputstvo se prikazuje u aplikaciji na **/uputstvo** (meni **Pomoć → Uputstvo*
 | `sef.md` | Uputstvo za šefa | šef, admin, superadmin |
 | `admin.md` | Uputstvo za admina | admin i superadmin |
 
+`CHANGELOG.md` („Šta je novo“, po rolama) nije uputstvo u aplikaciji: to je tekst koji se šalje zaposlenima kad se uputstva ažuriraju. Na vrhu svakog uputstva stoji datum ažuriranja i verzija; menjaju se zajedno sa `CHANGELOG.md`.
+
 Izmena se vidi odmah posle snimanja fajla, bez ponovnog pokretanja aplikacije: keš se osvežava po vremenu izmene fajla.
 
 ## Pravila pisanja
