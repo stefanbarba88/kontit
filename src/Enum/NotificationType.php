@@ -86,6 +86,12 @@ enum NotificationType: string
         };
     }
 
+    /** Obaveštenja iz privatnog Podsetnika: ne vide se ni tokom "Prikaži kao korisnik" (SPEC 8s). */
+    public function isPrivate(): bool
+    {
+        return self::TODO_REMINDER === $this;
+    }
+
     public function color(): string
     {
         return match ($this) {

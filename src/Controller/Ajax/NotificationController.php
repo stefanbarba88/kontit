@@ -4,6 +4,7 @@ namespace App\Controller\Ajax;
 
 use App\Entity\Notification;
 use App\Repository\NotificationRepository;
+use App\Service\ImpersonationState;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -18,6 +19,7 @@ class NotificationController extends AbstractAjaxController
     public function __construct(
         private readonly NotificationRepository $notifications,
         private readonly EntityManagerInterface $em,
+        private readonly ImpersonationState $impersonation,
     ) {
     }
 
@@ -55,12 +57,12 @@ class NotificationController extends AbstractAjaxController
     {
         $user = $this->actor();
         $this->em->clear(Notification::class);
-        $count = $this->notifications->countUnread($user);
+        $count = $this->notifications->countUnread($user, $this->impersonation->isActive());
 
         return [
             'count' => $count,
             'html' => $this->renderView('notification/_menu.html.twig', [
-                'items' => $this->notifications->findLatest($user, self::MENU_SIZE),
+                'items' => $this->notifications->findLatest($user, self::MENU_SIZE, $this->impersonation->isActive()),
                 'count' => $count,
             ]),
         ];

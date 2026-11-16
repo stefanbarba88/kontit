@@ -13,7 +13,9 @@
 {% endblock %}
 
 {% block page_actions %}
-    <button type="button" class="btn btn-outline-secondary" data-kt-remind data-task-id="{{ task.id }}" data-title="{{ task.title }}">{{ ux_icon('lucide:bell-plus', {class: 'kt-icon me-2'}) }}Dodaj u podsetnik</button>
+    {% if todo_visible() %}
+        <button type="button" class="btn btn-outline-secondary" data-kt-remind data-task-id="{{ task.id }}" data-title="{{ task.title }}">{{ ux_icon('lucide:bell-plus', {class: 'kt-icon me-2'}) }}Dodaj u podsetnik</button>
+    {% endif %}
     {% if is_granted('TASK_EDIT', task) %}
         <a href="{{ path('task_edit', {id: task.id, returnTo: return_to_path()}) }}" class="btn btn-primary">{{ ux_icon('lucide:pencil', {class: 'kt-icon me-2'}) }}Izmeni</a>
     {% endif %}

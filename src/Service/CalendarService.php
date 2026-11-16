@@ -31,6 +31,7 @@ class CalendarService
         private readonly AbsenceService $absenceService,
         private readonly \App\Repository\TodoItemRepository $todoItems,
         private readonly TodoClock $todoClock,
+        private readonly \App\Service\ImpersonationState $impersonation,
     ) {
     }
 
@@ -88,7 +89,8 @@ class CalendarService
             }
         }
         // Podsetnik: samo stavke OVOG korisnika (privatno), bez obzira na izabrani opseg; ne ulaze u ICS ni Google kalendar
-        if (\in_array('todo', $types, true) && empty($filters['client']) && empty($filters['user'])) {
+        // za vreme "Prikaži kao korisnik" Podsetnik ne postoji ni u kalendaru (SPEC 8s)
+        if (\in_array('todo', $types, true) && empty($filters['client']) && empty($filters['user']) && !$this->impersonation->isActive()) {
             $fromUtc = $this->todoClock->startOfDay($from->format('Y-m-d'));
             $toUtc = $this->todoClock->startOfDay($to->modify('+1 day')->format('Y-m-d'));
             foreach ($this->todoItems->findDueBetween($me, $fromUtc, $toUtc) as $item) {

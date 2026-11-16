@@ -5,6 +5,7 @@ namespace App\Controller\Notification;
 use App\Entity\Notification;
 use App\Entity\User;
 use App\Repository\NotificationRepository;
+use App\Service\ImpersonationState;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,6 +19,7 @@ class NotificationController extends AbstractController
     public function __construct(
         private readonly NotificationRepository $notifications,
         private readonly EntityManagerInterface $em,
+        private readonly ImpersonationState $impersonation,
     ) {
     }
 
@@ -28,12 +30,12 @@ class NotificationController extends AbstractController
 
         return $this->render('notification/index.html.twig', [
             'pagination' => $paginator->paginate(
-                $this->notifications->createListQueryBuilder($this->actor(), $onlyUnread),
+                $this->notifications->createListQueryBuilder($this->actor(), $onlyUnread, $this->impersonation->isActive()),
                 $request->query->getInt('page', 1),
                 20,
             ),
             'onlyUnread' => $onlyUnread,
-            'unreadCount' => $this->notifications->countUnread($this->actor()),
+            'unreadCount' => $this->notifications->countUnread($this->actor(), $this->impersonation->isActive()),
         ]);
     }
 
@@ -45,6 +47,16 @@ class NotificationController extends AbstractController
     {
         if ($notification->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
+        }
+
+        // tokom "Prikaži kao korisnik": obaveštenje iz Podsetnika ne postoji (404), a u režimu "samo pregled" se ništa ne označava kao pročitano
+        if ($this->impersonation->isActive()) {
+            if ($notification->getType()->isPrivate()) {
+                throw $this->createNotFoundException();
+            }
+            if (!$this->impersonation->isEditing()) {
+                return $this->redirect($notification->getLink() ?? $this->generateUrl('notification_index'));
+            }
         }
 
         $notification->markRead();

@@ -4,6 +4,7 @@ namespace App\Security\Voter;
 
 use App\Entity\TodoItem;
 use App\Entity\User;
+use Symfony\Component\Security\Core\Authentication\Token\SwitchUserToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -25,6 +26,10 @@ class TodoVoter extends Voter
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
+        // za vreme "Prikaži kao korisnik" Podsetnik ne postoji: ni pregled, ni izmena, ni brisanje (SPEC 8s)
+        if ($token instanceof SwitchUserToken) {
+            return false;
+        }
         $user = $token->getUser();
 
         return $user instanceof User && $subject instanceof TodoItem && $subject->getOwner()->getId() === $user->getId();

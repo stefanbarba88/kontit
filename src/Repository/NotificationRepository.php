@@ -19,7 +19,13 @@ class NotificationRepository extends ServiceEntityRepository
         parent::__construct($registry, Notification::class);
     }
 
-    public function createListQueryBuilder(User $user, bool $onlyUnread = false): QueryBuilder
+    /** Tipovi obaveštenja koji se kriju za vreme impersonacije (privatni Podsetnik). */
+    private function privateTypes(): array
+    {
+        return array_values(array_filter(NotificationType::cases(), static fn (NotificationType $t) => $t->isPrivate()));
+    }
+
+    public function createListQueryBuilder(User $user, bool $onlyUnread = false, bool $excludePrivate = false): QueryBuilder
     {
         $qb = $this->createQueryBuilder('n')
             ->andWhere('n.user = :user')
@@ -30,6 +36,9 @@ class NotificationRepository extends ServiceEntityRepository
         if ($onlyUnread) {
             $qb->andWhere('n.isRead = false');
         }
+        if ($excludePrivate) {
+            $qb->andWhere('n.type NOT IN (:privateTypes)')->setParameter('privateTypes', $this->privateTypes());
+        }
 
         return $qb;
     }
@@ -37,19 +46,22 @@ class NotificationRepository extends ServiceEntityRepository
     /**
      * @return list<Notification>
      */
-    public function findLatest(User $user, int $limit = 10): array
+    public function findLatest(User $user, int $limit = 10, bool $excludePrivate = false): array
     {
-        return $this->createListQueryBuilder($user)->setMaxResults($limit)->getQuery()->getResult();
+        return $this->createListQueryBuilder($user, false, $excludePrivate)->setMaxResults($limit)->getQuery()->getResult();
     }
 
-    public function countUnread(User $user): int
+    public function countUnread(User $user, bool $excludePrivate = false): int
     {
-        return (int) $this->createQueryBuilder('n')
+        $qb = $this->createQueryBuilder('n')
             ->select('COUNT(n.id)')
             ->andWhere('n.user = :user AND n.isRead = false')
-            ->setParameter('user', $user)
-            ->getQuery()
-            ->getSingleScalarResult();
+            ->setParameter('user', $user);
+        if ($excludePrivate) {
+            $qb->andWhere('n.type NOT IN (:privateTypes)')->setParameter('privateTypes', $this->privateTypes());
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
     public function markAllRead(User $user): int

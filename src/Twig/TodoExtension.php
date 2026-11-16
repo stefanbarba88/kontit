@@ -5,6 +5,7 @@ namespace App\Twig;
 use App\Entity\TodoItem;
 use App\Entity\User;
 use App\Enum\TodoRepeat;
+use App\Service\ImpersonationState;
 use App\Service\TodoService;
 use Symfony\Bundle\SecurityBundle\Security;
 use Twig\Extension\AbstractExtension;
@@ -18,12 +19,14 @@ class TodoExtension extends AbstractExtension
     public function __construct(
         private readonly TodoService $todo,
         private readonly Security $security,
+        private readonly ImpersonationState $impersonation,
     ) {
     }
 
     public function getFunctions(): array
     {
         return [
+            new TwigFunction('todo_visible', fn (): bool => !$this->impersonation->isActive()),
             new TwigFunction('todo_count', $this->count(...)),
             new TwigFunction('todo_open_count', $this->openCount(...)),
             new TwigFunction('todo_chips', $this->todo->chips(...)),
@@ -41,7 +44,7 @@ class TodoExtension extends AbstractExtension
     {
         $user = $this->security->getUser();
 
-        return $user instanceof User ? $this->todo->dueCount($user) : 0;
+        return $user instanceof User && !$this->impersonation->isActive() ? $this->todo->dueCount($user) : 0;
     }
 
     /** Da li postoji bilo koja otvorena stavka (tačka na ikonici) */
@@ -49,6 +52,6 @@ class TodoExtension extends AbstractExtension
     {
         $user = $this->security->getUser();
 
-        return $user instanceof User ? $this->todo->openCount($user) : 0;
+        return $user instanceof User && !$this->impersonation->isActive() ? $this->todo->openCount($user) : 0;
     }
 }

@@ -443,7 +443,7 @@ if (roots().length) {
     };
     let polling = false;
     const poll = async () => {
-        if (polling || (document.hidden && !('Notification' in window && Notification.permission === 'granted'))) {
+        if (polling || document.body.hasAttribute('data-kt-impersonating') || (document.hidden && !('Notification' in window && Notification.permission === 'granted'))) {
             return;
         }
         polling = true;
@@ -462,7 +462,10 @@ if (roots().length) {
             polling = false;
         }
     };
-    setInterval(poll, POLL_MS);
+    // dok traje "Prikaži kao korisnik" Podsetnik ne postoji: nema ni polling-a (server bi vratio 404)
+    if (!document.body.hasAttribute('data-kt-impersonating')) {
+        setInterval(poll, POLL_MS);
+    }
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
             poll();

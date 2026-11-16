@@ -25,8 +25,10 @@
                 {% endif %}
                 <div class="kt-cal-types" role="group" aria-label="Vrste događaja">
                     {% for key, item in {tasks: ['Zadaci', 'primary'], absences: ['Odsustva', 'purple'], holidays: ['Neradni dani', 'danger'], todo: ['Podsetnik', 'success']} %}
+                        {% if key != 'todo' or todo_visible() %}
                         <input type="checkbox" class="btn-check" id="cal-type-{{ key }}" name="types" value="{{ key }}" checked autocomplete="off">
                         <label class="kt-chip" for="cal-type-{{ key }}" style="--kt-chip-dot: var(--kt-{{ item[1] }})"><span class="kt-chip-dot" aria-hidden="true"></span>{{ item[0] }}</label>
+                        {% endif %}
                     {% endfor %}
                 </div>
                 <div class="kt-cal-selects">

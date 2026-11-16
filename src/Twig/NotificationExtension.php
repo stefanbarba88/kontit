@@ -6,6 +6,7 @@ use App\Controller\Ajax\NotificationController;
 use App\Entity\Notification;
 use App\Entity\User;
 use App\Repository\NotificationRepository;
+use App\Service\ImpersonationState;
 use Symfony\Bundle\SecurityBundle\Security;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -18,6 +19,7 @@ class NotificationExtension extends AbstractExtension
     public function __construct(
         private readonly Security $security,
         private readonly NotificationRepository $notifications,
+        private readonly ImpersonationState $impersonation,
     ) {
     }
 
@@ -33,7 +35,7 @@ class NotificationExtension extends AbstractExtension
     {
         $user = $this->security->getUser();
 
-        return $user instanceof User ? $this->notifications->countUnread($user) : 0;
+        return $user instanceof User ? $this->notifications->countUnread($user, $this->impersonation->isActive()) : 0;
     }
 
     /**
@@ -43,6 +45,6 @@ class NotificationExtension extends AbstractExtension
     {
         $user = $this->security->getUser();
 
-        return $user instanceof User ? $this->notifications->findLatest($user, $limit) : [];
+        return $user instanceof User ? $this->notifications->findLatest($user, $limit, $this->impersonation->isActive()) : [];
     }
 }

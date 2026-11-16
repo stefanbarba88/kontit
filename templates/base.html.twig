@@ -55,7 +55,9 @@
 			{{ nav.link(path('task_index'), 'list-checks', 'Zadaci', route starts with 'task_', awaiting_approval_count()) }}
 			{{ nav.link(path('matrix_index'), 'table-properties', 'Pregled poslova', route == 'matrix_index') }}
 			{% if is_granted('SPECIAL_APPROVALS_VIEW') %}{{ nav.link(path('special_approvals_index'), 'shield-check', 'Posebne potvrde', route starts with 'special_approvals', special_approval_count()) }}{% endif %}
+			{% if todo_visible() %}
 			{{ nav.panel_link('#kt-todo-panel', 'notebook-pen', 'Podsetnik', route starts with 'todo_', todo_count()) }}
+			{% endif %}
 			{{ nav.link(path('calendar_index'), 'calendar-days', 'Kalendar', route starts with 'calendar_') }}
 
 			{% if is_granted('ROLE_SEF') %}
@@ -132,6 +134,7 @@
 					</div>
 				</div>
 
+				{% if todo_visible() %}
 				{# ikonica je samo signal: tačka = ima otvorenih stavki, crveni broj = zakasnelo ili danas; klik otvara isti panel kao stavka u meniju #}
 				{% set todoCount = todo_count() %}
 				{% set todoOpen = todo_open_count() %}
@@ -140,6 +143,7 @@
 					<span class="kt-todo-dot todo-dot {{ todoOpen > 0 and todoCount == 0 ? '' : 'd-none' }}"></span>
 					<span class="kt-todo-badge todo-count {{ todoCount > 0 ? '' : 'd-none' }}">{{ todoCount }}</span>
 				</button>
+				{% endif %}
 
 				<div class="dropdown" id="notification-bell" data-url="{{ path('ajax_notifications') }}" data-read-all-url="{{ path('ajax_notifications_read_all') }}">
 					<button type="button" class="kt-icon-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" title="Obaveštenja" aria-label="Obaveštenja">
@@ -189,8 +193,10 @@
 	</div>
 
 	{{ include('components/_mobile_nav.html.twig') }}
-	{{ include('todo/_panel.html.twig') }}
-	{{ include('todo/_remind_modal.html.twig') }}
+	{% if todo_visible() %}
+		{{ include('todo/_panel.html.twig') }}
+		{{ include('todo/_remind_modal.html.twig') }}
+	{% endif %}
 
 </div>
 	{% include 'components/_js_icons.html.twig' %}
