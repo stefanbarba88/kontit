@@ -201,6 +201,10 @@ U **Kalendaru** gore biraš **Moji** ili **Moj tim**. **Moj tim** prikazuje zada
 
 Ako je administrator uključio „Šefovi dobijaju i odsustva svog tima“, a ti si povezao Google kalendar, odobrena odsustva članova tima stižu i u tvoj Google kalendar „KontIT“.
 
+## Pregled poslova po klijentima
+
+Opis je u uputstvu za radnika. Kao šef vidiš **klijente svog tima** i samo zadatke koje smeš da vidiš. Lista na koju vodi **Otvori listu zadataka** otvara se za ceo tim (opseg „Svi“), a filter **Zaduženi** u pregledu traži glavnog ili backup radnika klijenta. Brojač „zakasnelih zadataka ukupno“ vodi na listu **Kasne** za tvoj tim, nezavisno od izabranog meseca.
+
 ## Podsetnik
 
 Imaš i **Podsetnik**: ličnu listu obaveza i obaveštenja (opis je u uputstvu za radnika). Vidiš samo svoju, a tvoju ne vidi niko, ni administrator. Nije zadatak, pa tvoj tim ne vidi šta je u njoj.

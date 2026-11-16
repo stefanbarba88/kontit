@@ -458,6 +458,10 @@ Liste **Klijenti**, **Zadaci**, **Korisnici** i **Odsustva → Evidencija** imaj
 
 Ako se posle 5 pokušaja događaji ne upišu, korisnik dobija obaveštenje i vidi grešku na profilu, a obično je dovoljno da ponovo poveže nalog.
 
+## Pregled poslova po klijentima
+
+Opis je u uputstvu za radnika. Kao admin vidiš **sve aktivne klijente**, ali brojevi i prozor ćelije prate isto pravilo kao lista zadataka: **samo zadaci koje vidiš**. Prag „ističe uskoro“ je parametar `matrix.warning_days` (3 radna dana) u `config/services.yaml`. Izvoz (**Izvoz** na stranici **Pregled poslova**) je u dugom formatu: red po klijentu i paketu. Za veliki broj redova izvoz ide u pozadini kao i ostali izvozi.
+
 ## Podsetnik i privatnost
 
 Svako (i admin) ima **Podsetnik**, ličnu listu obaveza i obaveštenja (vidi uputstvo za radnika). Stavke vidi **samo vlasnik**: ni admin ni superadmin ne mogu da ih otvore, izmene, pretraže ni izvezu, a pokušaj pristupa tuđoj stavci vraća „nije pronađeno“. Stavke se ne beleže u istoriji izmena i ne ulaze u statistiku. Za obaveštenja mora da radi cron `app:todo:send-reminders` (svakog minuta, vidi `DEPLOY.md`). Završene stavke se brišu posle 3 dana komandom `app:todo:cleanup` (jednom dnevno, takođe u `DEPLOY.md`).

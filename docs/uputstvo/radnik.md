@@ -527,6 +527,18 @@ Obaveštenje dobijaš, na primer, kad:
 
 Koja obaveštenja stižu i na mejl biraš na **Moj profil → Obaveštenja na mejl**.
 
+## Pregled poslova po klijentima
+
+**Pregled poslova po klijentima** pokazuje, za svakog tvog klijenta, koliko je zadataka urađeno po paketu usluga u izabranom mesecu. Nalazi se na **Početnoj** (ispod kartica Zadaci) i na celoj stranici **Meni → Pregled poslova** (na telefonu **Više → Pregled poslova**).
+
+- Svaka ćelija je **gotovo/ukupno** (npr. 3/4) za jedan paket. Poslednja kolona, **Ostali taskovi**, su zadaci bez paketa. Otkazani zadaci se ne računaju.
+- Boja i ikonica kažu u kakvom je stanju: **crveno** (trougao) znači da je neki otvoren zadatak prešao rok, **žuto** (sat) da neki ističe u naredna 3 radna dana, **zeleno** (kvačica) da je sve gotovo, **sivo** da je u toku, a crtica da u mesecu nema zadataka. Legenda je ispod filtera.
+- Vidiš **samo zadatke koje smeš da vidiš**, isto kao u listi zadataka.
+- **Klik na ćeliju** (ili Enter) otvara prozor sa zadacima te ćelije: kasne, ističu uskoro, u toku, završeno (najviše 8, pa „i još N zadataka“). **Otvori listu zadataka** vodi u listu sa istim filterima. Esc ili klik van prozora ga zatvara.
+- Filteri: klijent (i bez kvačica), zaposleni, paketi, mesec, **Samo nezavršeno**, **Samo problematični**. Klik na „3 kasne“ ili „1 ističe uskoro“ iznad tabele uključuje **Samo problematični**. Filteri se pamte za tebe u ovom pregledaču, a **Poništi filtere** ih briše.
+- Dugme **Izvoz** (samo na celoj stranici) daje Excel, CSV ili PDF sa trenutnim filterima, u obliku jedan red po klijentu i paketu.
+- Na telefonu je tabela lista kartica, a filteri su sklopljeni u **Filteri**.
+
 ## Česta pitanja
 
 **Zašto ne vidim nekog klijenta?**

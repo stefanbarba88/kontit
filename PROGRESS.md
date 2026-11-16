@@ -3,7 +3,7 @@
 > Claude ažurira ovaj fajl na kraju svakog zadatka. Najnovije ide na vrh.
 
 ## Trenutno stanje
-- Poslednje: **Podsetnik (preimenovanje) i raspored početne strane** (SPEC 8p, 8p.5); pre toga raspored posla po klijentu i po zadatku (SPEC 8g.5). Sledeće: po dogovoru; 3c „Pretvori u ponavljajući posao“ je odložen.
+- Poslednje: **Pregled poslova po klijentima (matrica)** (SPEC 8r); pre toga **Podsetnik (preimenovanje) i raspored početne strane** (SPEC 8p, 8p.5); pre toga raspored posla po klijentu i po zadatku (SPEC 8g.5). Sledeće: po dogovoru; 3c „Pretvori u ponavljajući posao“ je odložen.
 - Faza: **UPDATE-POSLOVI-KALENDAR završen** (P1-P11, SPEC 8f-8n): kraći naziv i aktivnosti, neradni dani, kategorije i raspored posla, ugovorene usluge, generisanje sa zamenom, odsustva sa automatskim odobravanjem, dokumenti, kalendar, Google kalendar. Uz faze 0-7, 2b, 3b, 7b i UPDATE-DIZAJN.
 - Sledeće: po dogovoru. **Faza 8 (praćenje vremena) je odložena.** Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
 - Za pravi Google kalendar treba uraditi korake iz `docs/google-calendar-setup.md` (Client ID i Secret u `.env.local`).
@@ -11,6 +11,14 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-16: **Pregled poslova po klijentima (matrica)** (SPEC 8r), 3 commit-a: servis i testovi (e262264), kartica na početnoj sa filterima i prozorom ćelije (3aca9d9), izvoz + meni + redosled početne (f2b82b3)
+  - Migracija `Version20261116112327`: indeks `IDX_TASK_DUE_CLIENT (due_date, client_id)` na `task`. Parametar `matrix.warning_days: 3`.
+  - Servis `ClientJobMatrixService` (+ `MatrixFilters`, `MatrixCell`, `MatrixView`, enum `MatrixState`), agregatni upiti u `TaskRepository` (`matrixAggregates`, `matrixOverdueCount`, `matrixCellTasks`), filter po paketu u listi zadataka (`TaskFilter::$package`, `package=none`), `MatrixExport` (dugi format), rute `/pregled-poslova`, `/ajax/matrix`, `/ajax/matrix/cell`, `assets/js/matrix.js`, `assets/styles/components/matrix.css`, šabloni `templates/matrix/`, `/_design`, uputstva (radnik, šef, admin).
+  - Raspored početne: Zadaci, Pregled poslova, Posebne potvrde, Naredna nedelja, tim/firma.
+  - Testovi: `ClientJobMatrixTest` (brojevi, otkazano, "Ostali", stanja, radni dani, vidljivost radnika i šefa, filteri, strane, prozor ćelije, broj upita), `MatrixPagesTest` (početna, AJAX, prozor ćelije i 404, jedan upit, izvoz). `composer test`: 170 testova OK.
+  - Merenje (test baza, 500 klijenata, 5000 zadataka, 50 redova, 5 upita): EXPLAIN glavnog upita bez indeksa `type=ALL`, ~4946 redova; sa indeksom `range` preko `IDX_TASK_DUE_CLIENT`, ~206 redova. Vremena (topli prolazi): admin bez indeksa 54-55 ms (prvi 142), sa indeksom 53-67 ms (prvi 194); radnik bez indeksa 87-119 ms, sa indeksom 23-42 ms. Na 5000 zadataka razlika kod admina je u šumu merenja; indeks se isplati kad tabela naraste.
+  - Provera u pregledaču (Playwright, privremeni korisnici i ZZMX podaci u razvojnoj bazi, obrisani posle): 1280 i 390 px u svetloj i tamnoj temi, 1920 px u obe teme. Scenariji: brojevi i boje ćelija, brojač problema, 15 od N na početnoj i svi na stranici, lepljive kolone i zaglavlje, kartice na telefonu, prozor ćelije (sadržaj, grupe, 8 redova, dugmad, Enter, Esc, klik van, povratak fokusa, greška i „Pokušaj ponovo“, link na listu), čip paketa u listi i uklanjanje, pretraga bez kvačica, URL i localStorage filteri, Poništi, samo problematični, filter paketa (sakriva kolone). Nije proveravano: izvoz u pravom Excelu/PDF-u (samo test servisa i HTTP 200), Safari/Firefox, stvarni dodir na telefonu.
+  - Poznata odstupanja: lista iz ćelije koristi `closed=1`, pa prikazuje i otkazane; filter paketa računa samo aktivne `ClientPackage`; strane se prave u PHP-u posle agregata; pamćenje filtera je u `localStorage` (po korisniku i pregledaču).
 - 2026-11-13: **Podsetnik: završene stavke se brišu posle 3 dana**
   - Parametar `todo.done_retention_days: 3`; komanda `app:todo:cleanup` (DQL DELETE za sve korisnike, UTC, bez ActivityLog-a; zadatak iz stavke ostaje), cron `30 3 * * *` u `DEPLOY.md`. Lista "Završene" i pretraga ne vraćaju starije od 3 dana ni pre cron-a; napomena "Završene stavke se brišu posle 3 dana." u sekciji. Bez migracije.
   - Testovi `TodoRetentionTest`: briše samo završene starije od 3 dana (dva korisnika), ne dira novije ni otvorene, zadatak ostaje, lista i pretraga skrivaju stare pre cron-a, tuđa stavka je 404.
