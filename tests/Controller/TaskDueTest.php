@@ -130,6 +130,70 @@ class TaskDueTest extends DatabaseTestCase
         self::assertSame('2027-02-03', $this->due($this->taskFor($job, '2027-02')), 'završen zadatak se ne dira');
     }
 
+    public function testNonWorkingPickedDateOffersExactDayAndKeepsShiftByDefault(): void
+    {
+        $job = $this->job();
+        $march = $this->taskFor($job, '2027-03');
+        $this->login($this->admin);
+
+        // 13.3.2027. je subota: nudi se izbor, a podrazumevano ostaje pomeranje
+        $preview = $this->api('/ajax/tasks/'.$march->getId().'/due-preview', ['dueDate' => '2027-03-13']);
+        self::assertTrue($preview['data']['exactOffer']);
+        self::assertSame('Subota', $preview['data']['nonWorkingReason']);
+        self::assertStringNotContainsString('tačno tog dana', $preview['data']['future']);
+        $exact = $this->api('/ajax/tasks/'.$march->getId().'/due-preview', ['dueDate' => '2027-03-13', 'exact' => true]);
+        self::assertStringContainsString('tačno tog dana', $exact['data']['future']);
+
+        // radni dan: nema ponude, a exact se ignoriše
+        $working = $this->api('/ajax/tasks/'.$march->getId().'/due-preview', ['dueDate' => '2027-03-12', 'exact' => true]);
+        self::assertFalse($working['data']['exactOffer']);
+        self::assertStringNotContainsString('tačno tog dana', $working['data']['future']);
+    }
+
+    public function testApplyToFutureWithExactDayStoresExactRule(): void
+    {
+        $job = $this->job();
+        $march = $this->taskFor($job, '2027-03');
+        $this->login($this->admin);
+
+        $result = $this->api('/ajax/tasks/'.$march->getId().'/due-change', ['dueDate' => '2027-03-13', 'future' => true, 'exact' => true]);
+        self::assertTrue($result['success'], json_encode($result));
+
+        $override = $this->fresh($job)->getScheduleOverride();
+        self::assertSame(13, $override->getDayOfMonth());
+        self::assertSame(\App\Enum\NonWorkingDayShift::EXACT, $override->getNonWorkingDayShift());
+        self::assertSame('2027-03-13', $this->due($this->fresh($march)), 'ručni rok je baš izabrani neradni dan');
+    }
+
+    public function testApplyToFutureWithoutExactKeepsShiftForNonWorkingDate(): void
+    {
+        $job = $this->job();
+        $march = $this->taskFor($job, '2027-03');
+        $this->login($this->admin);
+
+        $result = $this->api('/ajax/tasks/'.$march->getId().'/due-change', ['dueDate' => '2027-03-13', 'future' => true]);
+        self::assertTrue($result['success'], json_encode($result));
+        self::assertSame(\App\Enum\NonWorkingDayShift::NEXT, $this->fresh($job)->getScheduleOverride()->getNonWorkingDayShift());
+    }
+
+    public function testApplyToFutureForNthWorkdayDerivesOrdinal(): void
+    {
+        $job = $this->job();
+        $job->setScheduleOverride(Schedule::fromArray(['type' => 'NTH_WORKDAY', 'nthWorkingDay' => 5, 'leadDays' => 5]));
+        $this->em->flush();
+        $march = $this->taskFor($job, '2027-03');
+        $this->login($this->admin);
+
+        // 12.3.2027. (petak) je 10. radni dan marta (1-5, 8-12)
+        $result = $this->api('/ajax/tasks/'.$march->getId().'/due-change', ['dueDate' => '2027-03-12', 'future' => true]);
+        self::assertTrue($result['success'], json_encode($result));
+        self::assertSame(10, $this->fresh($job)->getScheduleOverride()->getNthWorkingDay());
+
+        // neradni dan nema redni broj: za buduće se ne nudi
+        $saturday = $this->api('/ajax/tasks/'.$march->getId().'/due-preview', ['dueDate' => '2027-03-13']);
+        self::assertFalse($saturday['data']['canFuture']);
+    }
+
     public function testLastDayOfferAndShortMonthsIncludingFebruary(): void
     {
         $job = $this->job();

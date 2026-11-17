@@ -34,6 +34,11 @@ async function openDialog(button) {
             ${canFutureRight ? `<div id="kt-due-future-box" class="mt-3" hidden>
                 <div class="form-check"><input class="form-check-input" type="checkbox" id="kt-due-future"><label class="form-check-label" for="kt-due-future">Primeni i na buduće periode za ovog klijenta</label></div>
                 <div class="form-check mt-1" id="kt-due-last-box" hidden><input class="form-check-input" type="checkbox" id="kt-due-last"><label class="form-check-label" for="kt-due-last">Poslednji dan u mesecu</label></div>
+                <div id="kt-due-exact-box" class="mt-2" hidden>
+                    <div class="kt-text-sm text-muted mb-1" id="kt-due-exact-note"></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="kt-due-exact" id="kt-due-exact-shift" value="0" checked><label class="form-check-label" for="kt-due-exact-shift">Pomeri na radni dan (kao do sada)</label></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="kt-due-exact" id="kt-due-exact-yes" value="1"><label class="form-check-label" for="kt-due-exact-yes">Tačno taj dan (i ako je neradni)</label></div>
+                </div>
                 <div class="kt-text-sm mt-2" id="kt-due-preview" aria-live="polite"></div>
             </div>` : ''}
         </div>`,
@@ -50,19 +55,23 @@ async function openDialog(button) {
             }
             const future = popup.querySelector('#kt-due-future');
             const last = popup.querySelector('#kt-due-last');
+            const exactBox = popup.querySelector('#kt-due-exact-box');
+            const exact = () => popup.querySelector('#kt-due-exact-yes').checked;
             const refresh = async () => {
                 const mine = ++seq;
                 if (!date.value) {
                     return;
                 }
                 try {
-                    const { data } = await ajax('POST', button.dataset.previewUrl, { dueDate: date.value, lastDay: last.checked });
+                    const { data } = await ajax('POST', button.dataset.previewUrl, { dueDate: date.value, lastDay: last.checked, exact: exact() });
                     if (mine !== seq) {
                         return;
                     }
                     preview = data;
                     box.hidden = !data.canFuture;
                     popup.querySelector('#kt-due-last-box').hidden = !data.lastDayOffer;
+                    exactBox.hidden = !(future.checked && data.exactOffer);
+                    popup.querySelector('#kt-due-exact-note').textContent = data.exactOffer ? `${data.nonWorkingReason} je neradni dan. Šta da radi rok u narednim periodima?` : '';
                     const lines = [];
                     if (future.checked && data.future) {
                         lines.push(`<strong>${escape(data.future)}</strong>`);
@@ -79,6 +88,7 @@ async function openDialog(button) {
             date.addEventListener('change', refresh);
             future.addEventListener('change', refresh);
             last.addEventListener('change', refresh);
+            popup.querySelectorAll('[name="kt-due-exact"]').forEach((r) => r.addEventListener('change', refresh));
             refresh();
         },
         preConfirm: () => {
@@ -93,6 +103,7 @@ async function openDialog(button) {
                 dueDate: value,
                 future: Boolean(Swal.getPopup().querySelector('#kt-due-future')?.checked && preview.canFuture),
                 lastDay: Boolean(Swal.getPopup().querySelector('#kt-due-last')?.checked),
+                exact: Boolean(preview.exactOffer && Swal.getPopup().querySelector('#kt-due-exact-yes')?.checked),
             };
         },
     });

@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Schedule;
 use App\Entity\Task;
 use App\Entity\User;
+use App\Enum\NonWorkingDayShift;
 use App\Enum\ScheduleType;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -39,7 +40,7 @@ class TaskDueService
      * Raspored za buduće periode izveden iz novog roka, ili null ako se za tip rasporeda ne može izvesti
      * (dnevno, "po potrebi") ili zadatak nije vezan za posao klijenta.
      */
-    public function deriveSchedule(Task $task, \DateTimeImmutable $newDue, bool $lastDay = false): ?Schedule
+    public function deriveSchedule(Task $task, \DateTimeImmutable $newDue, bool $lastDay = false, bool $exact = false): ?Schedule
     {
         $job = $task->getClientJob();
         if (null === $job || !$this->isScheduled($task)) {
@@ -73,7 +74,18 @@ class TaskDueService
                 return null;
         }
 
+        // izabran neradni dan: korisnik bira da li se budući rok pomera (postojeće pravilo posla, podrazumevano) ili ostaje tačno tog dana
+        if ($exact && $this->shiftApplies($derived) && !$this->workingDays->isWorkingDay($newDue)) {
+            $derived->setNonWorkingDayShift(NonWorkingDayShift::EXACT);
+        }
+
         return $derived;
+    }
+
+    /** Pravilo za neradni dan važi za sve tipove osim dnevnog i N-tog radnog dana (kod njih je rok uvek radni dan). */
+    private function shiftApplies(Schedule $schedule): bool
+    {
+        return \in_array($schedule->getType(), [ScheduleType::WEEKLY, ScheduleType::MONTHLY, ScheduleType::QUARTERLY, ScheduleType::YEARLY], true);
     }
 
     /**
@@ -87,14 +99,17 @@ class TaskDueService
     /**
      * Šta bi se desilo, bez izmena: izvedeni raspored rečima, upozorenje i uticaj na ostale otvorene zadatke posla.
      *
-     * @return array{canFuture: bool, lastDayOffer: bool, future: ?string, warning: ?string, impact: ?array<string, mixed>, defaultDue: ?string}
+     * @return array{canFuture: bool, lastDayOffer: bool, exactOffer: bool, nonWorkingReason: ?string, future: ?string, warning: ?string, impact: ?array<string, mixed>, defaultDue: ?string}
      */
-    public function preview(Task $task, \DateTimeImmutable $newDue, bool $lastDay): array
+    public function preview(Task $task, \DateTimeImmutable $newDue, bool $lastDay, bool $exact = false): array
     {
-        $derived = $this->deriveSchedule($task, $newDue, $lastDay);
+        $derived = $this->deriveSchedule($task, $newDue, $lastDay, $exact);
 
         $out = [
             'canFuture' => null !== $derived,
+            // neradan izabrani dan kod rasporeda koji se pomera: nudi se "tačno taj dan" (podrazumevano ostaje pomeranje)
+            'exactOffer' => null !== $derived && $this->shiftApplies($derived) && !$this->workingDays->isWorkingDay($newDue),
+            'nonWorkingReason' => $this->workingDays->reason($newDue),
             'lastDayOffer' => null !== $derived && ScheduleType::WEEKLY !== $derived->getType() && $this->offersLastDay($newDue),
             'future' => null,
             'warning' => null,
@@ -119,7 +134,7 @@ class TaskDueService
      *
      * @return ?ScheduleImpact uticaj na ostale zadatke kad je prilagođen raspored posla, inače null
      */
-    public function setDue(Task $task, \DateTimeImmutable $newDue, bool $future, bool $lastDay, ?User $actor): ?ScheduleImpact
+    public function setDue(Task $task, \DateTimeImmutable $newDue, bool $future, bool $lastDay, ?User $actor, bool $exact = false): ?ScheduleImpact
     {
         $task->setDueDate($newDue);
         if ($this->isScheduled($task)) {
@@ -129,7 +144,7 @@ class TaskDueService
         $this->em->flush();
         $impact = null;
         if ($future) {
-            $derived = $this->deriveSchedule($task, $newDue, $lastDay);
+            $derived = $this->deriveSchedule($task, $newDue, $lastDay, $exact);
             if (null === $derived) {
                 throw new \DomainException('Za ovaj raspored posla se ne može izvesti raspored za buduće periode.');
             }
@@ -156,6 +171,13 @@ class TaskDueService
 
     /** "svakog 6. u mesecu", "poslednjeg dana u mesecu", "svakog petka" */
     private function phrase(Schedule $schedule): string
+    {
+        $text = $this->basePhrase($schedule);
+
+        return NonWorkingDayShift::EXACT === $schedule->getNonWorkingDayShift() && $this->shiftApplies($schedule) ? $text.' (tačno tog dana, i ako je neradni)' : $text;
+    }
+
+    private function basePhrase(Schedule $schedule): string
     {
         $n = max(1, $schedule->getInterval() ?? 1);
         if (ScheduleType::MONTHLY === $schedule->getType() && 1 === $n) {

@@ -12,7 +12,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 /**
  * "Rok i raspored" na zadatku (SPEC 8g.5). Rok menja ko sme da menja zadatak (TASK_EDIT).
  * Prilagođavanje rasporeda posla za buduće periode traži i pravo upravljanja poslovima klijenta (CATALOG_MANAGE).
- * Telo: { dueDate: "Y-m-d", future: bool, lastDay: bool } ili { reset: true } za povratak na podrazumevani rok.
+ * Telo: { dueDate: "Y-m-d", future: bool, lastDay: bool, exact: bool (neradni dan ostaje tačno tog dana) } ili { reset: true } za povratak na podrazumevani rok.
  */
 class TaskDueController extends AbstractAjaxController
 {
@@ -30,7 +30,7 @@ class TaskDueController extends AbstractAjaxController
             return $this->fail('Unesi ispravan datum.', 422);
         }
 
-        return $this->ok($this->due->preview($task, $date, (bool) ($data['lastDay'] ?? false)));
+        return $this->ok($this->due->preview($task, $date, (bool) ($data['lastDay'] ?? false), (bool) ($data['exact'] ?? false)));
     }
 
     #[Route('/ajax/tasks/{id}/due-change', name: 'ajax_task_due_change', requirements: ['id' => '\d+'], methods: ['POST'])]
@@ -52,7 +52,7 @@ class TaskDueController extends AbstractAjaxController
             if ($future && !$this->isGranted('CATALOG_MANAGE')) {
                 return $this->fail('Nemaš pravo da menjaš raspored posla klijenta.', 403);
             }
-            $impact = $this->due->setDue($task, $date, $future, (bool) ($data['lastDay'] ?? false), $this->actor());
+            $impact = $this->due->setDue($task, $date, $future, (bool) ($data['lastDay'] ?? false), $this->actor(), (bool) ($data['exact'] ?? false));
         } catch (\DomainException $e) {
             return $this->fail($e->getMessage(), 422);
         }
