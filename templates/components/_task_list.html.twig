@@ -44,7 +44,7 @@
 {% set grouped = {overdue: [], today: [], tomorrow: [], week: [], later: []} %}
 {% for task in pagination %}
     {% set due = task.dueDate ? task.dueDate|date('Y-m-d') : null %}
-    {% set key = due is null ? 'later' : (task.overdue ? 'overdue' : (due == today ? 'today' : (due == tomorrow ? 'tomorrow' : (due <= weekEnd ? 'week' : 'later')))) %}
+    {% set key = due is null ? 'later' : (task_overdue(task) ? 'overdue' : (due == today ? 'today' : (due == tomorrow ? 'tomorrow' : (due <= weekEnd ? 'week' : 'later')))) %}
     {% set grouped = grouped|merge({(key): grouped[key]|merge([task])}) %}
 {% endfor %}
 {% set groupLabels = {overdue: 'Kasni', today: 'Danas', tomorrow: 'Sutra', week: 'Ove nedelje', later: 'Kasnije'} %}

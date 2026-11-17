@@ -10,6 +10,7 @@ use App\Enum\Role;
 use App\Enum\TaskPriority;
 use App\Enum\TaskStatus;
 use App\Service\TaskFilter;
+use App\Service\WorkingDayService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -36,7 +37,7 @@ class TaskRepository extends ServiceEntityRepository
         .'AND EXISTS (SELECT 1 FROM App\Entity\UserAbsence ab WHERE ab.user = sa.user AND ab.status IN (:absApproved) '
         .'AND ab.startDate <= :absToday AND ab.endDate >= :absToday))';
 
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private readonly WorkingDayService $workingDays)
     {
         parent::__construct($registry, Task::class);
     }
@@ -70,6 +71,8 @@ class TaskRepository extends ServiceEntityRepository
         }
 
         $today = new \DateTimeImmutable('today');
+        // rok na neradni dan ne kasni dok ne prođe prvi radni dan posle njega (WorkingDayService::overdueCutoff)
+        $cutoff = $this->workingDays->overdueCutoff($today);
         $open = [TaskStatus::NOVO, TaskStatus::U_RADU, TaskStatus::CEKA_KLIJENTA, TaskStatus::NA_PROVERI];
 
         switch ($filters['tab'] ?? 'all') {
@@ -77,11 +80,11 @@ class TaskRepository extends ServiceEntityRepository
                 $qb->andWhere('t.dueDate = :today AND t.status IN (:open)')->setParameter('today', $today)->setParameter('open', $open);
                 break;
             case 'week':
-                $qb->andWhere('t.dueDate >= :today AND t.dueDate <= :weekEnd AND t.status IN (:open)')
-                    ->setParameter('today', $today)->setParameter('weekEnd', $today->modify('sunday this week'))->setParameter('open', $open);
+                $qb->andWhere('t.dueDate >= :cutoff AND t.dueDate <= :weekEnd AND t.status IN (:open)')
+                    ->setParameter('cutoff', $cutoff)->setParameter('weekEnd', $today->modify('sunday this week'))->setParameter('open', $open);
                 break;
             case 'overdue':
-                $qb->andWhere('t.dueDate < :today AND t.status IN (:open)')->setParameter('today', $today)->setParameter('open', $open);
+                $qb->andWhere('t.dueDate < :cutoff AND t.status IN (:open)')->setParameter('cutoff', $cutoff)->setParameter('open', $open);
                 break;
             case 'review':
                 $qb->andWhere('t.status = :review')->setParameter('review', TaskStatus::NA_PROVERI);
@@ -288,7 +291,7 @@ class TaskRepository extends ServiceEntityRepository
             ->resetDQLPart('orderBy');
         $row = $this->withoutSortParameters($row)
             ->setParameter('sOpen', self::openStatuses())
-            ->setParameter('sToday', new \DateTimeImmutable('today'))
+            ->setParameter('sToday', $this->workingDays->overdueCutoff())
             ->setParameter('sReview', TaskStatus::NA_PROVERI)
             ->setParameter('sDone', TaskStatus::ZAVRSENO)
             ->setParameter('sMonth', new \DateTimeImmutable('first day of this month 00:00'))
@@ -363,7 +366,7 @@ class TaskRepository extends ServiceEntityRepository
             ->setParameter('user', $user)
             ->setParameter('done', \App\Enum\AssigneeStatus::ZAVRSIO)
             ->setParameter('workable', [TaskStatus::NOVO, TaskStatus::U_RADU, TaskStatus::CEKA_KLIJENTA])
-            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->setParameter('today', $this->workingDays->overdueCutoff())
             ->getQuery()
             ->getSingleScalarResult();
     }

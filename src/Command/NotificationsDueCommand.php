@@ -27,6 +27,7 @@ class NotificationsDueCommand extends Command
         private readonly NotificationRepository $notificationRepository,
         private readonly NotificationService $notifications,
         private readonly \App\Service\SpecialApprovalService $specialApprovals,
+        private readonly \App\Service\WorkingDayService $workingDays,
     ) {
         parent::__construct();
     }
@@ -43,7 +44,8 @@ class NotificationsDueCommand extends Command
         $sent = 0;
 
         foreach ($this->tasks->findWorkableDueUntil($today->modify(sprintf('+%d days', max(0, (int) $input->getOption('days'))))) as $task) {
-            $overdue = $task->getDueDate() < $today;
+            // rok na neradni dan kasni tek od prvog radnog dana posle njega (WorkingDayService::overdueCutoff)
+            $overdue = $this->workingDays->isOverdue($task->getDueDate(), $today);
             $type = $overdue ? NotificationType::TASK_OVERDUE : NotificationType::TASK_DUE_SOON;
             $route = ['task_show', ['id' => $task->getId()]];
             $link = $this->notifications->path($route);

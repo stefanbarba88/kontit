@@ -127,7 +127,8 @@ class CalendarService
     {
         $start ??= new \DateTimeImmutable('today');
         $end = $start->modify('+6 days');
-        $events = $this->events($me, $start, $end, ['scope' => $this->taskService->isLeader($me) ? 'team' : 'mine', 'types' => ['tasks', 'absences']]);
+        // rok na neradni dan koji još ne kasni (npr. subota, a danas je nedelja) ostaje vidljiv: prikazuje se u prvom danu pregleda
+        $events = $this->events($me, min($start, $this->workingDays->overdueCutoff($start)), $end, ['scope' => $this->taskService->isLeader($me) ? 'team' : 'mine', 'types' => ['tasks', 'absences']]);
         $days = [];
         for ($d = $start; $d <= $end; $d = $d->modify('+1 day')) {
             $days[$d->format('Y-m-d')] = ['date' => $d, 'off' => $this->workingDays->reason($d), 'items' => []];

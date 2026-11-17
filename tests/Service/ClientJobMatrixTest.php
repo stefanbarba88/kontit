@@ -218,11 +218,58 @@ class ClientJobMatrixTest extends DatabaseTestCase
         self::assertSame('0/1:progress', $grid['Posle']['Paket']);
         self::assertSame('0/1:warning', $grid['Nedelja']['Paket']);
 
-        // u nedelju 7.3. subotnji rok je već prošao (datum roka < danas), pa kasni; nedeljni rok je danas i ne kasni
-        $svc = $this->svc('2027-03-07');
-        $sunday = $this->grid($svc->build($svc->filters(['period' => '2027-03']), $admin, 1, 15));
-        self::assertSame('0/1:danger', $sunday['Subota']['Paket']);
+        // u nedelju 7.3. subotnji rok (neradni dan) još ne kasni, a od ponedeljka 8.3. kasni obojica
+        $sunday = $this->gridAt('2027-03-07', $admin);
+        self::assertSame('0/1:warning', $sunday['Subota']['Paket'], 'rok na neradni dan ne kasni dok ne prođe prvi radni dan posle njega');
         self::assertSame('0/1:warning', $sunday['Nedelja']['Paket']);
+        $monday = $this->gridAt('2027-03-08', $admin);
+        self::assertSame('0/1:danger', $monday['Subota']['Paket']);
+        self::assertSame('0/1:danger', $monday['Nedelja']['Paket']);
+    }
+
+    /** Praznik usred nedelje i kolektivni odmor: isto pravilo kao za vikend; rok na radni dan kasni kao i do sada. */
+    public function testOverdueStatesAroundHolidayAndCollectiveLeave(): void
+    {
+        $admin = $this->user('Admin', Role::ADMIN);
+        $p = $this->package('Paket');
+        $clients = [];
+        foreach (['Praznik', 'Odmor', 'Radni'] as $name) {
+            $clients[$name] = $this->client($name, $admin);
+        }
+        $this->em->persist(new \App\Entity\NonWorkingDay(\App\Enum\NonWorkingDayType::HOLIDAY_ONCE, 'Praznik', new \DateTimeImmutable('2027-03-10')));
+        $this->em->persist(new \App\Entity\NonWorkingDay(\App\Enum\NonWorkingDayType::COLLECTIVE_LEAVE, 'Odmor', new \DateTimeImmutable('2027-03-22'), new \DateTimeImmutable('2027-03-26')));
+        $this->em->flush();
+        $workingDays = self::getContainer()->get(\App\Service\WorkingDayService::class);
+        $workingDays->invalidate();
+        try {
+            $cps = [];
+            foreach ($clients as $name => $c) {
+                $cps[$name] = $this->give($c, $p);
+            }
+            $this->em->flush();
+            $this->job($admin, $clients['Praznik'], $cps['Praznik'], '2027-03-10'); // sreda, praznik
+            $this->job($admin, $clients['Odmor'], $cps['Odmor'], '2027-03-24'); // sreda usred odmora
+            $this->job($admin, $clients['Radni'], $cps['Radni'], '2027-03-09'); // utorak, radni dan
+
+            $onHoliday = $this->gridAt('2027-03-10', $admin);
+            self::assertSame('0/1:warning', $onHoliday['Praznik']['Paket'], 'na sam praznik rok ne kasni');
+            self::assertSame('0/1:danger', $onHoliday['Radni']['Paket'], 'utorak kasni na praznik, kao i do sada');
+            $after = $this->gridAt('2027-03-11', $admin);
+            self::assertSame('0/1:danger', $after['Praznik']['Paket'], 'kasni od prvog radnog dana posle praznika');
+
+            self::assertSame('0/1:warning', $this->gridAt('2027-03-28', $admin)['Odmor']['Paket'], 'nedelja posle odmora: još ne kasni');
+            self::assertSame('0/1:danger', $this->gridAt('2027-03-29', $admin)['Odmor']['Paket'], 'prvi radni dan posle odmora');
+        } finally {
+            $workingDays->invalidate(); // transakcija se vraća, pa i keširani neradni dani moraju
+        }
+    }
+
+    /** @return array<string, array<string, string>> */
+    private function gridAt(string $today, User $me): array
+    {
+        $svc = $this->svc($today);
+
+        return $this->grid($svc->build($svc->filters(['period' => '2027-03']), $me, 1, 15));
     }
 
     public function testWorkerSeesOnlyOwnClientsAndOwnTasks(): void

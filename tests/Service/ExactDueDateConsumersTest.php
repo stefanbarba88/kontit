@@ -97,15 +97,17 @@ class ExactDueDateConsumersTest extends DatabaseTestCase
         self::assertNotContains($done, $found, 'završen zadatak ne ulazi');
     }
 
-    public function testNotificationsCommandHandlesSaturdayDeadlines(): void
+    public function testNotificationsCommandOverdueStartsAfterNonWorkingBlock(): void
     {
         $today = new \DateTimeImmutable('today');
-        $past = $today->modify('last saturday');
-        $upcoming = $today->modify('next saturday');
-        $overdue = $this->task('Prošla subota', $this->admin, [$this->admin]);
-        $overdue->setDueDate($past);
+        $cutoff = self::getContainer()->get(\App\Service\WorkingDayService::class)->overdueCutoff($today);
+        // granica zakasnelih zavisi od današnjeg dana (radni dan: danas; vikend/praznik: prvi dan neradnog niza)
+        $late = $this->task('Kasni', $this->admin, [$this->admin]);
+        $late->setDueDate($cutoff->modify('-1 day'));
+        $notYet = $this->task('Ne kasni još', $this->admin, [$this->admin]);
+        $notYet->setDueDate($cutoff);
         $soon = $this->task('Naredna subota', $this->admin, [$this->admin]);
-        $soon->setDueDate($upcoming);
+        $soon->setDueDate($today->modify('next saturday'));
         $this->em->flush();
 
         $app = new Application(self::$kernel);
@@ -115,8 +117,11 @@ class ExactDueDateConsumersTest extends DatabaseTestCase
 
         $notifications = self::getContainer()->get(NotificationRepository::class);
         $paths = self::getContainer()->get(NotificationService::class);
-        self::assertTrue($notifications->exists($this->admin, NotificationType::TASK_OVERDUE, $paths->path(['task_show', ['id' => $overdue->getId()]])), 'subotnji rok koji je prošao kasni');
-        self::assertTrue($notifications->exists($this->admin, NotificationType::TASK_DUE_SOON, $paths->path(['task_show', ['id' => $soon->getId()]])), 'subotnji rok u narednih 7 dana ističe uskoro');
+        $link = fn (Task $t) => $paths->path(['task_show', ['id' => $t->getId()]]);
+        self::assertTrue($notifications->exists($this->admin, NotificationType::TASK_OVERDUE, $link($late)), 'rok pre granice kasni');
+        self::assertFalse($notifications->exists($this->admin, NotificationType::TASK_OVERDUE, $link($notYet)), 'rok na granici (npr. subota u nedelju) još ne kasni');
+        self::assertTrue($notifications->exists($this->admin, NotificationType::TASK_DUE_SOON, $link($notYet)), 'nego ističe uskoro');
+        self::assertTrue($notifications->exists($this->admin, NotificationType::TASK_DUE_SOON, $link($soon)));
 
         // druga vožnja ne pravi duplikate (cron radi svaki dan, i vikendom)
         $tester->execute(['--days' => '7']);

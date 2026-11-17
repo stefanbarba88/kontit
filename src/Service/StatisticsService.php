@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Security\TeamScope;
+use App\Service\WorkingDayService;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
@@ -22,7 +23,7 @@ class StatisticsService
     /** Posle koliko dana "Čeka klijenta" postaje upozorenje (SPEC 8, "X dana") */
     public const WAITING_DAYS = 7;
 
-    public function __construct(private readonly Connection $db)
+    public function __construct(private readonly Connection $db, private readonly WorkingDayService $workingDays)
     {
     }
 
@@ -58,6 +59,8 @@ class StatisticsService
     {
         $id = $user->getId();
         $today = new \DateTimeImmutable('today');
+        // rok na neradni dan ne kasni dok ne prođe prvi radni dan posle njega (WorkingDayService::overdueCutoff)
+        $cutoff = $this->workingDays->overdueCutoff($today);
         $monthStart = $today->modify('first day of this month');
         $prevStart = $monthStart->modify('-1 month');
 
@@ -67,11 +70,11 @@ class StatisticsService
         );
         $overdue = (int) $this->db->fetchOne(
             'SELECT COUNT(DISTINCT t.id) FROM task t JOIN task_assignee a ON a.task_id = t.id WHERE a.user_id = :u AND t.status IN '.self::OPEN.' AND t.due_date < :today',
-            ['u' => $id, 'today' => $today->format('Y-m-d')],
+            ['u' => $id, 'today' => $cutoff->format('Y-m-d')],
         );
         $soon = (int) $this->db->fetchOne(
             'SELECT COUNT(DISTINCT t.id) FROM task t JOIN task_assignee a ON a.task_id = t.id WHERE a.user_id = :u AND t.status IN '.self::OPEN.' AND t.due_date BETWEEN :from AND :to',
-            ['u' => $id, 'from' => $today->format('Y-m-d'), 'to' => $today->modify('+3 days')->format('Y-m-d')],
+            ['u' => $id, 'from' => $cutoff->format('Y-m-d'), 'to' => $today->modify('+3 days')->format('Y-m-d')],
         );
 
         $doneSql = 'SELECT COUNT(DISTINCT t.id) FROM task t JOIN task_assignee a ON a.task_id = t.id WHERE a.user_id = :u AND t.status = \'ZAVRSENO\' AND t.finished_at >= :from AND t.finished_at < :to';
@@ -109,7 +112,7 @@ class StatisticsService
             return ['workers' => [], 'awaiting' => [], 'waiting' => [], 'avgDaysToApproval' => null];
         }
 
-        $today = (new \DateTimeImmutable('today'))->format('Y-m-d');
+        $today = $this->workingDays->overdueCutoff()->format('Y-m-d'); // granica zakasnelih (WorkingDayService::overdueCutoff)
         $members = $everyone
             ? $this->db->fetchAllAssociative(
                 // admin i superadmin samo ako rade kao radnici (član tima, klijent ili otvoren zadatak)

@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Repository\TaskRepository;
 use App\Service\ReplacementResolver;
 use App\Service\TaskService;
+use App\Service\WorkingDayService;
 use Symfony\Bundle\SecurityBundle\Security;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -19,7 +20,16 @@ class TaskExtension extends AbstractExtension
         private readonly TaskRepository $tasks,
         private readonly TaskService $service,
         private readonly ReplacementResolver $replacements,
+        private readonly WorkingDayService $workingDays,
     ) {
+    }
+
+    /** Da li otvoren zadatak kasni (rok na neradni dan kasni tek od prvog radnog dana posle njega, vidi WorkingDayService::overdueCutoff). */
+    public function isTaskOverdue(Task $task): bool
+    {
+        $due = $task->getDueDate();
+
+        return null !== $due && $task->getStatus()->isOpen() && $this->workingDays->isOverdue($due);
     }
 
     public function getFunctions(): array
@@ -27,6 +37,7 @@ class TaskExtension extends AbstractExtension
         return [
             new TwigFunction('awaiting_approval_count', $this->awaitingApprovalCount(...)),
             new TwigFunction('my_overdue_count', $this->myOverdueCount(...)),
+            new TwigFunction('task_overdue', $this->isTaskOverdue(...)),
             new TwigFunction('can_toggle_item', $this->canToggleItem(...)),
             new TwigFunction('substituting_for', $this->substitutingFor(...)),
         ];

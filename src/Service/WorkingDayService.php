@@ -49,6 +49,31 @@ class WorkingDayService
     }
 
     /**
+     * Granica zakasnelih: rok ranije od ovog datuma kasni, a rok na ili posle njega još ne kasni.
+     * Radnim danom je to danas (rok "juče" kasni), a na vikendu, prazniku ili kolektivnom odmoru to je prvi dan tog neradnog niza:
+     * rok koji pada na neradni dan (npr. "tačno taj dan" na subotu) ne kasni dok ne prođe prvi radni dan posle njega.
+     * Jedino mesto za ovo pravilo: sve provere "kasni" i "uskoro" porede rok sa ovim datumom, ne sa današnjim.
+     */
+    public function overdueCutoff(?\DateTimeInterface $today = null): \DateTimeImmutable
+    {
+        $day = $this->day($today ?? new \DateTimeImmutable('today'));
+        if ($this->isWorkingDay($day)) {
+            return $day;
+        }
+        for ($i = 0; $i < 370 && !$this->isWorkingDay($day->modify('-1 day')); ++$i) {
+            $day = $day->modify('-1 day');
+        }
+
+        return $day;
+    }
+
+    /** Da li rok kasni (vidi overdueCutoff). */
+    public function isOverdue(\DateTimeInterface $due, ?\DateTimeInterface $today = null): bool
+    {
+        return $this->day($due) < $this->overdueCutoff($today);
+    }
+
+    /**
      * Prvi radni dan na dati dan ili posle njega (ako je dan radni, vraća se on).
      */
     public function nextWorkingDay(\DateTimeInterface $date): \DateTimeImmutable

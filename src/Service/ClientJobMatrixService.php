@@ -142,7 +142,8 @@ class ClientJobMatrixService
             $ids = array_map(static fn (Client $c) => (int) $c->getId(), $candidates);
         }
 
-        $today = $this->today();
+        // rok na neradni dan kasni tek od prvog radnog dana posle njega (WorkingDayService::overdueCutoff), isto važi i za "uskoro"
+        $today = $this->workingDays->overdueCutoff($this->today());
         $taskFilter = $this->taskFilter($me, $f);
         $agg = [];
         foreach ($this->tasks->matrixAggregates($taskFilter, $me, $ids, $today, $this->soonUntil()) as $r) {
@@ -224,7 +225,7 @@ class ClientJobMatrixService
     public function cellDetails(User $me, Client $client, ?ServicePackage $package, MatrixFilters $f): array
     {
         $filter = $this->taskFilter($me, $f)->with(['client' => $client, 'package' => $package, 'noPackage' => null === $package]);
-        $today = $this->today();
+        $today = $this->workingDays->overdueCutoff($this->today());
         $soonUntil = $this->soonUntil();
 
         $groups = ['overdue' => [], 'soon' => [], 'progress' => [], 'done' => []];

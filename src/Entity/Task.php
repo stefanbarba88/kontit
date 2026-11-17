@@ -472,13 +472,6 @@ class Task
         return $this->assignees->filter(static fn (TaskAssignee $a) => AssigneeStatus::ZAVRSIO === $a->getStatus())->count();
     }
 
-    public function isOverdue(): bool
-    {
-        return null !== $this->dueDate
-            && $this->status->isOpen()
-            && $this->dueDate < new \DateTimeImmutable('today');
-    }
-
     public function getReviewMode(): ReviewMode
     {
         return $this->reviewMode;

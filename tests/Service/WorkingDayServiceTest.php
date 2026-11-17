@@ -114,6 +114,60 @@ class WorkingDayServiceTest extends TestCase
         self::assertTrue($s->isWorkingDay(self::d('2027-03-01')), '29. februar ne prelazi u 1. mart u neprestupnoj godini');
     }
 
+    /** mart 2027: 6-7. vikend, sreda 10. praznik, 22-26. kolektivni odmor (sa vikendima 20-28. neradni niz) */
+    private function overdueService(): WorkingDayService
+    {
+        return self::service([
+            new NonWorkingDay(NonWorkingDayType::HOLIDAY_ONCE, 'Praznik', self::d('2027-03-10')),
+            new NonWorkingDay(NonWorkingDayType::COLLECTIVE_LEAVE, 'Kolektivni odmor', self::d('2027-03-22'), self::d('2027-03-26')),
+        ]);
+    }
+
+    public function testOverdueCutoffIsTodayOnWorkingDaysAndStartOfBlockOtherwise(): void
+    {
+        $s = $this->overdueService();
+        $cutoff = static fn (string $d) => $s->overdueCutoff(self::d($d))->format('Y-m-d');
+        self::assertSame('2027-03-05', $cutoff('2027-03-05'), 'petak');
+        self::assertSame('2027-03-06', $cutoff('2027-03-06'), 'subota: početak niza');
+        self::assertSame('2027-03-06', $cutoff('2027-03-07'), 'nedelja: niz počinje u subotu');
+        self::assertSame('2027-03-08', $cutoff('2027-03-08'), 'ponedeljak');
+        self::assertSame('2027-03-10', $cutoff('2027-03-10'), 'praznik usred nedelje');
+        self::assertSame('2027-03-11', $cutoff('2027-03-11'));
+        self::assertSame('2027-03-20', $cutoff('2027-03-24'), 'kolektivni odmor: niz počinje u subotu pre odmora');
+        self::assertSame('2027-03-29', $cutoff('2027-03-29'), 'prvi radni dan posle odmora');
+    }
+
+    public function testDeadlineOnNonWorkingDayIsOverdueOnlyFromFirstWorkingDayAfter(): void
+    {
+        $s = $this->overdueService();
+        $late = static fn (string $due, string $today) => $s->isOverdue(self::d($due), self::d($today));
+
+        // subota
+        self::assertFalse($late('2027-03-06', '2027-03-05'));
+        self::assertFalse($late('2027-03-06', '2027-03-06'));
+        self::assertFalse($late('2027-03-06', '2027-03-07'), 'u nedelju subotnji rok još ne kasni');
+        self::assertTrue($late('2027-03-06', '2027-03-08'), 'kasni od ponedeljka');
+        // nedelja
+        self::assertFalse($late('2027-03-07', '2027-03-07'));
+        self::assertTrue($late('2027-03-07', '2027-03-08'));
+        // praznik usred nedelje
+        self::assertFalse($late('2027-03-10', '2027-03-10'));
+        self::assertTrue($late('2027-03-10', '2027-03-11'), 'kasni od prvog radnog dana posle praznika');
+        // kolektivni odmor
+        self::assertFalse($late('2027-03-24', '2027-03-28'), 'rok usred odmora ne kasni u odmoru');
+        self::assertTrue($late('2027-03-24', '2027-03-29'));
+    }
+
+    public function testDeadlineOnWorkingDayKeepsExistingOverdueBehavior(): void
+    {
+        $s = $this->overdueService();
+        self::assertFalse($s->isOverdue(self::d('2027-03-05'), self::d('2027-03-05')), 'rok danas ne kasni');
+        self::assertTrue($s->isOverdue(self::d('2027-03-05'), self::d('2027-03-06')), 'petak kasni već u subotu, kao i do sada');
+        self::assertTrue($s->isOverdue(self::d('2027-03-05'), self::d('2027-03-07')));
+        self::assertTrue($s->isOverdue(self::d('2027-03-09'), self::d('2027-03-10')), 'utorak kasni na praznik');
+        self::assertTrue($s->isOverdue(self::d('2027-03-19'), self::d('2027-03-24')), 'petak pre odmora kasni u odmoru');
+    }
+
     public function testCustomWeeklyRule(): void
     {
         $s = self::service([], [7]);
