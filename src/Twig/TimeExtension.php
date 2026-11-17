@@ -3,6 +3,7 @@
 namespace App\Twig;
 
 use App\Service\TimeFormat;
+use App\Service\TodoClock;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Twig\Environment;
 use Twig\Extension\AbstractExtension;
@@ -35,6 +36,7 @@ class TimeExtension extends AbstractExtension
     {
         return [
             new TwigFunction('time_step', fn (): int => $this->step),
+            new TwigFunction('time_zone', static fn (): string => TodoClock::ZONE),
             new TwigFunction('time_options', fn (?string $existing = null): array => TimeFormat::options($this->step, $existing)),
         ];
     }

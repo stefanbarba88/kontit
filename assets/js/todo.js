@@ -10,6 +10,7 @@ import { confirmDialog, reminderToast, snoozeDialog, swalFire, toast, undoToast 
 import { initDatepickers } from './datepicker.js';
 import { initSwipe } from './mobile.js';
 import { signalState } from './todo-signal.js';
+import { relativeTime, setTimeValue, timeSelectHtml, timeStep, timeZone } from './time-select.js';
 
 const roots = () => [...document.querySelectorAll('[data-kt-todo]')];
 if (roots().length) {
@@ -101,7 +102,9 @@ if (roots().length) {
     const dueNames = { today: 'Danas', tomorrow: 'Sutra', monday: 'Ponedeljak' };
     const dialogHtml = (item, chips) => {
         const dueChips = chips.map((c) => `<button type="button" class="kt-tchip" data-chip-due="${esc(c.date)}">${esc(dueNames[c.key] || c.label)}</button>`).join('');
-        const remindChips = chips.filter((c) => c.time).map((c) => `<button type="button" class="kt-tchip" data-chip-remind="${esc(c.date)}" data-time="${esc(c.time)}">${esc(c.label)}</button>`).join('');
+        // brze relativne opcije: tačan minut od trenutka klika (nisu izbor vremena, pa nisu vezane za korak)
+        const relativeChips = [[15, 'Za 15 min'], [60, 'Za 1 sat']].map(([m, label]) => `<button type="button" class="kt-tchip" data-chip-in="${m}">${label}</button>`).join('');
+        const remindChips = relativeChips + chips.filter((c) => c.time).map((c) => `<button type="button" class="kt-tchip" data-chip-remind="${esc(c.date)}" data-time="${esc(c.time)}">${esc(c.label)}</button>`).join('');
         const repeats = panelData('repeats')
             .map((r) => `<option value="${esc(r.value)}" ${item.repeat === r.value ? 'selected' : ''}>${esc(r.label)}</option>`).join('');
         const more = Boolean(item.note || item.remindDate || (item.repeat && item.repeat !== 'NONE') || item.remindByEmail || item.clientId);
@@ -112,7 +115,7 @@ if (roots().length) {
             <input type="text" class="form-control mb-3" id="kt-td-title" maxlength="200" value="${esc(item.title)}" placeholder="Šta treba da uradiš?" autocomplete="off">
             <div class="row g-2">
                 <div class="col-7"><label class="form-label kt-text-sm" for="kt-td-due">Rok</label><input type="text" class="form-control" id="kt-td-due" data-datepicker value="${esc(item.dueDate)}" placeholder="Bez roka" autocomplete="off"></div>
-                <div class="col-5"><label class="form-label kt-text-sm" for="kt-td-due-time">Vreme</label><input type="time" class="form-control" id="kt-td-due-time" value="${esc(item.dueTime)}"></div>
+                <div class="col-5"><label class="form-label kt-text-sm" for="kt-td-due-time">Vreme</label>${timeSelectHtml({ id: 'kt-td-due-time', value: item.dueTime, emptyLabel: 'Bez vremena', step: timeStep() })}</div>
             </div>
             <div class="kt-todo-chips mb-2">${dueChips}</div>
             <button type="button" class="btn btn-link btn-sm px-0" data-td-more aria-expanded="${more}">Više opcija</button>
@@ -121,7 +124,7 @@ if (roots().length) {
                 <textarea class="form-control mb-3" id="kt-td-note" rows="2" maxlength="5000">${esc(item.note)}</textarea>
                 <div class="row g-2">
                     <div class="col-7"><label class="form-label kt-text-sm" for="kt-td-remind">Obavesti me</label><input type="text" class="form-control" id="kt-td-remind" data-datepicker value="${esc(item.remindDate)}" placeholder="Bez obaveštenja" autocomplete="off"></div>
-                    <div class="col-5"><label class="form-label kt-text-sm" for="kt-td-remind-time">Vreme</label><input type="time" class="form-control" id="kt-td-remind-time" value="${esc(item.remindTime)}"></div>
+                    <div class="col-5"><label class="form-label kt-text-sm" for="kt-td-remind-time">Vreme</label>${timeSelectHtml({ id: 'kt-td-remind-time', value: item.remindTime, emptyLabel: '09:00 (podrazumevano)', step: timeStep() })}</div>
                 </div>
                 <div class="kt-todo-chips mb-3">${remindChips}</div>
                 <div class="row g-2 mb-3 align-items-end">
@@ -201,14 +204,19 @@ if (roots().length) {
                     popup.addEventListener('click', (e) => {
                         const due = e.target.closest('[data-chip-due]');
                         const remind = e.target.closest('[data-chip-remind]');
-                        if (due) {
+                        const relative = e.target.closest('[data-chip-in]');
+                        if (relative) {
+                            const at = relativeTime(Number(relative.dataset.chipIn), timeZone());
+                            $('#kt-td-remind')._flatpickr.setDate(at.date, true);
+                            setTimeValue($('#kt-td-remind-time'), at.time);
+                        } else if (due) {
                             const same = $('#kt-td-due').value === due.dataset.chipDue;
                             $('#kt-td-due')._flatpickr.setDate(same ? null : due.dataset.chipDue, true);
-                            $('#kt-td-due-time').value = '';
+                            setTimeValue($('#kt-td-due-time'), '');
                         } else if (remind) {
                             const same = $('#kt-td-remind').value === remind.dataset.chipRemind && $('#kt-td-remind-time').value === remind.dataset.time;
                             $('#kt-td-remind')._flatpickr.setDate(same ? null : remind.dataset.chipRemind, true);
-                            $('#kt-td-remind-time').value = same ? '' : remind.dataset.time;
+                            setTimeValue($('#kt-td-remind-time'), same ? '' : remind.dataset.time);
                         } else {
                             return;
                         }
@@ -407,7 +415,7 @@ if (roots().length) {
             const dateInput = form.querySelector('[name="date"]');
             initDatepickers(form);
             dateInput._flatpickr?.setDate(form.dataset.defaultDate, true);
-            form.querySelector('[name="time"]').value = '09:00';
+            setTimeValue(form.querySelector('[name="time"]'), '09:00');
             form.querySelector('[name="remindByEmail"]').checked = false;
             modal.show();
         });

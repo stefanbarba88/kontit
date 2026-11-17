@@ -449,7 +449,7 @@
                         <input type="text" class="form-control mb-3" value="Pozvati klijenta zbog PDV-a">
                         <div class="row g-2">
                             <div class="col-7"><label class="form-label kt-text-sm">Rok</label><input type="text" class="form-control" value="13.11.2026."></div>
-                            <div class="col-5"><label class="form-label kt-text-sm">Vreme</label><input type="time" class="form-control" value="14:30"></div>
+                            <div class="col-5"><label class="form-label kt-text-sm">Vreme</label>{% import 'components/time_select.html.twig' as ts %}{{ ts.select('ds-time', 'ds-time', '14:30', 'Bez vremena') }}</div>
                         </div>
                         <div class="kt-todo-chips mb-2"><button type="button" class="kt-tchip">Danas</button><button type="button" class="kt-tchip is-selected">Sutra</button><button type="button" class="kt-tchip">Ponedeljak</button></div>
                         <button type="button" class="btn btn-link btn-sm px-0" aria-expanded="false">Više opcija</button>

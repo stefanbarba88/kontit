@@ -339,8 +339,8 @@ class TodoService
 
         return [
             ['key' => 'today', 'label' => 'Danas', 'date' => $today->format('Y-m-d'), 'time' => null],
-            ['key' => 'tomorrow', 'label' => 'Sutra 9:00', 'date' => $today->modify('+1 day')->format('Y-m-d'), 'time' => '09:00'],
-            ['key' => 'monday', 'label' => 'Ponedeljak 9:00', 'date' => $today->modify('next monday')->format('Y-m-d'), 'time' => '09:00'],
+            ['key' => 'tomorrow', 'label' => 'Sutra 09:00', 'date' => $today->modify('+1 day')->format('Y-m-d'), 'time' => '09:00'],
+            ['key' => 'monday', 'label' => 'Ponedeljak 09:00', 'date' => $today->modify('next monday')->format('Y-m-d'), 'time' => '09:00'],
         ];
     }
 

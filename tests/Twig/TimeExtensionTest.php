@@ -66,4 +66,17 @@ class TimeExtensionTest extends DatabaseTestCase
         $this->browser->request('GET', '/');
         self::assertStringContainsString('<meta name="kt-time-step" content="30">', (string) $this->browser->getResponse()->getContent());
     }
+
+    public function testRemindModalUsesTimeSelectWithDefaultNineOClock(): void
+    {
+        $user = $this->user('Ja');
+        $this->em->flush();
+        $this->browser->loginUser($user);
+        $crawler = $this->browser->request('GET', '/');
+        $select = $crawler->filter('select#kt-remind-time');
+        self::assertCount(1, $select);
+        self::assertCount(48, $select->filter('option'));
+        self::assertSame('09:00', $select->filter('option[selected]')->attr('value'));
+        self::assertStringNotContainsString('type="time"', (string) $this->browser->getResponse()->getContent());
+    }
 }

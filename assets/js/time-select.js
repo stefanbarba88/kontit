@@ -33,3 +33,29 @@ export function timeSelectHtml({ id, name = '', value = '', emptyLabel = null, s
 
     return `<select class="form-select" id="${esc(id)}"${name ? ` name="${esc(name)}"` : ''} data-native data-time-select>${empty}${options}</select>`;
 }
+
+export const DEFAULT_ZONE = 'Europe/Belgrade';
+export function timeZone(doc = globalThis.document) {
+    return doc?.querySelector?.('meta[name="kt-time-zone"]')?.content || DEFAULT_ZONE;
+}
+
+/**
+ * Datum ("Y-m-d") i vreme ("HH:MM") za "za N minuta" od datog trenutka, u zoni aplikacije (Europe/Belgrade), ne u zoni uređaja.
+ * Tačan minut je namerno (brza relativna opcija); select ga prikazuje kao dodatnu opciju.
+ */
+export function relativeTime(minutes, zone = DEFAULT_ZONE, now = new Date()) {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: zone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+        .formatToParts(new Date(now.getTime() + minutes * 60000)).map((p) => [p.type, p.value]));
+
+    return { date: `${parts.year}-${parts.month}-${parts.day}`, time: `${parts.hour}:${parts.minute}` };
+}
+
+/** Postavlja vrednost selecta; ako je van koraka, dodaje je kao opciju na pravo mesto (ništa se ne zaokružuje). */
+export function setTimeValue(select, value) {
+    if (value && ![...select.options].some((o) => o.value === value)) {
+        const option = new Option(value, value);
+        const after = [...select.options].find((o) => o.value !== '' && o.value > value);
+        select.add(option, after || null);
+    }
+    select.value = value;
+}

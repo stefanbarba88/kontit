@@ -109,7 +109,7 @@ export function snoozeDialog() {
     return fire({
             title: 'Odloži obaveštenje',
             input: 'select',
-            inputOptions: { '10m': '10 minuta', '1h': '1 sat', tomorrow: 'Sutra u 9:00 (sledeći radni dan)' },
+            inputOptions: { '10m': '10 minuta', '1h': '1 sat', tomorrow: 'Sutra u 09:00 (sledeći radni dan)' },
             inputValue: '10m',
             showCancelButton: true,
             confirmButtonText: 'Odloži',

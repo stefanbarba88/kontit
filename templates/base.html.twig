@@ -8,6 +8,7 @@
 	{% if app.user %}<meta name="csrf-token" content="{{ csrf_token('ajax') }}">
 	<meta name="kt-non-working-url" content="{{ path('ajax_calendar_non_working') }}">{% endif %}
 	<meta name="kt-time-step" content="{{ time_step() }}">
+	<meta name="kt-time-zone" content="{{ time_zone() }}">
 	<title>{% block title %}Početna{% endblock %} · KontIT app</title>
 	{{ include('_head_theme.html.twig') }}
 	{{ include('_favicons.html.twig') }}
