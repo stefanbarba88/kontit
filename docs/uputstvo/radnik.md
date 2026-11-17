@@ -273,10 +273,10 @@ Kad se kolega vrati (ili se odsustvo otkaže), zamena prestaje sama.
 
 1. Klikni **+ Dodaj** (u panelu ili na strani Podsetnika) ili pritisni taster **n** bilo gde u aplikaciji (dok ne kucaš u nekom polju).
 2. Upiši naslov i pritisni **Enter**. To je dovoljno.
-3. Ako treba, izaberi **Rok**: čipovi **Danas**, **Sutra**, **Ponedeljak** ili datum, a vreme po želji. Rok bez vremena važi ceo dan.
+3. Ako treba, izaberi **Rok**: čipovi **Danas**, **Sutra**, **Ponedeljak** ili datum, a vreme po želji. Vreme biraš sa liste na svakih pola sata (00:00, 00:30 ... 23:30, 24-časovni format); ako ga ne izabereš, rok važi ceo dan.
 4. Klikom na **Više opcija** dobijaš još: **Napomenu**, **Obavesti me** (kada da te podseti), **Ponavljanje**, obaveštenje na mejl i vezu sa klijentom.
 
-Primer: naslov „Pozvati klijenta za izvode“, rok **Sutra**, **Obavesti me** čip **Sutra 9:00**. Sutra u 9:00 stiže obaveštenje.
+Primer: naslov „Pozvati klijenta za izvode“, rok **Sutra**, **Obavesti me** čip **Sutra 09:00**. Sutra u 09:00 stiže obaveštenje.
 
 ### Obavesti me
 
@@ -286,7 +286,9 @@ Kad stavci postaviš vreme obaveštenja, na to vreme:
 - dok je aplikacija otvorena, na ekranu se pojavi poruka sa dugmadima **Završeno** i **Odloži**,
 - ako je kartica u pozadini, pregledač može da pokaže svoje obaveštenje. Dozvolu traži jednom, kad prvi put postaviš obaveštenje.
 
-**Odloži** nudi **10 minuta**, **1 sat** ili **Sutra u 9:00**. Stavka bez vremena obaveštenja nikad ne šalje obaveštenje.
+Uz **Obavesti me** su i brze opcije **Za 15 min** i **Za 1 sat**: upisuju tačno vreme od trenutka kad klikneš (npr. 14:47), pa će to vreme u listi biti dodatno ponuđeno. Ako je vreme već ranije upisano van polusatnih koraka (npr. 14:15), ostaje kakvo jeste dok ga sam ne promeniš.
+
+**Odloži** nudi **10 minuta**, **1 sat** ili **Sutra u 09:00**. Stavka bez vremena obaveštenja nikad ne šalje obaveštenje.
 
 ### Izmena, završavanje i brisanje
 

@@ -720,6 +720,15 @@ ABSENCE_REQUESTED (postoji), ABSENCE_APPROVED, ABSENCE_REJECTED (zamenjuju ABSEN
 - Posebne potvrde su kartica sa brojačem, datumom najstarije i dugmetom „Pregledaj“ ka punoj strani.
 - Grafikoni i tabele u „Moj tim“ i „Cela firma“ ostaju kao i do sada.
 
+### 8p.6 Vreme: 24h i korak od 30 minuta (cela aplikacija)
+- **Prikaz:** svuda 24h, bez AM/PM („14:30“). Format je na jednom mestu (`App\Service\TimeFormat`: `TIME` = `H:i`, `DATETIME` = `d.m.Y. H:i`, `DATETIME_SHORT` = `d.m. H:i`), a u šablonima se koriste filteri `kt_time`, `kt_datetime`, `kt_datetime_short` (`src/Twig/TimeExtension.php`, zona Europe/Belgrade). Sirov `|date('... H:i')` u šablonima i 12h formati su zabranjeni (`UiRulesTest`).
+- **Izbor:** vreme se bira samo zajedničkom komponentom: `<select class="form-select">` sa vremenima u koracima od **30 minuta** (00:00, 00:30 ... 23:30), bez slobodnog kucanja (Twig `templates/components/time_select.html.twig`, JS `assets/js/time-select.js`). Nativni `type="time"` i `datetime-local` su zabranjeni (`UiRulesTest`). Korak je parametar `app.time.step_minutes` (`config/services.yaml`), JS ga čita iz `<meta name="kt-time-step">`.
+- **Postojeće vrednosti van koraka** (npr. podsetnik na 14:15 ili odloženo za 10 min) se ne zaokružuju: u izboru se prikazuju kao dodatna izabrana opcija na svom mestu, a pri čuvanju bez izmene ostaju iste. Ništa u bazi se ne menja.
+- **Podsetnik:** prazna opcija za rok je „Bez vremena“ (rok celog dana), za „Obavesti me“ „09:00 (podrazumevano)“. Uz „Obavesti me“ su brze relativne opcije **Za 15 min** i **Za 1 sat**: upisuju tačan minut od trenutka klika (npr. 14:47, računato u zoni Europe/Belgrade). Odlaganje ostaje 10 min / 1 h / sutra u 09:00.
+- **Server:** prihvata svako ispravno `H:i` (stari podaci, API, odlaganje); korak ograničava samo UI. Zona (Europe/Belgrade) i skladištenje (UTC, `TodoClock`) se ne menjaju.
+- **Kalendar (FullCalendar):** `slotDuration` iz istog koraka, `slotLabelFormat` i `eventTimeFormat` 24h (`hour12: false`).
+- **Izuzeci od koraka od 30 min:** brze relativne opcije i odlaganje (tačan minut), te izračunati rok odobrenja odsustva (ne unosi se).
+
 ## 8r. Pregled poslova po klijentima (matrica)
 - **Šta je:** tabela gde su redovi klijenti, a kolone paketi usluga plus „Ostali taskovi“ (zadaci bez paketa). Ćelija = zadaci tog klijenta iz poslova tog paketa sa **rokom u izabranom periodu** (podrazumevano tekući mesec). Prikaz „gotovo/ukupno“ (npr. 3/4), progres linija, stanje u boji. `OTKAZANO` se ne računa nigde; Završeno = `ZAVRSENO`.
 - **Vidljivost:** redovi klijenata dolaze iz `ClientRepository::createVisibleQueryBuilder`, a brojevi iz istog filtera kao lista zadataka (`TaskRepository::createFilteredQueryBuilder`), dakle **samo zadaci koje korisnik sme da vidi**. Radnik vidi svoje klijente, šef klijente tima, admin sve. Vidljivost zadataka se ne širi. Tuđ ili nevidljiv klijent u prozoru ćelije je 404.

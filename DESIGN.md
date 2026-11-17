@@ -306,6 +306,11 @@ Prozor na sredini ekrana sa poljem za pretragu: **brza pretraga** klijenata (po 
 ("Novi zadatak", "Promeni temu", "Moji zadaci koji kasne"). Navigacija strelicama, Enter otvara.
 Ovo je jedan od detalja koji aplikaciju najviše čini "skupom". Dizajn se definiše sada, a pravi se kad budu gotovi klijenti i zadaci.
 
+### 7.17 Izbor vremena
+- **Samo select** (`form-select`) sa vremenima u koracima od 30 minuta, 24h bez AM/PM: `templates/components/time_select.html.twig` (makro `select(id, name, value, emptyLabel)`) i `assets/js/time-select.js` za prozore koji se grade u JS-u. Na telefonu (390 px) otvara nativni izbor, na računaru radi kucanje sa tastature; tamna tema dolazi iz `form-select`. Nema nativnog `type="time"` ni flatpickr-a za vreme.
+- Prazna opcija je prvi red („Bez vremena“ ili „09:00 (podrazumevano)“). Vrednost van koraka (14:15) je dodatna izabrana opcija na svom mestu, bez dodatnog teksta.
+- Prikaz vremena u listama, karticama, obaveštenjima i kalendaru je 24h (`kt_time`, `kt_datetime`, `kt_datetime_short`). Primer je na `/_design`.
+
 ### 7.16 Login strana
 - **Podeljen ekran**: levo (55%) **panel brenda**, desno forma.
 - Panel brenda: tamna plava pozadina (`#072441` → `#004588`), sa **mesh gradijentom** (dve meke svetle mrlje plave boje)

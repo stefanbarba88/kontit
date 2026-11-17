@@ -440,6 +440,13 @@
                     <div class="card-footer py-2"><button type="button" class="btn btn-ghost btn-sm">Otvori sve{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</button></div>
                 </div>
             </div>
+            <p class="kt-text-sm text-muted mb-2">Izbor vremena (DESIGN 7.17): <code>templates/components/time_select.html.twig</code>, select sa vremenima na pola sata, 24h. Treći primer ima postojeću vrednost van koraka (14:15), koja se prikazuje kao dodatna izabrana opcija.</p>
+            <div class="row g-2 mb-4" style="max-width: 640px;">
+                {% import 'components/time_select.html.twig' as tsel %}
+                <div class="col-4"><label class="form-label kt-text-sm" for="ds-t1">Prazno</label>{{ tsel.select('ds-t1', 'ds-t1', '', 'Bez vremena') }}</div>
+                <div class="col-4"><label class="form-label kt-text-sm" for="ds-t2">Izabrano</label>{{ tsel.select('ds-t2', 'ds-t2', '14:30', 'Bez vremena') }}</div>
+                <div class="col-4"><label class="form-label kt-text-sm" for="ds-t3">Van koraka</label>{{ tsel.select('ds-t3', 'ds-t3', '14:15', 'Bez vremena') }}</div>
+            </div>
             <p class="kt-text-sm text-muted mb-2">SweetAlert prozor za dodavanje i izmenu (isti za panel, stranu i taster <kbd>n</kbd>). Napredna polja su iza "Više opcija"; u izmeni postoji i crveno "Obriši".</p>
             <div class="swal2-popup kt-swal kt-todo-swal-popup mb-4" style="display: grid; position: static; width: min(460px, 100%);">
                 <h2 class="swal2-title" style="display: block;">Izmena stavke</h2>
