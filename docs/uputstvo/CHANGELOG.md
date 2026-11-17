@@ -15,7 +15,7 @@ Ovaj tekst možeš da pošalješ zaposlenima. Svako čita samo svoj deo; šefovi
 - **Vreme svuda 24h i na pola sata**: kad biraš vreme (rok i **Obavesti me** u Podsetniku) biraš sa liste na svakih 30 minuta (00:00, 00:30 ... 23:30), bez AM/PM. Uz **Obavesti me** su nove brze opcije **Za 15 min** i **Za 1 sat**. Vreme koje je ranije upisano (npr. 14:15) se ne menja.
 
 **Podsetnik** (nova lična lista)
-- Na **Početnoj** je opet kartica Podsetnik: desno od kartica Zadaci (na telefonu ispod njih), sa najviše 6 aktivnih stavki, dugmetom **Dodaj** i linkom **Otvori sve**. Kartice u bloku Zadaci su sada manje, ali ih je i dalje 4 u redu.
+- Na **Početnoj** je opet kartica Podsetnik: desno od kartica Zadaci (na telefonu ispod njih), sa najviše 6 aktivnih stavki, dugmetom **Dodaj** i linkom **Otvori sve**. Blok Zadaci zauzima levu polovinu, a Podsetnik desnu (na telefonu je Podsetnik ispod). Zadaci su sada 4 kartice u matrici 2x2: Otvoreni zadaci, Kasne, Ističu u 3 dana i Završeno ovog meseca. Kartice „Završeno na vreme“, „Vraćeno na doradu“ i „Klijenti (glavni/backup)“ više nisu na Početnoj.
 - Ispravljeno: mala tačka na ikonici sveske ponekad je nestajala posle osvežavanja stranice, iako imaš otvorene stavke.
 - U meniju je **Podsetnik**, a u gornjoj traci ikonica sveske koja pokazuje da li imaš otvorene stavke (mala tačka) ili nešto što kasni ili je za danas (crveni broj).
 - Stavku dodaš sa **+ Dodaj** ili tasterom **n**: upišeš naslov, pritisneš Enter, i to je to. Po želji dodaš rok, **Obavesti me** (da te aplikacija podseti u određeno vreme), ponavljanje (svaki dan, radni dan, nedelju ili mesec) i klijenta.

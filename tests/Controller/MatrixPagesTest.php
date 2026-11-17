@@ -71,7 +71,7 @@ class MatrixPagesTest extends DatabaseTestCase
         self::assertStringNotContainsString('>Tudj</a>', $html, 'radnik ne vidi tuđe klijente');
         self::assertStringContainsString('1/2', $html);
         // blok je posle kartica Zadaci
-        self::assertGreaterThan(strpos($html, 'Klijenti (backup)'), strpos($html, 'Pregled poslova po klijentima'));
+        self::assertGreaterThan(strpos($html, 'Završeno ovog meseca'), strpos($html, 'Pregled poslova po klijentima'));
 
         $this->browser->request('GET', '/pregled-poslova');
         self::assertResponseIsSuccessful();

@@ -259,9 +259,7 @@ OTKAZANO (iz bilo kog statusa, radi kreator / šef / admin)
 ### Radnik (svoj dashboard)
 - otvoreni zadaci, zadaci koji kasne, zadaci koji ističu u naredna 3 dana
 - završeno ovog meseca naspram prošlog meseca
-- % završenih na vreme
-- broj vraćanja na doradu (poslednjih 30 dana)
-- broj klijenata (glavni / backup)
+- (uklonjeno sa početne, 8p.5: % završenih na vreme, vraćanja na doradu i broj klijenata; učinak po radniku ostaje u „Moj tim“ / „Svi radnici“)
 
 ### Šef (samo za svoj tim)
 - **opterećenje po radniku**: broj klijenata i broj otvorenih zadataka (bar chart)
@@ -284,7 +282,7 @@ Grafikoni: Chart.js. Računa `StatisticsService` preko agregatnih upita.
 
 **Implementacija (Faza 7)**: jedna stranica `/` (dashboard) sa blokovima po roli: "Moj pregled" svi, "Moj tim" šef (timovi koje vodi), "Cela firma" i "Svi timovi" admin+. Odluke:
 - "X dana" za zadatke u statusu "Čeka klijenta" je **7** (`StatisticsService::WAITING_DAYS`). Računa se od poslednje izmene zadatka (`updated_at`), jer se vreme ulaska u taj status ne čuva.
-- **Na vreme** = zadatak sa rokom koji je potvrđen (ZAVRSENO), a predat (`submittedAt`) je do roka; računa se na zadacima sa rokom. Za radnika je period 90 dana. **Vraćeno %** = vraćanja na doradu / završeni zadaci u periodu.
+- **Na vreme** = zadatak sa rokom koji je potvrđen (ZAVRSENO), a predat (`submittedAt`) je do roka; računa se na zadacima sa rokom. Period je 30 i 90 dana u tabelama učinka (radnik na početnoj više nema tu karticu). **Vraćeno %** = vraćanja na doradu / završeni zadaci u periodu.
 - Prosek "od kreiranja do potvrde" je za zadatke potvrđene u poslednjih 90 dana.
 - Završen zadatak i vraćanje pripadaju timu u kome je radnik bio član u trenutku potvrde/vraćanja (istorija `TeamMember`); otvoreni zadaci i klijenti trenutnom članstvu.
 - Aktivnost korisnika = broj zapisa u ActivityLog-u u poslednjih 30 dana.
@@ -715,7 +713,7 @@ ABSENCE_REQUESTED (postoji), ABSENCE_APPROVED, ABSENCE_REJECTED (zamenjuju ABSEN
 
 ---
 ### 8p.5 Raspored početne strane
-- **Zadaci + Podsetnik (prvi red):** od `xl` (>= 1200 px) blok **Zadaci** zauzima 3/4 širine (osam KPI kartica, 4 u redu, 2 reda, kompaktnije), a kartica **Podsetnik** 1/4 desno, iste visine kao ceo blok (od naslova „Zadaci“ do dna drugog reda; stavke se skrolaju unutar kartice). Na `lg` (992-1199 px) Zadaci su preko cele širine u 4 kolone, a Podsetnik ispod preko cele širine; ispod `lg` kartice su u 2 kolone (390 px: 2 po redu), Podsetnik ispod preko cele širine. Za vreme „Prikaži kao korisnika“ kartice nema (Podsetnik je privatan), pa su Zadaci preko cele širine.
+- **Zadaci + Podsetnik (prvi red):** od `lg` (>= 992 px) blok **Zadaci** zauzima levu polovinu širine, a kartica **Podsetnik** desnu polovinu. Zadaci imaju 4 kartice normalne veličine u matrici 2x2 (red 1: Otvoreni zadaci, Kasne; red 2: Ističu u 3 dana, Završeno ovog meseca). Podsetnik je iste visine kao ceo blok Zadaci (od naslova „Zadaci“ do dna drugog reda; stavke se skrolaju unutar kartice). Ispod `lg` je Podsetnik ispod bloka Zadaci preko cele širine, a kartice ostaju 2x2 i na 390 px. Za vreme „Prikaži kao korisnika“ Podsetnika nema (privatan je), pa su 4 kartice Zadaci u jednom redu preko cele širine od `lg` (ispod toga 2x2). Odluka: kartice „Završeno na vreme“, „Vraćeno na doradu“ i „Klijenti (glavni/backup)“ su uklonjene sa početne (podaci o učinku ostaju u tabelama „Moj tim“/„Svi radnici“ i u finansijama klijenta).
 - Ostale kartice su **jedna ispod druge, svaka preko cele širine kontejnera** i za admina, šefa i radnika. Redosled odozgo nadole: **Zadaci** (kartice „Moj pregled“), **Pregled poslova po klijentima** (8r), **Posebne potvrde** (samo ko ima pravo `SPECIAL_APPROVALS_VIEW`: admin i superadmin), **Naredna nedelja** (Kalendar), pa „Moj tim“ (šef) ili „Svi radnici“ i „Cela firma“ (admin).
 - Posebne potvrde su kartica sa brojačem, datumom najstarije i dugmetom „Pregledaj“ ka punoj strani.
 - Grafikoni i tabele u „Moj tim“ i „Cela firma“ ostaju kao i do sada.

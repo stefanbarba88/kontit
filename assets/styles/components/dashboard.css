@@ -1,20 +1,12 @@
-/* Raspored početne strane (SPEC 8p.5): Zadaci (osam KPI kartica) + kartica Podsetnik. Tokeni iz tokens.css.
-   < lg: kartice u 2 kolone, Podsetnik ispod preko cele širine; lg: 4 kolone preko cele širine, Podsetnik ispod;
-   xl+: Zadaci 3/4 (4 kolone, kompaktne kartice) + Podsetnik 1/4 iste visine kao ceo blok Zadaci. */
+/* Raspored početne strane (SPEC 8p.5): Zadaci (4 KPI kartice u matrici 2x2) + kartica Podsetnik. Tokeni iz tokens.css.
+   < lg: Podsetnik ispod bloka Zadaci preko cele širine, kartice i dalje 2x2 (i na 390 px);
+   lg+: Zadaci 1/2 + Podsetnik 1/2 iste visine kao ceo blok Zadaci. Bez Podsetnika (impersonacija): 4 kartice u jednom redu. */
 .kt-dash-top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; margin-bottom: 24px; }
 .kt-dash-top > * { min-width: 0; }
 .kt-dash-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .kt-dash-stats > .card { margin-bottom: 0; }
 
-/* kompaktnije KPI kartice u ovom bloku: manji razmaci i broj, labela se prelama u dva reda umesto da se seče */
-.kt-dash-stats .kt-kpi .card-body { padding: 12px 14px; }
-.kt-dash-stats .kt-kpi .d-flex.mb-2 { margin-bottom: 4px !important; gap: 8px; }
-.kt-dash-stats .kt-kpi .kt-kpi-label { font-size: 12.5px; line-height: 16px; min-width: 0; overflow-wrap: break-word; }
-.kt-dash-stats .kt-kpi .kt-kpi-value { font-size: 24px; line-height: 30px; }
-.kt-dash-stats .kt-kpi .kt-kpi-icon { width: 28px; height: 28px; font-size: 15px; flex: none; }
-.kt-dash-stats .kt-kpi .kt-kpi-hint { font-size: 11.5px; margin-top: 0 !important; }
-
-/* kartica Podsetnik: ispod xl obična kartica, stavke se skrolaju posle ~420 px */
+/* kartica Podsetnik: ispod lg obična kartica, stavke se skrolaju posle ~420 px */
 .kt-todo-card { margin-bottom: 0; }
 .kt-todo-card-body .kt-todo-list { max-height: 420px; overflow-y: auto; }
 .kt-todo-card .kt-todo-meta { overflow-wrap: anywhere; }
@@ -28,12 +20,9 @@
 .kt-todo-card .kt-todo-title { display: block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
 
 @media (min-width: 992px) {
-    .kt-dash-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-}
-
-@media (min-width: 1200px) {
-    .kt-dash-top.has-todo { grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); }
-    .kt-dash-stats { gap: 12px; }
+    .kt-dash-top.has-todo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    /* bez Podsetnika (impersonacija) 4 kartice Zadaci idu u jedan red preko cele širine */
+    .kt-dash-top:not(.has-todo) .kt-dash-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     /* visinu daje blok Zadaci (naslov + dva reda kartica); Podsetnik se razvlači preko cele te visine, a stavke se skrolaju unutar kartice */
     .kt-dash-todo { position: relative; min-height: 300px; }
     .kt-dash-todo > .kt-todo-card { position: absolute; inset: 0; display: flex; flex-direction: column; }

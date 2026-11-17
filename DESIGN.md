@@ -231,7 +231,7 @@ Jedna serija je uvek plava. "Plan naspram ostvarenog": plan je neutralna ispreki
 - Gore labela (13px, `--kt-text-2`), ispod **krupan broj** (Manrope 30px, tabular), pored njega **pill sa promenom**
   (`▲ 12%` zeleno, `▼ 4%` crveno, u odnosu na prethodni period). Dole **sparkline** (mala linija trenda bez osa, plava sa providnim gradijentom ispod).
 - Broj se pri učitavanju **"izbroji"** od 0 do vrednosti (600 ms, ease-out), ali samo prvi put.
-- Na početnoj su KPI kartice bloka Zadaci kompaktne (padding 12px, broj 24px, labela 12.5px koja se prelama u dva reda, bez sečenja): 4 u redu, a od `xl` blok zauzima 3/4 širine i desno je kartica Podsetnik (`assets/styles/components/dashboard.css`, SPEC 8p.5).
+- Na početnoj su 4 KPI kartice bloka Zadaci normalne veličine u matrici 2x2, a od `lg` blok zauzima levu polovinu, a desnu polovinu je kartica Podsetnik iste visine (bez Podsetnika, u impersonaciji, 4 kartice u redu) (`assets/styles/components/dashboard.css`, SPEC 8p.5).
 - Kartica koja ukazuje na problem (npr. "Kasni: 7") ima tanku traku u boji opasnosti na vrhu, a ne crvenu celu karticu.
 
 ### 7.5 Tabele

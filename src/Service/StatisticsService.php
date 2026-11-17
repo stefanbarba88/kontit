@@ -81,19 +81,12 @@ class StatisticsService
         $thisMonth = (int) $this->db->fetchOne($doneSql, ['u' => $id, 'from' => $monthStart->format('Y-m-d'), 'to' => $monthStart->modify('+1 month')->format('Y-m-d')]);
         $lastMonth = (int) $this->db->fetchOne($doneSql, ['u' => $id, 'from' => $prevStart->format('Y-m-d'), 'to' => $monthStart->format('Y-m-d')]);
 
-        $perf = $this->performance([$id], null, 90)[$id] ?? ['done' => 0, 'withDue' => 0, 'onTime' => 0, 'reviewed' => 0];
-        $returned = $this->returned([$id], null, 30)[$id] ?? 0;
-
         return [
             'open' => $open,
             'overdue' => $overdue,
             'dueSoon' => $soon,
             'doneThisMonth' => $thisMonth,
             'doneLastMonth' => $lastMonth,
-            'onTimePercent' => self::percent($perf['onTime'], $perf['withDue']),
-            'returned30' => $returned,
-            'clientsPrimary' => (int) $this->db->fetchOne('SELECT COUNT(*) FROM client WHERE is_active = 1 AND primary_accountant_id = :u', ['u' => $id]),
-            'clientsBackup' => (int) $this->db->fetchOne('SELECT COUNT(*) FROM client WHERE is_active = 1 AND backup_accountant_id = :u', ['u' => $id]),
         ];
     }
 

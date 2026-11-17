@@ -110,9 +110,6 @@ Blok **Zadaci** pokazuje brojke samo za tebe:
 - **Kasne**: zadaci kojima je prošao rok. Ovo rešavaj prvo. Ako rok pada na subotu, nedelju ili praznik, zadatak ne kasni dok ne prođe prvi radni dan posle njega.
 - **Ističu u 3 dana**: zadaci kojima rok stiže uskoro.
 - **Završeno ovog meseca**: uz poređenje sa prošlim mesecom.
-- **Završeno na vreme**: koliki deo zadataka si predao do roka (poslednjih 90 dana).
-- **Vraćeno na doradu**: koliko puta ti je šef vratio zadatak (30 dana).
-- **Klijenti (glavni)** i **Klijenti (backup)**.
 
 Blok **Pregled poslova po klijentima** je opisan niže, u poglavlju sa istim imenom.
 
