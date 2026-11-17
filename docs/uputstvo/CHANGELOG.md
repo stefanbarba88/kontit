@@ -11,6 +11,8 @@ Ovaj tekst možeš da pošalješ zaposlenima. Svako čita samo svoj deo; šefovi
 - **Kašnjenje roka na neradni dan**: zadatak kome je rok subota, nedelja, praznik ili dan kolektivnog odmora ne kasni dok ne prođe prvi radni dan posle roka (matrica, lista, brojači, obaveštenja). Rok na radni dan kasni kao i do sada.
 
 **Podsetnik** (nova lična lista)
+- Na **Početnoj** je opet kartica Podsetnik: desno od kartica Zadaci (na telefonu ispod njih), sa najviše 6 aktivnih stavki, dugmetom **Dodaj** i linkom **Otvori sve**. Kartice u bloku Zadaci su sada manje, ali ih je i dalje 4 u redu.
+- Ispravljeno: mala tačka na ikonici sveske ponekad je nestajala posle osvežavanja stranice, iako imaš otvorene stavke.
 - U meniju je **Podsetnik**, a u gornjoj traci ikonica sveske koja pokazuje da li imaš otvorene stavke (mala tačka) ili nešto što kasni ili je za danas (crveni broj).
 - Stavku dodaš sa **+ Dodaj** ili tasterom **n**: upišeš naslov, pritisneš Enter, i to je to. Po želji dodaš rok, **Obavesti me** (da te aplikacija podseti u određeno vreme), ponavljanje (svaki dan, radni dan, nedelju ili mesec) i klijenta.
 - Na zadatku i na kartici klijenta je dugme **Dodaj u podsetnik**.

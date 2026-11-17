@@ -710,11 +710,13 @@ ABSENCE_REQUESTED (postoji), ABSENCE_APPROVED, ABSENCE_REJECTED (zamenjuju ABSEN
 - **"Dodaj u podsetnik"** na zadatku i klijentu: modal sa unapred popunjenim naslovom i izborom vremena; pravi stavku vezanu za zadatak/klijenta (potreban `TASK_VIEW` / `CLIENT_VIEW`, inače 404). U listi je veza link samo dok vlasnik sme da vidi zadatak/klijenta, inače običan tekst.
 - **Kalendar:** tip "Podsetnik" (filter) prikazuje vlasniku njegove stavke sa rokom, bez obzira na opseg. Ne ulaze u ICS ni u Google kalendar.
 - **Pretvori u zadatak:** `task_new?fromTodo=ID` popunjava naslov, opis, rok i klijenta (ako ga vlasnik vidi); važe sva pravila kreiranja zadatka. Posle čuvanja stavka se završava i dobija link na zadatak.
-- **Dashboard:** nema kartice "Podsetnik" (uklonjena); Podsetnik se otvara iz menija ili ikonice u topbaru. Raspored početne je u 8p.5.
+- **Dashboard:** kartica "Podsetnik" desno od bloka Zadaci (8p.5): najviše 6 aktivnih stavki, "Dodaj" i "Otvori sve" (panel). Panel, kartica i signal u headeru dele isti `state()` (`count`, `open`, `html`, `compactHtml`) pa se uvek osvežavaju zajedno.
+- **Signal u headeru:** tačka = ima otvorenih stavki a nema zakasnelih ni današnjih; crveni broj = zakasnelo + današnje. Pravilo je u `assets/js/todo-signal.js` (`signalState`); polje koje poll ne vrati se ne dira. `/ajax/todo/due` vraća i `open` (greška do 17.11.2026: poll bez `open` je sakrivao tačku koju je server prikazao). `pageshow` (Nazad iz bfcache-a) osvežava signal.
 
 ---
 ### 8p.5 Raspored početne strane
-- Sve kartice su **jedna ispod druge, svaka preko cele širine kontejnera, na svim širinama ekrana** i za admina, šefa i radnika (nema kolona). Redosled odozgo nadole: **Zadaci** (kartice „Moj pregled“), **Pregled poslova po klijentima** (8r), **Posebne potvrde** (samo ko ima pravo `SPECIAL_APPROVALS_VIEW`: admin i superadmin), **Naredna nedelja** (Kalendar), pa „Moj tim“ (šef) ili „Svi radnici“ i „Cela firma“ (admin).
+- **Zadaci + Podsetnik (prvi red):** od `xl` (>= 1200 px) blok **Zadaci** zauzima 3/4 širine (osam KPI kartica, 4 u redu, 2 reda, kompaktnije), a kartica **Podsetnik** 1/4 desno, iste visine kao ceo blok (od naslova „Zadaci“ do dna drugog reda; stavke se skrolaju unutar kartice). Na `lg` (992-1199 px) Zadaci su preko cele širine u 4 kolone, a Podsetnik ispod preko cele širine; ispod `lg` kartice su u 2 kolone (390 px: 2 po redu), Podsetnik ispod preko cele širine. Za vreme „Prikaži kao korisnika“ kartice nema (Podsetnik je privatan), pa su Zadaci preko cele širine.
+- Ostale kartice su **jedna ispod druge, svaka preko cele širine kontejnera** i za admina, šefa i radnika. Redosled odozgo nadole: **Zadaci** (kartice „Moj pregled“), **Pregled poslova po klijentima** (8r), **Posebne potvrde** (samo ko ima pravo `SPECIAL_APPROVALS_VIEW`: admin i superadmin), **Naredna nedelja** (Kalendar), pa „Moj tim“ (šef) ili „Svi radnici“ i „Cela firma“ (admin).
 - Posebne potvrde su kartica sa brojačem, datumom najstarije i dugmetom „Pregledaj“ ka punoj strani.
 - Grafikoni i tabele u „Moj tim“ i „Cela firma“ ostaju kao i do sada.
 
