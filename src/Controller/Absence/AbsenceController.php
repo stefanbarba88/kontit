@@ -2,6 +2,7 @@
 
 namespace App\Controller\Absence;
 
+use App\Http\Query;
 use App\Service\TimeFormat;
 use App\Entity\User;
 use App\Entity\UserAbsence;
@@ -48,8 +49,8 @@ class AbsenceController extends AbstractController
         if (!$leader) {
             $tab = 'zahtevi';
         }
-        $teamId = $request->query->getInt('team') ?: null;
-        $year = max(2000, min(2100, $request->query->getInt('year') ?: (int) date('Y')));
+        $teamId = Query::id($request->query, 'team');
+        $year = max(2000, min(2100, Query::id($request->query, 'year') ?? (int) date('Y')));
 
         $data = [
             'tab' => $tab,
@@ -64,9 +65,9 @@ class AbsenceController extends AbstractController
         ];
 
         if ('zahtevi' === $tab) {
-            $current = !$request->query->getBoolean('history');
+            $current = !Query::bool($request->query, 'history');
             $data['current'] = $current;
-            $data['pagination'] = $paginator->paginate($this->repository->createListQueryBuilder($me, $admin, $leader, $current), $request->query->getInt('page', 1), 20);
+            $data['pagination'] = $paginator->paginate($this->repository->createListQueryBuilder($me, $admin, $leader, $current), max(1, Query::int($request->query, 'page', 1)), 20);
         } elseif ('odobrenje' === $tab) {
             $data['pendingAbsences'] = $this->repository->createPendingQueryBuilder($me, $admin)->getQuery()->getResult();
         } elseif ('pregled' === $tab) {
@@ -165,11 +166,11 @@ class AbsenceController extends AbstractController
     {
         $me = $this->actor();
         // izmena: odsustvo koje se menja se ne računa kao preklapanje ni kao već iskorišćeni dani
-        $editing = $request->query->getInt('absence') ? $this->repository->find($request->query->getInt('absence')) : null;
+        $editing = null !== ($absenceId = Query::id($request->query, 'absence')) ? $this->repository->find($absenceId) : null;
         if (null !== $editing && !$this->isGranted('ABSENCE_EDIT', $editing)) {
             return new JsonResponse(['success' => false, 'data' => null, 'message' => 'Nemaš pristup.'], 403);
         }
-        $user = $editing?->getUser() ?? ($request->query->getInt('user') ? $this->users->find($request->query->getInt('user')) : $me);
+        $user = $editing?->getUser() ?? (null !== ($userId = Query::id($request->query, 'user')) ? $this->users->find($userId) : $me);
         if (null === $user || (null === $editing && !$this->service->canEnterFor($me, $user))) {
             return new JsonResponse(['success' => false, 'data' => null, 'message' => 'Nemaš pristup.'], 403);
         }
@@ -182,9 +183,9 @@ class AbsenceController extends AbstractController
         if ($to > $from->modify('+366 days')) {
             return new JsonResponse(['success' => false, 'data' => null, 'message' => 'Period je predug.'], 400);
         }
-        $type = $request->query->getInt('type') ? $types->find($request->query->getInt('type')) : null;
+        $type = null !== ($typeId = Query::id($request->query, 'type')) ? $types->find($typeId) : null;
         // radnik od kolega vidi samo dostupnost (bez vrste i zahteva na odobrenju), šef i admin detalje
-        $preview = $this->service->preview($user, $type, $from, $to, $request->query->getBoolean('half'), $this->tasks->isLeader($me), $editing);
+        $preview = $this->service->preview($user, $type, $from, $to, Query::bool($request->query, 'half'), $this->tasks->isLeader($me), $editing);
         try {
             $this->service->assertDatesAllowed($me, $from, $to, $editing?->getStartDate());
         } catch (\DomainException $e) {

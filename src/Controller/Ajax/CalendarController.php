@@ -2,6 +2,7 @@
 
 namespace App\Controller\Ajax;
 
+use App\Http\Query;
 use App\Service\WorkingDayService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +17,7 @@ class CalendarController extends AbstractAjaxController
     #[Route('/non-working', name: 'ajax_calendar_non_working', methods: ['GET'])]
     public function nonWorking(Request $request, WorkingDayService $workingDays): JsonResponse
     {
-        $year = max(2000, min(2100, $request->query->getInt('year') ?: (int) date('Y')));
+        $year = max(2000, min(2100, Query::id($request->query, 'year') ?? (int) date('Y')));
 
         return $this->ok([
             'year' => $year,

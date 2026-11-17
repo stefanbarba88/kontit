@@ -3,6 +3,7 @@
 namespace App\Controller\Ajax;
 
 use App\Entity\Client;
+use App\Http\Query;
 use App\Entity\ServicePackage;
 use App\Service\ClientJobMatrixService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,8 +28,8 @@ class MatrixController extends AbstractAjaxController
     #[Route('/ajax/matrix', name: 'ajax_matrix', methods: ['GET'])]
     public function table(Request $request): JsonResponse
     {
-        $full = $request->query->getBoolean('full');
-        $page = max(1, $request->query->getInt('page', 1));
+        $full = Query::bool($request->query, 'full');
+        $page = max(1, Query::int($request->query, 'page', 1));
         $view = $this->matrix->build($this->matrix->filters($request->query->all()), $this->actor(), $page, $full ? self::PER_PAGE_PAGE : self::PER_PAGE_BLOCK);
         $vars = ['mx' => $view, 'full' => $full];
 
@@ -53,7 +54,7 @@ class MatrixController extends AbstractAjaxController
     #[Route('/ajax/matrix/cell', name: 'ajax_matrix_cell', methods: ['GET'])]
     public function cell(Request $request): JsonResponse
     {
-        $client = $this->em->find(Client::class, $request->query->getInt('client'));
+        $client = $this->em->find(Client::class, Query::id($request->query, 'client') ?? 0);
         if (!$client instanceof Client || !$this->isGranted('CLIENT_VIEW', $client)) {
             throw $this->createNotFoundException();
         }

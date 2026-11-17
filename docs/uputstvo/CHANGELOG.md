@@ -8,6 +8,8 @@ Ovaj tekst možeš da pošalješ zaposlenima. Svako čita samo svoj deo; šefovi
 
 ## Za sve (radnike, šefove i admine)
 
+- **Ispravljeno: zahtev za odsustvo iz Kalendara**: klik na dan u Kalendaru i **Zahtev za odsustvo od ovog dana** je prikazivao grešku („Input value type is invalid“). Forma sada čeka da izabereš vrstu odsustva, a prazni filteri (npr. **Svi timovi**, **Sve pozicije**) više ne prave grešku.
+
 - **Kašnjenje roka na neradni dan**: zadatak kome je rok subota, nedelja, praznik ili dan kolektivnog odmora ne kasni dok ne prođe prvi radni dan posle roka (matrica, lista, brojači, obaveštenja). Rok na radni dan kasni kao i do sada.
 
 - **Vreme svuda 24h i na pola sata**: kad biraš vreme (rok i **Obavesti me** u Podsetniku) biraš sa liste na svakih 30 minuta (00:00, 00:30 ... 23:30), bez AM/PM. Uz **Obavesti me** su nove brze opcije **Za 15 min** i **Za 1 sat**. Vreme koje je ranije upisano (npr. 14:15) se ne menja.

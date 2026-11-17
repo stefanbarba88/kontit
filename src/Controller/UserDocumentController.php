@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\UserDocument;
+use App\Http\Query;
 use App\Repository\DocumentCategoryRepository;
 use App\Repository\UserAbsenceRepository;
 use App\Repository\UserDocumentRepository;
@@ -32,7 +33,7 @@ class UserDocumentController extends AbstractController
     {
         $this->denyAccessUnlessGranted('USER_DOCUMENTS_LIST', $user);
         $trash = $request->query->getBoolean('trash') && $this->isGranted('ROLE_ADMIN');
-        $categoryId = $request->query->getInt('category') ?: null;
+        $categoryId = Query::id($request->query, 'category');
 
         // šef vidi samo ono što sme (doznake svog tima), pa se lista filtrira Voterom
         $visible = array_values(array_filter($this->documents->findForUser($user, $trash, $categoryId), fn (UserDocument $d) => $this->isGranted('USER_DOCUMENT_VIEW', $d)));
@@ -55,7 +56,7 @@ class UserDocumentController extends AbstractController
                 $absences->findInPeriod([$user], new \DateTimeImmutable((date('Y') - 1).'-01-01'), new \DateTimeImmutable(date('Y').'-12-31')),
                 static fn ($a) => $a->getType()->isRequiresDocument(),
             )),
-            'preselectAbsence' => $request->query->getInt('absence') ?: null,
+            'preselectAbsence' => Query::id($request->query, 'absence'),
         ]);
     }
 

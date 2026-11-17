@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Task;
 use App\Entity\User;
+use App\Http\Query;
 use App\Repository\ClientRepository;
 use App\Repository\UserRepository;
 use App\Service\AbsenceOverview;
@@ -59,8 +60,8 @@ class CalendarController extends AbstractController
         return new JsonResponse($this->calendar->events($this->actor(), $from, $to->modify('-1 day'), [
             'scope' => (string) $request->query->get('scope', 'mine'),
             'types' => $types,
-            'client' => $request->query->getInt('client') ?: null,
-            'user' => $request->query->getInt('user') ?: null,
+            'client' => Query::id($request->query, 'client'),
+            'user' => Query::id($request->query, 'user'),
         ]));
     }
 

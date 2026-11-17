@@ -2,6 +2,7 @@
 
 namespace App\Controller\Ajax;
 
+use App\Http\Query;
 use App\Nbs\NbsCompanyLookupService;
 use App\Repository\ClientRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,7 +22,7 @@ class NbsController extends AbstractAjaxController
     {
         $pib = trim($request->query->getString('pib'));
         $existing = preg_match('/^\d{9}$/', $pib) ? $clients->findOneBy(['pib' => $pib]) : null;
-        if (null !== $existing && $existing->getId() !== $request->query->getInt('exclude_id')) {
+        if (null !== $existing && $existing->getId() !== (Query::int($request->query, 'exclude_id', 0))) {
             return $this->fail('Klijent sa tim PIB-om već postoji: '.$existing->getShortName().'.', 409);
         }
 

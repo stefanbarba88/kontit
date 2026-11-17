@@ -52,6 +52,11 @@ if (form) {
             box.innerHTML = '<p class="text-muted mb-0">Izaberi vrstu i period.</p>';
             return;
         }
+        if (!type.value) {
+            // bez izabrane vrste nema šta da se izračuna (prazan `type` je ranije rušio preview)
+            box.innerHTML = '<p class="text-muted mb-0">Izaberi vrstu i period.</p>';
+            return;
+        }
         const params = new URLSearchParams({ from: from.value, to: to.value || from.value, type: type.value, half: half.checked ? '1' : '0', user: user?.value || form.dataset.me });
         if (form.dataset.absenceId) {
             params.set('absence', form.dataset.absenceId);

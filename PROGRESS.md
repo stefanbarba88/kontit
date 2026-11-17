@@ -11,6 +11,7 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-17: **Fix: zahtev za odsustvo iz Kalendara (500)** (bez migracija). Uzrok: `absence-form.js` je pri otvaranju `/absences/new?from=` odmah zvao `/ajax/absences/preview` sa praznim `type=`, a `getInt('type')` (InputBag) baca BadRequestException za prazan string; greška postoji od `7d86ce5` (P6), a kalendar je izlaže od `9208fb0` (P9). Popravka: JS ne zove preview bez vrste; novi `App\Http\Query` (`int`/`id`/`bool` bez izuzetka) u `AbsenceController`, `Admin/UserController`, `UserDocumentController`, `Ajax/{Nbs,Matrix,Calendar}Controller`, `CalendarController`. Testovi: `AbsencePreviewTest`, `tests/Http/QueryTest`.
 - 2026-11-17: **Raspored: „tačno taj dan“ (`NonWorkingDayShift::EXACT`) i tip „N-ti radni dan“ (`ScheduleType::NTH_WORKDAY`)** (SPEC 8g.3, 8g.5)
   - Migracija: `Version20261117081427` (`job_template.schedule_nth_working_day`, `client_job.schedule_override_nth_working_day`, SMALLINT nullable; ništa se ne menja u postojećim redovima).
   - `WorkingDayService::nthWorkingDayOfMonth`, grane u `ScheduleCalculator`, `TaskDueService::deriveSchedule` za NTH_WORKDAY, preview sa upozorenjem (neradni dan kod EXACT, mesec sa premalo radnih dana).

@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\User;
 use App\Enum\Role;
 use App\Form\UserType;
+use App\Http\Query;
 use App\Repository\ActivityLogRepository;
 use App\Repository\ClientRepository;
 use App\Repository\TeamMemberRepository;
@@ -33,7 +34,7 @@ class UserController extends AbstractController
             'q' => $request->query->getString('q'),
             'role' => $request->query->getString('role'),
             'status' => $request->query->getString('status'),
-            'position' => $request->query->getInt('position'),
+            'position' => Query::int($request->query, 'position', 0),
         ];
 
         $pagination = $paginator->paginate(
