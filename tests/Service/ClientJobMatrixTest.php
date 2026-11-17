@@ -192,6 +192,39 @@ class ClientJobMatrixTest extends DatabaseTestCase
         self::assertSame('1 od 2 gotovo, 1 kasni', $cell->summary);
     }
 
+    /** Rok "tačno taj dan" na vikendu (EXACT): stanja ćelije se računaju po kalendarskom datumu roka, a prozor "uskoro" po radnim danima. */
+    public function testStatesForDeadlinesOnWeekendFromExactRule(): void
+    {
+        $admin = $this->user('Admin', Role::ADMIN);
+        $p = $this->package('Paket');
+        $names = ['Subota', 'Posle', 'Nedelja'];
+        $clients = [];
+        foreach ($names as $name) {
+            $clients[$name] = $this->client($name, $admin);
+        }
+        $this->em->flush();
+        $cps = [];
+        foreach ($clients as $name => $c) {
+            $cps[$name] = $this->give($c, $p);
+        }
+        $this->em->flush();
+
+        $this->job($admin, $clients['Subota'], $cps['Subota'], '2027-03-06'); // subota, unutar prozora (petak + 3 radna dana = sreda 10.3.)
+        $this->job($admin, $clients['Posle'], $cps['Posle'], '2027-03-13'); // sledeća subota, van prozora
+        $this->job($admin, $clients['Nedelja'], $cps['Nedelja'], '2027-03-07'); // nedelja, unutar prozora
+
+        $grid = $this->grid($this->view($admin));
+        self::assertSame('0/1:warning', $grid['Subota']['Paket']);
+        self::assertSame('0/1:progress', $grid['Posle']['Paket']);
+        self::assertSame('0/1:warning', $grid['Nedelja']['Paket']);
+
+        // u nedelju 7.3. subotnji rok je već prošao (datum roka < danas), pa kasni; nedeljni rok je danas i ne kasni
+        $svc = $this->svc('2027-03-07');
+        $sunday = $this->grid($svc->build($svc->filters(['period' => '2027-03']), $admin, 1, 15));
+        self::assertSame('0/1:danger', $sunday['Subota']['Paket']);
+        self::assertSame('0/1:warning', $sunday['Nedelja']['Paket']);
+    }
+
     public function testWorkerSeesOnlyOwnClientsAndOwnTasks(): void
     {
         $admin = $this->user('Admin', Role::ADMIN);
