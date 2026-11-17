@@ -80,3 +80,6 @@ Da li je neko "radnik u praksi" zavisi od toga da li mu je dodeljen klijent ili 
 
 ## Potvrda kritičnih radnji
 Svaka nova radnja koja briše, deaktivira, otkazuje, menja prava, menja dodelu ili utiče na više zapisa **mora** imati SweetAlert potvrdu preko globalnog `data-confirm` mehanizma (`assets/js/confirm.js`, Twig makro u `templates/components/`). Nikad `confirm()` iz browsera. Potvrda je samo UI sloj: server uvek proverava prava (Voter) i CSRF.
+
+## Dodatni testovi (nisu obavezni)
+JS: `node --test tests/js/*.mjs`; ručni e2e signala Podsetnika: `KT_EMAIL=… KT_PASSWORD=… python tests/e2e/podsetnik_signal.py` (vidi zaglavlje fajla). Obavezan ostaje samo `php bin/phpunit`.
