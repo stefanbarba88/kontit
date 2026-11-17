@@ -5,6 +5,7 @@ import { Popover } from 'bootstrap';
 import { ajax } from './ajax.js';
 import { confirmDialog, toast } from './confirm.js';
 import { info, remember, cache } from './non-working.js';
+import { timeStep } from './time-select.js';
 
 const el = document.getElementById('kt-calendar');
 if (el && window.FullCalendar) {
@@ -61,6 +62,10 @@ if (el && window.FullCalendar) {
             navLinks: true,
             nowIndicator: true,
             allDaySlot: true,
+            // vreme je svuda 24h, a mreža ide u istom koraku kao izbor vremena (SPEC 8p.6, parametar app.time.step_minutes)
+            slotDuration: `00:${String(timeStep()).padStart(2, '0')}:00`,
+            slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+            eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
             slotMinTime: '07:00:00',
             slotMaxTime: '19:00:00',
             events: (fetchInfo, success, failure) => {

@@ -38,7 +38,7 @@
                         <div class="text-muted">{{ n.message|nl2br }}</div>
                     </div>
                     <div class="text-muted kt-text-sm ms-3 text-nowrap">
-                        {{ n.createdAt|date('d.m.Y. H:i') }}
+                        {{ n.createdAt|kt_datetime }}
                         {% if n.emailSent %}<span title="Poslato i na mejl">{{ ux_icon('lucide:mail', {class: 'kt-icon ms-1'}) }}</span>{% endif %}
                     </div>
                 </a>

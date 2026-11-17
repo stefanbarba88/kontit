@@ -77,11 +77,11 @@
             </div>
         </div>
     {% elseif task.status.value == 'NA_PROVERI' %}
-        <div class="alert alert-info">{{ ux_icon('lucide:info', {class: 'kt-icon me-2'}) }}Zadatak je poslat na proveru{% if task.submittedAt %} ({{ task.submittedAt|date('d.m.Y. H:i') }}){% endif %}.</div>
+        <div class="alert alert-info">{{ ux_icon('lucide:info', {class: 'kt-icon me-2'}) }}Zadatak je poslat na proveru{% if task.submittedAt %} ({{ task.submittedAt|kt_datetime }}){% endif %}.</div>
     {% elseif task.status.value == 'ZAVRSENO' and task.completedWithoutReview %}
         <div class="alert alert-success">{{ ux_icon('lucide:circle-check', {class: 'kt-icon me-2'}) }}Završeno bez provere.</div>
     {% elseif task.status.value == 'ZAVRSENO' and task.approvedBy %}
-        <div class="alert alert-success">{{ ux_icon('lucide:circle-check', {class: 'kt-icon me-2'}) }}Potvrdio {{ task.approvedBy.fullName }}, {{ task.approvedAt|date('d.m.Y. H:i') }}.</div>
+        <div class="alert alert-success">{{ ux_icon('lucide:circle-check', {class: 'kt-icon me-2'}) }}Potvrdio {{ task.approvedBy.fullName }}, {{ task.approvedAt|kt_datetime }}.</div>
     {% endif %}
 
     <div class="row">
@@ -195,7 +195,7 @@
                                 {{ ui.user_chip(a.user, 32) }}
                                 <span class="ms-auto">{{ ui.assignee_status(a.status) }}</span>
                             </div>
-                            {% if a.completedAt %}<div class="kt-text-xs text-muted mt-1">Završio {{ a.completedAt|date('d.m. H:i') }}</div>{% endif %}
+                            {% if a.completedAt %}<div class="kt-text-xs text-muted mt-1">Završio {{ a.completedAt|kt_datetime_short }}</div>{% endif %}
                             {% if a.note %}<div class="kt-text-sm mt-1">„{{ a.note }}“</div>{% endif %}
                         </li>
                     {% endfor %}

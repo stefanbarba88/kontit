@@ -24,7 +24,7 @@
                             {{ ui.user_chip(absence.user, 32) }}
                             <span class="badge kt-badge-{{ absence.status.color }} ms-auto">{{ absence.status.label }}</span>
                         </div>
-                        {% if absence.editedBy %}<p class="kt-text-sm text-muted">Poslednja izmena: {{ absence.editedBy.fullName }}, {{ absence.editedAt|date('d.m.Y. H:i') }}</p>{% endif %}
+                        {% if absence.editedBy %}<p class="kt-text-sm text-muted">Poslednja izmena: {{ absence.editedBy.fullName }}, {{ absence.editedAt|kt_datetime }}</p>{% endif %}
                     {% endif %}
                     {% if form.user is defined %}{{ form_row(form.user) }}{% endif %}
                     {{ form_row(form.type) }}

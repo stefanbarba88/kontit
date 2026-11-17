@@ -65,7 +65,7 @@
                     </dl>
                 </div>
                 <div class="card-footer d-flex align-items-center text-muted kt-text-sm">
-                    {% if client.nbsSyncedAt %}<span>{{ ux_icon('lucide:cloud-check', {class: 'kt-icon me-1'}) }}NBS podaci od {{ client.nbsSyncedAt|date('d.m.Y. H:i') }}</span>{% else %}<span>{{ ux_icon('lucide:cloud-off', {class: 'kt-icon me-1'}) }}Nije povučeno iz NBS-a</span>{% endif %}
+                    {% if client.nbsSyncedAt %}<span>{{ ux_icon('lucide:cloud-check', {class: 'kt-icon me-1'}) }}NBS podaci od {{ client.nbsSyncedAt|kt_datetime }}</span>{% else %}<span>{{ ux_icon('lucide:cloud-off', {class: 'kt-icon me-1'}) }}Nije povučeno iz NBS-a</span>{% endif %}
                     {% if client.pib and is_granted('CLIENT_EDIT', client) %}
                         <form method="post" action="{{ path('client_nbs_refresh', {id: client.id}) }}" class="ms-auto"
                               {{ confirm_attrs('Osvežiti podatke iz NBS-a?', 'Naziv, adresa, matični broj i ostali podaci iz NBS-a će zameniti trenutne vrednosti. Telefon i email se ne diraju.', 'warning', 'Da, osveži') }}>

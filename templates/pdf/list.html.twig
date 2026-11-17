@@ -25,7 +25,7 @@
     <table class="head">
         <tr>
             <td>{% if logo %}<img src="{{ logo }}" class="logo" alt="KontIT"><br>{% endif %}<h1>{{ title }}</h1></td>
-            <td class="meta">Izvezeno {{ 'now'|date('d.m.Y. H:i') }}<br>{{ user.fullName }} · {{ rows|length }} redova</td>
+            <td class="meta">Izvezeno {{ 'now'|kt_datetime }}<br>{{ user.fullName }} · {{ rows|length }} redova</td>
         </tr>
     </table>
     <p class="filters">{{ filters }}</p>

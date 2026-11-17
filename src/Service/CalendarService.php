@@ -168,7 +168,7 @@ class CalendarService
             'allDay' => !$item->hasDueTime(),
             'editable' => false,
             'classNames' => ['kt-fc-todo'],
-            'extendedProps' => ['kind' => 'todo', 'time' => $item->hasDueTime() ? $local->format('H:i') : null, 'todoUrl' => $this->urls->generate('todo_index')],
+            'extendedProps' => ['kind' => 'todo', 'time' => $item->hasDueTime() ? $local->format(TimeFormat::TIME) : null, 'todoUrl' => $this->urls->generate('todo_index')],
         ];
     }
 

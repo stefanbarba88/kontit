@@ -47,7 +47,7 @@
                 <div class="kt-tl-head">
                     {% if entry.user %}{{ ui.avatar(entry.user, 24) }}{% endif %}
                     <span><strong>{{ entry.user ? entry.user.fullName : 'Sistem' }}</strong>{% if entry.onBehalfOf %} <span class="text-muted">(u ime: {{ entry.onBehalfOf.fullName }})</span>{% endif %} · {{ entry.action.label|lower }}{% if show_target %} · {{ tl.target(entry) }}{% endif %}</span>
-                    <time class="kt-tl-time" datetime="{{ entry.createdAt|date('c') }}" title="{{ entry.createdAt|date('d.m.Y. H:i') }}">{{ entry.createdAt|date('H:i') }}</time>
+                    <time class="kt-tl-time" datetime="{{ entry.createdAt|date('c') }}" title="{{ entry.createdAt|kt_datetime }}">{{ entry.createdAt|kt_time }}</time>
                 </div>
                 {% for field, change in entry.changes %}
                     {{ tl.change(field, change) }}

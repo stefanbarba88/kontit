@@ -185,7 +185,7 @@ class AbsenceService
                 $this->approversFor($user),
                 NotificationType::ABSENCE_REQUESTED,
                 $urgent ? 'HITNO: odsustvo čeka odobrenje' : 'Odsustvo čeka odobrenje',
-                sprintf('%s traži odsustvo: %s. Ako ne odgovoriš do %s, zahtev se automatski odobrava.', $user->getFullName(), $absence->summary(), $absence->getApprovalDeadline()->format('d.m.Y. H:i')),
+                sprintf('%s traži odsustvo: %s. Ako ne odgovoriš do %s, zahtev se automatski odobrava.', $user->getFullName(), $absence->summary(), $absence->getApprovalDeadline()->format(TimeFormat::DATETIME)),
                 ['absence_index', ['tab' => 'odobrenje']],
                 $actor,
                 $urgent,

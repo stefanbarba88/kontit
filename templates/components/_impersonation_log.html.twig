@@ -14,7 +14,7 @@
                         <strong>{{ log.actor.fullName }}</strong> <span class="text-muted">({{ log.actor.highestRole.label }})</span>
                         {% if both %}<span class="text-muted">→</span> <strong>{{ log.target.fullName }}</strong> <span class="text-muted">({{ log.target.highestRole.label }})</span>{% endif %}
                         <div class="text-muted kt-text-sm">
-                            {{ log.startedAt|date('d.m.Y. H:i') }} · {{ self.duration(log.durationSeconds) }}
+                            {{ log.startedAt|kt_datetime }} · {{ self.duration(log.durationSeconds) }}
                             {% if both and log.ip %}· IP {{ log.ip }}{% endif %}
                         </div>
                     </span>

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Absence;
 
+use App\Service\TimeFormat;
 use App\Entity\User;
 use App\Entity\UserAbsence;
 use App\Form\UserAbsenceType;
@@ -106,7 +107,7 @@ class AbsenceController extends AbstractController
             try {
                 $this->service->create($absence, $me);
                 $this->addFlash('success', $absence->isPending()
-                    ? sprintf('Zahtev je poslat na odobrenje. Ako odobravalac ne odgovori do %s, odobrava se automatski.', $absence->getApprovalDeadline()->format('d.m.Y. H:i'))
+                    ? sprintf('Zahtev je poslat na odobrenje. Ako odobravalac ne odgovori do %s, odobrava se automatski.', $absence->getApprovalDeadline()->format(TimeFormat::DATETIME))
                     : 'Odsustvo je upisano.');
 
                 return $this->redirectToRoute('absence_index');

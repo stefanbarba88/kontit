@@ -7,7 +7,7 @@
         <div class="d-flex align-items-center">
             <span class="fw-semibold">{{ comment.author.fullName }}</span>
             {% if returned %}<span class="badge kt-badge-warning ms-2">Vraćeno na doradu</span>{% endif %}
-            <span class="text-muted kt-text-sm ms-2">{{ comment.createdAt|date('d.m.Y. H:i') }}{% if comment.editedAt %} · izmenjeno{% endif %}</span>
+            <span class="text-muted kt-text-sm ms-2">{{ comment.createdAt|kt_datetime }}{% if comment.editedAt %} · izmenjeno{% endif %}</span>
             {% if comment.isEditableBy(app.user) %}
                 <button type="button" class="btn btn-sm btn-link ms-auto comment-edit-start" title="Izmeni (prvih 15 minuta)">{{ ux_icon('lucide:pencil', {class: 'kt-icon'}) }}</button>
             {% endif %}

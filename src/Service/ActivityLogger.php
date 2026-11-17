@@ -20,7 +20,7 @@ class ActivityLogger
             null === $value, '' === $value => null,
             $value instanceof \BackedEnum && method_exists($value, 'label') => $value->label(),
             $value instanceof \BackedEnum => (string) $value->value,
-            $value instanceof \DateTimeInterface => '00:00' === $value->format('H:i') ? $value->format('d.m.Y.') : $value->format('d.m.Y. H:i'),
+            $value instanceof \DateTimeInterface => '00:00' === $value->format(TimeFormat::TIME) ? $value->format('d.m.Y.') : $value->format(TimeFormat::DATETIME),
             \is_bool($value) => $value ? 'Da' : 'Ne',
             $value instanceof User => $value->getFullName(),
             $value instanceof Client => (string) $value->getShortName(),

@@ -72,7 +72,7 @@ class ApprovalService
             if ($absence->isReminderSent() || $absence->getApprovalDeadline() <= $now) {
                 continue;
             }
-            $this->notifications->notifyMany($this->absenceService->approversFor($absence->getUser()), NotificationType::APPROVAL_DEADLINE_SOON, 'Ističe rok za odobrenje', sprintf('Odsustvo za %s (%s) se automatski odobrava %s ako ne odgovoriš.', $absence->getUser()->getFullName(), $absence->summary(), $absence->getApprovalDeadline()->format('d.m.Y. \u H:i')), ['absence_index', ['tab' => 'odobrenje']]);
+            $this->notifications->notifyMany($this->absenceService->approversFor($absence->getUser()), NotificationType::APPROVAL_DEADLINE_SOON, 'Ističe rok za odobrenje', sprintf('Odsustvo za %s (%s) se automatski odobrava %s ako ne odgovoriš.', $absence->getUser()->getFullName(), $absence->summary(), $absence->getApprovalDeadline()->format(TimeFormat::DATETIME_AT)), ['absence_index', ['tab' => 'odobrenje']]);
             $absence->setReminderSent(true);
             $this->em->flush();
             ++$count;

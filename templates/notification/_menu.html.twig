@@ -17,7 +17,7 @@
             <div class="flex-fill">
                 <div class="{{ n.read ? '' : 'fw-semibold' }}">{{ n.title }}</div>
                 <div class="kt-text-sm text-muted">{{ n.message|length > 110 ? n.message|slice(0, 109) ~ '…' : n.message }}</div>
-                <div class="kt-text-xs text-muted mt-1">{{ n.createdAt|date('d.m.Y. H:i') }}</div>
+                <div class="kt-text-xs text-muted mt-1">{{ n.createdAt|kt_datetime }}</div>
             </div>
         </a>
     {% else %}

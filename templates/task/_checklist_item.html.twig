@@ -9,7 +9,7 @@
         <input type="checkbox" class="form-check-input checklist-toggle" id="ci-{{ item.id }}" {{ item.done ? 'checked' : '' }} {{ can_toggle_item(item) ? '' : 'disabled' }}>
         <label class="form-check-label {{ item.done ? 'text-decoration-line-through text-muted' : '' }}" for="ci-{{ item.id }}">{{ item.text }}</label>
         {% if item.done %}
-            <div class="kt-text-xs text-muted">{{ item.doneBy.fullName }}, {{ item.doneAt|date('d.m. H:i') }}</div>
+            <div class="kt-text-xs text-muted">{{ item.doneBy.fullName }}, {{ item.doneAt|kt_datetime_short }}</div>
         {% endif %}
     </div>
 

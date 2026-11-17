@@ -91,7 +91,7 @@
                 <div class="card-body border-top">
                     {% if gc %}
                         <p class="mb-1">Povezano: <strong>{{ gc.googleEmail ?? 'Google nalog' }}</strong>, kalendar „KontIT“.</p>
-                        <p class="kt-text-sm text-muted mb-2">Povezano {{ gc.connectedAt|date('d.m.Y.') }}{% if gc.lastSyncAt %} · poslednje osvežavanje {{ gc.lastSyncAt|date('d.m.Y. H:i') }}{% endif %}</p>
+                        <p class="kt-text-sm text-muted mb-2">Povezano {{ gc.connectedAt|date('d.m.Y.') }}{% if gc.lastSyncAt %} · poslednje osvežavanje {{ gc.lastSyncAt|kt_datetime }}{% endif %}</p>
                         {% if gc.lastError %}<div class="kt-text-sm text-danger mb-2">{{ ux_icon('lucide:circle-alert', {class: 'kt-icon me-1'}) }}{{ gc.lastError }}</div>{% endif %}
                         <form method="post" action="{{ path('profile_google_disconnect') }}" {{ confirm_attrs('Odvezati Google kalendar?', 'Novi događaji se više neće upisivati. Kalendar „KontIT“ ostaje u tvom Google nalogu.', 'warning', 'Da, odveži') }}>
                             <input type="hidden" name="_token" value="{{ csrf_token('google_disconnect') }}">

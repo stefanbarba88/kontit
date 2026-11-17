@@ -12,6 +12,8 @@ final class TimeFormat
     public const TIME = 'H:i';
     public const DATETIME = 'd.m.Y. H:i';
     public const DATETIME_SHORT = 'd.m. H:i';
+    /** "17.11.2026. u 14:30" (obaveštenja) */
+    public const DATETIME_AT = 'd.m.Y. \u H:i';
 
     /**
      * Ponuđena vremena u koracima ("00:00", "00:30" ... "23:30"). Postojeća vrednost van koraka (npr. "14:15") se ne gubi:

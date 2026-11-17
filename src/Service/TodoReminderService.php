@@ -61,6 +61,6 @@ class TodoReminderService
         }
         $local = $this->clock->toLocal($due);
 
-        return 'Rok: '.$local->format('d.m.Y.').($item->hasDueTime() ? ' u '.$local->format('H:i') : '');
+        return 'Rok: '.$local->format('d.m.Y.').($item->hasDueTime() ? ' u '.$local->format(TimeFormat::TIME) : '');
     }
 }

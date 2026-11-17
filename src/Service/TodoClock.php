@@ -43,7 +43,7 @@ class TodoClock
     /** Lokalno vreme (H:i) trenutka */
     public function localTime(\DateTimeInterface $moment): string
     {
-        return $this->toLocal($moment)->format('H:i');
+        return $this->toLocal($moment)->format(TimeFormat::TIME);
     }
 
     /** Današnji lokalni datum (Y-m-d) */

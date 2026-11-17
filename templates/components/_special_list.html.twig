@@ -78,7 +78,7 @@
                             <td><span class="{{ wait.overdue ? 'text-danger fw-semibold' : 'text-muted' }}">{{ wait.text }}</span></td>
                         {% elseif f.tab == 'special_done' %}
                             <td>{{ task.approvedBy ? task.approvedBy.fullName : '—' }}</td>
-                            <td>{{ task.approvedAt ? task.approvedAt|date('d.m.Y. H:i') : '—' }}</td>
+                            <td>{{ task.approvedAt ? task.approvedAt|kt_datetime : '—' }}</td>
                         {% else %}
                             <td>{{ ui.due_date(task) }}</td>
                             <td>{{ ui.task_status(task.status) }}</td>

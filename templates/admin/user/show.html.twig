@@ -58,7 +58,7 @@
                             {% else %}—{% endif %}
                         </dd>
                         <dt class="col-sm-4">Zaposlen od</dt><dd class="col-sm-8">{{ user.employedAt ? user.employedAt|date('d.m.Y.') : '—' }}</dd>
-                        <dt class="col-sm-4">Poslednja prijava</dt><dd class="col-sm-8">{{ user.lastLoginAt ? user.lastLoginAt|date('d.m.Y. H:i') : 'Nikad' }}</dd>
+                        <dt class="col-sm-4">Poslednja prijava</dt><dd class="col-sm-8">{{ user.lastLoginAt ? user.lastLoginAt|kt_datetime : 'Nikad' }}</dd>
                         <dt class="col-sm-4">Interna beleška</dt><dd class="col-sm-8 mb-0">{{ user.internalNote ? user.internalNote|nl2br : '—' }}</dd>
                     </dl>
                 </div>

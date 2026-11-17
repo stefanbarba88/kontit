@@ -30,10 +30,10 @@
 
 {% macro status(a) %}
     <span class="badge kt-badge-{{ a.status.color }}">{{ a.status.label }}</span>
-    {% if a.pending and a.approvalDeadline %}<div class="kt-text-xs text-muted" data-kt-countdown="{{ a.approvalDeadline|date('c') }}">automatski do {{ a.approvalDeadline|date('d.m. H:i') }}</div>{% endif %}
+    {% if a.pending and a.approvalDeadline %}<div class="kt-text-xs text-muted" data-kt-countdown="{{ a.approvalDeadline|date('c') }}">automatski do {{ a.approvalDeadline|kt_datetime_short }}</div>{% endif %}
     {% if a.decidedBy %}<div class="kt-text-xs text-muted">{{ a.decidedBy.fullName }}</div>{% endif %}
     {% if a.decisionNote %}<div class="kt-text-xs text-muted">„{{ a.decisionNote }}“</div>{% endif %}
-    {% if a.editedBy %}<div class="kt-text-xs text-muted" title="{{ a.editedAt|date('d.m.Y. H:i') }}" data-bs-toggle="tooltip">izmenio {{ a.editedBy.fullName }}, {{ a.editedAt|date('d.m.') }}</div>{% endif %}
+    {% if a.editedBy %}<div class="kt-text-xs text-muted" title="{{ a.editedAt|kt_datetime }}" data-bs-toggle="tooltip">izmenio {{ a.editedBy.fullName }}, {{ a.editedAt|date('d.m.') }}</div>{% endif %}
 {% endmacro %}
 
 {% macro edit_link(a) %}
@@ -112,7 +112,7 @@
                             <div class="d-flex flex-wrap gap-2 align-items-center mt-1">{{ _self.type_badge(a.type) }}{% if a.note %}<span class="kt-text-sm text-muted">{{ a.note }}</span>{% endif %}</div>
                         </div>
                         <div class="text-end">
-                            {% if a.approvalDeadline %}<div class="kt-text-sm text-warning" data-kt-countdown="{{ a.approvalDeadline|date('c') }}">Automatski se odobrava {{ a.approvalDeadline|date('d.m. H:i') }}</div>{% endif %}
+                            {% if a.approvalDeadline %}<div class="kt-text-sm text-warning" data-kt-countdown="{{ a.approvalDeadline|date('c') }}">Automatski se odobrava {{ a.approvalDeadline|kt_datetime_short }}</div>{% endif %}
                             <div class="d-none d-sm-flex gap-1 justify-content-end mt-1">
                                 {{ _self.edit_link(a) }}
                                 {% if is_granted('ABSENCE_DECIDE', a) %}
