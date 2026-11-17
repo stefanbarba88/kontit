@@ -11,7 +11,7 @@ Ovaj dokument je priprema jednog konkretnog puštanja. Opšti vodič za server j
 | Server | DigitalOcean, Ubuntu, 1 vCPU, 1 GB RAM, aplikacija u `/var/www/kontit` (git kopija), prijava kao `root` |
 | Procena prekida rada | **5 do 15 minuta** (režim održavanja potreban, vidi 5d) |
 
-> **Najvažnije u jednoj rečenici:** ima 12 novih migracija, među kojima jedna briše staru kolonu (`app_user.position`) pa **mora da se prati redosled iz odeljka 2**; nema novih env promenljivih ni novih biblioteka (`composer.lock` je isti); dodaju se **3 nove cron linije** (jedna na svaki minut).
+> **Najvažnije u jednoj rečenici:** ima 14 novih migracija, među kojima jedna briše staru kolonu (`app_user.position`) pa **mora da se prati redosled iz odeljka 2** (migracije 5 do 14 pojedinačno, pa prenos pozicija, a migracija B poslednja); nema novih env promenljivih ni novih biblioteka (`composer.lock` je isti); dodaju se **3 nove cron linije** (jedna na svaki minut).
 
 ---
 
@@ -26,6 +26,7 @@ Ovaj dokument je priprema jednog konkretnog puštanja. Opšti vodič za server j
 | **Provera zadataka i posebne potvrde** | `5d79285` šema; `6b41b20` `TaskReviewPolicy`; `b7c91d8` strana Posebne potvrde; `4edee3d` dokumentacija; `0b9d57f` popuna `finished_at`; `5c026a1`, `1e9ff8d` dizajn i test |
 | **Podsetnik** (bivša „Moja lista“) | `bdb7b10`, `c794675`, `1afe853`, `504f6ef`, `29bb9e2`, `a9e7ab1`, `e1ac6cd` (stavke, panel, obaveštenja, „Dodaj u podsetnik“, kalendar); `5c9e4f9` preimenovanje u Podsetnik; `7009c52` jedna stavka menija i signal u gornjoj traci; `41223e9` ispravka prozora; `fdc20f6` brisanje završenih posle 3 dana; `3725b39` dokumentacija |
 | **Raspored posla po klijentu i zadatku** | `20e903d` `ScheduleResolver`; `8443226` `ScheduleChangeService`; `0a7ba6a` prilagođen raspored za klijenta; `f8f795b` „Rok i raspored“ na zadatku; `eebb44b` dokumentacija |
+| **Raspored rokova (dodato posle prve verzije dokumenta)** | pravilo „tačno taj dan“ (`EXACT`), tipovi „N-ti radni dan“ i „radni dan od kraja“, izbor „tačno taj dan“ pri „Primeni i na buduće“, migracije 13 i 14; rok na neradni dan kasni tek od prvog radnog dana posle njega (`WorkingDayService::overdueCutoff`; menja brojanje „kasne“ u matrici, listi, statistici i obaveštenjima samo kad je danas vikend/praznik/odmor) |
 | **Pregled poslova po klijentima (matrica)** | `e262264` servis, upit, indeks; `3aca9d9` kartica na početnoj, filteri; `f2b82b3` izvoz, meni, redosled početne; `25d118f` dokumentacija |
 | **Prikaži kao korisnik (impersonacija)** | `6fb47a4` jezgro; `72d250b` privatnost Podsetnika; `5a1f8a2` režim izmena i zabrane; `3aa42e4` Sigurnost i „Pristupi mom nalogu“; `3338f93` dokumentacija |
 | **UI revizija i rečnik** | `2a46865` popis; `485de9b`, `b386c39`, `5ab53e0`, `0cb1d4a` dugmad, ikonice, rečnik (Odustani/Otkaži, Obaveštenja); `750458a`, `91f9b6f` raspored početne; `c1e7722` PROGRESS |
@@ -75,7 +76,7 @@ Posledica za server sa 1 GB RAM-a: **nema velikog `composer install`-a**, što r
 
 ## 2. Migracije
 
-Na produkciji je poslednja izvršena migracija verovatno `Version20261102112448`; **tačno stanje se proverava u koraku 5a** (`doctrine:migrations:status`). U `095bdbf..HEAD` ima **12 novih migracija**. SQL ispod je izvučen iz `up()` metoda (razvojna baza je već izvršila sve, pa `--dry-run` nad njom ne bi prikazao ništa; `--write-sql` na već izvršenoj migraciji greši na tabeli verzija). Pravi probni prolaz na **kopiji produkcione baze** je opisan u koraku 5d-0 i preporučujem ga.
+Na produkciji je poslednja izvršena migracija verovatno `Version20261102112448`; **tačno stanje se proverava u koraku 5a** (`doctrine:migrations:status`). U `095bdbf..HEAD` ima **14 novih migracija** (13 i 14 su dodate posle prve verzije ovog dokumenta: raspored „N-ti radni dan“ i „radni dan od kraja“). SQL ispod je izvučen iz `up()` metoda (razvojna baza je već izvršila sve, pa `--dry-run` nad njom ne bi prikazao ništa; `--write-sql` na već izvršenoj migraciji greši na tabeli verzija). Pravi probni prolaz na **kopiji produkcione baze** je opisan u koraku 5d-0 i preporučujem ga.
 
 > **Napomena o bazi:** migracije su pravljene na MariaDB 10.4, a produkcija je MySQL 8 (`DEPLOY.md` 1.6). SQL ispod je običan (`CREATE/ALTER TABLE`, `INDEX`), ali **jedna stvar nije mogla da se proveri lokalno: tabela se zove `position`** (u MySQL-u 8 to je ključna reč koja nije rezervisana, pa bi trebalo da radi bez navodnika). Probni prolaz na kopiji (5d-0) to potvrđuje pre pravog puštanja.
 
@@ -95,6 +96,10 @@ Na produkciji je poslednja izvršena migracija verovatno `Version20261102112448`
 | 10 | `Version20261116112327` | indeks `IDX_TASK_DUE_CLIENT` na `task (due_date, client_id)` | samo indeks |
 | 11 | `Version20261116132226` | tabela `impersonation_log` | samo dodaje |
 | 12 | `Version20261116133704` | `activity_log.on_behalf_of_id` (nullable) + spoljni ključ + indeks | samo dodaje; postojeći redovi ostaju netaknuti (`NULL`) |
+| 13 | `Version20261117081427` | `job_template.schedule_nth_working_day` i `client_job.schedule_override_nth_working_day` (`SMALLINT DEFAULT NULL`): raspored „N-ti radni dan“ | samo dodaje dve nullable kolone; postojeći redovi `NULL`, rokovi se ne menjaju |
+| 14 | `Version20261117083359` | `job_template.schedule_working_day_from_end` i `client_job.schedule_override_working_day_from_end` (`SMALLINT DEFAULT NULL`): raspored „radni dan od kraja meseca“ | samo dodaje dve nullable kolone; postojeći redovi `NULL`, rokovi se ne menjaju |
+
+Nove vrednosti rasporeda (`NTH_WORKDAY`, `WORKDAY_END`, pravilo `EXACT`) staju u postojeće kolone (`VARCHAR(12)` i `VARCHAR(10)`), pa nema izmene postojećih kolona. Prazno pravilo za neradni dan i dalje znači „prvi sledeći radni dan“.
 
 ### 2.2 SQL (iz `up()`)
 
@@ -166,6 +171,14 @@ ALTER TABLE impersonation_log ADD CONSTRAINT FK_2177C395158E0B66 FOREIGN KEY (ta
 ALTER TABLE activity_log ADD on_behalf_of_id INT DEFAULT NULL;
 ALTER TABLE activity_log ADD CONSTRAINT FK_FD06F647CACE8692 FOREIGN KEY (on_behalf_of_id) REFERENCES app_user (id) ON DELETE SET NULL;
 CREATE INDEX IDX_FD06F647CACE8692 ON activity_log (on_behalf_of_id);
+
+-- 13 Version20261117081427
+ALTER TABLE client_job ADD schedule_override_nth_working_day SMALLINT DEFAULT NULL;
+ALTER TABLE job_template ADD schedule_nth_working_day SMALLINT DEFAULT NULL;
+
+-- 14 Version20261117083359
+ALTER TABLE client_job ADD schedule_override_working_day_from_end SMALLINT DEFAULT NULL;
+ALTER TABLE job_template ADD schedule_working_day_from_end SMALLINT DEFAULT NULL;
 ```
 
 (Dugi `CREATE TABLE` redovi su skraćeni sa `...`; potpun tekst je u `migrations/Version*.php`.)
@@ -188,18 +201,27 @@ Veličine tabela pre puštanja (kao root; ime baze `kontit`):
 mysql -e "SELECT table_name, table_rows, ROUND((data_length+index_length)/1024/1024,1) AS MB FROM information_schema.tables WHERE table_schema='kontit' ORDER BY (data_length+index_length) DESC LIMIT 8;"
 ```
 
-### 2.4 Korak sa podacima: pozicije (migracije 3 i 4)
+### 2.4 Korak sa podacima: pozicije (migracije 3 i 4; redosled izvršavanja se razlikuje od redosleda verzija)
 
-Redosled je obavezan i **ne sme da se skrati jednom komandom `migrate`** jer bi ona pokrenula i migraciju 4 (B) pre prenosa podataka (B tada sama staje sa porukom, ali ostatak migracija 5 do 12 ne bi prošao):
+Redosled je obavezan i **ne sme da se skrati jednom komandom `migrate`**. Dva razloga:
+
+- migracija 4 (B) briše `app_user.position`, pa sme tek **posle** prenosa podataka;
+- komanda `app:positions:migrate-legacy` koristi entitet `Position`, a on već mapira kolone iz migracije 5 i kasnijih (npr. `position.requires_task_review`), pa **pre tih migracija padne** na upitu nad tabelom `position`.
+
+Zato se migracije 5 do 14 izvršavaju **pojedinačno, pre** prenosa pozicija, a migracija B ide **poslednja**:
 
 1. `migrate` **do migracije A** (uključuje 1, 2, 3):
    `php bin/console doctrine:migrations:migrate 'DoctrineMigrations\Version20261112124502' --no-interaction`
-2. `php bin/console app:positions:migrate-legacy --dry-run`: samo izveštaj (korisnik → stara tekstualna pozicija → nova pozicija, plus spisak **novih** pozicija za nepoznate vrednosti). Ništa se ne upisuje.
-3. **Pregledaj izveštaj.** Pitanja: da li se „Junior“, „Entry level“ i slično mapiraju na očekivane pozicije? Da li su nastale neželjene nove pozicije zbog pogrešnog pisanja?
-4. `php bin/console app:positions:migrate-legacy`: upisuje `position_id` (može da se ponovi, ne pravi dupliranu istoriju).
-5. `php bin/console doctrine:migrations:migrate --no-interaction`: izvršava ostatak, od B (4) do 12.
+2. Migracije **5 do 14 pojedinačno** (B, migracija 4, se preskače):
+   `php bin/console doctrine:migrations:execute 'DoctrineMigrations\Version<N>' --up --no-interaction` za svaku od: `Version20261112132735`, `Version20261112134053`, `Version20261112140000`, `Version20261112141323`, `Version20261113101004`, `Version20261116112327`, `Version20261116132226`, `Version20261116133704`, `Version20261117081427`, `Version20261117083359` (tim redosledom; spisak i komanda u koraku 5d-1).
+3. `php bin/console app:positions:migrate-legacy --dry-run`: samo izveštaj (korisnik → stara tekstualna pozicija → nova pozicija, plus spisak **novih** pozicija za nepoznate vrednosti). Ništa se ne upisuje.
+4. **Pregledaj izveštaj.** Pitanja: da li se „Junior“, „Entry level“ i slično mapiraju na očekivane pozicije? Da li su nastale neželjene nove pozicije zbog pogrešnog pisanja?
+5. `php bin/console app:positions:migrate-legacy`: upisuje `position_id` (može da se ponovi, ne pravi dupliranu istoriju).
+6. **Poslednja: migracija B** (briše `app_user.position`):
+   `php bin/console doctrine:migrations:execute 'DoctrineMigrations\Version20261112124724' --up --no-interaction`
+   Posle toga `doctrine:migrations:status` pokazuje `New Migrations: 0`.
 
-Komanda iz koraka 2 i 4 radi samo dok stara kolona postoji. Ako je kolona već obrisana, kaže da nema šta da se prenosi.
+Komanda iz koraka 3 i 5 radi samo dok stara kolona postoji. Ako je kolona već obrisana, kaže da nema šta da se prenosi.
 
 ---
 
@@ -389,7 +411,7 @@ cd "$APP_DIR"
 git status --short | wc -l                     # 0: nema izmena ni nedostajućih fajlova
 git diff --stat 095bdbf..HEAD | tail -1        # 345 files changed (HEAD je već posle ovog dokumenta: ako je commit dodat, brojevi mogu biti 346 do 347)
 git ls-files -d | wc -l                        # 0: nijedan praćeni fajl ne nedostaje
-ls translations/KnpPaginatorBundle.sr_Latn.yaml assets/js/todo.js assets/js/matrix.js migrations/Version20261116133704.php
+ls translations/KnpPaginatorBundle.sr_Latn.yaml assets/js/todo.js assets/js/matrix.js migrations/Version20261117083359.php
 ```
 Očekuješ: `0`, spisak od 4 postojeća fajla bez „No such file“.
 
@@ -425,9 +447,12 @@ Zatim kao vlasnik, sa privremeno promenjenim `DATABASE_URL` (u istoj liniji, ne 
 
 ```bash
 app env DATABASE_URL='<ISTA_VREDNOST_KAO_U_.env.local_ALI_SA_/kontit_probe_UMESTO_/kontit>' php bin/console doctrine:migrations:migrate 'DoctrineMigrations\Version20261112124502' --no-interaction
+for V in 20261112132735 20261112134053 20261112140000 20261112141323 20261113101004 20261116112327 20261116132226 20261116133704 20261117081427 20261117083359; do
+  app env DATABASE_URL='<ISTO>' php bin/console doctrine:migrations:execute "DoctrineMigrations\Version$V" --up --no-interaction || break
+done
 app env DATABASE_URL='<ISTO>' php bin/console app:positions:migrate-legacy --dry-run
 app env DATABASE_URL='<ISTO>' php bin/console app:positions:migrate-legacy
-app env DATABASE_URL='<ISTO>' php bin/console doctrine:migrations:migrate --no-interaction
+app env DATABASE_URL='<ISTO>' php bin/console doctrine:migrations:execute 'DoctrineMigrations\Version20261112124724' --up --no-interaction
 app env DATABASE_URL='<ISTO>' php bin/console doctrine:schema:validate
 mysql -e "DROP DATABASE kontit_probe"
 ```
@@ -439,21 +464,25 @@ Očekuješ: sve migracije prolaze bez greške (`[OK] Successfully migrated`), iz
 cd "$APP_DIR"
 # 1) do migracije A (1, 2 i 3)
 app php bin/console doctrine:migrations:migrate 'DoctrineMigrations\Version20261112124502' --no-interaction
-# 2) pregled prenosa pozicija, samo izveštaj
+# 2) migracije 5 do 14 POJEDINAČNO (B, migracija 4, se preskače); staje na prvoj grešci
+for V in 20261112132735 20261112134053 20261112140000 20261112141323 20261113101004 20261116112327 20261116132226 20261116133704 20261117081427 20261117083359; do
+  app php bin/console doctrine:migrations:execute "DoctrineMigrations\Version$V" --up --no-interaction || break
+done
+# 3) pregled prenosa pozicija, samo izveštaj (tek sada: Position već ima kolone iz migracije 5)
 app php bin/console app:positions:migrate-legacy --dry-run
 ```
-Očekuješ: `[OK] Successfully migrated to version: DoctrineMigrations\Version20261112124502` i izveštaj „PREGLED (ništa nije upisano)“.
-**Pročitaj izveštaj** (tačka 3 u 2.4). Ako je u redu:
+Očekuješ: `[OK] Successfully migrated to version: DoctrineMigrations\Version20261112124502`, za svaku od 10 pojedinačnih migracija `[OK] Successfully executed ... (up)` i izveštaj „PREGLED (ništa nije upisano)“.
+**Pročitaj izveštaj** (tačka 4 u 2.4). Ako je u redu:
 
 ```bash
-# 3) stvarni prenos pozicija
+# 4) stvarni prenos pozicija
 app php bin/console app:positions:migrate-legacy
-# 4) ostale migracije (B i sve do kraja)
-app php bin/console doctrine:migrations:migrate --no-interaction
+# 5) POSLEDNJA: migracija B (briše app_user.position; sama staje ako je neki korisnik ostao bez position_id)
+app php bin/console doctrine:migrations:execute 'DoctrineMigrations\Version20261112124724' --up --no-interaction
 app php bin/console doctrine:migrations:status | grep -E "Current Version|New Migrations|Executed Migrations"
 app php bin/console doctrine:schema:validate 2>&1 | tail -8
 ```
-Očekuješ: `Current Version: DoctrineMigrations\Version20261116133704`, `New Migrations: 0`. `doctrine:schema:validate`: ako prijavi razlike, uporedi sa `/root/release-schema-before.txt`; **nove razlike** (npr. nova tabela koja se pominje) znače problem: stani i javi; razlike koje su već bile (MariaDB/MySQL, JSON) ne zaustavljaju puštanje i ne „popravljaju“ se na živoj bazi.
+Očekuješ: `Current Version: DoctrineMigrations\Version20261117083359`, `New Migrations: 0`. `doctrine:schema:validate`: ako prijavi razlike, uporedi sa `/root/release-schema-before.txt`; **nove razlike** (npr. nova tabela koja se pominje) znače problem: stani i javi; razlike koje su već bile (MariaDB/MySQL, JSON) ne zaustavljaju puštanje i ne „popravljaju“ se na živoj bazi.
 
 Kontrola podataka posle migracija:
 
@@ -482,6 +511,13 @@ app php bin/console about | grep -E "Environment|Debug"
 ```
 Očekuješ: u `public/assets` desetine fajlova (ne sme biti 0), `Environment prod` i `Debug false`, bez grešaka. Ako `cache:warmup` prijavi „Allowed memory size“: ponovi sa `app php -d memory_limit=512M bin/console cache:warmup --env=prod` (swap, 5c).
 
+**Napomene iz produkcije (važe za svako puštanje, i za svaki običan `git pull` posle ovog):**
+
+1. Posle `git pull` **uvek**, kao korisnik `deploy` (`APP_USER`), ne kao `root`: `php bin/console asset-map:compile --env=prod`, pa `cache:clear --env=prod`, pa `cache:warmup --env=prod`. Bez `asset-map:compile` browser dobija stare ili nepostojeće JS/CSS fajlove.
+2. Zatim **obavezno** `systemctl restart php8.3-fpm` (OPcache drži stari kod: `opcache.validate_timestamps = 0`, pa izmene PHP fajlova nisu vidljive dok se FPM ne restartuje) i `systemctl restart kontit-worker` (worker učitava kod pri pokretanju, pa bez restarta obrađuje mejlove i izvoze starim kodom).
+3. Vlasnik `var/` mora biti `deploy:deploy`. Ako je neka komanda pokrenuta kao `root`, keš i log fajlovi ostanu root-ovi i aplikacija javlja 500 ili ne može da piše keš: `chown -R deploy:deploy var public/assets` i ponovi `cache:clear` kao `deploy`. Provera: `ls -ld var var/cache var/log` (vlasnik `deploy deploy`).
+4. **Ne dodavaj cron linije dvaput.** Pre svakog `crontab -u deploy ...` pogledaj šta već postoji: `crontab -l` (kao `deploy`, ili `crontab -l -u deploy`), pa dodaj samo linije kojih nema. Dupla linija znači da se komanda (npr. `app:todo:send-reminders` svakog minuta) izvršava dvaput i obaveštenja mogu da stignu duplo. Provera broja: `crontab -l -u deploy | grep -c 'app:todo:send-reminders'` mora biti `1`.
+
 ### 5f. Cron i pozadinski procesi
 
 Vrati staru cron listu i dodaj 3 nove linije **kao `APP_USER`** (ako su stare linije bile u `root` crontab-u, prebacuju se ovde na `APP_USER`):
@@ -502,6 +538,7 @@ EOF
 crontab -u "$APP_USER" /tmp/kt-cron-new
 crontab -l -u "$APP_USER"
 ```
+Provera duplikata: `crontab -l -u "$APP_USER" | grep -cE 'send-reminders|todo:cleanup|impersonation:close-stale'` mora biti `3` (po jedna linija svake komande); ako je više, ukloni duplikate pre nastavka (`crontab -e -u "$APP_USER"`).
 Očekuješ: 4 stare + 3 nove linije (+ bekap ako je postojao). Ako je `APP_USER` = `www-data`, a on nema shell, `crontab -u www-data` ipak radi. Ako je bekap skripta ostala u `root` crontab-u i **mora** da radi kao root (npr. `/root/...`), vrati samo tu liniju: `crontab -l -u root` pa dodaj ručno (`crontab -e -u root`).
 
 Proveri da `var/log/cron.log` može da se piše: `ls -l "$APP_DIR/var/log/cron.log"` (vlasnik `APP_USER`).
@@ -628,7 +665,7 @@ app php bin/console doctrine:migrations:migrate '<PREV_VERSION iz 5a>' --no-inte
 
 ## 6. Rizici i na šta treba paziti
 
-1. **Migracija B briše `app_user.position`.** Ne pokreći je pre `app:positions:migrate-legacy`. Zato se u 5d migrira u dva dela (2.4). Bekap pre je obavezan.
+1. **Migracija B briše `app_user.position`.** Ne pokreći je pre `app:positions:migrate-legacy`, a ni `migrate` bez argumenta (pokrenuo bi je). Zato se u 5d migracije izvršavaju ovim redom (2.4): do A, pa 5 do 14 pojedinačno (`execute --up`), pa `migrate-legacy` (prvo `--dry-run`), a B poslednja. Bekap pre je obavezan.
 2. **Ponašanje se menja za zaposlene:** „Entry level“ i „Junior“ prolaze proveru šefa; svi korisnici dobijaju mejl za posebne potvrde; „Podsetnik“, „Pregled poslova“ i „Prikaži kao korisnik“ su novi. Pošalji `docs/uputstvo/CHANGELOG.md`.
 3. **Vremenske zone.** Aplikacija koristi PHP-ovu zonu (`date.timezone = Europe/Belgrade` u `/etc/php/8.3/fpm/conf.d/99-kontit.ini` **i** `/etc/php/8.3/cli/conf.d/99-kontit.ini`; cron koristi CLI). Podsetnik čuva vremena u UTC i sam računa Beograd (`TodoClock`), ali ostatak aplikacije se oslanja na zonu PHP-a. Proveri: `php -i | grep date.timezone` i `timedatectl | grep "Time zone"`. Zona MySQL servera ne utiče na Podsetnik; utiče samo `NOW()` u seed-u migracije A (nebitno).
 4. **Novi cron na svaki minut** (`app:todo:send-reminders`) na 1 vCPU / 1 GB: pokreće se jednom u minuti, kratko; nema ispisa u log dok nema šta da se pošalje. Ako server tada radi na ivici memorije, prvi simptom je prekid. Prati prvih sat vremena (`free -h`, `tail var/log/cron.log`).
