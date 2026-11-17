@@ -177,6 +177,30 @@ class TodoIntegrationTest extends DatabaseTestCase
         self::assertMatchesRegularExpression('/kt-todo-badge todo-count\s*">1</', $html);
     }
 
+    /** Poll mora da vrati i "open": bez njega JS sakriva tačku koju je server prikazao (uzrok greške signala). */
+    public function testDuePollReturnsOpenAndCountLikeServerRender(): void
+    {
+        $me = $this->user('Ja');
+        $this->em->flush();
+        $clock = self::getContainer()->get(TodoClock::class);
+        $later = $this->todo()->add($me, 'Za mesec dana');
+        $this->todo()->fill($later, ['dueDate' => (new \DateTimeImmutable($clock->today().' +30 days'))->format('Y-m-d')]);
+        $this->todo()->save($later);
+
+        $this->browser->loginUser($me);
+        $this->browser->request('GET', '/ajax/todo/due');
+        $data = json_decode((string) $this->browser->getResponse()->getContent(), true)['data'];
+        self::assertSame(0, $data['count']);
+        self::assertSame(1, $data['open'], 'samo buduća stavka: tačka, bez broja');
+
+        $today = $this->todo()->add($me, 'Danas');
+        $this->todo()->fill($today, ['dueDate' => $clock->today()]);
+        $this->todo()->save($today);
+        $this->browser->request('GET', '/ajax/todo/due');
+        $data = json_decode((string) $this->browser->getResponse()->getContent(), true)['data'];
+        self::assertSame(['count' => 1, 'open' => 2], ['count' => $data['count'], 'open' => $data['open']]);
+    }
+
     public function testTopbarSignalDotWhenOnlyFutureItemsAndNothingWhenEmpty(): void
     {
         $me = $this->user('Ja');

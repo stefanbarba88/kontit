@@ -9,6 +9,7 @@ import { ajax } from './ajax.js';
 import { confirmDialog, reminderToast, snoozeDialog, swalFire, toast, undoToast } from './confirm.js';
 import { initDatepickers } from './datepicker.js';
 import { initSwipe } from './mobile.js';
+import { signalState } from './todo-signal.js';
 
 const roots = () => [...document.querySelectorAll('[data-kt-todo]')];
 if (roots().length) {
@@ -18,12 +19,19 @@ if (roots().length) {
 
     // --- stanje liste: isto u svim korenima (panel + strana) ---
     const render = (data) => {
+        const signal = signalState(data);
         document.querySelectorAll('.todo-count').forEach((el) => {
-            el.textContent = data.count;
-            el.classList.toggle('d-none', data.count === 0);
+            if (signal.showBadge !== null) {
+                el.textContent = signal.count;
+                el.classList.toggle('d-none', !signal.showBadge);
+            }
         });
         // tačka na ikonici: ima otvorenih stavki, a nema zakasnelih ni današnjih (njih pokazuje crveni broj)
-        document.querySelectorAll('.todo-dot').forEach((el) => el.classList.toggle('d-none', !(data.open > 0 && data.count === 0)));
+        document.querySelectorAll('.todo-dot').forEach((el) => {
+            if (signal.showDot !== null) {
+                el.classList.toggle('d-none', !signal.showDot);
+            }
+        });
         if (typeof data.html !== 'string') {
             return;
         }
@@ -449,7 +457,7 @@ if (roots().length) {
         polling = true;
         try {
             const { data } = await ajax('GET', `${baseUrl}/due`);
-            render({ count: data.count });
+            render({ count: data.count, open: data.open });
             for (const reminder of data.reminders) {
                 await showReminder(reminder);
             }
@@ -468,6 +476,12 @@ if (roots().length) {
     }
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
+            poll();
+        }
+    });
+    // dugme Nazad može da vrati stranu iz bfcache-a sa starim stanjem: osveži signal odmah
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
             poll();
         }
     });

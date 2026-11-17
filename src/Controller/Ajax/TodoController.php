@@ -68,7 +68,7 @@ class TodoController extends AbstractAjaxController
             }
         }
 
-        return $this->ok(['reminders' => $reminders, 'count' => $this->todo->dueCount($me)]);
+        return $this->ok(['reminders' => $reminders, 'count' => $this->todo->dueCount($me), 'open' => $this->todo->openCount($me)]);
     }
 
     #[Route('/ajax/todo/{id}/snooze', name: 'ajax_todo_snooze', requirements: ['id' => '\d+'], methods: ['POST'])]
