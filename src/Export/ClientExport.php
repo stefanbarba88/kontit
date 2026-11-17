@@ -37,7 +37,7 @@ final class ClientExport implements ExportListInterface
         return $this->security->isGrantedForUser($user, 'ROLE_SEF');
     }
 
-    public function getColumns(): array
+    public function getColumns(array $query = [], ?User $user = null): array
     {
         return [
             ['label' => 'Klijent', 'type' => 'text', 'width' => 26],

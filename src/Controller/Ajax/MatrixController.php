@@ -4,7 +4,7 @@ namespace App\Controller\Ajax;
 
 use App\Entity\Client;
 use App\Http\Query;
-use App\Entity\ServicePackage;
+use App\Entity\JobTemplate;
 use App\Service\ClientJobMatrixService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -50,7 +50,7 @@ class MatrixController extends AbstractAjaxController
         return $this->ok($data);
     }
 
-    /** package: id paketa ili "none" ("Ostali taskovi"); nepoznat ili nevidljiv klijent je 404 */
+    /** job: id posla (JobTemplate); nepoznat posao ili nevidljiv klijent je 404 */
     #[Route('/ajax/matrix/cell', name: 'ajax_matrix_cell', methods: ['GET'])]
     public function cell(Request $request): JsonResponse
     {
@@ -58,16 +58,12 @@ class MatrixController extends AbstractAjaxController
         if (!$client instanceof Client || !$this->isGranted('CLIENT_VIEW', $client)) {
             throw $this->createNotFoundException();
         }
-        $param = (string) $request->query->get('package', '');
-        $package = null;
-        if ('none' !== $param) {
-            $package = ctype_digit($param) ? $this->em->find(ServicePackage::class, (int) $param) : null;
-            if (!$package instanceof ServicePackage) {
-                throw $this->createNotFoundException();
-            }
+        $job = $this->em->find(JobTemplate::class, Query::id($request->query, 'job') ?? 0);
+        if (!$job instanceof JobTemplate) {
+            throw $this->createNotFoundException();
         }
         $filters = $this->matrix->filters(['period' => (string) $request->query->get('period', '')]);
 
-        return $this->ok($this->matrix->cellDetails($this->actor(), $client, $package, $filters) + ['clientName' => $client->getShortName(), 'packageName' => $package?->getName() ?? 'Ostali taskovi']);
+        return $this->ok($this->matrix->cellDetails($this->actor(), $client, $job, $filters) + ['clientName' => $client->getShortName(), 'jobName' => $job->getName()]);
     }
 }

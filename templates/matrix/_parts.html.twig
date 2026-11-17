@@ -1,20 +1,14 @@
 {#
     Delovi matrice "Pregled poslova po klijentima" (SPEC 8r), zajednički za početnu, stranicu i AJAX osvežavanje.
-    Ćelija je dugme koje otvara SweetAlert prozor sa zadacima (assets/js/matrix.js); hover ima samo običan title.
+    Ćelija je samo status (ikonica u boji), bez brojača; dugme otvara SweetAlert prozor sa zadacima (assets/js/matrix.js); hover ima samo običan title.
     Boja nije jedini nosilac značenja: uz nju idu ikonica i tekst u title / aria-label.
 #}
-{% macro cell(cell, client, package, label) %}
+{% macro cell(cell, client, job, label) %}
     {% if cell.state.value == 'none' %}
-        <span class="kt-mx-none" title="{{ cell.summary }}" aria-label="{{ label }}: nema zadataka u periodu">—</span>
+        <span class="kt-mx-none" title="Klijent nema ovaj posao ili zadatak još nije generisan za izabrani mesec" aria-label="{{ label }}: klijent nema ovaj posao ili zadatak još nije generisan za izabrani mesec">—</span>
     {% else %}
-        <button type="button" class="kt-mx-cell kt-mx-{{ cell.state.value }}" data-kt-mx-cell data-client="{{ client.id }}" data-package="{{ package }}" title="{{ cell.summary }}" aria-label="{{ label }}: {{ cell.summary }}">
-            <span class="kt-mx-top">
-                {% if cell.state.value == 'danger' %}{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon'}) }}
-                {% elseif cell.state.value == 'success' %}{{ ux_icon('lucide:circle-check-big', {class: 'kt-icon'}) }}
-                {% elseif cell.state.value == 'warning' %}{{ ux_icon('lucide:clock-alert', {class: 'kt-icon'}) }}{% endif %}
-                <span class="kt-mx-num">{{ cell.done }}/{{ cell.total }}</span>
-            </span>
-            <span class="kt-mx-bar"><span style="width: {{ cell.percent }}%"></span></span>
+        <button type="button" class="kt-mx-cell kt-mx-{{ cell.state.value }}" data-kt-mx-cell data-client="{{ client.id }}" data-job="{{ job }}" title="{{ cell.state.label }}: {{ cell.summary }}" aria-label="{{ label }}: {{ cell.state.label }}, {{ cell.summary }}">
+            {{ ux_icon('lucide:' ~ cell.state.icon, {class: 'kt-icon'}) }}
         </button>
     {% endif %}
 {% endmacro %}
@@ -33,10 +27,9 @@
         <tr>
             <th scope="row" class="kt-mx-col-client"><a href="{{ path('client_show', {id: row.client.id}) }}" class="kt-mx-client">{{ row.client.shortName }}</a></th>
             <td class="kt-mx-col-people">{{ p.people(row) }}</td>
-            {% for pkg in mx.columns %}
-                <td class="text-center">{{ p.cell(row.cells[pkg.id], row.client, pkg.id, pkg.name ~ ' · ' ~ row.client.shortName) }}</td>
+            {% for job in mx.columns %}
+                <td class="text-center">{{ p.cell(row.cells[job.id], row.client, job.id, job.name ~ ' · ' ~ row.client.shortName) }}</td>
             {% endfor %}
-            <td class="text-center kt-mx-col-other">{{ p.cell(row.other, row.client, 'none', 'Ostali taskovi · ' ~ row.client.shortName) }}</td>
         </tr>
     {% endfor %}
 {% endmacro %}
@@ -47,12 +40,14 @@
         <div class="kt-mx-card">
             <div class="kt-mx-card-head"><a href="{{ path('client_show', {id: row.client.id}) }}" class="kt-mx-client">{{ row.client.shortName }}</a>{{ p.people(row) }}</div>
             <div class="kt-mx-chips">
-                {% for pkg in mx.columns %}
-                    {% if row.cells[pkg.id].state.value != 'none' %}
-                        <div class="kt-mx-chip"><span class="kt-mx-chip-name">{{ pkg.name }}</span>{{ p.cell(row.cells[pkg.id], row.client, pkg.id, pkg.name ~ ' · ' ~ row.client.shortName) }}</div>
+                {% set shown = 0 %}
+                {% for job in mx.columns %}
+                    {% if row.cells[job.id].state.value != 'none' %}
+                        {% set shown = shown + 1 %}
+                        <div class="kt-mx-chip"><span class="kt-mx-chip-name" title="{{ job.name }}">{{ job.name }}</span>{{ p.cell(row.cells[job.id], row.client, job.id, job.name ~ ' · ' ~ row.client.shortName) }}</div>
                     {% endif %}
                 {% endfor %}
-                <div class="kt-mx-chip kt-mx-chip-other"><span class="kt-mx-chip-name">Ostali taskovi</span>{{ p.cell(row.other, row.client, 'none', 'Ostali taskovi · ' ~ row.client.shortName) }}</div>
+                {% if shown == 0 %}<span class="kt-text-sm text-muted">Nema zadataka iz ove kategorije u izabranom mesecu.</span>{% endif %}
             </div>
         </div>
     {% endfor %}

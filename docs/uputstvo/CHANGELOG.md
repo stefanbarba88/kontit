@@ -24,9 +24,9 @@ Ovaj tekst možeš da pošalješ zaposlenima. Svako čita samo svoj deo; šefovi
 - **Podsetnik vidiš samo ti.** Ni šef, ni administrator, ni superadmin ne mogu da ga otvore.
 
 **Pregled poslova po klijentima** (nova tabela)
-- Na Početnoj, ispod kartica Zadaci, i u meniju **Pregled poslova**: za svakog klijenta vidiš koliko je zadataka urađeno po paketu usluga u izabranom mesecu.
-- Boje: **crveno** kasni, **žuto** ističe u naredna 3 radna dana, **zeleno** je sve gotovo, **sivo** je u toku.
-- Klik na ćeliju otvara spisak zadataka, a filteri (klijent, zaposleni, paketi, mesec, samo nezavršeno, samo problematični) se pamte. Možeš i da izvezeš tabelu.
+- Na Početnoj, ispod kartica Zadaci, i u meniju **Pregled poslova**: za svakog klijenta vidiš da li je svaki posao urađen u izabranom mesecu.
+- Gore biraš **Kategoriju poslova** (umesto paketa); kolone su **Klijent**, **Tim** i po jedan posao iz kategorije. Ćelija pokazuje samo status: **zeleno** urađeno, **crveno** kasni, **žuto** ističe u naredna 3 radna dana, **sivo** u toku, **crtica** klijent nema taj posao ili zadatak još nije napravljen za taj mesec. Ako posao ima više zadataka u mesecu, vidi se najgore stanje.
+- Klik na ćeliju otvara spisak zadataka tog posla, a filteri (kategorija, klijent, zaposleni, mesec, samo nezavršeno, samo problematični) se pamte; poslednja dva gledaju samo izabranu kategoriju. Izvoz (Excel, CSV, PDF) prati isti prikaz, sa statusom napisanim rečima.
 
 **Zadaci**
 - Lista zadataka ima nove filtere: pretraga po nazivu (bez razlike u kvačicama), **Posao**, **Nastanak** (automatski ili ručni) i **Prikaži završene i otkazane**. **Poništi** vraća sve na početno.

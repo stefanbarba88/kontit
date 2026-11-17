@@ -472,7 +472,7 @@ Ako se posle 5 pokušaja događaji ne upišu, korisnik dobija obaveštenje i vid
 
 ## Pregled poslova po klijentima
 
-Opis je u uputstvu za radnika. Kao admin vidiš **sve aktivne klijente**, ali brojevi i prozor ćelije prate isto pravilo kao lista zadataka: **samo zadaci koje vidiš**. Prag „ističe uskoro“ je 3 radna dana (menja ga tehničko lice). Izvoz (**Izvoz** na stranici **Pregled poslova**) je u dugom formatu: red po klijentu i paketu. Za veliki broj redova izvoz ide u pozadini kao i ostali izvozi.
+Opis je u uputstvu za radnika. Kao admin vidiš **sve aktivne klijente**, ali brojevi i prozor ćelije prate isto pravilo kao lista zadataka: **samo zadaci koje vidiš**. Prag „ističe uskoro“ je 3 radna dana (menja ga tehničko lice). Izvoz (**Izvoz** na stranici **Pregled poslova**) prati prikaz: kolone su poslovi izabrane kategorije, a status je napisan rečima (Urađeno, Kasni, Ističe uskoro, U toku, Nema posla). Kategorija i poslovi se uređuju u **Katalogu poslova**: posao koji nema kategoriju ne može da se sačuva, pa u pregledu nema posla bez kolone. Za veliki broj redova izvoz ide u pozadini kao i ostali izvozi.
 
 ## Podsetnik i privatnost
 

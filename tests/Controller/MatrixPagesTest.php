@@ -3,8 +3,7 @@
 namespace App\Tests\Controller;
 
 use App\Entity\Client;
-use App\Entity\ClientPackage;
-use App\Entity\ServicePackage;
+use App\Entity\JobTemplate;
 use App\Entity\User;
 use App\Enum\Role;
 use App\Enum\TaskStatus;
@@ -30,22 +29,19 @@ class MatrixPagesTest extends DatabaseTestCase
         return json_decode((string) $this->browser->getResponse()->getContent(), true) ?? [];
     }
 
-    /** @return array{0: User, 1: User, 2: Client, 3: Client, 4: ServicePackage} radnik, kolega, klijent radnika, klijent kolege, paket */
+    /** @return array{0: User, 1: User, 2: Client, 3: Client, 4: JobTemplate} radnik, kolega, klijent radnika, klijent kolege, posao */
     private function setUpData(string $month): array
     {
         $admin = $this->user('Admin', Role::ADMIN);
         $w = $this->user('Radnik');
         $other = $this->user('Kolega');
-        $pkg = (new ServicePackage())->setName('Paket 1');
-        $this->em->persist($pkg);
-        $cat = $this->category('Kat');
+        $cat = $this->category('Kat')->setPosition(-100);
+        $tpl = $this->template('Posao 1', $cat);
         $mine = $this->client('Moj', $w);
         $theirs = $this->client('Tudj', $other);
         $this->em->flush();
         foreach ([[$mine, $w], [$theirs, $other]] as [$client, $worker]) {
-            $cp = (new ClientPackage())->setClient($client)->setPackage($pkg)->setAgreedPrice('100.00')->setStartDate(new \DateTimeImmutable('2026-01-01'));
-            $this->em->persist($cp);
-            $job = $this->clientJob($client, $this->template('Posao '.$client->getShortName(), $cat))->setClientPackage($cp);
+            $job = $this->clientJob($client, $tpl);
             $this->em->flush();
             foreach ([TaskStatus::ZAVRSENO, TaskStatus::NOVO] as $i => $status) {
                 $t = $this->task('Zadatak '.$client->getShortName().$i, $admin, [$worker], $client, $job, $status);
@@ -54,7 +50,7 @@ class MatrixPagesTest extends DatabaseTestCase
         }
         $this->em->flush();
 
-        return [$w, $other, $mine, $theirs, $pkg];
+        return [$w, $other, $mine, $theirs, $tpl];
     }
 
     public function testDashboardAndPageShowMatrixWithOwnClientsOnly(): void
@@ -69,7 +65,12 @@ class MatrixPagesTest extends DatabaseTestCase
         self::assertStringContainsString('Otvori celu stranicu', $html);
         self::assertStringContainsString('>Moj</a>', $html);
         self::assertStringNotContainsString('>Tudj</a>', $html, 'radnik ne vidi tuđe klijente');
-        self::assertStringContainsString('1/2', $html);
+        self::assertStringContainsString('name="cat"', $html, 'select Kategorija poslova');
+        self::assertStringNotContainsString('name="pkg"', $html);
+        self::assertStringContainsString('>Tim</th>', $html);
+        self::assertStringNotContainsString('Ostali taskovi', $html);
+        self::assertStringContainsString('title="Posao 1"', $html, 'kolona po poslu');
+        self::assertStringContainsString('data-kt-mx-cell', $html);
         // blok je posle kartica Zadaci
         self::assertGreaterThan(strpos($html, 'Završeno ovog meseca'), strpos($html, 'Pregled poslova po klijentima'));
 
@@ -94,62 +95,87 @@ class MatrixPagesTest extends DatabaseTestCase
         self::assertStringContainsString('Nema klijenata za izabrane filtere', $none['data']['body']);
         $more = $this->get('/ajax/matrix?page=2&period='.$month);
         self::assertArrayHasKey('rows', $more['data'], 'sledeće strane vraćaju samo redove');
+
+        // neispravni parametri ne daju 500: kategorija, strana, period, full, zaposleni
+        foreach (['cat=abc', 'cat=', 'cat=999999', 'page=', 'page=abc', 'period=xx', 'full=zzz', 'user=abc'] as $bad) {
+            $r = $this->get('/ajax/matrix?'.$bad);
+            self::assertResponseIsSuccessful($bad);
+            self::assertTrue($r['success'], $bad);
+        }
+    }
+
+    public function testCategoryWithoutJobsShowsEmptyState(): void
+    {
+        $month = (new \DateTimeImmutable('today'))->format('Y-m');
+        [$w] = $this->setUpData($month);
+        $empty = $this->category('Prazna')->setPosition(-50);
+        $this->em->flush();
+        $this->login($w);
+
+        $res = $this->get('/ajax/matrix?page=1&cat='.$empty->getId().'&period='.$month);
+        self::assertTrue($res['success']);
+        self::assertStringContainsString('Nema poslova u ovoj kategoriji', $res['data']['body']);
+        self::assertStringNotContainsString('<table', $res['data']['body']);
     }
 
     public function testCellDetailsMatchCellAndRespectVisibility(): void
     {
         $month = (new \DateTimeImmutable('today'))->format('Y-m');
-        [$w, , $mine, $theirs, $pkg] = $this->setUpData($month);
+        [$w, , $mine, $theirs, $tpl] = $this->setUpData($month);
         $this->login($w);
 
-        $res = $this->get(sprintf('/ajax/matrix/cell?client=%d&package=%d&period=%s', $mine->getId(), $pkg->getId(), $month));
+        $res = $this->get(sprintf('/ajax/matrix/cell?client=%d&job=%d&period=%s', $mine->getId(), $tpl->getId(), $month));
         self::assertTrue($res['success']);
         self::assertSame(2, $res['data']['total']);
         self::assertSame(1, $res['data']['done']);
         self::assertSame('1 od 2 gotovo', explode(',', $res['data']['summary'])[0]);
         self::assertSame('Moj', $res['data']['clientName']);
-        self::assertStringContainsString('package='.$pkg->getId(), $res['data']['listUrl']);
+        self::assertSame('Posao 1', $res['data']['jobName']);
+        self::assertStringContainsString('job='.$tpl->getId(), $res['data']['listUrl']);
 
-        // "Ostali taskovi" nemaju zadataka iz paketa
-        $other = $this->get(sprintf('/ajax/matrix/cell?client=%d&package=none&period=%s', $mine->getId(), $month));
-        self::assertSame(0, $other['data']['total']);
-
-        // tuđ klijent i nepoznat paket: 404
-        $this->get(sprintf('/ajax/matrix/cell?client=%d&package=%d&period=%s', $theirs->getId(), $pkg->getId(), $month));
-        self::assertResponseStatusCodeSame(404);
-        $this->get(sprintf('/ajax/matrix/cell?client=%d&package=999999&period=%s', $mine->getId(), $month));
-        self::assertResponseStatusCodeSame(404);
-        $this->get(sprintf('/ajax/matrix/cell?client=%d&package=abc', $mine->getId()));
-        self::assertResponseStatusCodeSame(404);
+        // tuđ klijent, nepoznat ili neispravan posao i prazni parametri: 404 (nikad 500)
+        foreach ([
+            sprintf('client=%d&job=%d&period=%s', $theirs->getId(), $tpl->getId(), $month),
+            sprintf('client=%d&job=999999&period=%s', $mine->getId(), $month),
+            sprintf('client=%d&job=abc', $mine->getId()),
+            sprintf('client=%d&job=', $mine->getId()),
+            sprintf('client=&job=%d', $tpl->getId()),
+            sprintf('client=abc&job=%d', $tpl->getId()),
+        ] as $query) {
+            $this->get('/ajax/matrix/cell?'.$query);
+            self::assertResponseStatusCodeSame(404, $query);
+        }
     }
 
     public function testOpeningCellRunsOneTaskQuery(): void
     {
         $month = (new \DateTimeImmutable('today'))->format('Y-m');
-        [$w, , $mine, , $pkg] = $this->setUpData($month);
+        [$w, , $mine, , $tpl] = $this->setUpData($month);
         $this->login($w);
         $holder = self::getContainer()->get('doctrine.debug_data_holder');
         $holder->reset();
-        $this->get(sprintf('/ajax/matrix/cell?client=%d&package=%d&period=%s', $mine->getId(), $pkg->getId(), $month));
+        $this->get(sprintf('/ajax/matrix/cell?client=%d&job=%d&period=%s', $mine->getId(), $tpl->getId(), $month));
         $taskQueries = array_filter($holder->getData()['default'] ?? [], static fn (array $q) => str_contains($q['sql'], 'FROM task '));
         self::assertCount(1, $taskQueries, 'prozor ćelije učitava zadatke jednim upitom');
     }
 
-    public function testExportUsesSameFiltersAndVisibility(): void
+    public function testExportFollowsSelectedCategoryWithStatusText(): void
     {
         $month = (new \DateTimeImmutable('today'))->format('Y-m');
         [$w] = $this->setUpData($month);
         $this->login($w);
         $export = self::getContainer()->get(\App\Export\MatrixExport::class);
 
+        $labels = array_column($export->getColumns(['period' => $month], $w), 'label');
+        self::assertSame(['Klijent', 'Tim (glavni)', 'Backup', 'Posao 1'], $labels, 'kolone izabrane kategorije');
         $rows = iterator_to_array($export->rows(['period' => $month], $w), false);
-        self::assertCount(1, $rows, 'jedna ćelija sa zadacima: klijent radnika x Paket 1');
+        self::assertCount(1, $rows);
         self::assertSame('Moj', $rows[0][0]);
         self::assertStringContainsString('Radnik', (string) $rows[0][1]);
-        self::assertSame('Paket 1', $rows[0][3]);
-        self::assertSame([2, 1], [$rows[0][5], $rows[0][6]]);
+        self::assertContains($rows[0][3], ['Kasni', 'Ističe uskoro', 'U toku'], 'jedan zadatak je završen, drugi nije');
         self::assertSame(1, $export->count(['period' => $month], $w));
         self::assertSame([], iterator_to_array($export->rows(['period' => $month, 'q' => 'nepostojeci'], $w), false));
+        self::assertStringContainsString('Kategorija: Kat', $export->describeFilters(['period' => $month], $w));
 
         $this->browser->request('GET', '/export/pregled/csv?period='.$month);
         self::assertResponseIsSuccessful();

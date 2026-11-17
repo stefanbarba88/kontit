@@ -21,10 +21,4 @@ final class MatrixCell
     {
         return $this->total - $this->done;
     }
-
-    /** za progres liniju, 0–100 */
-    public function percent(): int
-    {
-        return $this->total > 0 ? (int) round($this->done * 100 / $this->total) : 0;
-    }
 }

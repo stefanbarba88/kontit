@@ -37,7 +37,7 @@ final class TaskExport implements ExportListInterface
         return true;
     }
 
-    public function getColumns(): array
+    public function getColumns(array $query = [], ?User $user = null): array
     {
         return [
             ['label' => 'Zadatak', 'type' => 'text', 'width' => 44],

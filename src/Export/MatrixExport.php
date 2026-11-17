@@ -3,13 +3,14 @@
 namespace App\Export;
 
 use App\Entity\User;
+use App\Enum\MatrixState;
 use App\Service\ClientJobMatrixService;
 use App\Service\MatrixCell;
 
 /**
  * Izvoz matrice "Pregled poslova po klijentima" (SPEC 8r): isti servis i isti filteri kao ekran, pa i ista prava.
- * Kolone su fiksne (getColumns nema upit), zato je izvoz u dugom formatu: red po klijentu i paketu, plus red "Ostali taskovi".
- * Ćelije bez zadataka u periodu se ne izvoze.
+ * Kolone prate prikaz: Klijent, Tim (glavni), Backup i po jedna kolona za svaki posao izabrane kategorije;
+ * ćelija je status tekstom (Urađeno / Kasni / Ističe uskoro / U toku / Nema posla).
  */
 final class MatrixExport implements ExportListInterface
 {
@@ -34,20 +35,19 @@ final class MatrixExport implements ExportListInterface
         return true;
     }
 
-    public function getColumns(): array
+    public function getColumns(array $query = [], ?User $user = null): array
     {
-        return [
+        $columns = [
             ['label' => 'Klijent', 'type' => 'text', 'width' => 30],
-            ['label' => 'Zaduženi', 'type' => 'text', 'width' => 24],
+            ['label' => 'Tim (glavni)', 'type' => 'text', 'width' => 24],
             ['label' => 'Backup', 'type' => 'text', 'width' => 24],
-            ['label' => 'Paket', 'type' => 'text', 'width' => 26],
-            ['label' => 'Period', 'type' => 'text', 'width' => 16],
-            ['label' => 'Ukupno', 'type' => 'number', 'width' => 10],
-            ['label' => 'Gotovo', 'type' => 'number', 'width' => 10],
-            ['label' => 'Kasni', 'type' => 'number', 'width' => 10],
-            ['label' => 'Ističe uskoro', 'type' => 'number', 'width' => 14],
-            ['label' => 'Stanje', 'type' => 'text', 'width' => 16],
         ];
+        $jobs = null === $user ? [] : $this->matrix->build($this->matrix->filters($query), $user, 1, 1)->columns;
+        foreach ($jobs as $job) {
+            $columns[] = ['label' => (string) $job->getName(), 'type' => 'text', 'width' => 18];
+        }
+
+        return $columns;
     }
 
     public function count(array $query, User $user): int
@@ -57,41 +57,43 @@ final class MatrixExport implements ExportListInterface
 
     public function rows(array $query, User $user): iterable
     {
-        $f = $this->matrix->filters($query);
-        $view = $this->matrix->build($f, $user, 1, self::ALL);
-        $period = $this->matrix->periodLabel($f);
+        $view = $this->matrix->build($this->matrix->filters($query), $user, 1, self::ALL);
         foreach ($view->rows as $row) {
-            $cells = [];
-            foreach ($view->columns as $package) {
-                $cells[$package->getName()] = $row['cells'][$package->getId()];
+            $line = [$row['client']->getShortName(), $row['primary']?->getFullName(), $row['backup']?->getFullName()];
+            foreach ($view->columns as $job) {
+                $line[] = self::statusText($row['cells'][$job->getId()]);
             }
-            $cells['Ostali taskovi'] = $row['other'];
-            foreach ($cells as $name => $cell) {
-                if (!$cell instanceof MatrixCell || 0 === $cell->total) {
-                    continue;
-                }
-                yield [
-                    $row['client']->getShortName(),
-                    $row['primary']?->getFullName(),
-                    $row['backup']?->getFullName(),
-                    $name,
-                    $period,
-                    $cell->total,
-                    $cell->done,
-                    $cell->overdue,
-                    $cell->soon,
-                    $cell->state->label(),
-                ];
-            }
+            yield $line;
         }
+    }
+
+    /** Status tekstom za izvoz */
+    public static function statusText(MatrixCell $cell): string
+    {
+        return match ($cell->state) {
+            MatrixState::SUCCESS => 'Urađeno',
+            MatrixState::DANGER => 'Kasni',
+            MatrixState::WARNING => 'Ističe uskoro',
+            MatrixState::IN_PROGRESS => 'U toku',
+            MatrixState::NONE => 'Nema posla',
+        };
     }
 
     public function describeFilters(array $query, ?User $user = null): string
     {
         $f = $this->matrix->filters($query);
         $parts = ['Period: '.$this->matrix->periodLabel($f)];
+        $view = null === $user ? null : $this->matrix->build($f, $user, 1, 1);
+        if (null !== $view?->category) {
+            $parts[] = 'Kategorija: '.$view->category->getName();
+        }
         if ('' !== $f->q) {
             $parts[] = 'Klijent: '.$f->q;
+        }
+        foreach ($view?->people ?? [] as $person) {
+            if ($person->getId() === $f->userId) {
+                $parts[] = 'zaposleni: '.$person->getFullName();
+            }
         }
         if ($f->onlyOpen) {
             $parts[] = 'samo nezavršeno';

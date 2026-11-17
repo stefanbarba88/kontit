@@ -21,6 +21,7 @@ function init(root) {
     const full = root.dataset.full === '1';
     const storageKey = `kt-matrix-${root.dataset.user}`;
     const defaultPeriod = root.dataset.defaultPeriod || '';
+    const defaultCat = root.dataset.defaultCat || '';
     const cache = new Map();
     let page = Number(root.dataset.page) || 1;
     let timer = null;
@@ -32,10 +33,9 @@ function init(root) {
     const params = () => {
         const p = new URLSearchParams();
         const q = field('q').value.trim();
-        const pkg = [...field('pkg').selectedOptions].map((o) => o.value).filter(Boolean);
         if (q) { p.set('q', q); }
         if (field('user').value) { p.set('user', field('user').value); }
-        if (pkg.length) { p.set('pkg', pkg.join(',')); }
+        if (field('cat') && field('cat').value) { p.set('cat', field('cat').value); }
         if (field('period').value) { p.set('period', field('period').value); }
         if (field('open').checked) { p.set('open', '1'); }
         if (field('problem').checked) { p.set('problem', '1'); }
@@ -45,7 +45,7 @@ function init(root) {
 
     const activeCount = () => {
         const p = params();
-        return ['q', 'user', 'pkg', 'open', 'problem'].filter((k) => p.has(k)).length;
+        return ['q', 'user', 'open', 'problem'].filter((k) => p.has(k)).length;
     };
 
     const updateBadge = () => {
@@ -62,8 +62,11 @@ function init(root) {
     const remember = () => {
         const p = params();
         const query = p.toString();
-        // period je podrazumevan: sam ne čini filter
-        const onlyDefault = !query || (p.size === 1 && p.get('period') === defaultPeriod);
+        // podrazumevani period i podrazumevana (prva) kategorija sami ne čine filter
+        const rest = new URLSearchParams(p);
+        if (rest.get('period') === defaultPeriod) { rest.delete('period'); }
+        if (rest.get('cat') === defaultCat) { rest.delete('cat'); }
+        const onlyDefault = !query || rest.size === 0;
         // izvoz uvek nosi trenutne filtere (isti upit kao tabela)
         document.querySelectorAll('[data-kt-mx-export] a[href]').forEach((a) => {
             const u = new URL(a.getAttribute('href'), location.origin);
@@ -136,7 +139,6 @@ function init(root) {
     form.querySelector('[data-kt-mx-reset]').addEventListener('click', () => {
         field('q').value = '';
         field('user').tomselect ? field('user').tomselect.clear(true) : (field('user').value = '');
-        field('pkg').tomselect ? field('pkg').tomselect.clear(true) : [...field('pkg').options].forEach((o) => { o.selected = false; });
         field('period').value = defaultPeriod || field('period').value;
         field('open').checked = false;
         field('problem').checked = false;
@@ -163,7 +165,7 @@ function init(root) {
     // sačuvani filteri se primenjuju samo kad link nema svoje
     try {
         const saved = localStorage.getItem(storageKey);
-        const hasUrlFilters = ['q', 'user', 'pkg', 'period', 'open', 'problem'].some((k) => new URLSearchParams(location.search).has(k));
+        const hasUrlFilters = ['q', 'user', 'cat', 'period', 'open', 'problem'].some((k) => new URLSearchParams(location.search).has(k));
         if (saved && !hasUrlFilters) {
             const p = new URLSearchParams(saved);
             field('q').value = p.get('q') || '';
@@ -171,7 +173,7 @@ function init(root) {
                 if (el.tomselect) { el.tomselect.setValue(values, true); } else { [...el.options].forEach((o) => { o.selected = values.includes(o.value); }); }
             };
             setSelect(field('user'), p.get('user') ? [p.get('user')] : []);
-            setSelect(field('pkg'), p.get('pkg') ? p.get('pkg').split(',') : []);
+            if (p.get('cat') && [...field('cat').options].some((o) => o.value === p.get('cat'))) { setSelect(field('cat'), [p.get('cat')]); }
             if (p.get('period') && [...field('period').options].some((o) => o.value === p.get('period'))) { field('period').value = p.get('period'); }
             field('open').checked = p.get('open') === '1';
             field('problem').checked = p.get('problem') === '1';
@@ -201,8 +203,8 @@ function init(root) {
 
     async function openCell(btn) {
         const period = field('period').value;
-        const key = `${btn.dataset.client}|${btn.dataset.package}|${period}`;
-        const url = `${root.dataset.cellUrl}?client=${encodeURIComponent(btn.dataset.client)}&package=${encodeURIComponent(btn.dataset.package)}&period=${encodeURIComponent(period)}`;
+        const key = `${btn.dataset.client}|${btn.dataset.job}|${period}`;
+        const url = `${root.dataset.cellUrl}?client=${encodeURIComponent(btn.dataset.client)}&job=${encodeURIComponent(btn.dataset.job)}&period=${encodeURIComponent(period)}`;
         let listUrl = null;
 
         const fill = async () => {
@@ -213,7 +215,7 @@ function init(root) {
                 if (!cache.has(key)) { cache.set(key, (await ajax('GET', url)).data); }
                 const d = cache.get(key);
                 if (!Swal.isVisible()) { return; }
-                Swal.getTitle().textContent = `${d.packageName} · ${d.clientName} · ${d.period}`;
+                Swal.getTitle().textContent = `${d.jobName} · ${d.clientName} · ${d.period}`;
                 Swal.getHtmlContainer().innerHTML = renderCell(d);
                 listUrl = d.listUrl;
                 Swal.getConfirmButton().disabled = false;

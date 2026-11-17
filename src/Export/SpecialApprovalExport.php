@@ -37,7 +37,7 @@ final class SpecialApprovalExport implements ExportListInterface
         return $this->security->isGrantedForUser($user, 'SPECIAL_APPROVALS_VIEW');
     }
 
-    public function getColumns(): array
+    public function getColumns(array $query = [], ?User $user = null): array
     {
         return [
             ['label' => 'Zadatak', 'type' => 'text', 'width' => 44],

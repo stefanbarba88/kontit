@@ -18,7 +18,7 @@ enum MatrixState: string
             self::SUCCESS => 'Sve gotovo',
             self::WARNING => 'Ističe uskoro',
             self::IN_PROGRESS => 'U toku',
-            self::NONE => 'Nema poslova',
+            self::NONE => 'Nema posla',
         };
     }
 
@@ -29,6 +29,7 @@ enum MatrixState: string
             self::DANGER => 'triangle-alert',
             self::SUCCESS => 'circle-check-big',
             self::WARNING => 'clock-alert',
+            self::IN_PROGRESS => 'circle-ellipsis',
             default => null,
         };
     }

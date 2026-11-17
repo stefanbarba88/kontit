@@ -205,7 +205,7 @@ Ako je administrator uključio „Šefovi dobijaju i odsustva svog tima“, a ti
 
 ## Pregled poslova po klijentima
 
-Opis je u uputstvu za radnika. Kao šef vidiš **klijente svog tima** i samo zadatke koje smeš da vidiš. Lista na koju vodi **Otvori listu zadataka** otvara se za ceo tim (opseg „Svi“), a filter **Zaduženi** u pregledu traži glavnog ili backup radnika klijenta. Brojač „zakasnelih zadataka ukupno“ vodi na listu **Kasne** za tvoj tim, nezavisno od izabranog meseca.
+Opis je u uputstvu za radnika (kolone su poslovi izabrane kategorije). Kao šef vidiš **klijente svog tima** i samo zadatke koje smeš da vidiš. Lista na koju vodi **Otvori listu zadataka** otvara se za ceo tim (opseg „Svi“), a filter **Zaduženi** u pregledu traži glavnog ili backup radnika klijenta. Brojač „zakasnelih zadataka ukupno“ vodi na listu **Kasne** za tvoj tim, nezavisno od izabranog meseca.
 
 ## Podsetnik
 

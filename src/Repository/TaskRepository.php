@@ -166,36 +166,37 @@ class TaskRepository extends ServiceEntityRepository
     }
 
     /**
-     * Matrica "Pregled poslova po klijentima": jedan upit, GROUP BY klijent + paket, nad istom vidljivošću i istim filterima kao lista zadataka.
-     * OTKAZANO se ne broji ni u ukupno. Otvoreni sa rokom pre $today su zakasneli, a sa rokom do $soonUntil (uključujući) ističu uskoro.
+     * Matrica "Pregled poslova po klijentima": jedan upit, GROUP BY klijent + posao (JobTemplate) iz izabrane kategorije, nad istom
+     * vidljivošću i istim filterima kao lista zadataka. OTKAZANO se ne broji ni u ukupno. Otvoreni sa rokom pre $today su zakasneli,
+     * a sa rokom do $soonUntil (uključujući) ističu uskoro. Zadaci bez posla klijenta (ručni) nisu ni u jednoj kategoriji.
      *
      * @param list<int> $clientIds
      *
-     * @return list<array{clientId: int, packageId: ?int, total: int, done: int, overdue: int, soon: int}> packageId null = van paketa
+     * @return list<array{clientId: int, jobId: int, total: int, done: int, overdue: int, soon: int}>
      */
-    public function matrixAggregates(TaskFilter $f, User $viewer, array $clientIds, \DateTimeImmutable $today, \DateTimeImmutable $soonUntil): array
+    public function matrixAggregatesByJob(TaskFilter $f, User $viewer, array $clientIds, int $categoryId, \DateTimeImmutable $today, \DateTimeImmutable $soonUntil): array
     {
         if ([] === $clientIds) {
             return [];
         }
         $qb = $this->createFilteredQueryBuilder($f, $viewer)
-            ->select('IDENTITY(t.client) AS client_id', 'IDENTITY(mcp.package) AS package_id', 'COUNT(t.id) AS total')
+            ->select('IDENTITY(t.client) AS client_id', 'IDENTITY(mj.jobTemplate) AS job_id', 'COUNT(t.id) AS total')
             ->addSelect('SUM(CASE WHEN t.status = :mxDone THEN 1 ELSE 0 END) AS done_count')
             ->addSelect('SUM(CASE WHEN t.status IN (:mxOpen) AND t.dueDate < :mxToday THEN 1 ELSE 0 END) AS overdue_count')
             ->addSelect('SUM(CASE WHEN t.status IN (:mxOpen) AND t.dueDate >= :mxToday AND t.dueDate <= :mxSoon THEN 1 ELSE 0 END) AS soon_count')
-            ->leftJoin('t.clientJob', 'mj')->leftJoin('mj.clientPackage', 'mcp')
-            ->andWhere('t.status <> :mxCancelled AND t.client IN (:mxClients)')
+            ->innerJoin('t.clientJob', 'mj')->innerJoin('mj.jobTemplate', 'mjt')
+            ->andWhere('t.status <> :mxCancelled AND t.client IN (:mxClients) AND IDENTITY(mjt.category) = :mxCategory')
             ->resetDQLPart('orderBy')
-            ->groupBy('client_id')->addGroupBy('package_id');
+            ->groupBy('client_id')->addGroupBy('job_id');
         $rows = $this->withoutSortParameters($qb)
             ->setParameter('mxDone', TaskStatus::ZAVRSENO)->setParameter('mxOpen', self::openStatuses())
-            ->setParameter('mxCancelled', TaskStatus::OTKAZANO)->setParameter('mxClients', $clientIds)
+            ->setParameter('mxCancelled', TaskStatus::OTKAZANO)->setParameter('mxClients', $clientIds)->setParameter('mxCategory', $categoryId)
             ->setParameter('mxToday', $today)->setParameter('mxSoon', $soonUntil)
             ->getQuery()->getArrayResult();
 
         return array_map(static fn (array $r) => [
             'clientId' => (int) $r['client_id'],
-            'packageId' => null === $r['package_id'] ? null : (int) $r['package_id'],
+            'jobId' => (int) $r['job_id'],
             'total' => (int) $r['total'],
             'done' => (int) $r['done_count'],
             'overdue' => (int) $r['overdue_count'],
@@ -222,7 +223,7 @@ class TaskRepository extends ServiceEntityRepository
     }
 
     /**
-     * Zadaci jedne ćelije matrice (klijent + paket ili van paketa, u periodu filtera), sa učesnicima, bez otkazanih. Jedan upit.
+     * Zadaci jedne ćelije matrice (klijent + posao, u periodu filtera), sa učesnicima, bez otkazanih. Jedan upit.
      *
      * @return list<Task>
      */

@@ -3,17 +3,18 @@
 namespace App\Service;
 
 use App\Entity\Client;
-use App\Entity\ServicePackage;
+use App\Entity\JobCategory;
+use App\Entity\JobTemplate;
 use App\Entity\User;
 
-/** Gotova matrica za prikaz/izvoz: kolone (paketi), redovi (klijenti sa ćelijama) i zbirovi */
+/** Gotova matrica za prikaz/izvoz: kolone (poslovi izabrane kategorije), redovi (klijenti sa ćelijama) i zbirovi */
 final class MatrixView
 {
     /**
-     * @param list<ServicePackage>                                                                   $columns
-     * @param list<array{client: Client, primary: ?User, backup: ?User, cells: array<int, MatrixCell>, other: MatrixCell}> $rows cells su po id-u paketa
+     * @param list<JobTemplate>                                                                      $columns
+     * @param list<array{client: Client, primary: ?User, backup: ?User, cells: array<int, MatrixCell>}> $rows cells su po id-u posla
      * @param list<User>                                                                             $people zaposleni za filter (glavni i backup vidljivih klijenata)
-     * @param list<ServicePackage>                                                                   $allPackages paketi za filter
+     * @param list<JobCategory>                                                                      $categories aktivne kategorije poslova za filter
      */
     public function __construct(
         public readonly MatrixFilters $filters,
@@ -26,8 +27,17 @@ final class MatrixView
         public readonly int $warningCells,
         public readonly int $overdueTasks,
         public readonly array $people,
-        public readonly array $allPackages,
+        public readonly array $categories,
+        public readonly ?JobCategory $category,
+        /** radnih dana za "ističe uskoro" (matrix.warning_days), za legendu */
+        public readonly int $warningDays = 3,
     ) {
+    }
+
+    /** Izabrana kategorija nema nijedan posao koji neki vidljiv klijent ima (ili uopšte nema kategorija) */
+    public function categoryIsEmpty(): bool
+    {
+        return [] === $this->columns;
     }
 
     public function hasMore(): bool

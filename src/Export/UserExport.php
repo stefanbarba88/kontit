@@ -36,7 +36,7 @@ final class UserExport implements ExportListInterface
         return $this->security->isGrantedForUser($user, 'USER_MANAGE');
     }
 
-    public function getColumns(): array
+    public function getColumns(array $query = [], ?User $user = null): array
     {
         return [
             ['label' => 'Ime i prezime', 'type' => 'text', 'width' => 26],

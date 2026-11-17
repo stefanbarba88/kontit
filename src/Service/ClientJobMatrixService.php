@@ -3,13 +3,15 @@
 namespace App\Service;
 
 use App\Entity\Client;
-use App\Entity\ClientPackage;
-use App\Entity\ServicePackage;
+use App\Entity\ClientJob;
+use App\Entity\JobCategory;
+use App\Entity\JobTemplate;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Enum\MatrixState;
 use App\Enum\TaskStatus;
 use App\Repository\ClientRepository;
+use App\Repository\JobCategoryRepository;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -17,9 +19,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Matrica "Pregled poslova po klijentima" (SPEC 8r): redovi su klijenti koje korisnik vidi (ClientRepository::createVisibleQueryBuilder),
- * kolone paketi + "Ostali taskovi", ćelija = zadaci tog klijenta iz tog paketa sa rokom u izabranom mesecu.
+ * kolone su poslovi (JobTemplate) izabrane kategorije poslova (JobCategory), ćelija = zadaci tog klijenta iz tog posla sa rokom u izabranom mesecu.
  * Brojevi idu kroz TaskRepository::createFilteredQueryBuilder, pa važi ista vidljivost zadataka kao u listi (radnik vidi samo svoje zadatke).
- * Upiti po prikazu: klijenti, paketi klijenata, jedan agregat (GROUP BY klijent, paket), brojač zakasnelih i spisak paketa;
+ * Upiti po prikazu: klijenti, poslovi klijenata u kategoriji, jedan agregat (GROUP BY klijent, posao), brojač zakasnelih i spisak kategorija;
  * ne zavise od broja redova (nema N+1).
  */
 class ClientJobMatrixService
@@ -29,6 +31,7 @@ class ClientJobMatrixService
 
     public function __construct(
         private readonly ClientRepository $clients,
+        private readonly JobCategoryRepository $categories,
         private readonly TaskRepository $tasks,
         private readonly ClientService $clientService,
         private readonly TaskService $taskService,
@@ -127,47 +130,46 @@ class ClientJobMatrixService
         }));
         $ids = array_map(static fn (Client $c) => (int) $c->getId(), $candidates);
 
-        // aktivni paketi klijenata
+        // izabrana kategorija: neispravna, nepostojeća ili neaktivna = prva aktivna po redosledu
+        $allCategories = $this->categories->findOrdered(true);
+        $category = $this->resolveCategory($f->categoryId, $allCategories);
+        $f = $f->with(['categoryId' => $category?->getId()]);
+
+        // poslovi kategorije koje klijenti zaista imaju (aktivan, odobren, neisključen ClientJob); kolone ne zavise od pretrage
+        $jobs = [];
         $has = [];
-        if ([] !== $ids) {
-            $found = $this->em->createQueryBuilder()->select('IDENTITY(cp.client) AS cid', 'IDENTITY(cp.package) AS pid')
-                ->from(ClientPackage::class, 'cp')->where('cp.isActive = true AND cp.client IN (:ids)')->setParameter('ids', $ids)
+        if (null !== $category && [] !== $visible) {
+            $found = $this->em->createQueryBuilder()->select('IDENTITY(cj.client) AS cid', 'IDENTITY(cj.jobTemplate) AS jid')
+                ->from(ClientJob::class, 'cj')->join('cj.jobTemplate', 'jt')
+                ->where('jt.category = :cat AND jt.isActive = true AND cj.isActive = true AND cj.isApproved = true AND cj.isExcluded = false AND cj.client IN (:all)')
+                ->setParameter('cat', $category)->setParameter('all', array_map(static fn (Client $c) => (int) $c->getId(), $visible))
                 ->getQuery()->getArrayResult();
             foreach ($found as $r) {
-                $has[(int) $r['cid']][(int) $r['pid']] = true;
+                $has[(int) $r['cid']][(int) $r['jid']] = true;
             }
-        }
-        if ([] !== $f->packageIds) {
-            $candidates = array_values(array_filter($candidates, static fn (Client $c) => [] !== array_intersect_key($has[(int) $c->getId()] ?? [], array_flip($f->packageIds))));
-            $ids = array_map(static fn (Client $c) => (int) $c->getId(), $candidates);
+            $jobs = $this->categoryJobs($category);
         }
 
         // rok na neradni dan kasni tek od prvog radnog dana posle njega (WorkingDayService::overdueCutoff), isto važi i za "uskoro"
         $today = $this->workingDays->overdueCutoff($this->today());
         $taskFilter = $this->taskFilter($me, $f);
         $agg = [];
-        foreach ($this->tasks->matrixAggregates($taskFilter, $me, $ids, $today, $this->soonUntil()) as $r) {
-            $agg[$r['clientId']][$r['packageId'] ?? 0] = $r;
+        if (null !== $category) {
+            foreach ($this->tasks->matrixAggregatesByJob($taskFilter, $me, $ids, (int) $category->getId(), $today, $this->soonUntil()) as $r) {
+                $agg[$r['clientId']][$r['jobId']] = $r;
+            }
         }
         $overdueTasks = $this->tasks->matrixOverdueCount($taskFilter, $me, $ids, $today);
 
-        // kolone: paketi koje klijenti imaju ili po kojima imaju zadatke u periodu (samo izabrani, ako je filter)
-        $packages = [];
-        foreach ($this->em->getRepository(ServicePackage::class)->findBy([], ['name' => 'ASC']) as $p) {
-            $packages[(int) $p->getId()] = $p;
-        }
+        // kolone: poslovi koje neki vidljiv klijent ima ili po kojima postoje zadaci u periodu
         $used = [];
-        foreach ($ids as $id) {
-            foreach (array_keys($has[$id] ?? []) as $pid) {
-                $used[$pid] = true;
-            }
-            foreach (array_keys($agg[$id] ?? []) as $pid) {
-                if ($pid > 0) {
-                    $used[$pid] = true;
-                }
-            }
+        foreach ($has as $byJob) {
+            $used += $byJob;
         }
-        $columns = array_values(array_filter($packages, static fn (ServicePackage $p) => isset($used[(int) $p->getId()]) && ([] === $f->packageIds || \in_array((int) $p->getId(), $f->packageIds, true))));
+        foreach ($agg as $byJob) {
+            $used += array_fill_keys(array_keys($byJob), true);
+        }
+        $columns = array_values(array_filter($jobs, static fn (JobTemplate $j) => isset($used[(int) $j->getId()])));
 
         $empty = $this->cell(0, 0, 0, 0);
         $rows = [];
@@ -175,33 +177,46 @@ class ClientJobMatrixService
         foreach ($candidates as $client) {
             $cid = (int) $client->getId();
             $cells = [];
-            foreach ($columns as $p) {
-                $a = $agg[$cid][(int) $p->getId()] ?? null;
-                $cells[(int) $p->getId()] = null === $a ? $empty : $this->cell($a['total'], $a['done'], $a['overdue'], $a['soon']);
+            foreach ($columns as $j) {
+                $jid = (int) $j->getId();
+                $a = $agg[$cid][$jid] ?? null;
+                $cells[$jid] = null === $a ? $empty : $this->cell($a['total'], $a['done'], $a['overdue'], $a['soon']);
+                $danger += MatrixState::DANGER === $cells[$jid]->state ? 1 : 0;
+                $warning += MatrixState::WARNING === $cells[$jid]->state ? 1 : 0;
             }
-            $o = $agg[$cid][0] ?? null;
-            $other = null === $o ? $empty : $this->cell($o['total'], $o['done'], $o['overdue'], $o['soon']);
-            $all = [...array_values($cells), $other];
-            foreach ($all as $cell) {
-                $danger += MatrixState::DANGER === $cell->state ? 1 : 0;
-                $warning += MatrixState::WARNING === $cell->state ? 1 : 0;
-            }
-            $rows[] = ['client' => $client, 'primary' => $client->getPrimaryAccountant(), 'backup' => $client->getBackupAccountant(), 'cells' => $cells, 'other' => $other, '_all' => $all];
+            $rows[] = ['client' => $client, 'primary' => $client->getPrimaryAccountant(), 'backup' => $client->getBackupAccountant(), 'cells' => $cells];
         }
+        // "samo nezavršeno" i "samo problematični" računaju se samo nad poslovima izabrane kategorije
         if ($f->onlyOpen) {
-            $rows = array_values(array_filter($rows, static fn (array $r) => [] !== array_filter($r['_all'], static fn (MatrixCell $c) => $c->open() > 0)));
+            $rows = array_values(array_filter($rows, static fn (array $r) => [] !== array_filter($r['cells'], static fn (MatrixCell $c) => $c->open() > 0)));
         }
         if ($f->onlyProblem) {
-            $rows = array_values(array_filter($rows, static fn (array $r) => [] !== array_filter($r['_all'], static fn (MatrixCell $c) => $c->state->isProblem())));
+            $rows = array_values(array_filter($rows, static fn (array $r) => [] !== array_filter($r['cells'], static fn (MatrixCell $c) => $c->state->isProblem())));
         }
         $total = \count($rows);
-        $rows = array_map(static function (array $r): array {
-            unset($r['_all']);
+        $rows = \array_slice($rows, max(0, $page - 1) * $perPage, $perPage);
 
-            return $r;
-        }, \array_slice($rows, max(0, $page - 1) * $perPage, $perPage));
+        return new MatrixView($f, $columns, $rows, $total, $page, $perPage, $danger, $warning, $overdueTasks, $people, $allCategories, $category, $this->warningDays);
+    }
 
-        return new MatrixView($f, $columns, $rows, $total, $page, $perPage, $danger, $warning, $overdueTasks, $people, array_values($packages));
+    /**
+     * @param list<JobCategory> $active aktivne kategorije po redosledu
+     */
+    private function resolveCategory(?int $id, array $active): ?JobCategory
+    {
+        foreach ($active as $c) {
+            if (null !== $id && $c->getId() === $id) {
+                return $c;
+            }
+        }
+
+        return $active[0] ?? null;
+    }
+
+    /** Aktivni poslovi kategorije; JobTemplate nema polje za redosled, pa idu po nazivu */
+    private function categoryJobs(JobCategory $category): array
+    {
+        return $this->em->getRepository(JobTemplate::class)->findBy(['category' => $category, 'isActive' => true], ['name' => 'ASC']);
     }
 
     /** Isti filter vidljivosti kao lista zadataka: admin i šef vide ceo svoj opseg ('all'), radnik samo svoje */
@@ -218,13 +233,13 @@ class ClientJobMatrixService
     }
 
     /**
-     * Zadaci jedne ćelije za prozor: ista vidljivost i isti period kao broj u ćeliji. $package null = "Ostali taskovi" (van paketa).
+     * Zadaci jedne ćelije za prozor: ista vidljivost i isti period kao stanje ćelije; svi zadaci posla klijenta u periodu (npr. nedeljni poslovi).
      *
      * @return array{summary: string, state: string, total: int, done: int, groups: list<array{key: string, label: string, rows: list<array<string, mixed>>}>, more: int, listUrl: string, period: string}
      */
-    public function cellDetails(User $me, Client $client, ?ServicePackage $package, MatrixFilters $f): array
+    public function cellDetails(User $me, Client $client, JobTemplate $job, MatrixFilters $f): array
     {
-        $filter = $this->taskFilter($me, $f)->with(['client' => $client, 'package' => $package, 'noPackage' => null === $package]);
+        $filter = $this->taskFilter($me, $f)->with(['client' => $client, 'job' => $job]);
         $today = $this->workingDays->overdueCutoff($this->today());
         $soonUntil = $this->soonUntil();
 
@@ -261,7 +276,7 @@ class ClientJobMatrixService
             'done' => $done,
             'groups' => $out,
             'more' => max(0, $total - self::CELL_LIMIT),
-            'listUrl' => $this->listUrl($me, $client, $package, $f),
+            'listUrl' => $this->listUrl($me, $client, $job, $f),
             'period' => $this->periodLabel($f),
         ];
     }
@@ -300,12 +315,12 @@ class ClientJobMatrixService
         ];
     }
 
-    /** Link "Otvori listu zadataka": klijent + paket + period (isti filteri kao brojevi; prikazuje i završene) */
-    public function listUrl(User $me, Client $client, ?ServicePackage $package, MatrixFilters $f): string
+    /** Link "Otvori listu zadataka": klijent + posao + period (isti filteri kao brojevi; prikazuje i završene) */
+    public function listUrl(User $me, Client $client, JobTemplate $job, MatrixFilters $f): string
     {
         $query = [
             'client' => $client->getId(),
-            'package' => $package?->getId() ?? 'none',
+            'job' => $job->getId(),
             'period' => $f->from()->format('Y-m-d').' do '.$f->to()->format('Y-m-d'),
             'closed' => 1,
         ];

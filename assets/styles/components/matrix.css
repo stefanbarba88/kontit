@@ -1,9 +1,9 @@
 /*
  * Matrica "Pregled poslova po klijentima" (SPEC 8r, DESIGN.md: tabela, badge boje).
  * Stanja ćelije: danger / warning / progress / success / none. Boja dolazi iz tokena (--kt-*-soft), pa radi u obe teme.
- * Kolone Klijent i Zaduženi su zalepljene levo, "Ostali taskovi" desno; na telefonu je tabela lista kartica.
+ * Kolone Klijent i Tim su zalepljene levo, kolone poslova se skroluju vodoravno; na telefonu je tabela lista kartica.
  */
-.kt-matrix { --kt-mx-client-w: 170px; --kt-mx-people-w: 190px; --kt-mx-other-w: 120px; --kt-mx-cell-w: 104px; }
+.kt-matrix { --kt-mx-client-w: 170px; --kt-mx-people-w: 190px; --kt-mx-job-w: 112px; }
 
 /* --- filteri, legenda, brojači --- */
 .kt-mx-filters { margin-bottom: 12px; }
@@ -35,34 +35,31 @@
 .kt-mx-none { color: var(--kt-text-3, var(--kt-text-2)); }
 .kt-mx-key.kt-mx-none { background: transparent; box-shadow: inset 0 0 0 1px var(--kt-border-strong); }
 
-/* --- ćelija: dugme gotovo/ukupno sa tankom progres linijom --- */
+/* --- ćelija: samo status (ikonica u boji), bez brojača --- */
 .kt-mx-cell {
-    display: inline-flex; flex-direction: column; justify-content: center; gap: 4px; width: 84px; min-height: 40px; padding: 5px 8px;
-    border: 1px solid transparent; border-radius: var(--kt-radius-xs); font: inherit; cursor: pointer; text-align: center;
+    display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 32px; padding: 0;
+    border: 1px solid transparent; border-radius: var(--kt-radius-xs); font: inherit; cursor: pointer;
     transition: box-shadow .15s var(--kt-ease, ease), border-color .15s var(--kt-ease, ease);
 }
 .kt-mx-cell:hover { border-color: currentColor; }
 .kt-mx-cell:focus-visible { outline: 2px solid var(--kt-primary); outline-offset: 2px; }
-.kt-mx-top { display: inline-flex; align-items: center; justify-content: center; gap: 4px; font-size: 14px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
-.kt-mx-top .kt-icon { width: 14px; height: 14px; }
-.kt-mx-bar { display: block; height: 3px; border-radius: 2px; background: color-mix(in srgb, currentColor 18%, transparent); overflow: hidden; }
-.kt-mx-bar > span { display: block; height: 100%; background: currentColor; border-radius: 2px; }
-.kt-mx-cell.kt-mx-progress { color: var(--kt-text); background: var(--kt-surface-3); }
-.kt-mx-cell.kt-mx-progress .kt-mx-bar > span { background: var(--kt-primary); }
-.kt-mx-none { display: inline-block; min-width: 84px; text-align: center; }
+.kt-mx-cell .kt-icon { width: 18px; height: 18px; }
+.kt-mx-cell.kt-mx-progress { color: var(--kt-text-2); background: var(--kt-surface-3); }
+.kt-mx-none { display: inline-block; min-width: 44px; text-align: center; cursor: help; }
 
 /* --- tabela --- */
 .kt-mx-scroll { border: 1px solid var(--kt-border); border-radius: var(--kt-radius-sm, 8px); background: var(--kt-surface); overflow: auto; max-height: 70vh; }
 .kt-mx-scroll.is-full { max-height: 78vh; }
 .kt-mx-table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; margin: 0; }
 .kt-mx-table th, .kt-mx-table td { padding: 8px 10px; vertical-align: middle; border-bottom: 1px solid var(--kt-border); background: var(--kt-surface); }
-.table.kt-mx-table > thead > tr > th { position: sticky; top: 0; z-index: 3; background: var(--kt-surface-2); font-size: 12px; font-weight: 600; color: var(--kt-text-2); white-space: nowrap; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+.table.kt-mx-table > thead > tr > th { position: sticky; top: 0; z-index: 3; background: var(--kt-surface-2); font-size: 12px; font-weight: 600; color: var(--kt-text-2); white-space: nowrap; }
+.table.kt-mx-table > thead > tr > th.kt-mx-col-job { white-space: normal; width: var(--kt-mx-job-w); min-width: var(--kt-mx-job-w); max-width: var(--kt-mx-job-w); line-height: 1.25; vertical-align: bottom; }
+.kt-mx-col-job > span { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
 .kt-mx-table tbody tr:last-child th, .kt-mx-table tbody tr:last-child td { border-bottom: 0; }
 .kt-mx-table tbody tr:hover > * { background: var(--kt-surface-2); }
 .table.kt-mx-table .kt-mx-col-client { position: sticky; left: 0; z-index: 2; width: var(--kt-mx-client-w); min-width: var(--kt-mx-client-w); max-width: var(--kt-mx-client-w); font-weight: 600; }
 .table.kt-mx-table .kt-mx-col-people { position: sticky; left: var(--kt-mx-client-w); z-index: 2; width: var(--kt-mx-people-w); min-width: var(--kt-mx-people-w); box-shadow: 1px 0 0 var(--kt-border-strong); }
-.table.kt-mx-table .kt-mx-col-other { position: sticky; right: 0; z-index: 2; width: var(--kt-mx-other-w); min-width: var(--kt-mx-other-w); box-shadow: -1px 0 0 var(--kt-border-strong); }
-.table.kt-mx-table > thead > tr > th.kt-mx-col-client, .table.kt-mx-table > thead > tr > th.kt-mx-col-people, .table.kt-mx-table > thead > tr > th.kt-mx-col-other { z-index: 4; }
+.table.kt-mx-table > thead > tr > th.kt-mx-col-client, .table.kt-mx-table > thead > tr > th.kt-mx-col-people { z-index: 4; }
 .kt-mx-client { color: var(--kt-text); text-decoration: none; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .kt-mx-client:hover { color: var(--kt-primary); text-decoration: underline; }
 
@@ -86,9 +83,8 @@
 .kt-mx-card-head .kt-mx-people { flex: 0 1 55%; }
 .kt-mx-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .kt-mx-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.kt-mx-chip-name { font-size: 11px; color: var(--kt-text-2); max-width: 96px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.kt-mx-chip-other { margin-left: auto; padding-left: 10px; border-left: 1px solid var(--kt-border-strong); }
-.kt-mx-chip .kt-mx-none { min-width: 84px; }
+.kt-mx-chip-name { font-size: 11px; color: var(--kt-text-2); max-width: 88px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kt-mx-chip .kt-mx-none { min-width: 44px; }
 @media (max-width: 767.98px) {
     .kt-mx-scroll { max-height: 70vh; }
     .kt-mx-cards { padding: 8px; }

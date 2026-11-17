@@ -61,7 +61,7 @@ class ExportService
      */
     public function write(ExportListInterface $list, string $format, array $query, User $user, string $path): int
     {
-        $columns = $list->getColumns();
+        $columns = $list->getColumns($query, $user);
         $rows = iterator_to_array($list->rows($query, $user), false);
 
         match ($format) {

@@ -35,7 +35,7 @@ class AbsenceRecordExport implements ExportListInterface
         return $this->tasks->isLeader($user);
     }
 
-    public function getColumns(): array
+    public function getColumns(array $query = [], ?User $user = null): array
     {
         $columns = [['label' => 'Radnik', 'type' => 'text', 'width' => 26]];
         foreach ($this->types->findOrdered() as $type) {

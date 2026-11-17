@@ -1,19 +1,19 @@
 {#
-    Matrica "Pregled poslova po klijentima" (SPEC 8r). Ulaz: mx (MatrixView), full (true na /pregled-poslova), periodOptions.
+    Matrica "Pregled poslova po klijentima" (SPEC 8r). Kolone su poslovi izabrane kategorije poslova, ćelija je samo status. Ulaz: mx (MatrixView), full (true na /pregled-poslova), periodOptions.
     Isti blok je na početnoj (15 klijenata, unutrašnji skrol) i na stranici (po 50, "Učitaj još").
 #}
-<div class="kt-matrix" data-kt-matrix data-url="{{ path('ajax_matrix') }}" data-cell-url="{{ path('ajax_matrix_cell') }}" data-full="{{ full ? 1 : 0 }}" data-user="{{ app.user.id }}" data-page="{{ mx.page }}" data-default-period="{{ 'now'|date('Y-m') }}">
+<div class="kt-matrix" data-kt-matrix data-url="{{ path('ajax_matrix') }}" data-cell-url="{{ path('ajax_matrix_cell') }}" data-full="{{ full ? 1 : 0 }}" data-user="{{ app.user.id }}" data-page="{{ mx.page }}" data-default-period="{{ 'now'|date('Y-m') }}" data-default-cat="{{ mx.categories ? mx.categories[0].id : '' }}">
     {% include 'matrix/_filters.html.twig' %}
     <div class="kt-mx-meta">
         <div class="kt-mx-counters" data-kt-mx-counters>{% include 'matrix/_counters.html.twig' %}</div>
         <details class="kt-mx-legend">
             <summary class="kt-text-sm text-muted">Legenda</summary>
             <ul class="kt-mx-legend-list">
-                <li><span class="kt-mx-key kt-mx-danger">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon'}) }}</span>Kasni: otvoren zadatak sa rokom koji je prošao</li>
-                <li><span class="kt-mx-key kt-mx-warning">{{ ux_icon('lucide:clock-alert', {class: 'kt-icon'}) }}</span>Ističe uskoro: rok u narednih 3 radna dana</li>
-                <li><span class="kt-mx-key kt-mx-progress">3/4</span>U toku</li>
-                <li><span class="kt-mx-key kt-mx-success">{{ ux_icon('lucide:circle-check-big', {class: 'kt-icon'}) }}</span>Sve gotovo</li>
-                <li><span class="kt-mx-key kt-mx-none">—</span>Nema zadataka u periodu</li>
+                <li><span class="kt-mx-key kt-mx-danger">{{ ux_icon('lucide:triangle-alert', {class: 'kt-icon'}) }}</span>Kasni: neki zadatak tog posla ima rok koji je prošao (a nije urađen)</li>
+                <li><span class="kt-mx-key kt-mx-warning">{{ ux_icon('lucide:clock-alert', {class: 'kt-icon'}) }}</span>Ističe uskoro: rok u narednih {{ mx.warningDays }} radna dana</li>
+                <li><span class="kt-mx-key kt-mx-progress">{{ ux_icon('lucide:circle-ellipsis', {class: 'kt-icon'}) }}</span>U toku</li>
+                <li><span class="kt-mx-key kt-mx-success">{{ ux_icon('lucide:circle-check-big', {class: 'kt-icon'}) }}</span>Urađeno: svi zadaci tog posla u mesecu su gotovi</li>
+                <li><span class="kt-mx-key kt-mx-none">—</span>Klijent nema ovaj posao ili zadatak još nije generisan za izabrani mesec</li>
             </ul>
         </details>
     </div>

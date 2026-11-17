@@ -1,6 +1,8 @@
-{# Tabela (od md naviše) i lista kartica (telefon); isti podaci, jedna se krije CSS-om #}
+{# Tabela (od md naviše) i lista kartica (telefon); isti podaci, jedna se krije CSS-om. Kolone su poslovi izabrane kategorije. #}
 {% import 'matrix/_parts.html.twig' as p %}
-{% if mx.rows is empty %}
+{% if mx.categoryIsEmpty %}
+    <div class="kt-mx-empty">{{ ux_icon('lucide:briefcase', {class: 'kt-icon kt-icon-lg d-block mb-2'}) }}Nema poslova u ovoj kategoriji.</div>
+{% elseif mx.rows is empty %}
     <div class="kt-mx-empty">{{ ux_icon('lucide:search', {class: 'kt-icon kt-icon-lg d-block mb-2'}) }}Nema klijenata za izabrane filtere.</div>
 {% else %}
     <div class="kt-mx-scroll {{ full ? 'is-full' }}" data-kt-mx-scroll>
@@ -8,9 +10,8 @@
             <thead>
                 <tr>
                     <th scope="col" class="kt-mx-col-client">Klijent</th>
-                    <th scope="col" class="kt-mx-col-people">Zaduženi</th>
-                    {% for pkg in mx.columns %}<th scope="col" class="text-center" title="{{ pkg.name }}">{{ pkg.name }}</th>{% endfor %}
-                    <th scope="col" class="text-center kt-mx-col-other">Ostali taskovi</th>
+                    <th scope="col" class="kt-mx-col-people">Tim</th>
+                    {% for job in mx.columns %}<th scope="col" class="text-center kt-mx-col-job" title="{{ job.name }}"><span>{{ job.name }}</span></th>{% endfor %}
                 </tr>
             </thead>
             <tbody data-kt-mx-rows>{{ p.rows(mx) }}</tbody>

@@ -22,9 +22,13 @@ interface ExportListInterface
     /**
      * Kolone: [['label' => 'Naziv', 'type' => 'text|number|money|date', 'width' => 30], ...]
      *
+     * Query i korisnik su tu zbog lista čije kolone zavise od filtera i vidljivosti (matrica: kolone izabrane kategorije).
+     *
+     * @param array<string, mixed> $query
+     *
      * @return list<array{label: string, type: string, width: int}>
      */
-    public function getColumns(): array;
+    public function getColumns(array $query = [], ?User $user = null): array;
 
     /**
      * Broj redova pre provere prava po redu (za odluku da li izvoz ide u pozadini).

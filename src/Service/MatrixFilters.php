@@ -3,18 +3,18 @@
 namespace App\Service;
 
 /**
- * Filteri matrice "Pregled poslova po klijentima" (SPEC 8r). Sve je u URL-u: q, user, pkg (id-evi sa zarezom), period (YYYY-MM), open, problem.
+ * Filteri matrice "Pregled poslova po klijentima" (SPEC 8r). Sve je u URL-u: q, user, cat (id kategorije poslova), period (YYYY-MM), open, problem.
  * Period je kalendarski mesec roka zadatka.
  */
 final class MatrixFilters
 {
     /**
-     * @param list<int> $packageIds
+     * @param ?int $categoryId kategorija poslova (JobCategory); null = prva po redosledu (razrešava servis)
      */
     public function __construct(
         public readonly string $q = '',
         public readonly ?int $userId = null,
-        public readonly array $packageIds = [],
+        public readonly ?int $categoryId = null,
         public readonly int $year = 0,
         public readonly int $month = 0,
         public readonly bool $onlyOpen = false,
@@ -31,15 +31,15 @@ final class MatrixFilters
             $year = (int) $m[1];
             $month = (int) $m[2];
         }
-        $pkg = $query['pkg'] ?? [];
-        $pkg = \is_array($pkg) ? $pkg : explode(',', (string) $pkg);
-        $ids = array_values(array_unique(array_filter(array_map('intval', $pkg), static fn (int $i) => $i > 0)));
+        // neispravna vrednost (prazno, tekst, niz) se ignoriše
+        $cat = $query['cat'] ?? null;
+        $cat = \is_scalar($cat) && ctype_digit((string) $cat) && (int) $cat > 0 ? (int) $cat : null;
         $flag = static fn (string $k): bool => \in_array((string) ($query[$k] ?? ''), ['1', 'on', 'true'], true);
 
         return new self(
             q: mb_substr(trim((string) ($query['q'] ?? '')), 0, 100),
-            userId: (int) ($query['user'] ?? 0) ?: null,
-            packageIds: $ids,
+            userId: \is_scalar($query['user'] ?? null) && ctype_digit((string) $query['user']) && (int) $query['user'] > 0 ? (int) $query['user'] : null,
+            categoryId: $cat,
             year: $year,
             month: $month,
             onlyOpen: $flag('open'),
@@ -68,7 +68,7 @@ final class MatrixFilters
         return array_filter([
             'q' => '' !== $this->q ? $this->q : null,
             'user' => $this->userId,
-            'pkg' => [] !== $this->packageIds ? implode(',', $this->packageIds) : null,
+            'cat' => $this->categoryId,
             'period' => $this->periodKey(),
             'open' => $this->onlyOpen ? 1 : null,
             'problem' => $this->onlyProblem ? 1 : null,
