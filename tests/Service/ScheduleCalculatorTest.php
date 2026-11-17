@@ -59,6 +59,78 @@ class ScheduleCalculatorTest extends TestCase
         self::assertSame('Nedelja', $occ[1]['reason']);
     }
 
+    public function testNthWorkdayNovember2026(): void
+    {
+        // novembar 2026: 11.11. (sreda) je praznik; vikendi 1,7,8,14,15,21,22,28,29. 20. radni dan je 30.11.
+        $s = self::s(ScheduleType::NTH_WORKDAY, ['nthWorkingDay' => 20]);
+        $occ = $this->calc->nextOccurrences($s, new \DateTimeImmutable('2026-11-01'), 1);
+        self::assertSame('2026-11-30', $occ[0]['due']->format('Y-m-d'));
+        self::assertFalse($occ[0]['clamped']);
+        self::assertFalse($occ[0]['shifted']);
+        self::assertSame('2026-11', $occ[0]['key']);
+        self::assertSame('20. radni dan u mesecu', $this->calc->describe($s));
+    }
+
+    public function testNthWorkdaySkipsWeekendAndHoliday(): void
+    {
+        // 1. radni dan novembra 2026 je ponedeljak 2.11. (1.11. je nedelja)
+        $first = $this->calc->nextOccurrences(self::s(ScheduleType::NTH_WORKDAY, ['nthWorkingDay' => 1]), new \DateTimeImmutable('2026-11-01'), 1);
+        self::assertSame('2026-11-02', $first[0]['due']->format('Y-m-d'));
+        // radni dani: 2,3,4,5,6,9,10 (7. je 10.11.), pa 11.11. praznik se preskače i 8. radni dan je 12.11.
+        $seventh = $this->calc->nextOccurrences(self::s(ScheduleType::NTH_WORKDAY, ['nthWorkingDay' => 7]), new \DateTimeImmutable('2026-11-01'), 1);
+        self::assertSame('2026-11-10', $seventh[0]['due']->format('Y-m-d'));
+        $eighth = $this->calc->nextOccurrences(self::s(ScheduleType::NTH_WORKDAY, ['nthWorkingDay' => 8]), new \DateTimeImmutable('2026-11-01'), 1);
+        self::assertSame('2026-11-12', $eighth[0]['due']->format('Y-m-d'), 'praznik 11.11. se ne broji');
+    }
+
+    public function testNthWorkdayMonthWithTooFewWorkingDays(): void
+    {
+        // novembar 2026 ima 20 radnih dana: 23. radni dan se svodi na poslednji (30.11.) uz clamped
+        $occ = $this->calc->nextOccurrences(self::s(ScheduleType::NTH_WORKDAY, ['nthWorkingDay' => 23]), new \DateTimeImmutable('2026-11-01'), 1);
+        self::assertSame('2026-11-30', $occ[0]['due']->format('Y-m-d'));
+        self::assertTrue($occ[0]['clamped']);
+    }
+
+    public function testNthWorkdayAcrossMonthAndYear(): void
+    {
+        $s = self::s(ScheduleType::NTH_WORKDAY, ['nthWorkingDay' => 3]);
+        $occ = $this->calc->nextOccurrences($s, new \DateTimeImmutable('2026-11-20'), 3);
+        // dec 2026: 1,2,3 => 3.12.; jan 2027: 1-2.1. praznici, 3.1. nedelja, odmor do 5.1. => 6,7,8 => 8.1.
+        self::assertSame(['2026-12-03', '2027-01-08', '2027-02-03'], self::dues($occ));
+    }
+
+    public function testNthWorkdayRespectsAnchor(): void
+    {
+        $s = self::s(ScheduleType::NTH_WORKDAY, ['nthWorkingDay' => 1]);
+        $occ = $this->calc->nextOccurrences($s, new \DateTimeImmutable('2026-11-01'), 2, new \DateTimeImmutable('2026-11-10'));
+        self::assertSame(['2026-12-01', '2027-01-06'], self::dues($occ), 'novembarski rok (2.11.) je pre početka posla');
+    }
+
+    public function testNthWorkdayValidation(): void
+    {
+        self::assertSame(23, Schedule::fromArray(['type' => 'NTH_WORKDAY', 'nthWorkingDay' => '23'])->getNthWorkingDay());
+        self::assertSame(20, Schedule::fromArray(['type' => 'NTH_WORKDAY', 'nthWorkingDay' => 20])->toArray()['nthWorkingDay']);
+    }
+
+    public function testExactDayKeepsNonWorkingDate(): void
+    {
+        $exact = ['nonWorkingDayShift' => 'EXACT'];
+        // 15.11.2026. je nedelja, 11.11. praznik, 14.11. subota
+        $sunday = $this->calc->nextOccurrences(self::s(ScheduleType::MONTHLY, ['dayOfMonth' => 15] + $exact), new \DateTimeImmutable('2026-11-01'), 1);
+        self::assertSame('2026-11-15', $sunday[0]['due']->format('Y-m-d'));
+        self::assertFalse($sunday[0]['shifted']);
+        self::assertSame('Nedelja', $sunday[0]['reason'], 'razlog ostaje za upozorenje u previewu');
+        $saturday = $this->calc->nextOccurrences(self::s(ScheduleType::MONTHLY, ['dayOfMonth' => 14] + $exact), new \DateTimeImmutable('2026-11-01'), 1);
+        self::assertSame('2026-11-14', $saturday[0]['due']->format('Y-m-d'));
+        $holiday = $this->calc->nextOccurrences(self::s(ScheduleType::MONTHLY, ['dayOfMonth' => 11] + $exact), new \DateTimeImmutable('2026-11-01'), 1);
+        self::assertSame('2026-11-11', $holiday[0]['due']->format('Y-m-d'));
+        self::assertSame('Dan primirja', $holiday[0]['reason']);
+        $working = $this->calc->nextOccurrences(self::s(ScheduleType::MONTHLY, ['dayOfMonth' => 17] + $exact), new \DateTimeImmutable('2026-11-01'), 1);
+        self::assertNull($working[0]['reason']);
+        self::assertSame('2026-11', $sunday[0]['key'], 'ključ perioda isti kao kod pomeranja');
+        self::assertStringContainsString('tačno tog dana', $this->calc->describe(self::s(ScheduleType::MONTHLY, ['dayOfMonth' => 15] + $exact)));
+    }
+
     public function testWeekendAndHolidayShift(): void
     {
         $next = $this->calc->nextOccurrences(self::s(ScheduleType::MONTHLY, ['dayOfMonth' => 15]), new \DateTimeImmutable('2026-11-01'), 1);

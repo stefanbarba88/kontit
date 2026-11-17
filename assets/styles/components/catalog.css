@@ -11,6 +11,7 @@
 
 .kt-schedule-preview { padding: 12px 14px; border-radius: var(--kt-radius); background: var(--kt-surface-2); border: 1px solid var(--kt-border); font-size: 13px; margin-bottom: 16px; }
 .kt-schedule-dates { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; color: var(--kt-text-2); font-variant-numeric: tabular-nums; }
+.kt-schedule-date.is-warning { color: var(--kt-warning); display: inline-flex; align-items: center; gap: 3px; cursor: help; }
 .kt-schedule-date.is-shifted { color: var(--kt-warning); display: inline-flex; align-items: center; gap: 3px; cursor: help; }
 .kt-schedule-date .kt-icon { width: 13px; height: 13px; }
 .kt-schedule-sep { color: var(--kt-text-3); }

@@ -2,7 +2,7 @@
 import { Tooltip } from 'bootstrap';
 import { ajax } from './ajax.js';
 
-const FIELDS = ['interval', 'dayOfWeek', 'dayOfMonth', 'monthOfQuarter', 'month', 'workingDaysOnly', 'leadDays', 'nonWorkingDayShift'];
+const FIELDS = ['interval', 'dayOfWeek', 'dayOfMonth', 'monthOfQuarter', 'month', 'workingDaysOnly', 'leadDays', 'nonWorkingDayShift', 'nthWorkingDay'];
 const escape = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 /**
@@ -59,7 +59,9 @@ export function initSchedule(box) {
             describe.classList.toggle('text-danger', Boolean(result.invalid));
             dates.innerHTML = result.occurrences.map((o) => (o.shifted
                 ? `<span class="kt-schedule-date is-shifted" data-bs-toggle="tooltip" title="${escape(o.tooltip)}"><svg viewBox="0 0 24 24" class="kt-icon" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4m4 4H4"/></g></svg>${escape(o.date)}</span>`
-                : `<span class="kt-schedule-date">${escape(o.date)}</span>`)).join('<span class="kt-schedule-sep">·</span>');
+                : o.warning
+                    ? `<span class="kt-schedule-date is-warning" data-bs-toggle="tooltip" title="${escape(o.tooltip)}"><svg viewBox="0 0 24 24" class="kt-icon" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></g></svg>${escape(o.date)}</span>`
+                    : `<span class="kt-schedule-date">${escape(o.date)}</span>`)).join('<span class="kt-schedule-sep">·</span>');
             dates.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => new Tooltip(el));
             preview.hidden = result.describe === '';
         } catch {

@@ -58,6 +58,11 @@ class Schedule
     #[ORM\Column(length: 10, nullable: true, enumType: NonWorkingDayShift::class)]
     private ?NonWorkingDayShift $nonWorkingDayShift = null;
 
+    /** NTH_WORKDAY: redni broj radnog dana u mesecu (1-23) */
+    #[ORM\Column(type: 'smallint', nullable: true)]
+    #[Assert\Range(min: 1, max: 23)]
+    private ?int $nthWorkingDay = null;
+
     public static function monthly(int $day = 15, int $leadDays = 10): self
     {
         return (new self())->setType(ScheduleType::MONTHLY)->setInterval(1)->setDayOfMonth($day)->setLeadDays($leadDays)->setNonWorkingDayShift(NonWorkingDayShift::NEXT);
@@ -71,6 +76,7 @@ class Schedule
             ScheduleType::WEEKLY => $require('dayOfWeek', $this->dayOfWeek, 'Izaberi dan u nedelji.'),
             ScheduleType::MONTHLY, ScheduleType::QUARTERLY => $require('dayOfMonth', $this->dayOfMonth, 'Unesi dan u mesecu.'),
             ScheduleType::YEARLY => [$require('month', $this->month, 'Izaberi mesec.'), $require('dayOfMonth', $this->dayOfMonth, 'Unesi dan u mesecu.')],
+            ScheduleType::NTH_WORKDAY => $require('nthWorkingDay', $this->nthWorkingDay, 'Unesi redni broj radnog dana (1-23).'),
             default => null,
         };
         if (0 === $this->dayOfMonth) {
@@ -105,6 +111,7 @@ class Schedule
             'workingDaysOnly' => $this->workingDaysOnly,
             'leadDays' => $this->leadDays,
             'nonWorkingDayShift' => $this->nonWorkingDayShift?->value,
+            'nthWorkingDay' => $this->nthWorkingDay,
         ];
     }
 
@@ -124,7 +131,20 @@ class Schedule
             ->setMonth($int('month'))
             ->setWorkingDaysOnly(isset($data['workingDaysOnly']) ? filter_var($data['workingDaysOnly'], \FILTER_VALIDATE_BOOL) : null)
             ->setLeadDays($int('leadDays'))
-            ->setNonWorkingDayShift(NonWorkingDayShift::tryFrom((string) ($data['nonWorkingDayShift'] ?? '')));
+            ->setNonWorkingDayShift(NonWorkingDayShift::tryFrom((string) ($data['nonWorkingDayShift'] ?? '')))
+            ->setNthWorkingDay($int('nthWorkingDay'));
+    }
+
+    public function getNthWorkingDay(): ?int
+    {
+        return $this->nthWorkingDay;
+    }
+
+    public function setNthWorkingDay(?int $nthWorkingDay): static
+    {
+        $this->nthWorkingDay = $nthWorkingDay;
+
+        return $this;
     }
 
     public function getType(): ?ScheduleType

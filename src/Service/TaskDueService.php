@@ -23,6 +23,7 @@ class TaskDueService
         private readonly ScheduleResolver $resolver,
         private readonly ScheduleChangeService $changes,
         private readonly ScheduleCalculator $calculator,
+        private readonly WorkingDayService $workingDays,
     ) {
     }
 
@@ -54,6 +55,13 @@ class TaskDueService
             case ScheduleType::QUARTERLY:
             case ScheduleType::YEARLY:
                 $derived->setDayOfMonth($lastDay && $this->offersLastDay($newDue) ? Schedule::LAST_DAY : (int) $newDue->format('j'));
+                break;
+            case ScheduleType::NTH_WORKDAY:
+                // redni broj radnog dana izabranog datuma; neradni dan nema redni broj, pa se za budućnost ne nudi
+                if (!$this->workingDays->isWorkingDay($newDue)) {
+                    return null;
+                }
+                $derived->setNthWorkingDay($this->workingDays->countWorkingDays($newDue->modify('first day of this month'), $newDue));
                 break;
             default:
                 return null;

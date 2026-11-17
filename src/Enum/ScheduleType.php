@@ -13,6 +13,8 @@ enum ScheduleType: string
     case MONTHLY = 'MONTHLY';
     case QUARTERLY = 'QUARTERLY';
     case YEARLY = 'YEARLY';
+    /** N-ti radni dan u mesecu (nije N-ti dan u mesecu); vrednost staje u VARCHAR(12) */
+    case NTH_WORKDAY = 'NTH_WORKDAY';
 
     public function label(): string
     {
@@ -23,6 +25,7 @@ enum ScheduleType: string
             self::MONTHLY => 'Mesečno',
             self::QUARTERLY => 'Kvartalno',
             self::YEARLY => 'Godišnje',
+            self::NTH_WORKDAY => 'N-ti radni dan',
         };
     }
 }

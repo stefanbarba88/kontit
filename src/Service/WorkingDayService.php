@@ -80,6 +80,31 @@ class WorkingDayService
     }
 
     /**
+     * N-ti radni dan u mesecu (vikend, praznici i kolektivni odmori se ne računaju).
+     * Ako mesec ima manje od N radnih dana, vraća poslednji radni dan meseca sa clamped = true.
+     *
+     * @return array{date: \DateTimeImmutable, clamped: bool}
+     */
+    public function nthWorkingDayOfMonth(int $year, int $month, int $n): array
+    {
+        $first = new \DateTimeImmutable(sprintf('%04d-%02d-01', $year, $month));
+        $last = $first->modify('last day of this month');
+        $found = 0;
+        $lastWorking = null;
+        for ($d = $first; $d <= $last; $d = $d->modify('+1 day')) {
+            if ($this->isWorkingDay($d)) {
+                $lastWorking = $d;
+                if (++$found === $n) {
+                    return ['date' => $d, 'clamped' => false];
+                }
+            }
+        }
+
+        // mesec bez ijednog radnog dana (ceo mesec odmora) nije realan; poslednji kalendarski dan je bezbedan izbor
+        return ['date' => $lastWorking ?? $last, 'clamped' => true];
+    }
+
+    /**
      * Neradni dani u opsegu (uključujući oba kraja) sa razlogom.
      *
      * @return array<string, string> Y-m-d => razlog

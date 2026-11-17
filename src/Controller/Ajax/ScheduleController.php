@@ -38,7 +38,14 @@ class ScheduleController extends AbstractAjaxController
                 'date' => $this->format($occ['due']),
                 'iso' => $occ['due']->format('Y-m-d'),
                 'shifted' => $occ['shifted'],
-                'tooltip' => $occ['shifted'] ? $this->shiftText($occ['nominal'], $occ['due'], (string) $occ['reason']) : null,
+                // EXACT na neradni dan: rok nije pomeren, ali se upozorava (reason postoji, shifted ne)
+                'warning' => $occ['clamped'] || (!$occ['shifted'] && null !== $occ['reason']),
+                'tooltip' => match (true) {
+                    $occ['clamped'] => sprintf('%s nema %d. radni dan, uzet je poslednji radni dan meseca', $occ['label'], $schedule->getNthWorkingDay() ?? 1),
+                    $occ['shifted'] => $this->shiftText($occ['nominal'], $occ['due'], (string) $occ['reason']),
+                    null !== $occ['reason'] => $this->exactText($occ['due'], (string) $occ['reason']),
+                    default => null,
+                },
                 'period' => $occ['label'],
             ];
         }
@@ -56,6 +63,14 @@ class ScheduleController extends AbstractAjaxController
     private function short(\DateTimeImmutable $d): string
     {
         return sprintf('%d. %s', $d->format('j'), self::MONTHS_SHORT[(int) $d->format('n') - 1]);
+    }
+
+    /** "15. nov je nedelja (neradni dan), rok ostaje tog dana" */
+    private function exactText(\DateTimeImmutable $due, string $reason): string
+    {
+        $isWeekday = \in_array($reason, ['Ponedeljak', 'Utorak', 'Sreda', 'Četvrtak', 'Petak', 'Subota', 'Nedelja'], true);
+
+        return sprintf('%s je %s, rok ostaje tog dana', $this->short($due), $isWeekday ? mb_strtolower($reason) : 'neradni dan ('.$reason.')');
     }
 
     /**

@@ -9,12 +9,15 @@ enum NonWorkingDayShift: string
 {
     case NEXT = 'NEXT';
     case PREVIOUS = 'PREVIOUS';
+    /** Bez pomeranja: rok ostaje tačno tog dana, čak i ako je vikend ili praznik. */
+    case EXACT = 'EXACT';
 
     public function label(): string
     {
         return match ($this) {
             self::NEXT => 'Prvi sledeći radni dan',
             self::PREVIOUS => 'Prethodni radni dan',
+            self::EXACT => 'Tačno taj dan (i ako je neradni)',
         };
     }
 }
