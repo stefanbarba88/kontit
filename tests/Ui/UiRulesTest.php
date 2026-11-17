@@ -121,4 +121,41 @@ class UiRulesTest extends TestCase
         }
         self::assertSame([], $bad, implode("\n", $bad));
     }
+
+    /** Vreme se bira samo zajedničkom komponentom (select, 24h, korak 30 min); nativni type=time/datetime-local zavisi od jezika browsera (SPEC 8p.6). */
+    public function testNoNativeTimeInputs(): void
+    {
+        $bad = [];
+        foreach ($this->files(['twig', 'js']) as [$rel, $src]) {
+            if (preg_match_all('/<input\b[^>]*\btype=["\'](time|datetime-local)["\']/i', $src, $m, PREG_OFFSET_CAPTURE)) {
+                foreach ($m[0] as [, $offset]) {
+                    $bad[] = $rel.':'.$this->line($src, $offset);
+                }
+            }
+        }
+        self::assertSame([], $bad, 'Koristi templates/components/time_select.html.twig ili assets/js/time-select.js umesto type=time/datetime-local: '.implode(', ', $bad));
+    }
+
+    /** Bez 12h formata (g:i, h:i, AM/PM, hour12: true) i bez sirovog |date('... H:i') u šablonima: vreme ide kroz kt_time / kt_datetime / kt_datetime_short. */
+    public function testNoTwelveHourFormatsAndNoRawTimeDateFilters(): void
+    {
+        $rules = [
+            '/(?:date|format)\(\s*[\'"][^\'"]*(?<![A-Za-z])[gGh]:i/' => '12h format vremena',
+            '/(?:date|format)\(\s*[\'"][^\'"]*i\s?[aA][\'"]/' => 'AM/PM u formatu',
+            '/\bhour12\s*:\s*true\b/' => 'hour12: true',
+            '/\btoLocaleTimeString\(/' => 'toLocaleTimeString (zavisi od jezika browsera)',
+            '/\|date\(\s*[\'"][^\'"]*[Hh]:i/' => 'sirovi |date sa vremenom (koristi kt_time / kt_datetime / kt_datetime_short)',
+        ];
+        $bad = [];
+        foreach ($this->files(['twig', 'js']) as [$rel, $src]) {
+            foreach ($rules as $regex => $why) {
+                if (preg_match_all($regex, $src, $m, PREG_OFFSET_CAPTURE)) {
+                    foreach ($m[0] as [, $offset]) {
+                        $bad[] = $rel.':'.$this->line($src, $offset).' ('.$why.')';
+                    }
+                }
+            }
+        }
+        self::assertSame([], $bad, implode("\n", $bad));
+    }
 }
