@@ -580,7 +580,7 @@ Radi u pregledaču, prijavljen kao superadmin. Svaka stavka ima očekivani ishod
 | 6 | **Administracija → Pozicije** i **Korisnici** → korisnik | spisak pozicija (Entry level, Junior, Samostalni knjigovođa, Šef + eventualno nove); svaki korisnik ima svoju poziciju |
 | 7 | **Posebne potvrde** | strana se otvara (može da bude prazna), brojač u meniju bez greške |
 | 8 | **Podsetnik**: **+ Dodaj**, naslov „Test“, **Obavesti me** za 2 minuta | stavka se pojavi; **posle ~2 minuta stiže obaveštenje u zvonce** (dokaz da radi cron `send-reminders`); posle toga obriši stavku |
-| 9 | **Pregled poslova**: klikni ćeliju | otvara se prozor sa zadacima; **Izvoz → Excel** se preuzima |
+| 9 | **Pregled poslova**: izaberi drugu **Kategoriju poslova** | kolone (poslovi) se promene bez osvežavanja strane, ćelije su zelena/crvena/siva ikonica ili crtica; **Izvoz → Excel** se preuzima |
 | 10 | **Kalendar** | mesec se prikazuje; dani u nedelji odgovaraju datumu (bivši problem); filter **Podsetnik** postoji |
 | 11 | **Odsustva** → **Zahtev za odsustvo** | forma se otvara i prikazuje **Pregled zahteva** |
 | 12 | **Moj profil → Moji dokumenti**: otvori postojeći dokument | otvara se pregled (potvrda da su `var/storage` i prava ispravni) |
