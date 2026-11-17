@@ -107,7 +107,7 @@ Kartice na Početnoj su jedna ispod druge, preko cele širine, ovim redom: **Zad
 Blok **Zadaci** pokazuje brojke samo za tebe:
 
 - **Otvoreni zadaci**: koliko zadataka još nije završeno.
-- **Kasne**: zadaci kojima je prošao rok. Ovo rešavaj prvo.
+- **Kasne**: zadaci kojima je prošao rok. Ovo rešavaj prvo. Ako rok pada na subotu, nedelju ili praznik, zadatak ne kasni dok ne prođe prvi radni dan posle njega.
 - **Ističu u 3 dana**: zadaci kojima rok stiže uskoro.
 - **Završeno ovog meseca**: uz poređenje sa prošlim mesecom.
 - **Završeno na vreme**: koliki deo zadataka si predao do roka (poslednjih 90 dana).
@@ -154,7 +154,7 @@ Meni **Zadaci**. Gore su tabovi:
 | **Svi** | sve tvoje zadatke |
 | **Danas** | rok je danas |
 | **Ova nedelja** | rok je do kraja nedelje |
-| **Kasne** | rok je prošao, a zadatak nije završen |
+| **Kasne** | rok je prošao, a zadatak nije završen. Rok koji pada na vikend ili praznik kasni tek od prvog radnog dana posle njega |
 | **Na proveri** | ti si završio, čeka se potvrda šefa |
 
 Ispod tabova su filteri (vidi ispod). Dugme **Izvoz** pravi Excel, CSV ili PDF tačno od onoga što trenutno vidiš.
