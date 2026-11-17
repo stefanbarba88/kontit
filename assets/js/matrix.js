@@ -1,28 +1,17 @@
-import Swal from 'sweetalert2';
 import { ajax } from './ajax.js';
-import { swalFire, toast } from './confirm.js';
-import { icon } from './icons.js';
+import { toast } from './confirm.js';
 
 /**
- * Matrica "Pregled poslova po klijentima" (SPEC 8r): filteri (AJAX, bez osvežavanja strane), učitavanje sledećih strana
- * i SweetAlert prozor sa zadacima ćelije. Stanje filtera je u URL-u (deljiv link) i pamti se po korisniku u localStorage.
- * Spisak zadataka ćelije se učitava tek na klik (GET /ajax/matrix/cell) i drži u memoriji strane dok se filteri ne promene.
+ * Matrica "Pregled poslova po klijentima" (SPEC 8r): filteri (AJAX, bez osvežavanja strane) i učitavanje sledećih strana.
+ * Ćelije su samo prikaz statusa (bez klika). Stanje filtera je u URL-u (deljiv link) i pamti se po korisniku u localStorage.
  */
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-
-const STATUS_ICON = { NOVO: 'circle', U_RADU: 'play', CEKA_KLIJENTA: 'hourglass', NA_PROVERI: 'eye', ZAVRSENO: 'circle-check-big' };
-const GROUP_ICON = { overdue: 'triangle-alert', soon: 'clock-alert' };
-const SUMMARY_ICON = { danger: 'triangle-alert', warning: 'clock-alert', success: 'circle-check-big' };
-
 function init(root) {
     const form = root.querySelector('[data-kt-mx-filters]');
     const bodyEl = root.querySelector('[data-kt-matrix-body]');
-    const countersEl = root.querySelector('[data-kt-mx-counters]');
     const full = root.dataset.full === '1';
     const storageKey = `kt-matrix-${root.dataset.user}`;
     const defaultPeriod = root.dataset.defaultPeriod || '';
     const defaultCat = root.dataset.defaultCat || '';
-    const cache = new Map();
     let page = Number(root.dataset.page) || 1;
     let timer = null;
     let seq = 0;
@@ -37,15 +26,13 @@ function init(root) {
         if (field('user').value) { p.set('user', field('user').value); }
         if (field('cat') && field('cat').value) { p.set('cat', field('cat').value); }
         if (field('period').value) { p.set('period', field('period').value); }
-        if (field('open').checked) { p.set('open', '1'); }
-        if (field('problem').checked) { p.set('problem', '1'); }
 
         return p;
     };
 
     const activeCount = () => {
         const p = params();
-        return ['q', 'user', 'open', 'problem'].filter((k) => p.has(k)).length;
+        return ['q', 'user'].filter((k) => p.has(k)).length;
     };
 
     const updateBadge = () => {
@@ -89,10 +76,8 @@ function init(root) {
         try {
             const { data } = await ajax('GET', `${root.dataset.url}?${p.toString()}`);
             if (mine !== seq) { return; }
-            countersEl.innerHTML = data.counters;
             if (nextPage === 1) {
                 bodyEl.innerHTML = data.body;
-                cache.clear();
             } else {
                 bodyEl.querySelector('[data-kt-mx-rows]')?.insertAdjacentHTML('beforeend', data.rows);
                 bodyEl.querySelector('[data-kt-mx-cards]')?.insertAdjacentHTML('beforeend', data.cards);
@@ -136,36 +121,24 @@ function init(root) {
     field('q').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(timer); refresh(); } });
     form.querySelector('[data-kt-mx-clear-q]').addEventListener('click', () => { field('q').value = ''; clearTimeout(timer); refresh(); field('q').focus(); });
     form.addEventListener('change', (e) => { if (e.target !== field('q')) { refresh(); } });
+    // "Poništi filtere" resetuje pretragu, zaposlenog i mesec; izabrana kategorija ostaje (to je izbor prikaza, ne filter)
     form.querySelector('[data-kt-mx-reset]').addEventListener('click', () => {
         field('q').value = '';
         field('user').tomselect ? field('user').tomselect.clear(true) : (field('user').value = '');
         field('period').value = defaultPeriod || field('period').value;
-        field('open').checked = false;
-        field('problem').checked = false;
         refresh();
     });
 
     root.addEventListener('click', (e) => {
-        // brojač u zaglavlju: uključuje "Samo problematični"
-        if (e.target.closest('[data-kt-mx-problem]')) {
-            field('problem').checked = true;
-            refresh();
-
-            return;
-        }
         if (e.target.closest('[data-kt-mx-more]')) {
             load(page + 1);
-
-            return;
         }
-        const cell = e.target.closest('[data-kt-mx-cell]');
-        if (cell) { openCell(cell); }
     });
 
     // sačuvani filteri se primenjuju samo kad link nema svoje
     try {
         const saved = localStorage.getItem(storageKey);
-        const hasUrlFilters = ['q', 'user', 'cat', 'period', 'open', 'problem'].some((k) => new URLSearchParams(location.search).has(k));
+        const hasUrlFilters = ['q', 'user', 'cat', 'period'].some((k) => new URLSearchParams(location.search).has(k));
         if (saved && !hasUrlFilters) {
             const p = new URLSearchParams(saved);
             field('q').value = p.get('q') || '';
@@ -175,76 +148,9 @@ function init(root) {
             setSelect(field('user'), p.get('user') ? [p.get('user')] : []);
             if (p.get('cat') && [...field('cat').options].some((o) => o.value === p.get('cat'))) { setSelect(field('cat'), [p.get('cat')]); }
             if (p.get('period') && [...field('period').options].some((o) => o.value === p.get('period'))) { field('period').value = p.get('period'); }
-            field('open').checked = p.get('open') === '1';
-            field('problem').checked = p.get('problem') === '1';
             refresh();
         }
     } catch (e) { /* bez localStorage-a nema pamćenja */ }
-
-    // --- SweetAlert prozor sa zadacima ćelije ---
-    const skeleton = '<div class="kt-mx-skel" aria-busy="true"><span></span><span></span><span></span></div>';
-
-    const taskRow = (t, group) => {
-        const cls = group === 'overdue' ? 'is-overdue' : (group === 'soon' ? 'is-soon' : (group === 'done' ? 'is-done' : ''));
-        const ic = GROUP_ICON[group] || STATUS_ICON[t.status] || 'circle';
-        const due = group === 'done' ? (t.finishedAt ? `završeno ${esc(t.finishedAt)}` : '') : (t.due ? `rok ${esc(t.due)}` : 'bez roka');
-        const who = t.people.map((u) => `<span class="kt-avatar" title="${esc(u.name)}">${esc(u.initials)}</span>`).join('');
-
-        return `<div class="kt-mx-task ${cls}" title="${esc(t.statusLabel)}">${icon(ic)}<a href="${esc(t.url)}">${esc(t.title)}</a><span class="kt-mx-due">${due}</span><span class="kt-mx-who">${who}</span></div>`;
-    };
-
-    const renderCell = (d) => {
-        const groups = d.groups.map((g) => `<section class="kt-mx-group"><h3 class="kt-mx-group-title">${esc(g.label)}</h3>${g.rows.map((t) => taskRow(t, g.key)).join('')}</section>`).join('');
-        const more = d.more > 0 ? `<div class="kt-mx-more">i još ${d.more} ${d.more === 1 ? 'zadatak' : (d.more < 5 ? 'zadatka' : 'zadataka')}</div>` : '';
-        const sum = `<div class="kt-mx-sum kt-mx-${esc(d.state)}">${SUMMARY_ICON[d.state] ? icon(SUMMARY_ICON[d.state]) : ''}${esc(d.summary)}</div>`;
-
-        return `${sum}<div class="kt-mx-list">${groups || '<p class="text-muted mb-0">Nema zadataka u ovom periodu.</p>'}${more}</div>`;
-    };
-
-    async function openCell(btn) {
-        const period = field('period').value;
-        const key = `${btn.dataset.client}|${btn.dataset.job}|${period}`;
-        const url = `${root.dataset.cellUrl}?client=${encodeURIComponent(btn.dataset.client)}&job=${encodeURIComponent(btn.dataset.job)}&period=${encodeURIComponent(period)}`;
-        let listUrl = null;
-
-        const fill = async () => {
-            const box = Swal.getHtmlContainer();
-            if (!box) { return; }
-            box.innerHTML = skeleton;
-            try {
-                if (!cache.has(key)) { cache.set(key, (await ajax('GET', url)).data); }
-                const d = cache.get(key);
-                if (!Swal.isVisible()) { return; }
-                Swal.getTitle().textContent = `${d.jobName} · ${d.clientName} · ${d.period}`;
-                Swal.getHtmlContainer().innerHTML = renderCell(d);
-                listUrl = d.listUrl;
-                Swal.getConfirmButton().disabled = false;
-            } catch (e) {
-                if (!Swal.isVisible()) { return; }
-                Swal.getHtmlContainer().innerHTML = `<p class="text-danger">${esc(e.message || 'Zadatke nije moguće učitati.')}</p><button type="button" class="btn btn-outline-secondary btn-sm" data-kt-mx-retry>Pokušaj ponovo</button>`;
-                Swal.getHtmlContainer().querySelector('[data-kt-mx-retry]').addEventListener('click', fill);
-            }
-        };
-
-        const result = await swalFire({
-            title: btn.getAttribute('aria-label')?.split(':')[0] || 'Zadaci',
-            html: skeleton,
-            showCancelButton: true,
-            confirmButtonText: 'Otvori listu zadataka',
-            cancelButtonText: 'Zatvori',
-            allowOutsideClick: true,
-            allowEscapeKey: true,
-            returnFocus: true,
-            customClass: { popup: 'kt-swal kt-mx-pop' },
-            didOpen: () => {
-                Swal.getConfirmButton().disabled = true;
-                fill();
-            },
-        });
-        if (result.isConfirmed && listUrl) {
-            window.location.href = listUrl;
-        }
-    }
 }
 
 document.querySelectorAll('[data-kt-matrix]').forEach(init);

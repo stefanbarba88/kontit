@@ -151,7 +151,7 @@ class ClientJobMatrixTest extends DatabaseTestCase
         self::assertSame('progress', $this->grid($this->view($admin))['Alfa']['Nedeljni']);
 
         $this->job($admin, $c, $weekly, '2027-03-08'); // uskoro (ponedeljak)
-        self::assertSame('warning', $this->grid($this->view($admin))['Alfa']['Nedeljni'], 'uskoro ističe pobeđuje u toku');
+        self::assertSame('progress', $this->grid($this->view($admin))['Alfa']['Nedeljni'], 'zadatak koji uskoro ističe je i dalje samo "u toku"');
 
         $this->job($admin, $c, $weekly, '2027-03-01'); // kasni
         self::assertSame('danger', $this->grid($this->view($admin))['Alfa']['Nedeljni'], 'kasni pobeđuje sve');
@@ -163,12 +163,13 @@ class ClientJobMatrixTest extends DatabaseTestCase
     public function testCellStates(): void
     {
         $svc = $this->svc();
-        self::assertSame(MatrixState::SUCCESS, $svc->cellState(3, 3, 0, 0));
-        self::assertSame(MatrixState::DANGER, $svc->cellState(4, 3, 1, 0));
-        self::assertSame(MatrixState::DANGER, $svc->cellState(4, 2, 1, 1), 'zakasnelo pobeđuje žuto');
-        self::assertSame(MatrixState::WARNING, $svc->cellState(4, 3, 0, 1));
-        self::assertSame(MatrixState::IN_PROGRESS, $svc->cellState(4, 1, 0, 0));
-        self::assertSame(MatrixState::NONE, $svc->cellState(0, 0, 0, 0));
+        self::assertSame(MatrixState::SUCCESS, $svc->cellState(3, 3, 0), 'svi urađeni = zeleno');
+        self::assertSame(MatrixState::DANGER, $svc->cellState(4, 3, 1), 'bar jedan kasni = crveno');
+        self::assertSame(MatrixState::DANGER, $svc->cellState(4, 0, 4));
+        self::assertSame(MatrixState::IN_PROGRESS, $svc->cellState(4, 1, 0), 'otvoren a ne kasni = neutralno');
+        self::assertSame(MatrixState::IN_PROGRESS, $svc->cellState(1, 0, 0));
+        self::assertSame(MatrixState::NONE, $svc->cellState(0, 0, 0), 'nema zadataka = crtica');
+        self::assertSame(['Urađeno', 'Kasni', 'U toku', 'Nema posla'], [MatrixState::SUCCESS->label(), MatrixState::DANGER->label(), MatrixState::IN_PROGRESS->label(), MatrixState::NONE->label()]);
     }
 
     public function testStatesFromRealDeadlinesAndWorkingDays(): void
@@ -188,15 +189,14 @@ class ClientJobMatrixTest extends DatabaseTestCase
         $this->job($admin, $clients['Stara'], $t, '2027-03-01', TaskStatus::ZAVRSENO); // stari rok, ali završeno
         $this->job($admin, $clients['Stara'], $t, '2027-03-02', TaskStatus::ZAVRSENO);
 
-        self::assertSame('2027-03-10', $this->svc()->soonUntil()->format('Y-m-d'), 'petak + 3 radna dana = sreda');
         $grid = $this->grid($this->view($admin));
         self::assertSame('danger', $grid['Crvena']['Posao']);
-        self::assertSame('warning', $grid['Zuta']['Posao']);
-        self::assertSame('warning', $grid['Ponedeljak']['Posao']);
+        self::assertSame('progress', $grid['Zuta']['Posao']);
+        self::assertSame('progress', $grid['Ponedeljak']['Posao']);
         self::assertSame('progress', $grid['Daleko']['Posao']);
         self::assertSame('success', $grid['Stara']['Posao'], 'sve završeno sa starim rokom nikad nije crveno');
-        $crvena = array_values(array_filter($this->view($admin)->rows, static fn (array $r) => 'Crvena' === $r['client']->getShortName()))[0];
-        self::assertSame('1 od 2 gotovo, 1 kasni', $crvena['cells'][$t->getId()]->summary);
+        $crvena = array_values(array_filter($this->view($admin)->rows, static fn (array $r) => 'Crvena' === $r['client']->getShortName()))[0]['cells'][$t->getId()];
+        self::assertSame([2, 1, 1], [$crvena->total, $crvena->done, $crvena->overdue]);
     }
 
     /** Rok "tačno taj dan" na vikendu (EXACT): stanja se računaju po kalendarskom datumu roka, a prozor "uskoro" po radnim danima. */
@@ -214,12 +214,12 @@ class ClientJobMatrixTest extends DatabaseTestCase
         $this->job($admin, $clients['Nedelja'], $t, '2027-03-07');
 
         $grid = $this->grid($this->view($admin));
-        self::assertSame('warning', $grid['Subota']['Posao']);
+        self::assertSame('progress', $grid['Subota']['Posao']);
         self::assertSame('progress', $grid['Posle']['Posao']);
-        self::assertSame('warning', $grid['Nedelja']['Posao']);
+        self::assertSame('progress', $grid['Nedelja']['Posao']);
 
         $sunday = $this->gridAt('2027-03-07', $admin);
-        self::assertSame('warning', $sunday['Subota']['Posao'], 'rok na neradni dan ne kasni dok ne prođe prvi radni dan posle njega');
+        self::assertSame('progress', $sunday['Subota']['Posao'], 'rok na neradni dan ne kasni dok ne prođe prvi radni dan posle njega');
         $monday = $this->gridAt('2027-03-08', $admin);
         self::assertSame('danger', $monday['Subota']['Posao']);
         self::assertSame('danger', $monday['Nedelja']['Posao']);
@@ -245,10 +245,10 @@ class ClientJobMatrixTest extends DatabaseTestCase
             $this->job($admin, $clients['Radni'], $t, '2027-03-09');
 
             $onHoliday = $this->gridAt('2027-03-10', $admin);
-            self::assertSame('warning', $onHoliday['Praznik']['Posao'], 'na sam praznik rok ne kasni');
+            self::assertSame('progress', $onHoliday['Praznik']['Posao'], 'na sam praznik rok ne kasni');
             self::assertSame('danger', $onHoliday['Radni']['Posao']);
             self::assertSame('danger', $this->gridAt('2027-03-11', $admin)['Praznik']['Posao']);
-            self::assertSame('warning', $this->gridAt('2027-03-28', $admin)['Odmor']['Posao']);
+            self::assertSame('progress', $this->gridAt('2027-03-28', $admin)['Odmor']['Posao']);
             self::assertSame('danger', $this->gridAt('2027-03-29', $admin)['Odmor']['Posao']);
         } finally {
             $workingDays->invalidate(); // transakcija se vraća, pa i keširani neradni dani moraju
@@ -320,23 +320,14 @@ class ClientJobMatrixTest extends DatabaseTestCase
         self::assertEqualsCanonicalizing(['Đorđević', 'Zoran'], array_keys($this->grid($this->view($admin, ['user' => (string) $ben->getId()]))));
         self::assertSame(['Đorđević'], array_keys($this->grid($this->view($admin, ['user' => (string) $ana->getId()]))));
 
-        // "samo nezavršeno" i "samo problematični" gledaju samo izabranu kategoriju
-        self::assertSame([], array_keys($this->grid($this->view($admin, ['open' => '1']))), 'u Kat A je sve urađeno');
-        self::assertSame([], array_keys($this->grid($this->view($admin, ['problem' => '1']))));
-        $catB = (string) $this->cat('Kat B')->getId();
-        self::assertSame(['Zoran'], array_keys($this->grid($this->view($admin, ['cat' => $catB, 'open' => '1']))));
-        self::assertSame(['Zoran'], array_keys($this->grid($this->view($admin, ['cat' => $catB, 'problem' => '1']))));
+        // uklonjeni filteri se ignorišu (stari linkovi sa open i problem ne daju grešku)
+        self::assertCount(2, $this->grid($this->view($admin, ['open' => '1', 'problem' => '1'])));
+        self::assertArrayNotHasKey('open', $this->svc()->filters(['open' => '1'])->toQuery());
+        self::assertArrayNotHasKey('problem', $this->svc()->filters(['problem' => '1'])->toQuery());
 
         // izbor perioda: u aprilu nema zadataka
         $april = $this->svc()->build($this->svc()->filters(['period' => '2027-04']), $admin);
         self::assertSame('none', $this->grid($april)['Zoran']['Posao 1']);
-        // brojači zaglavlja i zakasneli van perioda (svi zadaci klijenata, ne samo kategorije)
-        $v = $this->view($admin, ['cat' => $catB]);
-        self::assertSame(1, $v->dangerCells);
-        self::assertSame(1, $v->overdueTasks);
-        $aprilB = $this->svc()->build($this->svc()->filters(['period' => '2027-04', 'cat' => $catB]), $admin);
-        self::assertSame(0, $aprilB->dangerCells);
-        self::assertSame(1, $aprilB->overdueTasks, 'zakasneli se broje nezavisno od perioda');
     }
 
     public function testEmptyCategory(): void
@@ -370,41 +361,6 @@ class ClientJobMatrixTest extends DatabaseTestCase
         self::assertFalse($this->view($admin, [], 2, 3)->hasMore());
     }
 
-    public function testCellDetailsMatchCellAndLimitToEightRows(): void
-    {
-        $admin = $this->user('Admin', Role::ADMIN);
-        $w = $this->user('Radnik');
-        $c = $this->client('Alfa', $w);
-        $this->em->flush();
-        $t = $this->tpl('Posao');
-        $other = $this->tpl('Drugi posao');
-        $this->job($admin, $c, $t, '2027-03-04', TaskStatus::U_RADU, [$w]); // kasni
-        $this->job($admin, $c, $t, '2027-03-08', TaskStatus::NOVO, [$w]); // uskoro
-        for ($i = 0; $i < 6; ++$i) {
-            $this->job($admin, $c, $t, '2027-03-25', TaskStatus::NOVO, [$w]);
-        }
-        for ($i = 0; $i < 3; ++$i) {
-            $this->job($admin, $c, $t, '2027-03-20', TaskStatus::ZAVRSENO, [$w]);
-        }
-        $this->job($admin, $c, $t, '2027-03-20', TaskStatus::OTKAZANO, [$w]);
-        $this->job($admin, $c, $other, '2027-03-20', TaskStatus::NOVO, [$w]); // drugi posao, ne ulazi
-
-        $svc = $this->svc();
-        $f = $svc->filters(['period' => '2027-03']);
-        $cell = $svc->build($f, $w)->rows[0]['cells'][$t->getId()];
-        $d = $svc->cellDetails($w, $c, $t, $f);
-        self::assertSame($cell->total, $d['total']);
-        self::assertSame($cell->done, $d['done']);
-        self::assertSame($cell->summary, $d['summary']);
-        self::assertSame($cell->state->value, $d['state']);
-        self::assertSame(11, $d['total']);
-        self::assertSame(['Kasni', 'Ističe uskoro', 'U toku'], array_column($d['groups'], 'label'), 'grupe redom; 8 redova je potrošeno pre "Završeno"');
-        self::assertSame(8, array_sum(array_map(static fn (array $g) => \count($g['rows']), $d['groups'])), 'najviše 8 redova');
-        self::assertSame(3, $d['more'], 'i još 3 zadatka');
-        self::assertStringContainsString('job='.$t->getId(), $d['listUrl']);
-        self::assertSame(1, $svc->cellDetails($w, $c, $other, $f)['total']);
-    }
-
     public function testBuildQueryCountDoesNotGrowWithClients(): void
     {
         $admin = $this->user('Admin', Role::ADMIN);
@@ -430,7 +386,7 @@ class ClientJobMatrixTest extends DatabaseTestCase
         }
         $n = \count($holder->getData()['default'] ?? []);
         self::assertCount(30, $v->rows);
-        self::assertLessThanOrEqual(10, $n, 'upiti ne smeju da rastu sa brojem klijenata');
+        self::assertLessThanOrEqual(8, $n, 'upiti ne smeju da rastu sa brojem klijenata');
     }
 
     private function package(string $name): ServicePackage

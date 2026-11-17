@@ -1,15 +1,13 @@
 {#
     Delovi matrice "Pregled poslova po klijentima" (SPEC 8r), zajednički za početnu, stranicu i AJAX osvežavanje.
-    Ćelija je samo status (ikonica u boji), bez brojača; dugme otvara SweetAlert prozor sa zadacima (assets/js/matrix.js); hover ima samo običan title.
+    Ćelija je samo ikonica statusa (bez brojača i bez klika): zeleno = urađeno, crveno = kasni, siva tačka = u toku, crtica = nema posla.
     Boja nije jedini nosilac značenja: uz nju idu ikonica i tekst u title / aria-label.
 #}
-{% macro cell(cell, client, job, label) %}
+{% macro cell(cell, label) %}
     {% if cell.state.value == 'none' %}
-        <span class="kt-mx-none" title="Klijent nema ovaj posao ili zadatak još nije generisan za izabrani mesec" aria-label="{{ label }}: klijent nema ovaj posao ili zadatak još nije generisan za izabrani mesec">—</span>
+        <span class="kt-mx-none" role="img" title="{{ cell.state.label }}" aria-label="{{ label }}: {{ cell.state.label }}">—</span>
     {% else %}
-        <button type="button" class="kt-mx-cell kt-mx-{{ cell.state.value }}" data-kt-mx-cell data-client="{{ client.id }}" data-job="{{ job }}" title="{{ cell.state.label }}: {{ cell.summary }}" aria-label="{{ label }}: {{ cell.state.label }}, {{ cell.summary }}">
-            {{ ux_icon('lucide:' ~ cell.state.icon, {class: 'kt-icon'}) }}
-        </button>
+        <span class="kt-mx-status kt-mx-{{ cell.state.value }}" role="img" title="{{ cell.state.label }}" aria-label="{{ label }}: {{ cell.state.label }}">{{ ux_icon('lucide:' ~ cell.state.icon, {class: 'kt-icon'}) }}</span>
     {% endif %}
 {% endmacro %}
 
@@ -28,7 +26,7 @@
             <th scope="row" class="kt-mx-col-client"><a href="{{ path('client_show', {id: row.client.id}) }}" class="kt-mx-client">{{ row.client.shortName }}</a></th>
             <td class="kt-mx-col-people">{{ p.people(row) }}</td>
             {% for job in mx.columns %}
-                <td class="text-center">{{ p.cell(row.cells[job.id], row.client, job.id, job.name ~ ' · ' ~ row.client.shortName) }}</td>
+                <td class="text-center">{{ p.cell(row.cells[job.id], job.name ~ ' · ' ~ row.client.shortName) }}</td>
             {% endfor %}
         </tr>
     {% endfor %}
@@ -44,7 +42,7 @@
                 {% for job in mx.columns %}
                     {% if row.cells[job.id].state.value != 'none' %}
                         {% set shown = shown + 1 %}
-                        <div class="kt-mx-chip"><span class="kt-mx-chip-name" title="{{ job.name }}">{{ job.name }}</span>{{ p.cell(row.cells[job.id], row.client, job.id, job.name ~ ' · ' ~ row.client.shortName) }}</div>
+                        <div class="kt-mx-chip"><span class="kt-mx-chip-name" title="{{ job.name }}">{{ job.name }}</span>{{ p.cell(row.cells[job.id], job.name ~ ' · ' ~ row.client.shortName) }}</div>
                     {% endif %}
                 {% endfor %}
                 {% if shown == 0 %}<span class="kt-text-sm text-muted">Nema zadataka iz ove kategorije u izabranom mesecu.</span>{% endif %}

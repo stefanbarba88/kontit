@@ -5,47 +5,18 @@
  */
 .kt-matrix { --kt-mx-client-w: 170px; --kt-mx-people-w: 190px; --kt-mx-job-w: 112px; }
 
-/* --- filteri, legenda, brojači --- */
+/* --- filteri --- */
 .kt-mx-filters { margin-bottom: 12px; }
 .kt-mx-filters-bar { margin-bottom: 8px; }
-.kt-mx-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 12px; }
-.kt-mx-counters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.kt-mx-count {
-    display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px;
-    border: 0; border-radius: var(--kt-radius-xs); font-size: 13px; font-weight: 600; line-height: 1; text-decoration: none; cursor: pointer;
-}
-.kt-mx-count-danger { background: var(--kt-danger-soft); color: var(--kt-danger); }
-.kt-mx-count-warning { background: var(--kt-warning-soft); color: var(--kt-warning); }
-.kt-mx-count-link { background: var(--kt-surface-3); color: var(--kt-text-2); font-weight: 500; }
-.kt-mx-count:hover { filter: brightness(.96); }
-.kt-mx-legend { margin-left: auto; }
-.kt-mx-legend summary { cursor: pointer; user-select: none; }
-.kt-mx-legend-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; font-size: 13px; color: var(--kt-text-2); }
-.kt-mx-legend-list li { display: flex; align-items: center; gap: 8px; }
-@media (min-width: 768px) {
-    .kt-mx-legend-list { grid-auto-flow: column; grid-template-columns: repeat(5, auto); gap: 6px 16px; justify-content: end; }
-}
-.kt-mx-key { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 40px; height: 22px; padding: 0 6px; border-radius: var(--kt-radius-xs); font-size: 12px; font-weight: 600; }
 
-/* --- stanja (ćelija, legenda) --- */
+/* --- stanje ćelije: samo ikonica u boji (bez klika) --- */
+.kt-mx-status { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--kt-radius-xs); }
+.kt-mx-status .kt-icon { width: 18px; height: 18px; }
 .kt-mx-danger { background: var(--kt-danger-soft); color: var(--kt-danger); }
-.kt-mx-warning { background: var(--kt-warning-soft); color: var(--kt-warning); }
 .kt-mx-success { background: var(--kt-success-soft); color: var(--kt-success); }
-.kt-mx-progress { background: var(--kt-surface-3); color: var(--kt-text); }
-.kt-mx-none { color: var(--kt-text-3, var(--kt-text-2)); }
-.kt-mx-key.kt-mx-none { background: transparent; box-shadow: inset 0 0 0 1px var(--kt-border-strong); }
-
-/* --- ćelija: samo status (ikonica u boji), bez brojača --- */
-.kt-mx-cell {
-    display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 32px; padding: 0;
-    border: 1px solid transparent; border-radius: var(--kt-radius-xs); font: inherit; cursor: pointer;
-    transition: box-shadow .15s var(--kt-ease, ease), border-color .15s var(--kt-ease, ease);
-}
-.kt-mx-cell:hover { border-color: currentColor; }
-.kt-mx-cell:focus-visible { outline: 2px solid var(--kt-primary); outline-offset: 2px; }
-.kt-mx-cell .kt-icon { width: 18px; height: 18px; }
-.kt-mx-cell.kt-mx-progress { color: var(--kt-text-2); background: var(--kt-surface-3); }
-.kt-mx-none { display: inline-block; min-width: 44px; text-align: center; cursor: help; }
+.kt-mx-progress { color: var(--kt-text-3, var(--kt-text-2)); }
+.kt-mx-progress .kt-icon { width: 10px; height: 10px; fill: currentColor; }
+.kt-mx-none { display: inline-block; min-width: 32px; text-align: center; color: var(--kt-text-3, var(--kt-text-2)); }
 
 /* --- tabela --- */
 .kt-mx-scroll { border: 1px solid var(--kt-border); border-radius: var(--kt-radius-sm, 8px); background: var(--kt-surface); overflow: auto; max-height: 70vh; }
@@ -84,45 +55,8 @@
 .kt-mx-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .kt-mx-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .kt-mx-chip-name { font-size: 11px; color: var(--kt-text-2); max-width: 88px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.kt-mx-chip .kt-mx-none { min-width: 44px; }
 @media (max-width: 767.98px) {
     .kt-mx-scroll { max-height: 70vh; }
     .kt-mx-cards { padding: 8px; }
 }
 
-/* --- prozor sa zadacima (SweetAlert, assets/js/matrix.js) --- */
-.kt-mx-pop { width: min(560px, calc(100vw - 24px)) !important; }
-.kt-mx-pop .swal2-title { font-size: 17px; line-height: 1.3; padding: 0; margin: 0 0 6px; text-align: left; }
-.kt-mx-pop .swal2-html-container { margin: 8px 0 0; padding: 0; text-align: left; }
-.kt-mx-sum { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--kt-radius-xs); font-size: 13px; font-weight: 600; margin-bottom: 10px; }
-.kt-mx-sum .kt-icon { width: 14px; height: 14px; }
-.kt-mx-list { max-height: min(52vh, 420px); overflow-y: auto; padding-right: 2px; }
-.kt-mx-group { margin-bottom: 10px; }
-.kt-mx-group-title { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--kt-text-2); margin: 0 0 4px; }
-.kt-mx-task { display: grid; grid-template-columns: 18px 1fr auto auto; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--kt-border); font-size: 14px; }
-.kt-mx-task:last-child { border-bottom: 0; }
-.kt-mx-task .kt-icon { width: 16px; height: 16px; color: var(--kt-text-2); }
-.kt-mx-task.is-overdue .kt-icon, .kt-mx-task.is-overdue .kt-mx-due { color: var(--kt-danger); }
-.kt-mx-task.is-soon .kt-icon { color: var(--kt-warning); }
-.kt-mx-task.is-done .kt-icon { color: var(--kt-success); }
-.kt-mx-task a { color: var(--kt-text); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.kt-mx-task a:hover { color: var(--kt-primary); text-decoration: underline; }
-.kt-mx-due { font-size: 12px; color: var(--kt-text-2); white-space: nowrap; }
-.kt-mx-who { display: inline-flex; gap: 2px; }
-.kt-mx-who .kt-avatar { width: 22px; height: 22px; font-size: 9px; }
-.kt-mx-more { font-size: 13px; color: var(--kt-text-2); padding-top: 6px; }
-.kt-mx-skel { display: grid; gap: 10px; padding: 4px 0; }
-.kt-mx-skel span { display: block; height: 18px; border-radius: 4px; background: var(--kt-surface-3); animation: kt-mx-pulse 1.2s ease-in-out infinite; }
-.kt-mx-skel span:nth-child(2) { width: 85%; }
-.kt-mx-skel span:nth-child(3) { width: 70%; }
-@keyframes kt-mx-pulse { 50% { opacity: .5; } }
-@media (max-width: 575.98px) {
-    .kt-mx-pop .swal2-actions { flex-direction: column; align-items: stretch; width: 100%; gap: 8px; margin-top: 14px; }
-    .kt-mx-pop .swal2-actions .btn { width: 100%; margin: 0; }
-    .kt-mx-task { grid-template-columns: 18px 1fr auto; }
-    .kt-mx-task .kt-mx-who { display: none; }
-}
-
-/* čip aktivnog filtera po paketu u listi zadataka (components/_task_filters.html.twig) */
-.kt-active-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.kt-tchip-link { text-decoration: none; }

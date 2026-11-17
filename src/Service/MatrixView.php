@@ -23,14 +23,9 @@ final class MatrixView
         public readonly int $total,
         public readonly int $page,
         public readonly int $perPage,
-        public readonly int $dangerCells,
-        public readonly int $warningCells,
-        public readonly int $overdueTasks,
         public readonly array $people,
         public readonly array $categories,
         public readonly ?JobCategory $category,
-        /** radnih dana za "ističe uskoro" (matrix.warning_days), za legendu */
-        public readonly int $warningDays = 3,
     ) {
     }
 

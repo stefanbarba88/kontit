@@ -10,7 +10,7 @@ use App\Service\MatrixCell;
 /**
  * Izvoz matrice "Pregled poslova po klijentima" (SPEC 8r): isti servis i isti filteri kao ekran, pa i ista prava.
  * Kolone prate prikaz: Klijent, Tim (glavni), Backup i po jedna kolona za svaki posao izabrane kategorije;
- * ćelija je status tekstom (Urađeno / Kasni / Ističe uskoro / U toku / Nema posla).
+ * ćelija je status tekstom (Urađeno / Kasni / U toku / Nema posla).
  */
 final class MatrixExport implements ExportListInterface
 {
@@ -73,7 +73,6 @@ final class MatrixExport implements ExportListInterface
         return match ($cell->state) {
             MatrixState::SUCCESS => 'Urađeno',
             MatrixState::DANGER => 'Kasni',
-            MatrixState::WARNING => 'Ističe uskoro',
             MatrixState::IN_PROGRESS => 'U toku',
             MatrixState::NONE => 'Nema posla',
         };
@@ -94,12 +93,6 @@ final class MatrixExport implements ExportListInterface
             if ($person->getId() === $f->userId) {
                 $parts[] = 'zaposleni: '.$person->getFullName();
             }
-        }
-        if ($f->onlyOpen) {
-            $parts[] = 'samo nezavršeno';
-        }
-        if ($f->onlyProblem) {
-            $parts[] = 'samo problematični';
         }
 
         return implode(' · ', $parts);

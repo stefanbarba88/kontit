@@ -1,6 +1,6 @@
 {# Filteri matrice: AJAX, stanje u URL-u i localStorage (assets/js/matrix.js). Na telefonu su skupljeni iza dugmeta "Filteri". #}
 {% set f = mx.filters %}
-{% set active = (f.q != '' ? 1 : 0) + (f.userId ? 1 : 0) + (f.onlyOpen ? 1 : 0) + (f.onlyProblem ? 1 : 0) %}
+{% set active = (f.q != '' ? 1 : 0) + (f.userId ? 1 : 0) %}
 {% set fid = full ? 'mxf-page' : 'mxf-card' %}
 <div class="kt-mx-filters-bar d-md-none">
     <button type="button" class="btn btn-outline-secondary w-100" data-bs-toggle="collapse" data-bs-target="#{{ fid }}" aria-expanded="false" aria-controls="{{ fid }}">{{ ux_icon('lucide:filter', {class: 'kt-icon me-2'}) }}Filteri{% if active %} <span class="kt-filter-count" data-kt-mx-active>{{ active }}</span>{% endif %}</button>
@@ -31,14 +31,6 @@
             </select>
         </div>
         <div class="col-12 d-flex flex-wrap align-items-center gap-3 mt-2">
-            <div class="form-check form-switch mb-0">
-                <input class="form-check-input" type="checkbox" role="switch" name="open" value="1" id="{{ fid }}-open" {{ f.onlyOpen ? 'checked' }}>
-                <label class="form-check-label" for="{{ fid }}-open" title="Klijenti koji imaju nezavršen posao iz izabrane kategorije">Samo nezavršeno</label>
-            </div>
-            <div class="form-check form-switch mb-0">
-                <input class="form-check-input" type="checkbox" role="switch" name="problem" value="1" id="{{ fid }}-problem" {{ f.onlyProblem ? 'checked' }}>
-                <label class="form-check-label" for="{{ fid }}-problem" title="Klijenti kojima neki posao iz izabrane kategorije kasni ili uskoro ističe">Samo problematični</label>
-            </div>
             <button type="button" class="btn btn-ghost btn-sm ms-md-auto" data-kt-mx-reset>{{ ux_icon('lucide:x', {class: 'kt-icon me-1'}) }}Poništi filtere</button>
         </div>
     </div>

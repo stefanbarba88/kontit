@@ -70,7 +70,13 @@ class MatrixPagesTest extends DatabaseTestCase
         self::assertStringContainsString('>Tim</th>', $html);
         self::assertStringNotContainsString('Ostali taskovi', $html);
         self::assertStringContainsString('title="Posao 1"', $html, 'kolona po poslu');
-        self::assertStringContainsString('data-kt-mx-cell', $html);
+        self::assertStringContainsString('kt-mx-status', $html, 'ćelija je samo ikonica statusa');
+        self::assertStringNotContainsString('data-kt-mx-cell', $html, 'ćelija nema klik');
+        foreach (['Samo nezavršeno', 'Samo problematični', 'Legenda', 'zakasnelih zadataka ukupno', 'name="open"', 'name="problem"'] as $removed) {
+            self::assertStringNotContainsString($removed, $html, $removed.' je uklonjeno');
+        }
+        self::assertStringContainsString('Poništi filtere', $html);
+        self::assertStringContainsString('aria-label="Posao 1 · Moj: ', $html, 'status ima aria-label');
         // blok je posle kartica Zadaci
         self::assertGreaterThan(strpos($html, 'Završeno ovog meseca'), strpos($html, 'Pregled poslova po klijentima'));
 
@@ -118,45 +124,13 @@ class MatrixPagesTest extends DatabaseTestCase
         self::assertStringNotContainsString('<table', $res['data']['body']);
     }
 
-    public function testCellDetailsMatchCellAndRespectVisibility(): void
-    {
-        $month = (new \DateTimeImmutable('today'))->format('Y-m');
-        [$w, , $mine, $theirs, $tpl] = $this->setUpData($month);
-        $this->login($w);
-
-        $res = $this->get(sprintf('/ajax/matrix/cell?client=%d&job=%d&period=%s', $mine->getId(), $tpl->getId(), $month));
-        self::assertTrue($res['success']);
-        self::assertSame(2, $res['data']['total']);
-        self::assertSame(1, $res['data']['done']);
-        self::assertSame('1 od 2 gotovo', explode(',', $res['data']['summary'])[0]);
-        self::assertSame('Moj', $res['data']['clientName']);
-        self::assertSame('Posao 1', $res['data']['jobName']);
-        self::assertStringContainsString('job='.$tpl->getId(), $res['data']['listUrl']);
-
-        // tuđ klijent, nepoznat ili neispravan posao i prazni parametri: 404 (nikad 500)
-        foreach ([
-            sprintf('client=%d&job=%d&period=%s', $theirs->getId(), $tpl->getId(), $month),
-            sprintf('client=%d&job=999999&period=%s', $mine->getId(), $month),
-            sprintf('client=%d&job=abc', $mine->getId()),
-            sprintf('client=%d&job=', $mine->getId()),
-            sprintf('client=&job=%d', $tpl->getId()),
-            sprintf('client=abc&job=%d', $tpl->getId()),
-        ] as $query) {
-            $this->get('/ajax/matrix/cell?'.$query);
-            self::assertResponseStatusCodeSame(404, $query);
-        }
-    }
-
-    public function testOpeningCellRunsOneTaskQuery(): void
+    public function testCellClickEndpointIsGone(): void
     {
         $month = (new \DateTimeImmutable('today'))->format('Y-m');
         [$w, , $mine, , $tpl] = $this->setUpData($month);
         $this->login($w);
-        $holder = self::getContainer()->get('doctrine.debug_data_holder');
-        $holder->reset();
         $this->get(sprintf('/ajax/matrix/cell?client=%d&job=%d&period=%s', $mine->getId(), $tpl->getId(), $month));
-        $taskQueries = array_filter($holder->getData()['default'] ?? [], static fn (array $q) => str_contains($q['sql'], 'FROM task '));
-        self::assertCount(1, $taskQueries, 'prozor ćelije učitava zadatke jednim upitom');
+        self::assertResponseStatusCodeSame(404);
     }
 
     public function testExportFollowsSelectedCategoryWithStatusText(): void
@@ -172,10 +146,13 @@ class MatrixPagesTest extends DatabaseTestCase
         self::assertCount(1, $rows);
         self::assertSame('Moj', $rows[0][0]);
         self::assertStringContainsString('Radnik', (string) $rows[0][1]);
-        self::assertContains($rows[0][3], ['Kasni', 'Ističe uskoro', 'U toku'], 'jedan zadatak je završen, drugi nije');
+        self::assertContains($rows[0][3], ['Kasni', 'U toku'], 'jedan zadatak je završen, drugi nije');
         self::assertSame(1, $export->count(['period' => $month], $w));
         self::assertSame([], iterator_to_array($export->rows(['period' => $month, 'q' => 'nepostojeci'], $w), false));
-        self::assertStringContainsString('Kategorija: Kat', $export->describeFilters(['period' => $month], $w));
+        $described = $export->describeFilters(['period' => $month, 'open' => '1', 'problem' => '1'], $w);
+        self::assertStringContainsString('Kategorija: Kat', $described);
+        self::assertStringNotContainsString('nezavršeno', $described);
+        self::assertStringNotContainsString('problematični', $described);
 
         $this->browser->request('GET', '/export/pregled/csv?period='.$month);
         self::assertResponseIsSuccessful();

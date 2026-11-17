@@ -412,12 +412,11 @@ Koja obaveštenja stižu i na mejl biraš na **Moj profil → Obaveštenja na me
 **Pregled poslova po klijentima** pokazuje, za svakog tvog klijenta, da li je svaki posao urađen u izabranom mesecu. Nalazi se na **Početnoj** (ispod kartica Zadaci) i na celoj stranici **Meni → Pregled poslova** (na telefonu **Više → Pregled poslova**).
 
 - Gore biraš **Kategoriju poslova**. Kolone tabele su **Klijent**, **Tim** (glavni i backup radnik klijenta) i po jedna kolona za svaki posao iz izabrane kategorije. Kad promeniš kategoriju, kolone se menjaju bez osvežavanja strane. Podrazumevano je izabrana prva kategorija.
-- Ćelija pokazuje samo **status posla** za izabrani mesec: **zeleno** (kvačica) znači da su svi zadaci tog posla urađeni, **crveno** (trougao) da neki kasni, **žuto** (sat) da neki ističe u naredna 3 radna dana, **sivo** (tri tačke) da je u toku. **Crtica** znači da klijent nema taj posao ili da zadatak još nije napravljen za taj mesec. Ako posao ima više zadataka u mesecu (npr. nedeljni), prikazuje se najgore stanje. Legenda je ispod filtera. Otkazani zadaci se ne računaju.
+- Ćelija je samo ikonica: **zelena kvačica** znači da je posao urađen (svi zadaci tog posla u mesecu su gotovi), **crveni trougao** da posao nije u redu (bar jedan zadatak kasni), **siva tačka** da je u toku (ima otvorenih zadataka, ali nijedan ne kasni), a **crtica** da klijent nema taj posao ili da zadatak još nije napravljen za taj mesec. Ako zadržiš miš iznad ikonice, piše „Urađeno“, „Kasni“, „U toku“ ili „Nema posla“. Na ćeliju se ne klikće; zadatke tražiš u **Zadaci**.
 - Vidiš **samo zadatke koje smeš da vidiš**, isto kao u listi zadataka.
-- **Klik na ćeliju** (ili Enter) otvara prozor sa svim zadacima tog posla: kasne, ističu uskoro, u toku, završeno (najviše 8, pa „i još N zadataka“). **Otvori listu zadataka** vodi u listu sa istim filterima. Esc ili klik van prozora ga zatvara.
-- Filteri: kategorija poslova, klijent (i bez kvačica), zaposleni, mesec, **Samo nezavršeno**, **Samo problematični**. Poslednja dva gledaju samo poslove izabrane kategorije. Klik na „3 kasne“ ili „1 ističe uskoro“ iznad tabele uključuje **Samo problematični**. Filteri se pamte za tebe u ovom pregledaču, a **Poništi filtere** ih briše.
-- Dugme **Izvoz** (samo na celoj stranici) daje Excel, CSV ili PDF sa trenutnim filterima: kolone su poslovi izabrane kategorije, a u ćelijama piše **Urađeno / Kasni / Ističe uskoro / U toku / Nema posla**.
-- Na telefonu je tabela lista kartica, a filteri su sklopljeni u **Filteri**.
+- Filteri: kategorija poslova, klijent (i bez kvačica), zaposleni i mesec. **Poništi filtere** briše pretragu, zaposlenog i mesec (kategorija ostaje). Filteri se pamte za tebe u ovom pregledaču.
+- Dugme **Izvoz** (samo na celoj stranici) daje Excel, CSV ili PDF sa trenutnim filterima: kolone su poslovi izabrane kategorije, a u ćelijama piše **Urađeno / Kasni / U toku / Nema posla**.
+- Na telefonu je tabela lista kartica (samo poslovi koji imaju zadatke u mesecu), a filteri su sklopljeni u **Filteri**.
 
 ## Ko može da gleda moj nalog
 

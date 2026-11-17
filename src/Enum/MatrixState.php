@@ -7,35 +7,28 @@ enum MatrixState: string
 {
     case DANGER = 'danger';
     case SUCCESS = 'success';
-    case WARNING = 'warning';
     case IN_PROGRESS = 'progress';
     case NONE = 'none';
 
+    /** Tekst za title, aria-label i izvoz */
     public function label(): string
     {
         return match ($this) {
             self::DANGER => 'Kasni',
-            self::SUCCESS => 'Sve gotovo',
-            self::WARNING => 'Ističe uskoro',
+            self::SUCCESS => 'Urađeno',
             self::IN_PROGRESS => 'U toku',
             self::NONE => 'Nema posla',
         };
     }
 
     /** Lucide ikonica (boja nije jedini nosilac značenja) */
-    public function icon(): ?string
+    public function icon(): string
     {
         return match ($this) {
             self::DANGER => 'triangle-alert',
             self::SUCCESS => 'circle-check-big',
-            self::WARNING => 'clock-alert',
-            self::IN_PROGRESS => 'circle-ellipsis',
-            default => null,
+            self::IN_PROGRESS => 'circle',
+            self::NONE => 'circle',
         };
-    }
-
-    public function isProblem(): bool
-    {
-        return \in_array($this, [self::DANGER, self::WARNING], true);
     }
 }
