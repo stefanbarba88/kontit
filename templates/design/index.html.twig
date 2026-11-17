@@ -426,7 +426,20 @@
                     </div>
                 </div>
             </div>
-            <p class="kt-text-sm text-muted mb-2">Početna: kartice su jedna ispod druge, svaka preko cele širine (Posebne potvrde, Naredna nedelja, Zadaci); Podsetnika nema na početnoj. Ikonica u topbaru je samo signal: tačka (ima otvorenih), crveni broj (zakasnelo ili danas), ništa (prazno). Sekcija "Završene" ima napomenu "Završene stavke se brišu posle 3 dana." (kt-text-sm, text-muted).</p>
+            <p class="kt-text-sm text-muted mb-2">Početna (SPEC 8p.5): od xl Zadaci 3/4 (4 kartice u redu) + kartica Podsetnik 1/4 iste visine (primer ispod), ispod xl Podsetnik je ispod Zadataka preko cele širine; ostale kartice su jedna ispod druge, preko cele širine. Ikonica u topbaru je samo signal: tačka (ima otvorenih), crveni broj (zakasnelo ili danas), ništa (prazno). Sekcija "Završene" ima napomenu "Završene stavke se brišu posle 3 dana." (kt-text-sm, text-muted).</p>
+            <div class="mb-4" style="max-width: 300px;">
+                <div class="card kt-todo-card">
+                    <div class="card-header d-flex align-items-center gap-2"><h5 class="mb-0">{{ ux_icon('lucide:notebook-pen', {class: 'kt-icon me-2'}) }}Podsetnik</h5><button type="button" class="btn btn-primary btn-sm ms-auto">{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button></div>
+                    <div class="card-body border-top py-2 kt-todo-card-body"><div class="kt-todo"><div class="kt-todo-list">
+                        <div class="kt-todo-items">
+                            <div class="kt-todo-item"><div class="kt-todo-row"><input type="checkbox" class="kt-check" aria-label="Završi"><div class="kt-todo-main"><button type="button" class="kt-todo-title kt-check-label">Pozvati klijenta zbog PDV prijave</button><div class="kt-todo-meta"><span class="text-danger fw-semibold">{{ ux_icon('lucide:calendar', {class: 'kt-icon'}) }}Juče</span></div></div></div></div>
+                            <div class="kt-todo-item"><div class="kt-todo-row"><input type="checkbox" class="kt-check" aria-label="Završi"><div class="kt-todo-main"><button type="button" class="kt-todo-title kt-check-label">Poslati ugovor</button><div class="kt-todo-meta"><span>{{ ux_icon('lucide:calendar', {class: 'kt-icon'}) }}Danas</span></div></div></div></div>
+                        </div>
+                        <div class="kt-text-xs text-muted pt-2">+ još 3</div>
+                    </div></div></div>
+                    <div class="card-footer py-2"><button type="button" class="btn btn-ghost btn-sm">Otvori sve{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</button></div>
+                </div>
+            </div>
             <p class="kt-text-sm text-muted mb-2">SweetAlert prozor za dodavanje i izmenu (isti za panel, stranu i taster <kbd>n</kbd>). Napredna polja su iza "Više opcija"; u izmeni postoji i crveno "Obriši".</p>
             <div class="swal2-popup kt-swal kt-todo-swal-popup mb-4" style="display: grid; position: static; width: min(460px, 100%);">
                 <h2 class="swal2-title" style="display: block;">Izmena stavke</h2>

@@ -9,7 +9,9 @@ use App\Service\SpecialApprovalService;
 use App\Service\StatisticsService;
 use App\Service\CalendarService;
 use App\Service\ClientJobMatrixService;
+use App\Service\ImpersonationState;
 use App\Service\TaskService;
+use App\Service\TodoService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +26,8 @@ class DashboardController extends AbstractController
         private readonly TaskRepository $taskRepository,
         private readonly SpecialApprovalService $specialApprovals,
         private readonly ClientJobMatrixService $matrix,
+        private readonly TodoService $todo,
+        private readonly ImpersonationState $impersonation,
     ) {
     }
 
@@ -66,6 +70,8 @@ class DashboardController extends AbstractController
             'teams' => $admin ? $this->stats->byTeam() : [],
             'company' => $admin ? $this->stats->forCompany() : null,
             'waitingDays' => StatisticsService::WAITING_DAYS,
+            // Podsetnik je privatan: dok traje "Prikaži kao korisnika" kartice nema (SPEC 8p, 8s)
+            'todoCompact' => $this->impersonation->isActive() ? null : $this->todo->compact($me),
         ]);
     }
 }

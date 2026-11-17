@@ -37,7 +37,12 @@ if (roots().length) {
         }
         roots().forEach((root) => {
             const list = root.querySelector('[data-kt-todo-list]');
-            list.innerHTML = data.html;
+            // kartica na početnoj ima skraćenu listu (compactHtml), panel i /podsetnik punu
+            const html = root.hasAttribute('data-compact') ? data.compactHtml : data.html;
+            if (typeof html !== 'string') {
+                return;
+            }
+            list.innerHTML = html;
             initSwipe(list);
             list.querySelectorAll('[data-todo-sortable]').forEach((box) => {
                 Sortable.create(box, {

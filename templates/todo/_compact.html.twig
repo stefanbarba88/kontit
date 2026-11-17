@@ -1,0 +1,15 @@
+{#
+    Skraćena lista Podsetnika za karticu na početnoj (SPEC 8p.5). Iscrtava se i iz AJAX odgovora (compactHtml u Ajax\TodoController::state).
+    Ulaz: compact = TodoService::compact() {rows: [{item, section}], more, total}.
+#}
+{% if compact.total == 0 %}
+    <div class="kt-todo-empty">
+        {{ ux_icon('lucide:notebook-pen', {class: 'kt-icon kt-icon-lg d-block mb-2'}) }}Nema aktivnih stavki.
+        <button type="button" class="btn btn-primary btn-sm mt-3 d-block mx-auto" data-todo-new>{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button>
+    </div>
+{% else %}
+    <div class="kt-todo-items">
+        {% for row in compact.rows %}{% include 'todo/_item.html.twig' with {item: row.item, section: row.section ~ '-compact'} only %}{% endfor %}
+    </div>
+    {% if compact.more > 0 %}<div class="kt-text-xs text-muted pt-2">+ još {{ compact.more }}</div>{% endif %}
+{% endif %}

@@ -83,7 +83,9 @@ class SpecialApprovalsPageTest extends DatabaseTestCase
         $html = (string) $this->browser->getResponse()->getContent();
         self::assertStringContainsString('Posebne potvrde', $html);
         self::assertStringContainsString('Čeka tvoju potvrdu: <strong>2</strong>', $html);
-        self::assertStringNotContainsString('kt-dash', $html);
+        // samo prvi red (Zadaci + Podsetnik) je u mreži; Posebne potvrde i ostalo su i dalje jedna kartica ispod druge
+        self::assertStringNotContainsString('kt-dash-special', $html);
+        self::assertStringNotContainsString('kt-dash--', $html);
         self::assertStringContainsString('/tasks/special-approvals', $html);
 
         $this->browser->request('GET', '/tasks/special-approvals');

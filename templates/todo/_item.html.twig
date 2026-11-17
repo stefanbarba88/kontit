@@ -20,7 +20,7 @@
     <div class="kt-swipe-content kt-todo-row">
         <input type="checkbox" class="kt-check" data-todo-act="toggle" {{ item.done ? 'checked' }} aria-label="{{ item.done ? 'Vrati u rad' : 'Označi kao završeno' }}">
         <div class="kt-todo-main">
-            <button type="button" class="kt-todo-title kt-check-label" data-todo-act="open">{{ item.title }}</button>
+            <button type="button" class="kt-todo-title kt-check-label" data-todo-act="open" title="{{ item.title }}">{{ item.title }}</button>
             <div class="kt-todo-meta">
                 {% if due %}<span class="{{ todo_overdue(item) ? 'text-danger fw-semibold' : '' }}">{{ ux_icon('lucide:calendar', {class: 'kt-icon'}) }}{{ due }}</span>{% endif %}
                 {% if remind %}<span title="Obavesti me">{{ ux_icon('lucide:bell', {class: 'kt-icon'}) }}{{ remind }}{% if item.remindByEmail %} {{ ux_icon('lucide:mail', {class: 'kt-icon'}) }}{% endif %}</span>{% endif %}

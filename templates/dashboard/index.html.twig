@@ -8,16 +8,24 @@
 {% macro pct(value) %}{{ value is null ? '—' : value ~ '%' }}{% endmacro %}
 
 {% block content %}
-    <h5 class="mb-3">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Zadaci</h5>
-    <div class="row mb-4">
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('list-checks', me.open, 'Otvoreni zadaci', 'primary') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('circle-alert', me.overdue, 'Kasne', me.overdue > 0 ? 'danger' : 'success') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('clock', me.dueSoon, 'Ističu u 3 dana', me.dueSoon > 0 ? 'warning' : 'secondary') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('circle-check', me.doneThisMonth, 'Završeno ovog meseca', 'success', 'Prošli mesec: ' ~ me.doneLastMonth) }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('timer', _self.pct(me.onTimePercent), 'Završeno na vreme', 'info', 'poslednjih 90 dana') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('undo-2', me.returned30, 'Vraćeno na doradu', me.returned30 > 0 ? 'warning' : 'secondary', 'poslednjih 30 dana') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('building-2', me.clientsPrimary, 'Klijenti (glavni)', 'primary') }}</div>
-        <div class="col-sm-6 col-xl-3 mb-3">{{ ui.stat_card('refresh-cw', me.clientsBackup, 'Klijenti (backup)', 'secondary') }}</div>
+    {# Zadaci (osam KPI kartica, 4 u redu) i Podsetnik: od xl Zadaci 3/4 + Podsetnik 1/4 iste visine, ispod toga jedno ispod drugog (SPEC 8p.5, assets/styles/components/dashboard.css) #}
+    <div class="kt-dash-top{{ todo_visible() ? ' has-todo' : '' }}">
+        <section class="kt-dash-tasks" aria-labelledby="kt-dash-tasks-title">
+            <h5 class="mb-3" id="kt-dash-tasks-title">{{ ux_icon('lucide:list-checks', {class: 'kt-icon me-2'}) }}Zadaci</h5>
+            <div class="kt-dash-stats">
+                {{ ui.stat_card('list-checks', me.open, 'Otvoreni zadaci', 'primary') }}
+                {{ ui.stat_card('circle-alert', me.overdue, 'Kasne', me.overdue > 0 ? 'danger' : 'success') }}
+                {{ ui.stat_card('clock', me.dueSoon, 'Ističu u 3 dana', me.dueSoon > 0 ? 'warning' : 'secondary') }}
+                {{ ui.stat_card('circle-check', me.doneThisMonth, 'Završeno ovog meseca', 'success', 'Prošli mesec: ' ~ me.doneLastMonth) }}
+                {{ ui.stat_card('timer', _self.pct(me.onTimePercent), 'Završeno na vreme', 'info', 'poslednjih 90 dana') }}
+                {{ ui.stat_card('undo-2', me.returned30, 'Vraćeno na doradu', me.returned30 > 0 ? 'warning' : 'secondary', 'poslednjih 30 dana') }}
+                {{ ui.stat_card('building-2', me.clientsPrimary, 'Klijenti (glavni)', 'primary') }}
+                {{ ui.stat_card('refresh-cw', me.clientsBackup, 'Klijenti (backup)', 'secondary') }}
+            </div>
+        </section>
+        {% if todo_visible() %}
+            <section class="kt-dash-todo" aria-label="Podsetnik">{% include 'todo/_card.html.twig' with {compact: todoCompact} only %}</section>
+        {% endif %}
     </div>
 
     {# Pregled poslova po klijentima (SPEC 8r): odmah posle kartica Zadaci #}

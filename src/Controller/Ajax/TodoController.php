@@ -263,14 +263,21 @@ class TodoController extends AbstractAjaxController
         $me = $this->actor();
         $query = trim($query);
 
-        return [
+        $sections = '' === $query ? $this->todo->sections($me) : null;
+        $state = [
             'count' => $this->todo->dueCount($me),
             'open' => $this->todo->openCount($me),
             'html' => $this->renderView('todo/_sections.html.twig', [
-                'sections' => '' === $query ? $this->todo->sections($me) : null,
+                'sections' => $sections,
                 'found' => '' === $query ? [] : $this->todo->search($me, $query),
                 'query' => $query,
             ]),
         ];
+        // kartica na početnoj (skraćena lista) se osvežava iz istog odgovora kao panel i signal u headeru
+        if (null !== $sections) {
+            $state['compactHtml'] = $this->renderView('todo/_compact.html.twig', ['compact' => $this->todo->compactFrom($sections)]);
+        }
+
+        return $state;
     }
 }

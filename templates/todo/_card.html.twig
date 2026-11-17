@@ -1,0 +1,21 @@
+{#
+    Kartica Podsetnik na početnoj (SPEC 8p.5): najviše 6 aktivnih stavki, "Dodaj" (isti SweetAlert prozor kao u panelu) i "Otvori sve" (panel).
+    Koren [data-kt-todo][data-compact] osvežava assets/js/todo.js posle svake akcije, zajedno sa panelom i signalom u headeru.
+    Ulaz: compact (TodoService::compact).
+#}
+<div class="card kt-todo-card">
+    <div class="card-header d-flex align-items-center gap-2">
+        <h5 class="mb-0">{{ ux_icon('lucide:notebook-pen', {class: 'kt-icon me-2'}) }}Podsetnik</h5>
+        <button type="button" class="btn btn-primary btn-sm ms-auto" data-todo-new>{{ ux_icon('lucide:plus', {class: 'kt-icon me-1'}) }}Dodaj</button>
+    </div>
+    <div class="card-body border-top py-2 kt-todo-card-body">
+        <div class="kt-todo" data-kt-todo data-compact data-url="{{ path('ajax_todo') }}" data-query="">
+            <div class="kt-todo-list" data-kt-todo-list>
+                {% include 'todo/_compact.html.twig' with {compact: compact} only %}
+            </div>
+        </div>
+    </div>
+    <div class="card-footer py-2">
+        <button type="button" class="btn btn-ghost btn-sm" data-kt-open-todo-panel data-bs-target="#kt-todo-panel">Otvori sve{{ ux_icon('lucide:arrow-right', {class: 'kt-icon ms-1'}) }}</button>
+    </div>
+</div>

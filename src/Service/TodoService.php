@@ -18,6 +18,9 @@ class TodoService
 {
     public const SECTIONS = ['overdue', 'today', 'upcoming', 'nodue'];
 
+    /** Najviše stavki u kartici na početnoj, ostatak je iza "Otvori sve" */
+    public const COMPACT_LIMIT = 6;
+
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly TodoItemRepository $items,
@@ -168,6 +171,35 @@ class TodoService
         usort($sections['nodue'], static fn (TodoItem $a, TodoItem $b) => [!$a->isPinned(), $a->getPosition(), $a->getId()] <=> [!$b->isPinned(), $b->getPosition(), $b->getId()]);
 
         return $sections + ['done' => $this->items->findRecentDone($owner, $this->doneCutoff())];
+    }
+
+    /**
+     * Kratka lista za karticu na početnoj: otvorene stavke redom (zakasnelo, danas, predstojeće, bez roka), najviše $limit.
+     *
+     * @return array{rows: list<array{item: TodoItem, section: string}>, more: int, total: int}
+     */
+    public function compact(User $owner, int $limit = self::COMPACT_LIMIT): array
+    {
+        return $this->compactFrom($this->sections($owner), $limit);
+    }
+
+    /**
+     * Isto kao compact(), nad već učitanim sekcijama (da AJAX odgovor ne ponavlja upit).
+     *
+     * @param array<string, list<TodoItem>> $sections
+     *
+     * @return array{rows: list<array{item: TodoItem, section: string}>, more: int, total: int}
+     */
+    public function compactFrom(array $sections, int $limit = self::COMPACT_LIMIT): array
+    {
+        $rows = [];
+        foreach (self::SECTIONS as $name) {
+            foreach ($sections[$name] as $item) {
+                $rows[] = ['item' => $item, 'section' => $name];
+            }
+        }
+
+        return ['rows' => \array_slice($rows, 0, $limit), 'more' => max(0, \count($rows) - $limit), 'total' => \count($rows)];
     }
 
     /**

@@ -8,6 +8,7 @@
 @import "components/sidebar.css";
 @import "components/topbar.css";
 @import "components/todo.css";
+@import "components/dashboard.css";
 @import "components/matrix.css";
 @import "components/impersonation.css";
 @import "components/card.css";

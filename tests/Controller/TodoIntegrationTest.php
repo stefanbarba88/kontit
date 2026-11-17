@@ -148,7 +148,7 @@ class TodoIntegrationTest extends DatabaseTestCase
         self::assertNotNull($clock);
     }
 
-    public function testDashboardHasNoPodsetnikCardAndTopbarIconIsOnlySignal(): void
+    public function testDashboardCardShowsOnlyOwnItemsAndTopbarIconIsOnlySignal(): void
     {
         $me = $this->user('Ja');
         $other = $this->user('Drugi');
@@ -163,9 +163,10 @@ class TodoIntegrationTest extends DatabaseTestCase
         $this->browser->loginUser($me);
         $this->browser->request('GET', '/');
         $html = (string) $this->browser->getResponse()->getContent();
-        // nema kartice Podsetnik na početnoj; stavke se vide samo u panelu koji se učitava AJAX-om
-        self::assertStringNotContainsString('kt-todo-card', $html);
-        self::assertStringNotContainsString('Moja danasnja', $html);
+        // kartica Podsetnik na početnoj prikazuje samo moje stavke; panel se i dalje učitava AJAX-om
+        self::assertStringContainsString('kt-todo-card', $html);
+        self::assertStringContainsString('has-todo', $html);
+        self::assertStringContainsString('Moja danasnja', $html);
         self::assertStringNotContainsString('Tudja danasnja', $html);
         // jedna stavka "Podsetnik" u meniju (dugme koje otvara panel), bez linka na stranicu u meniju
         self::assertSame(1, substr_count($html, 'class="kt-nav-link  "') + substr_count($html, 'class="kt-nav-link is-active"') - substr_count($html, 'href="/podsetnik" class="kt-nav-link'));
@@ -175,6 +176,85 @@ class TodoIntegrationTest extends DatabaseTestCase
         // signal: jedna stavka za danas = crveni broj 1, bez tačke
         self::assertMatchesRegularExpression('/kt-todo-dot todo-dot d-none/', $html);
         self::assertMatchesRegularExpression('/kt-todo-badge todo-count\s*">1</', $html);
+    }
+
+    public function testDashboardCardOrderLimitMoreAndEmptyState(): void
+    {
+        $me = $this->user('Ja');
+        $empty = $this->user('Prazan');
+        $this->em->flush();
+        $clock = self::getContainer()->get(TodoClock::class);
+        $make = function (string $title, ?string $days) use ($me, $clock): void {
+            $item = $this->todo()->add($me, $title);
+            if (null !== $days) {
+                $this->todo()->fill($item, ['dueDate' => (new \DateTimeImmutable($clock->today().' '.$days.' days'))->format('Y-m-d')]);
+            }
+            $this->todo()->save($item);
+        };
+        $make('Bez roka', null);
+        $make('Za nedelju', '+7');
+        $make('Zakasnela stavka', '-2');
+        foreach (range(1, 6) as $i) {
+            $make('Dodatna '.$i, '+'.(10 + $i));
+        }
+
+        $this->browser->loginUser($me);
+        $crawler = $this->browser->request('GET', '/');
+        $card = $crawler->filter('.kt-todo-card');
+        self::assertCount(1, $card);
+        self::assertCount(6, $card->filter('[data-todo-item]'), 'najviše 6 stavki');
+        self::assertStringContainsString('+ još 3', $card->text(), '9 stavki: 6 prikazano, 3 iza "Otvori sve"');
+        $titles = $card->filter('.kt-todo-title')->each(static fn ($n) => trim($n->text()));
+        self::assertSame('Zakasnela stavka', $titles[0], 'zakasnelo ide prvo');
+        self::assertStringContainsString('text-danger', $card->filter('[data-todo-item]')->first()->html(), 'zakasnelo je označeno crveno');
+        self::assertCount(1, $card->filter('[data-kt-open-todo-panel]'));
+        self::assertCount(0, $card->filter('[data-todo-sortable]'), 'bez prevlačenja u kartici');
+
+        $this->browser->loginUser($empty);
+        $crawler = $this->browser->request('GET', '/');
+        $card = $crawler->filter('.kt-todo-card');
+        self::assertStringContainsString('Nema aktivnih stavki.', $card->text());
+        self::assertGreaterThanOrEqual(2, $card->filter('[data-todo-new]')->count(), 'Dodaj u zaglavlju i u praznom stanju');
+    }
+
+    /** Panel, kartica na početnoj i signal u headeru dele isti state(): jedan odgovor osvežava sva tri. */
+    public function testStateRefreshesPanelCardAndSignalTogetherAfterEveryAction(): void
+    {
+        $me = $this->user('Ja');
+        $this->em->flush();
+        $this->browser->loginUser($me);
+        $crawler = $this->browser->request('GET', '/');
+        $csrf = (string) $crawler->filter('meta[name="csrf-token"]')->attr('content');
+        $call = function (string $method, string $url, array $payload = []) use ($csrf): array {
+            $this->browser->request($method, $url, [], [], ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $csrf], 'GET' === $method ? null : json_encode($payload));
+
+            return json_decode((string) $this->browser->getResponse()->getContent(), true)['data'];
+        };
+        $clock = self::getContainer()->get(TodoClock::class);
+        $yesterday = (new \DateTimeImmutable($clock->today().' -1 day'))->format('Y-m-d');
+
+        $added = $call('POST', '/ajax/todo', ['title' => 'Kartica stavka', 'dueDate' => $yesterday]);
+        self::assertSame(1, $added['count']);
+        self::assertSame(1, $added['open']);
+        self::assertStringContainsString('Kartica stavka', $added['html'], 'panel');
+        self::assertStringContainsString('Kartica stavka', $added['compactHtml'], 'kartica');
+        preg_match('/data-id="(\d+)"/', $added['compactHtml'], $m);
+        $id = (int) $m[1];
+
+        $edited = $call('POST', '/ajax/todo/'.$id, ['title' => 'Izmenjena stavka']);
+        self::assertStringContainsString('Izmenjena stavka', $edited['html']);
+        self::assertStringContainsString('Izmenjena stavka', $edited['compactHtml']);
+
+        $done = $call('POST', '/ajax/todo/'.$id.'/done');
+        self::assertSame(['count' => 0, 'open' => 0], ['count' => $done['count'], 'open' => $done['open']], 'signal nestaje');
+        self::assertStringNotContainsString('Izmenjena stavka', $done['compactHtml'], 'završena nije u kartici');
+        self::assertStringContainsString('Nema aktivnih stavki.', $done['compactHtml']);
+
+        $call('POST', '/ajax/todo/'.$id.'/reopen');
+        $deleted = $call('DELETE', '/ajax/todo/'.$id);
+        self::assertSame(0, $deleted['open']);
+        self::assertStringNotContainsString('Izmenjena stavka', $deleted['compactHtml']);
+        self::assertStringNotContainsString('Izmenjena stavka', $deleted['html']);
     }
 
     /** Poll mora da vrati i "open": bez njega JS sakriva tačku koju je server prikazao (uzrok greške signala). */

@@ -125,7 +125,10 @@ class ImpersonationPrivacyTest extends DatabaseTestCase
             self::assertStringNotContainsString('data-kt-open-todo-panel', $html, "stavka menija na $url");
             self::assertStringNotContainsString('TAJNA STAVKA', $html);
             self::assertStringNotContainsString('TAJNO OBAVESTENJE', $html);
+            self::assertStringNotContainsString('kt-todo-card', $html, "kartica Podsetnik na $url");
         }
+        $this->browser->request('GET', '/');
+        self::assertStringNotContainsString('has-todo', $this->body(), 'Zadaci su preko cele širine bez kartice Podsetnik');
         $this->browser->request('GET', '/calendar');
         self::assertStringNotContainsString('cal-type-todo', $this->body(), 'tip Podsetnik u kalendaru');
         self::assertStringContainsString('cal-type-tasks', $this->body());
