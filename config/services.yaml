@@ -13,6 +13,8 @@ parameters:
     todo.done_retention_days: 3
     # "Prikaži kao korisnik" (impersonacija) se sama prekida posle ovoliko minuta bez aktivnosti (SPEC 8s)
     impersonation.idle_minutes: 60
+    # Izbor vremena svuda u aplikaciji: korak u minutima (SPEC 8p.6); format "H:i" je u App\Service\TimeFormat
+    app.time.step_minutes: 30
 
 services:
     # default configuration for services in *this* file

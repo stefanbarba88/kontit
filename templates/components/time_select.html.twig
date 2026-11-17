@@ -1,0 +1,12 @@
+{#
+    Izbor vremena (SPEC 8p.6, DESIGN 7.17): select sa vremenima u koracima iz parametra app.time.step_minutes (24h, bez AM/PM, bez slobodnog kucanja).
+    Postojeća vrednost van koraka (npr. 14:15) se ne zaokružuje: prikazuje se kao dodatna izabrana opcija.
+    Isti izlaz pravi assets/js/time-select.js za prozore koji se grade u JS-u.
+    Ulaz: id, name, value ('' = nije izabrano), emptyLabel (tekst prazne opcije ili null kad prazne opcije nema).
+#}
+{% macro select(id, name, value = '', emptyLabel = null) %}
+    <select class="form-select" id="{{ id }}" name="{{ name }}" data-native data-time-select>
+        {% if emptyLabel is not null %}<option value="">{{ emptyLabel }}</option>{% endif %}
+        {% for t in time_options(value) %}<option value="{{ t }}"{{ t == value ? ' selected' : '' }}>{{ t }}</option>{% endfor %}
+    </select>
+{% endmacro %}

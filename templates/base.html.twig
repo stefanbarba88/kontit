@@ -7,6 +7,7 @@
 	<meta name="theme-color" content="#0B0F14" media="(prefers-color-scheme: dark)">
 	{% if app.user %}<meta name="csrf-token" content="{{ csrf_token('ajax') }}">
 	<meta name="kt-non-working-url" content="{{ path('ajax_calendar_non_working') }}">{% endif %}
+	<meta name="kt-time-step" content="{{ time_step() }}">
 	<title>{% block title %}Početna{% endblock %} · KontIT app</title>
 	{{ include('_head_theme.html.twig') }}
 	{{ include('_favicons.html.twig') }}
