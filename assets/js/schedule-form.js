@@ -2,7 +2,7 @@
 import { Tooltip } from 'bootstrap';
 import { ajax } from './ajax.js';
 
-const FIELDS = ['interval', 'dayOfWeek', 'dayOfMonth', 'monthOfQuarter', 'month', 'workingDaysOnly', 'leadDays', 'nonWorkingDayShift', 'nthWorkingDay'];
+const FIELDS = ['interval', 'dayOfWeek', 'dayOfMonth', 'monthOfQuarter', 'month', 'workingDaysOnly', 'leadDays', 'nonWorkingDayShift', 'nthWorkingDay', 'workingDayFromEnd'];
 const escape = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 /**

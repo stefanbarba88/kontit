@@ -105,6 +105,29 @@ class WorkingDayService
     }
 
     /**
+     * N-ti radni dan od kraja meseca (1 = poslednji radni dan). Ako mesec ima manje od N radnih dana,
+     * vraća prvi radni dan meseca sa clamped = true.
+     *
+     * @return array{date: \DateTimeImmutable, clamped: bool}
+     */
+    public function nthWorkingDayFromEndOfMonth(int $year, int $month, int $n): array
+    {
+        $first = new \DateTimeImmutable(sprintf('%04d-%02d-01', $year, $month));
+        $found = 0;
+        $earliest = null;
+        for ($d = $first->modify('last day of this month'); $d >= $first; $d = $d->modify('-1 day')) {
+            if ($this->isWorkingDay($d)) {
+                $earliest = $d;
+                if (++$found === $n) {
+                    return ['date' => $d, 'clamped' => false];
+                }
+            }
+        }
+
+        return ['date' => $earliest ?? $first, 'clamped' => true];
+    }
+
+    /**
      * Neradni dani u opsegu (uključujući oba kraja) sa razlogom.
      *
      * @return array<string, string> Y-m-d => razlog

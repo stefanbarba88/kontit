@@ -3,6 +3,7 @@
 namespace App\Controller\Ajax;
 
 use App\Entity\Schedule;
+use App\Enum\ScheduleType;
 use App\Service\ScheduleCalculator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,7 +42,9 @@ class ScheduleController extends AbstractAjaxController
                 // EXACT na neradni dan: rok nije pomeren, ali se upozorava (reason postoji, shifted ne)
                 'warning' => $occ['clamped'] || (!$occ['shifted'] && null !== $occ['reason']),
                 'tooltip' => match (true) {
-                    $occ['clamped'] => sprintf('%s nema %d. radni dan, uzet je poslednji radni dan meseca', $occ['label'], $schedule->getNthWorkingDay() ?? 1),
+                    $occ['clamped'] => ScheduleType::WORKDAY_END === $schedule->getType()
+                        ? sprintf('%s nema %d radnih dana, uzet je prvi radni dan meseca', $occ['label'], $schedule->getWorkingDayFromEnd() ?? 1)
+                        : sprintf('%s nema %d. radni dan, uzet je poslednji radni dan meseca', $occ['label'], $schedule->getNthWorkingDay() ?? 1),
                     $occ['shifted'] => $this->shiftText($occ['nominal'], $occ['due'], (string) $occ['reason']),
                     null !== $occ['reason'] => $this->exactText($occ['due'], (string) $occ['reason']),
                     default => null,

@@ -106,6 +106,42 @@ class ScheduleCalculatorTest extends TestCase
         self::assertSame(['2026-12-01', '2027-01-06'], self::dues($occ), 'novembarski rok (2.11.) je pre početka posla');
     }
 
+    public function testWorkdayFromEnd(): void
+    {
+        // 1 = poslednji radni dan; kolektivni odmor 28.12.-5.1. se ne računa
+        $last = self::s(ScheduleType::WORKDAY_END, ['workingDayFromEnd' => 1]);
+        $occ = $this->calc->nextOccurrences($last, new \DateTimeImmutable('2026-11-01'), 3);
+        // novembar: 30.11. ponedeljak; decembar 2026: 31.12. je u kolektivnom odmoru, poslednji radni je 25.12. (petak);
+        // januar 2027: 29.1. petak
+        self::assertSame(['2026-11-30', '2026-12-25', '2027-01-29'], self::dues($occ));
+        self::assertSame('Poslednji radni dan u mesecu', $this->calc->describe($last));
+        self::assertSame('2026-11', $occ[0]['key']);
+    }
+
+    public function testWorkdayFromEndSecondToLastAndDecemberWithoutLeave(): void
+    {
+        $second = self::s(ScheduleType::WORKDAY_END, ['workingDayFromEnd' => 2]);
+        $occ = $this->calc->nextOccurrences($second, new \DateTimeImmutable('2026-11-01'), 1);
+        self::assertSame('2026-11-27', $occ[0]['due']->format('Y-m-d'), 'predposlednji radni dan novembra (petak)');
+        self::assertSame('2. radni dan od kraja meseca', $this->calc->describe($second));
+
+        // bez kolektivnog odmora: 31.12.2026. je četvrtak = poslednji radni dan decembra
+        $plain = new ScheduleCalculator(WorkingDayServiceTest::service([]));
+        $dec = $plain->nextOccurrences(self::s(ScheduleType::WORKDAY_END, ['workingDayFromEnd' => 1]), new \DateTimeImmutable('2026-12-01'), 1);
+        self::assertSame('2026-12-31', $dec[0]['due']->format('Y-m-d'));
+    }
+
+    public function testWorkdayFromEndTooFewWorkingDays(): void
+    {
+        // novembar 2026 ima 20 radnih dana: 23. od kraja svodi se na prvi radni dan (2.11.) uz clamped
+        $occ = $this->calc->nextOccurrences(self::s(ScheduleType::WORKDAY_END, ['workingDayFromEnd' => 23]), new \DateTimeImmutable('2026-11-01'), 1);
+        self::assertSame('2026-11-02', $occ[0]['due']->format('Y-m-d'));
+        self::assertTrue($occ[0]['clamped']);
+        $exact = $this->calc->nextOccurrences(self::s(ScheduleType::WORKDAY_END, ['workingDayFromEnd' => 20]), new \DateTimeImmutable('2026-11-01'), 1);
+        self::assertSame('2026-11-02', $exact[0]['due']->format('Y-m-d'), '20. od kraja je tačno prvi radni dan, bez upozorenja');
+        self::assertFalse($exact[0]['clamped']);
+    }
+
     public function testNthWorkdayValidation(): void
     {
         self::assertSame(23, Schedule::fromArray(['type' => 'NTH_WORKDAY', 'nthWorkingDay' => '23'])->getNthWorkingDay());

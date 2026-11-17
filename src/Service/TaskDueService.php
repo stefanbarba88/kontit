@@ -63,6 +63,12 @@ class TaskDueService
                 }
                 $derived->setNthWorkingDay($this->workingDays->countWorkingDays($newDue->modify('first day of this month'), $newDue));
                 break;
+            case ScheduleType::WORKDAY_END:
+                if (!$this->workingDays->isWorkingDay($newDue)) {
+                    return null;
+                }
+                $derived->setWorkingDayFromEnd($this->workingDays->countWorkingDays($newDue, $newDue->modify('last day of this month')));
+                break;
             default:
                 return null;
         }

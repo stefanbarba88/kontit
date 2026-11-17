@@ -88,7 +88,7 @@ class ScheduleCalculator
         return match ($schedule->getType()) {
             ScheduleType::DAILY => $date->format('Y-m-d'),
             ScheduleType::WEEKLY => $date->format('o-\WW'),
-            ScheduleType::MONTHLY, ScheduleType::NTH_WORKDAY => $date->format('Y-m'),
+            ScheduleType::MONTHLY, ScheduleType::NTH_WORKDAY, ScheduleType::WORKDAY_END => $date->format('Y-m'),
             ScheduleType::QUARTERLY => $this->quarterKey($schedule, $date),
             ScheduleType::YEARLY => $date->format('Y'),
             default => 'MANUAL',
@@ -105,7 +105,7 @@ class ScheduleCalculator
         return match ($schedule->getType()) {
             ScheduleType::DAILY => $date->format('d.m.Y.'),
             ScheduleType::WEEKLY => sprintf('nedelja %s/%s', $date->format('W'), $date->format('o')),
-            ScheduleType::MONTHLY, ScheduleType::NTH_WORKDAY => self::MONTHS[(int) $date->format('n') - 1].' '.$date->format('Y'),
+            ScheduleType::MONTHLY, ScheduleType::NTH_WORKDAY, ScheduleType::WORKDAY_END => self::MONTHS[(int) $date->format('n') - 1].' '.$date->format('Y'),
             ScheduleType::QUARTERLY => (static fn (array $p) => $p[1].' '.$p[0])(explode('-', $this->quarterKey($schedule, $date))),
             ScheduleType::YEARLY => $date->format('Y'),
             default => $date->format('d.m.Y.'),
@@ -135,6 +135,7 @@ class ScheduleCalculator
                 ? ($short ? 'Mesečno, '.$day : 'Mesečno, '.$day.' u mesecu')
                 : sprintf('Na %s, %s u mesecu', $this->plural($n, 'svaki %d. mesec', 'svaka %d meseca', 'svakih %d meseci'), $day),
             ScheduleType::NTH_WORKDAY => sprintf('%d. radni dan u mesecu', $schedule->getNthWorkingDay() ?? 1),
+            ScheduleType::WORKDAY_END => 1 === ($schedule->getWorkingDayFromEnd() ?? 1) ? ($short ? 'Poslednji radni dan' : 'Poslednji radni dan u mesecu') : sprintf('%d. radni dan od kraja meseca', $schedule->getWorkingDayFromEnd()),
             ScheduleType::QUARTERLY => $short
                 ? sprintf('Kvartalno, %s (%d. mesec)', $day, $schedule->getMonthOfQuarter() ?? 1)
                 : sprintf('Kvartalno, %s u %d. mesecu posle kvartala', $day, $schedule->getMonthOfQuarter() ?? 1),
@@ -144,7 +145,7 @@ class ScheduleCalculator
         };
 
         // N-ti radni dan je uvek radni dan, pa pravilo za neradni dan ne važi
-        if (!$short && $schedule->isAutomatic() && !\in_array($schedule->getType(), [ScheduleType::DAILY, ScheduleType::NTH_WORKDAY], true)) {
+        if (!$short && $schedule->isAutomatic() && !\in_array($schedule->getType(), [ScheduleType::DAILY, ScheduleType::NTH_WORKDAY, ScheduleType::WORKDAY_END], true)) {
             $text .= match ($schedule->getNonWorkingDayShift()) {
                 NonWorkingDayShift::PREVIOUS => ' (ako je neradni dan, prethodni radni dan)',
                 NonWorkingDayShift::EXACT => ' (tačno tog dana, i ako je neradni)',
@@ -167,6 +168,7 @@ class ScheduleCalculator
             ScheduleType::WEEKLY => 52 / 12 / $n,
             ScheduleType::MONTHLY => 1 / $n,
             ScheduleType::NTH_WORKDAY => 1.0,
+            ScheduleType::WORKDAY_END => 1.0,
             ScheduleType::QUARTERLY => 1 / 3,
             ScheduleType::YEARLY => 1 / 12,
             default => 0.0,
@@ -181,9 +183,9 @@ class ScheduleCalculator
         $due = $nominal;
         $reason = null;
         $clamped = false;
-        if (ScheduleType::NTH_WORKDAY === $schedule->getType()) {
+        if (\in_array($schedule->getType(), [ScheduleType::NTH_WORKDAY, ScheduleType::WORKDAY_END], true)) {
             // nominalni datum je već radni dan; samo treba znati da li je mesec imao manje radnih dana od traženog
-            $clamped = $this->workingDays->nthWorkingDayOfMonth((int) $nominal->format('Y'), (int) $nominal->format('n'), $schedule->getNthWorkingDay() ?? 1)['clamped'];
+            $clamped = $this->workdayInMonth($schedule, (int) $nominal->format('Y'), (int) $nominal->format('n'))['clamped'];
         } elseif (ScheduleType::DAILY !== $schedule->getType() && !$this->workingDays->isWorkingDay($nominal)) {
             $reason = $this->workingDays->reason($nominal);
             $due = match ($schedule->getNonWorkingDayShift()) {
@@ -255,10 +257,9 @@ class ScheduleCalculator
                 break;
 
             case ScheduleType::NTH_WORKDAY:
-                // svaki mesec (interval se ne koristi); nominalni rok je već radni dan
-                $nth = $schedule->getNthWorkingDay() ?? 1;
+            case ScheduleType::WORKDAY_END:
                 for ($m = $start->modify('first day of this month'); $m < $limit; $m = $m->modify('+1 month')) {
-                    $d = $this->workingDays->nthWorkingDayOfMonth((int) $m->format('Y'), (int) $m->format('n'), $nth)['date'];
+                    $d = $this->workdayInMonth($schedule, (int) $m->format('Y'), (int) $m->format('n'))['date'];
                     if (null === $anchor || $d >= $anchor) {
                         yield $d;
                     }
@@ -291,6 +292,18 @@ class ScheduleCalculator
             default:
                 return;
         }
+    }
+
+    /**
+     * Rok N-tog radnog dana od početka (NTH_WORKDAY) ili od kraja meseca (WORKDAY_END).
+     *
+     * @return array{date: \DateTimeImmutable, clamped: bool}
+     */
+    private function workdayInMonth(Schedule $schedule, int $year, int $month): array
+    {
+        return ScheduleType::WORKDAY_END === $schedule->getType()
+            ? $this->workingDays->nthWorkingDayFromEndOfMonth($year, $month, $schedule->getWorkingDayFromEnd() ?? 1)
+            : $this->workingDays->nthWorkingDayOfMonth($year, $month, $schedule->getNthWorkingDay() ?? 1);
     }
 
     private function quarterKey(Schedule $schedule, \DateTimeImmutable $date): string

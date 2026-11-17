@@ -60,13 +60,20 @@ class ScheduleFormType extends AbstractType
             ->add('month', ChoiceType::class, ['label' => 'Mesec', 'required' => false, 'placeholder' => false, 'choices' => $months, 'row_attr' => ['data-kt-schedule-for' => 'YEARLY']])
             ->add('dayOfMonth', ChoiceType::class, ['label' => 'Dan u mesecu', 'required' => false, 'placeholder' => false, 'choices' => $days, 'row_attr' => ['data-kt-schedule-for' => 'MONTHLY QUARTERLY YEARLY']])
             ->add('workingDaysOnly', CheckboxType::class, ['label' => 'Samo radni dani (neradni se preskaču)', 'required' => false, 'row_attr' => ['data-kt-schedule-for' => 'DAILY']])
-            ->add('leadDays', IntegerType::class, ['label' => 'Zadatak nastaje dana pre roka', 'required' => false, 'attr' => ['min' => 0, 'max' => 120], 'row_attr' => ['data-kt-schedule-for' => 'DAILY WEEKLY MONTHLY QUARTERLY YEARLY NTH_WORKDAY']])
+            ->add('leadDays', IntegerType::class, ['label' => 'Zadatak nastaje dana pre roka', 'required' => false, 'attr' => ['min' => 0, 'max' => 120], 'row_attr' => ['data-kt-schedule-for' => 'DAILY WEEKLY MONTHLY QUARTERLY YEARLY NTH_WORKDAY WORKDAY_END']])
             ->add('nthWorkingDay', IntegerType::class, [
                 'label' => 'Redni broj radnog dana (1-23)',
                 'required' => false,
                 'help' => 'Vikendi i praznici se ne računaju. Ako mesec ima manje radnih dana, uzima se poslednji radni dan meseca.',
                 'attr' => ['min' => 1, 'max' => 23],
                 'row_attr' => ['data-kt-schedule-for' => 'NTH_WORKDAY'],
+            ])
+            ->add('workingDayFromEnd', IntegerType::class, [
+                'label' => 'Radni dan od kraja meseca (1 = poslednji)',
+                'required' => false,
+                'help' => '1 je poslednji radni dan, 2 predposlednji... Vikendi i praznici se ne računaju.',
+                'attr' => ['min' => 1, 'max' => 23],
+                'row_attr' => ['data-kt-schedule-for' => 'WORKDAY_END'],
             ])
             ->add('nonWorkingDayShift', EnumType::class, [
                 'label' => 'Ako rok padne na neradni dan',

@@ -63,6 +63,11 @@ class Schedule
     #[Assert\Range(min: 1, max: 23)]
     private ?int $nthWorkingDay = null;
 
+    /** WORKDAY_END: radni dan od kraja meseca (1 = poslednji radni dan, 2 = predposlednji...; 1-23) */
+    #[ORM\Column(type: 'smallint', nullable: true)]
+    #[Assert\Range(min: 1, max: 23)]
+    private ?int $workingDayFromEnd = null;
+
     public static function monthly(int $day = 15, int $leadDays = 10): self
     {
         return (new self())->setType(ScheduleType::MONTHLY)->setInterval(1)->setDayOfMonth($day)->setLeadDays($leadDays)->setNonWorkingDayShift(NonWorkingDayShift::NEXT);
@@ -77,6 +82,7 @@ class Schedule
             ScheduleType::MONTHLY, ScheduleType::QUARTERLY => $require('dayOfMonth', $this->dayOfMonth, 'Unesi dan u mesecu.'),
             ScheduleType::YEARLY => [$require('month', $this->month, 'Izaberi mesec.'), $require('dayOfMonth', $this->dayOfMonth, 'Unesi dan u mesecu.')],
             ScheduleType::NTH_WORKDAY => $require('nthWorkingDay', $this->nthWorkingDay, 'Unesi redni broj radnog dana (1-23).'),
+            ScheduleType::WORKDAY_END => $require('workingDayFromEnd', $this->workingDayFromEnd, 'Unesi koji radni dan od kraja meseca (1-23).'),
             default => null,
         };
         if (0 === $this->dayOfMonth) {
@@ -112,6 +118,7 @@ class Schedule
             'leadDays' => $this->leadDays,
             'nonWorkingDayShift' => $this->nonWorkingDayShift?->value,
             'nthWorkingDay' => $this->nthWorkingDay,
+            'workingDayFromEnd' => $this->workingDayFromEnd,
         ];
     }
 
@@ -132,7 +139,20 @@ class Schedule
             ->setWorkingDaysOnly(isset($data['workingDaysOnly']) ? filter_var($data['workingDaysOnly'], \FILTER_VALIDATE_BOOL) : null)
             ->setLeadDays($int('leadDays'))
             ->setNonWorkingDayShift(NonWorkingDayShift::tryFrom((string) ($data['nonWorkingDayShift'] ?? '')))
-            ->setNthWorkingDay($int('nthWorkingDay'));
+            ->setNthWorkingDay($int('nthWorkingDay'))
+            ->setWorkingDayFromEnd($int('workingDayFromEnd'));
+    }
+
+    public function getWorkingDayFromEnd(): ?int
+    {
+        return $this->workingDayFromEnd;
+    }
+
+    public function setWorkingDayFromEnd(?int $workingDayFromEnd): static
+    {
+        $this->workingDayFromEnd = $workingDayFromEnd;
+
+        return $this;
     }
 
     public function getNthWorkingDay(): ?int
