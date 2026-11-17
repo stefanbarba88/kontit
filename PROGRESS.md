@@ -3,7 +3,7 @@
 > Claude ažurira ovaj fajl na kraju svakog zadatka. Najnovije ide na vrh.
 
 ## Trenutno stanje
-- Poslednje: **„Prikaži kao korisnik“ (impersonacija, SPEC 8s)**; pre toga **Pregled poslova po klijentima (matrica)** (SPEC 8r); pre toga **Podsetnik (preimenovanje) i raspored početne strane** (SPEC 8p, 8p.5); pre toga raspored posla po klijentu i po zadatku (SPEC 8g.5). Sledeće: po dogovoru; 3c „Pretvori u ponavljajući posao“ je odložen.
+- Poslednje: **raspored: tačno taj dan, N-ti radni dan i radni dan od kraja (SPEC 8g.3, 8g.5)**; pre toga **„Prikaži kao korisnik“ (impersonacija, SPEC 8s)**; pre toga **Pregled poslova po klijentima (matrica)** (SPEC 8r); pre toga **Podsetnik (preimenovanje) i raspored početne strane** (SPEC 8p, 8p.5); pre toga raspored posla po klijentu i po zadatku (SPEC 8g.5). Sledeće: po dogovoru; 3c „Pretvori u ponavljajući posao“ je odložen.
 - Faza: **UPDATE-POSLOVI-KALENDAR završen** (P1-P11, SPEC 8f-8n): kraći naziv i aktivnosti, neradni dani, kategorije i raspored posla, ugovorene usluge, generisanje sa zamenom, odsustva sa automatskim odobravanjem, dokumenti, kalendar, Google kalendar. Uz faze 0-7, 2b, 3b, 7b i UPDATE-DIZAJN.
 - Sledeće: po dogovoru. **Faza 8 (praćenje vremena) je odložena.** Ostaje i Ctrl K paleta (DESIGN.md 7.15) kad korisnik odluči.
 - Za pravi Google kalendar treba uraditi korake iz `docs/google-calendar-setup.md` (Client ID i Secret u `.env.local`).
@@ -11,6 +11,11 @@
 - Za produkciju: `DEPLOY.md` (Apache, `kontit.epars.rs`). Otvoreno: SMTP nalog za mail i hardkodovan pošiljalac `no-reply@kontit.local`.
 
 ## Urađeno
+- 2026-11-17: **Raspored: „tačno taj dan“ (`NonWorkingDayShift::EXACT`) i tip „N-ti radni dan“ (`ScheduleType::NTH_WORKDAY`)** (SPEC 8g.3, 8g.5)
+  - Migracija: `Version20261117081427` (`job_template.schedule_nth_working_day`, `client_job.schedule_override_nth_working_day`, SMALLINT nullable; ništa se ne menja u postojećim redovima).
+  - `WorkingDayService::nthWorkingDayOfMonth`, grane u `ScheduleCalculator`, `TaskDueService::deriveSchedule` za NTH_WORKDAY, preview sa upozorenjem (neradni dan kod EXACT, mesec sa premalo radnih dana).
+  - Isti dan, nastavak: tip `WORKDAY_END` (radni dan od kraja meseca, `workingDayFromEnd`), migracija `Version20261117083359` (nullable); izbor „pomeri / tačno taj dan“ pri „Primeni i na buduće“ (parametar `exact`, podrazumevano ostaje pomeranje); testovi rokova na vikend/praznik (`ExactDueDateConsumersTest`, matrica).
+  - Provera potrošača rokova bez izmena koda: `findWorkableDueUntil`, `app:notifications:due`, matrica i „Naredna nedelja“ rade po kalendarskom datumu roka. Napomena: subotnji (EXACT) rok se u nedelju računa kao zakasneo (datum roka < danas), a u prozoru „ističe uskoro“ matrice se broje radni dani.
 - 2026-11-16: **Ažurirana uputstva** (verzija 2.0): radnik, šef, admin proverena naspram aplikacije. Ispravljen dupliran blok i prekinuto poglavlje Podsetnik u `radnik.md`; dopunjeno: Podsetnik (panel, signal, Obavesti me, ponavljanje, brisanje završenih posle 3 dana), Pregled poslova u meniju i na početnoj (nov redosled), pozicije i provera zadataka, tab Zadaci na klijentu, rok zadatka, rečnik (posao/usluge, Odustani/Otkaži), „Ko može da gleda moj nalog“, Sigurnost (superadmin). Datum i verzija na vrhu svakog uputstva, nov `docs/uputstvo/CHANGELOG.md` („Šta je novo“ po rolama).
 - 2026-11-16: **„Prikaži kao korisnik“ (impersonacija)** (SPEC 8s), 5 commit-a: jezgro (6fb47a4), privatnost Podsetnika (72d250b), režim izmena i zabrane (5a1f8a2), Sigurnost i „Pristupi mom nalogu“ (3aa42e4), dokumentacija
   - Migracije: `Version20261116132226` (tabela `impersonation_log`), `Version20261116133704` (`activity_log.on_behalf_of_id`, nullable, postojeći redovi netaknuti).

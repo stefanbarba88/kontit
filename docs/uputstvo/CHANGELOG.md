@@ -50,6 +50,7 @@ Ovaj tekst možeš da pošalješ zaposlenima. Svako čita samo svoj deo; šefovi
 
 ## Dodatno za admine
 
+- **Novi rasporedi rokova**: uz pomeranje na prvi sledeći ili prethodni radni dan, sada možeš da izabereš **Tačno taj dan (i ako je neradni)**, a novi tipovi **N-ti radni dan** (npr. 20. radni dan u mesecu) i **Radni dan od kraja** (npr. poslednji radni dan) računaju samo radne dane. Pri promeni roka zadatka na neradni dan za buduće periode biraš da li se rok pomera ili ostaje tačno tog dana. Postojeći poslovi se ne menjaju.
 - **Pozicije** (**Administracija → Pozicije**): nivoi zaposlenih sa kapacitetom i kvačicom **Zadaci ove pozicije traže proveru**. Pozicija ne daje prava pristupa.
 - **Posebne potvrde** (poseban meni): zadaci koje potvrđuje baš određeni admin; brojač u meniju, tabovi i dugmad **Potvrdi** i **Vrati na doradu**. Pri deaktivaciji jedinog proveravača aplikacija te upozori.
 - **Raspored poslova** po klijentu i po zadatku: za jednog klijenta možeš da prilagodiš raspored posla (**Prilagodi za ovog klijenta**), a rok jednog zadatka da promeniš i da važi za buduće periode.

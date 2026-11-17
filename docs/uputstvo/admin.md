@@ -258,12 +258,17 @@ Prvo izaberi tip, pa se pojave samo polja tog tipa:
 | **Mesečno** | **Dan u mesecu** | PDV do 15. u mesecu |
 | **Kvartalno** | **Dan u mesecu** u izabranom **Mesecu posle kvartala** | kvartalni PDV |
 | **Godišnje** | izabrani **Mesec** i **Dan u mesecu** | završni račun |
+| **N-ti radni dan** | **Redni broj radnog dana** u mesecu (1-23); vikendi i praznici se ne broje | 20. radni dan: za novembar 2026. to je 30.11. |
+| **Radni dan od kraja** | **Radni dan od kraja meseca** (1-23): 1 je poslednji radni dan, 2 predposlednji | poslednji radni dan u mesecu |
 
 Ostala polja:
 
 - **Na svakih (1 = svaki)**: npr. 2 = svaki drugi mesec.
 - **Zadatak nastaje dana pre roka**: koliko dana ranije zadatak stiže radniku (npr. 10).
-- **Ako rok padne na neradni dan**: **Prvi sledeći radni dan** ili **Prethodni radni dan**.
+- **Ako rok padne na neradni dan**: **Prvi sledeći radni dan**, **Prethodni radni dan** ili **Tačno taj dan (i ako je neradni)**. Poslednja opcija ne pomera rok, pa zadatak ima rok i na vikendu ili praznik; pregled rokova to označava upozorenjem. Za **N-ti radni dan** i **Radni dan od kraja** ovo polje se ne prikazuje, jer je rok uvek radni dan.
+- **Redni broj radnog dana** (N-ti radni dan): ako mesec ima manje radnih dana od izabranog broja (npr. 23. u mesecu sa 20 radnih dana), rok je poslednji radni dan meseca, a pregled to označava upozorenjem.
+- **Radni dan od kraja meseca**: ako mesec ima manje radnih dana od unetog broja, rok je prvi radni dan meseca, a pregled to označava upozorenjem.
+- Kad na zadatku menjaš rok na neradni dan i kvačiš **Primeni i na buduće periode**, izaberi **Pomeri na radni dan (kao do sada)** ili **Tačno taj dan (i ako je neradni)**.
 - **Samo radni dani** (za dnevni raspored).
 
 Ispod polja odmah piše opis rasporeda rečima i **narednih 5 rokova**. Rok pomeren zbog praznika ima ikonicu strelica.
